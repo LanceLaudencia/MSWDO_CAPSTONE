@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MSWDO Landing Page</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: #f4f6f8; color: #333; }
+    header { background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 10; }
+    .navbar { display:flex; justify-content:space-between; align-items:center; padding:15px 50px; }
+    .logo { font-size:24px; font-weight:700; color:#006d5b; }
+    .navbar ul { list-style:none; display:flex; gap:25px; margin:0; padding:0; }
+    .navbar ul li a { text-decoration:none; color:#333; font-weight:500; transition:0.3s; }
+    .navbar ul li a:hover { color:#006d5b; }
+    .account-btn { background:#006d5b; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:500; }
+    .hero { display:flex; align-items:center; justify-content:space-between; background: linear-gradient(135deg,#e8f5f3,#d2f3ec); padding:60px 80px; flex-wrap:wrap; }
+    .hero-text { max-width:500px; }
+    .hero h1 { font-size:32px; color:#006d5b; }
+    .hero p { color:#555; font-size:18px; }
+    .hero button { background:#006d5b; color:white; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; }
+    .hero img { width:250px; }
+    section { padding:60px 80px; }
+    section h2 { color:#006d5b; font-size:26px; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+    .services { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:25px; }
+    .service-card { background:white; border-radius:10px; padding:20px; box-shadow:0 3px 8px rgba(0,0,0,0.1); transition:transform 0.3s; }
+    .service-card:hover { transform:translateY(-5px); }
+    .service-card h3 { color:#006d5b; margin-bottom:10px; }
+    footer { background:#006d5b; color:white; text-align:center; padding:20px; margin-top:40px; }
+    @media (max-width:768px) {
+      .hero { flex-direction:column; text-align:center; }
+      .hero img { margin-top:20px; }
+      .navbar { flex-direction:column; gap:10px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo"><i class="fas fa-hand-holding-heart"></i> MSWDO</div>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#mission">Mission & Vision</a></li>
+        <li><a href="#announcements">Announcements</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+          {% csrf_token %}
+          <button class="account-btn"><i class="fas fa-user"></i> Logout</button>
+        </form>
+      {% else %}
+        <a class="account-btn" href="{% url 'select_account' %}"><i class="fas fa-user"></i> Account</a>
+
+      {% endif %}
+    </nav>
+  </header>
+
+  <section id="home" class="hero">
+    <div class="hero-text">
+      <h1><i class="fas fa-people-carry"></i> Streamlining Social Welfare Services</h1>
+      <p>To Better Serve and Uplift Our Communities</p>
+      <a href="{% url 'signup' %}"><button>View All Programs</button></a>
+    </div>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/DSWD_Logo.png" alt="DSWD Logo">
+  </section>
+
+  <section id="about">
+    <h2><i class="fas fa-info-circle"></i> About the System</h2>
+    <p>
+      The <strong>MSWDO Management System</strong> is a centralized platform designed to support the
+      Municipal Social Welfare and Development Office in efficiently managing, monitoring, and
+      delivering social services. It promotes transparency, reduces paperwork, and ensures that
+      assistance reaches those who need it most.
+    </p>
+  </section>
+
+  <section id="services">
+    <h2><i class="fas fa-hand-holding-medical"></i> Our Services</h2>
+    <div class="services">
+      <div class="service-card">
+        <h3>Self Employment Assistance (SEA)</h3>
+        <p>Provision of capital assistance to individuals or groups engaged in small-scale businesses.</p>
+        <button>Apply Now</button>
+      </div>
+      <div class="service-card">
+        <h3>Aid to Individuals in Crisis Situation (AICS)</h3>
+        <p>Temporary assistance for families facing economic difficulties or emergencies.</p>
+        <button>Apply Now</button>
+      </div>
+      <div class="service-card">
+        <h3>Socorro Health Care Card</h3>
+        <p>Unified health care benefits for indigents and government employees.</p>
+        <button>Apply Now</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="mission">
+    <h2><i class="fas fa-lightbulb"></i> Mission, Vision & Objectives</h2>
+    <p><b>Vision:</b> A municipality of self-reliant and empowered people whose rights are protected and potentials developed.</p>
+    <p><b>Mission:</b> To uplift the well-being of the poor and disadvantaged through social programs and empowerment.</p>
+    <p><b>Objectives:</b> Strengthen community participation and improve quality of life.</p>
+  </section>
+
+  <section id="announcements">
+    <h2><i class="fas fa-bullhorn"></i> Announcements</h2>
+    <div class="services">
+      <div class="service-card">
+        <h3><i class="fas fa-leaf"></i> Eco-Friendly Initiatives</h3>
+        <p>Learn about our commitment to environmentally sustainable practices.</p>
+        <button>Read More</button>
+      </div>
+      <div class="service-card">
+        <h3><i class="fas fa-home"></i> Clean and Safe Homes</h3>
+        <p>Encouraging cleanliness and health safety in every household.</p>
+        <button>Read More</button>
+      </div>
+      <div class="service-card">
+        <h3><i class="fas fa-calendar-alt"></i> Upcoming Community Events</h3>
+        <p>Join our community programs aimed at empowerment and support.</p>
+        <button>Read More</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2><i class="fas fa-phone"></i> Contact Us</h2>
+    <p><b>Call Us:</b> +639 235 201 888</p>
+    <p><b>Email:</b> hello@mswdo.gov.ph</p>
+    <p><b>Address:</b> Municipal Hall, Socorro, Philippines</p>
+  </section>
+
+  <footer>
+    <p>© 2025 MSWDO – All Rights Reserved</p>
+  </footer>
+</body>
+</html>

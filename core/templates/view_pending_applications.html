@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="page-header">
+    <h2>{{ program }} — Applications</h2>
+
+    <div class="actions">
+        <a href="?view=pending" class="btn btn-warning">View Pending</a>
+        <a href="?export=csv&program={{ program }}" class="btn btn-success">Export CSV</a>
+        <a href="{% url 'add_client' %}" class="btn btn-primary">+ New Client</a>
+    </div>
+</div>
+
+<div class="filter-section">
+    <form method="get">
+        <input type="hidden" name="program" value="{{ program }}">
+
+        <input type="text" name="q" value="{{ search }}" placeholder="Search..." class="form-control">
+
+        <select name="status" class="form-control">
+            <option value="">All Status</option>
+            <option value="processing" {% if status == "processing" %}selected{% endif %}>Processing</option>
+            <option value="approved" {% if status == "approved" %}selected{% endif %}>Approved</option>
+            <option value="rejected" {% if status == "rejected" %}selected{% endif %}>Rejected</option>
+        </select>
+
+        <button class="btn btn-secondary">Apply</button>
+    </form>
+</div>
+
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Barangay</th>
+                <th>Livelihood</th>
+                <th>Requirements</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for app in applications %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+
+                <td>
+                    {{ app.client.first_name }} {{ app.client.last_name }}<br>
+                    <small>{{ app.client.contact_number }}</small>
+                </td>
+
+                <td>{{ app.barangay }}</td>
+                <td>{{ app.livelihood }}</td>
+
+                <td>
+                    {% for doc in app.documents.all %}
+                        <a href="{% url 'document_download' doc.id %}" class="btn-sm btn-info">View</a>
+                    {% endfor %}
+                </td>
+
+                <td>{{ app.created_at|date:"d/m/Y" }}</td>
+
+                <td>
+                    {% if app.status == "approved" %}
+                        <span class="badge bg-success">Approved</span>
+                    {% elif app.status == "processing" %}
+                        <span class="badge bg-warning">Processing</span>
+                    {% elif app.status == "rejected" %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ app.status }}</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    <a href="{% url 'application_detail' app.id %}" class="btn btn-sm btn-primary">👁</a>
+
+                    <form action="{% url 'application_delete' app.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-danger" onclick="return confirm('Delete?')">🗑</button>
+                    </form>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="8" class="text-center">No records found.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<!-- Pagination -->
+<div class="pagination">
+    <span>Page {{ applications.number }} of {{ applications.paginator.num_pages }}</span>
+
+    {% if applications.has_previous %}
+        <a href="?page={{ applications.previous_page_number }}">Prev</a>
+    {% endif %}
+
+    {% if applications.has_next %}
+        <a href="?page={{ applications.next_page_number }}">Next</a>
+    {% endif %}
+</div>
+
+{% endblock %}

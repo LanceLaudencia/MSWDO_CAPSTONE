@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card p-4" style="max-width:900px">
+  <h4>Add New Client</h4>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="row g-2">
+      
+      <div class="col-md-6">
+        {{ form.first_name.label_tag }} {{ form.first_name }}
+      </div>
+
+      <div class="col-md-6">
+        {{ form.last_name.label_tag }} {{ form.last_name }}
+      </div>
+
+      <div class="col-md-6">
+        {{ form.email.label_tag }} {{ form.email }}
+      </div>
+
+      <div class="col-md-6">
+        {{ form.contact_no.label_tag }} {{ form.contact_no }}
+      </div>
+
+      <div class="col-md-6">
+        {{ form.barangay.label_tag }} {{ form.barangay }}
+      </div>
+
+      <div class="col-md-6">
+        {{ form.livelihood.label_tag }} {{ form.livelihood }}
+      </div>
+
+      <hr>
+
+      <div class="col-md-6">
+        {{ app_form.program.label_tag }} {{ app_form.program }}
+      </div>
+
+      <div class="col-md-6">
+        {{ app_form.status.label_tag }} {{ app_form.status }}
+      </div>
+
+      <div class="col-md-6">
+        {{ app_form.amount.label_tag }} {{ app_form.amount }}
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <button class="btn btn-success">Create Client</button>
+      <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}

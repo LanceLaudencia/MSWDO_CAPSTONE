@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+  .program-badge {
+    font-size: 0.9rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .badge-sea { background: #1E8449; color: white; }
+  .badge-aics { background: #2E86C1; color: white; }
+  .badge-redcard { background: #C0392B; color: white; }
+  .badge-ea { background: #8E44AD; color: white; }
+  .sticky-header {
+    position: sticky;
+    top: 75px;
+    z-index: 50;
+    background: white;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e1e1e1;
+  }
+  .table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  /* Ensure action buttons show text */
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px !important;
+  }
+</style>
+
+
+<div class="card shadow p-4 mb-4">
+
+  <!-- Sticky Header -->
+  <div class="sticky-header mb-3 d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="fw-bold mb-1" style="color:#154734;">Assistance Program</h2>
+
+      <span class="program-badge
+        {% if program == 'SEA' %}badge-sea
+        {% elif program == 'AICS' %}badge-aics
+        {% elif program == 'REDCARD' %}badge-redcard
+        {% elif program == 'EA' %}badge-ea
+        {% endif %}
+      ">
+        {{ program }}
+      </span>
+
+      <p class="text-muted small mt-2">
+        {% if program == 'SEA' %}
+          Sustainable Livelihood Enterprise Assistance Program for small entrepreneurs.
+        {% elif program == 'AICS' %}
+          AICS program provides immediate cash support for families in crisis.
+        {% elif program == 'REDCARD' %}
+          RED CARD allows indigent residents to access essential services and benefits.
+        {% elif program == 'EA' %}
+          Educational Assistance for students requiring financial support.
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'add_client' %}" class="btn btn-success shadow-sm">
+        <i class="bi bi-person-plus"></i> New Client
+      </a>
+      <a href="?export=csv&program={{ program }}" class="btn btn-dark shadow-sm">
+        <i class="bi bi-download"></i> Export CSV
+      </a>
+    </div>
+  </div>
+
+
+  <!-- Filters -->
+  <form method="get" class="row g-3 mb-3">
+
+    <div class="col-md-3">
+      <label class="small fw-bold">Program</label>
+      <select name="program" class="form-select" onchange="this.form.submit()">
+        <option value="SEA" {% if program == 'SEA' %}selected{% endif %}>SEA</option>
+        <option value="AICS" {% if program == 'AICS' %}selected{% endif %}>AICS</option>
+        <option value="REDCARD" {% if program == 'REDCARD' %}selected{% endif %}>RED CARD</option>
+        <option value="EA" {% if program == 'EA' %}selected{% endif %}>Educational Assistance (EA)</option>
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label class="small fw-bold">Search</label>
+      <input type="text" name="q" value="{{ request.GET.q }}" 
+             class="form-control" placeholder="Search name/email">
+    </div>
+
+    <div class="col-md-3">
+      <label class="small fw-bold">Status</label>
+      <select name="status" class="form-select">
+        <option value="">All Status</option>
+        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="approved" {% if request.GET.status == 'approved' %}selected{% endif %}>Approved</option>
+        <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+      </select>
+    </div>
+
+    <div class="col-md-3 d-flex align-items-end gap-2">
+      <button class="btn btn-primary w-50">
+        <i class="bi bi-filter"></i> Filter
+      </button>
+
+      <a href="?view=pending&program={{ program }}" class="btn btn-outline-secondary w-50">
+        <i class="bi bi-clock-history"></i> Pending
+      </a>
+    </div>
+  </form>
+
+
+  <!-- Main Table -->
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th style="width:40px;">#</th>
+          <th>Name</th>
+          <th>Barangay</th>
+          <th>Livelihood</th>
+          <th>Requirements</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th style="width:160px;">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% for app in applications %}
+        <tr>
+          <td>{{ forloop.counter0|add:applications.start_index }}</td>
+
+          <td>
+            <strong>{{ app.client.first_name }} {{ app.client.last_name }}</strong><br>
+            <small class="text-muted">{{ app.client.email }}</small>
+          </td>
+
+          <td>{{ app.client.barangay|default:"—" }}</td>
+          <td>{{ app.livelihood|default:"—" }}</td>
+
+          <td>
+            {% for doc in app.documents.all %}
+              <a href="{% url 'document_download' doc.id %}"
+                 class="btn btn-sm btn-outline-info mb-1 action-btn">
+                <i class="bi bi-file-earmark-text"></i> View
+              </a>
+            {% empty %}
+              <span class="text-muted small">No documents</span>
+            {% endfor %}
+          </td>
+
+          <td>{{ app.created_at|date:"M d, Y" }}</td>
+
+          <td>
+            {% if app.status == 'approved' %}
+              <span class="badge bg-success">Approved</span>
+            {% elif app.status == 'rejected' %}
+              <span class="badge bg-danger">Rejected</span>
+            {% elif app.status == 'referral' %}
+              <span class="badge bg-primary">Referral</span>
+            {% else %}
+              <span class="badge bg-warning text-dark">{{ app.status|capfirst }}</span>
+            {% endif %}
+          </td>
+
+          <td>
+            <!-- VIEW BUTTON WITH TEXT -->
+            <a href="{% url 'application_detail' app.id %}" 
+               class="btn btn-sm btn-outline-primary action-btn me-1">
+              <i class="bi bi-eye"></i> View
+            </a>
+
+            <!-- DELETE BUTTON WITH TEXT -->
+            <form method="post" action="{% url 'application_delete' app.id %}" 
+                  style="display:inline;">
+              {% csrf_token %}
+              <button type="submit"
+                class="btn btn-sm btn-outline-danger action-btn"
+                onclick="return confirm('Delete this application?');">
+                <i class="bi bi-trash"></i> Delete
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center text-muted py-4">
+            No records found for {{ program }}.
+          </td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- Pagination -->
+  <nav>
+    <ul class="pagination justify-content-center">
+      {% if applications.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ applications.previous_page_number }}&program={{ program }}">&laquo;</a></li>
+      {% else %}
+      <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+      {% endif %}
+
+      {% for num in applications.paginator.page_range %}
+        {% if applications.number == num %}
+          <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% elif num > applications.number|add:-3 and num < applications.number|add:3 %}
+          <li class="page-item"><a class="page-link" href="?page={{ num }}&program={{ program }}">{{ num }}</a></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if applications.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ applications.next_page_number }}&program={{ program }}">&raquo;</a></li>
+      {% else %}
+      <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+      {% endif %}
+    </ul>
+  </nav>
+
+</div>
+
+
+
+
+{% endblock %}

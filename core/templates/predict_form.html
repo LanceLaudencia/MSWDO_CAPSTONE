@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<h2>Machine Learning Prediction</h2>
+<form method="POST">
+    {% csrf_token %}
+    Age: <input type="number" name="age"><br>
+    Income: <input type="number" name="income"><br>
+    Family Size: <input type="number" name="family_size"><br>
+    Employment Status: <input type="number" name="employment"><br>
+    <button type="submit">Predict</button>
+</form>

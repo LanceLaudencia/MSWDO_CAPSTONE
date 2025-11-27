@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login – MSWDO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { margin:0; display:flex; font-family:'Poppins',sans-serif; height:100vh; background:#f8fafa; }
+    .left,.right { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:40px; }
+    .right { background:#024b3c; color:white; text-align:center; }
+    form { background:#fff; padding:30px 40px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+    input { width:250px; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:5px; outline:none; }
+    button { background:#024b3c; color:white; border:none; padding:10px 25px; border-radius:6px; cursor:pointer; }
+    .return { margin-top:15px; background:transparent; border:2px solid #024b3c; color:#024b3c; font-weight:600; padding:8px 20px; border-radius:6px; }
+    .message { color: green; font-weight: 600; margin-bottom: 10px; }
+    .errors { color: red; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="left">
+  <h2>Login</h2>
+
+  {% if message %}<div class="message">{{ message }}</div>{% endif %}
+  {% if form.non_field_errors %}<div class="errors">{{ form.non_field_errors }}</div>{% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.username.errors }}
+    <input type="text" name="{{ form.username.html_name }}" placeholder="Username" value="{{ form.username.value|default_if_none:'' }}" required><br>
+
+    {{ form.password.errors }}
+    <input type="password" name="{{ form.password.html_name }}" placeholder="Password" required><br>
+
+    <button type="submit">Login</button>
+  </form>
+
+  <p>Don't have an account? <a href="{% url 'signup' %}">Create now</a></p>
+  <a class="return" href="{% url 'select_account' %}">← Return</a>
+</div>
+
+<div class="right">
+  <h3>MSWDO Assistance Portal</h3>
+  <p>Monitor assistance requests, manage beneficiaries, and make informed social welfare decisions efficiently.</p>
+</div>
+</body>
+</html>

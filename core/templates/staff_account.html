@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- Page Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold text-primary">Staff Dashboard</h2>
+    </div>
+
+    <!-- Welcome Card -->
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-4">
+            <h5 class="card-title mb-3">
+                👋 Welcome, <span class="text-dark fw-semibold">{{ staff.get_full_name }}</span>!
+            </h5>
+
+            <p class="text-muted mb-4">
+                Here’s your overview and quick access to tools available for Staff members.
+            </p>
+
+            <!-- Quick Actions -->
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <a href="#" class="text-decoration-none">
+                        <div class="p-3 rounded-3 shadow-sm bg-light hover-scale">
+                            <h6 class="fw-bold text-secondary mb-2">📁 View Submissions</h6>
+                            <p class="small text-muted mb-0">Check citizen applications</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-4">
+                    <a href="#" class="text-decoration-none">
+                        <div class="p-3 rounded-3 shadow-sm bg-light hover-scale">
+                            <h6 class="fw-bold text-secondary mb-2">📝 Manage Reports</h6>
+                            <p class="small text-muted mb-0">Generate or view reports</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-4">
+                    <a href="#" class="text-decoration-none">
+                        <div class="p-3 rounded-3 shadow-sm bg-light hover-scale">
+                            <h6 class="fw-bold text-secondary mb-2">⚙️ Settings</h6>
+                            <p class="small text-muted mb-0">Update your account</p>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .hover-scale {
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .hover-scale:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+</style>
+
+{% endblock %}

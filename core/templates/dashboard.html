@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- ========================= DASHBOARD CHARTS ========================= -->
+<div class="row g-3">
+
+  <!-- Bar Chart -->
+  <div class="col-12 col-lg-7">
+    <div class="card p-3" style="height:340px">
+      <h5>Beneficiaries per Program</h5>
+      <canvas id="barChart" style="max-height:260px"></canvas>
+    </div>
+  </div>
+
+  <!-- Doughnut Chart -->
+  <div class="col-12 col-lg-5">
+    <div class="card p-3" style="height:340px">
+      <h5>Application Status Distribution</h5>
+      <canvas id="doughnutChart" style="max-height:260px"></canvas>
+    </div>
+  </div>
+
+  <!-- Line Chart -->
+  <div class="col-12">
+    <div class="card p-3">
+      <h5>Total Active Clients Over Time</h5>
+      <canvas id="lineChart" style="height:240px"></canvas>
+    </div>
+  </div>
+
+  <!-- Latest Clients -->
+  <div class="col-12">
+    <div class="card p-3">
+      <h5>Latest Clients</h5>
+      <table class="table table-sm table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>#</th><th>Name</th><th>Email</th><th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in latest_clients %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ c.first_name }} {{ c.last_name }}</td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.created_at|date:"Y-m-d H:i" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4">No clients yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========================= ML PREDICTION FORM ========================= -->
+<div class="card p-4 shadow-sm mt-4">
+  <h5 class="card-title mb-3">Machine Learning Prediction</h5>
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Age</label>
+        <input type="number" name="Age" class="form-control" required>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Monthly Income</label>
+        <input type="number" name="Income_Monthly" class="form-control" required>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Family Size</label>
+        <input type="number" name="Family_Size" class="form-control" required>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Sex</label>
+        <select name="Sex" class="form-select" required>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Region</label>
+        <select name="Region" class="form-select" required>
+          <option value="Urban">Urban</option>
+          <option value="Rural">Rural</option>
+        </select>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Employment Status</label>
+        <select name="Employment_Status" class="form-select" required>
+          <option value="Employed">Employed</option>
+          <option value="Unemployed">Unemployed</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Has Disability?</label>
+        <select name="Has_Disability" class="form-select" required>
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Previous Aid Received?</label>
+        <select name="Previous_Aid" class="form-select" required>
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Aid Type Applied</label>
+        <select name="Aid_Type_Applied" class="form-select" required>
+          <option value="Financial">Financial</option>
+          <option value="Medical">Medical</option>
+          <option value="Food">Food</option>
+          <option value="Housing">Housing</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Predict</button>
+  </form>
+</div>
+
+<!-- ========================= ML PREDICTION RESULT ========================= -->
+{% if prediction %}
+<div class="alert mt-3 
+  {% if probability < 70 %} alert-danger 
+  {% else %} alert-success 
+  {% endif %}">
+  
+  <h5 class="mb-1">Prediction Result</h5>
+
+  <p class="mb-2">
+    <strong>Eligibility:</strong>
+    {% if probability < 70 %}
+      <span class="text-danger">Not Eligible</span>
+    {% else %}
+      <span class="text-success">Eligible</span>
+    {% endif %}
+    <br>
+
+    <strong>Confidence:</strong> {{ probability|floatformat:2 }}%
+  </p>
+
+  <h6>Inputs Used:</h6>
+  <pre class="small bg-light p-2 border rounded">{{ inputs_used }}</pre>
+
+</div>
+{% endif %}
+
+<!-- ========================= CHART SCRIPTS ========================= -->
+{{ program_labels|json_script:"program_labels" }}
+{{ program_values|json_script:"program_values" }}
+{{ status_labels|json_script:"status_labels" }}
+{{ status_values|json_script:"status_values" }}
+{{ month_labels|json_script:"month_labels" }}
+{{ month_values|json_script:"month_values" }}
+
+<script>
+const programs = JSON.parse(document.getElementById('program_labels').textContent);
+const programCounts = JSON.parse(document.getElementById('program_values').textContent);
+const statuses = JSON.parse(document.getElementById('status_labels').textContent);
+const statusCounts = JSON.parse(document.getElementById('status_values').textContent);
+const monthLabels = JSON.parse(document.getElementById('month_labels').textContent);
+const monthCounts = JSON.parse(document.getElementById('month_values').textContent);
+
+new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: { labels: programs, datasets: [{ label: 'Beneficiaries', data: programCounts, borderRadius:6, barThickness:28 }] },
+    options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+});
+
+new Chart(document.getElementById('doughnutChart'), {
+    type: 'doughnut',
+    data: { labels: statuses, datasets:[{ data: statusCounts }] },
+    options: { responsive:true, cutout: '70%', plugins:{legend:{position:'bottom'}} }
+});
+
+new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: { labels: monthLabels, datasets:[{ label:'Active Clients', data: monthCounts, fill:true, tension:0.3 }] },
+    options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+});
+</script>
+
+{% endblock %}

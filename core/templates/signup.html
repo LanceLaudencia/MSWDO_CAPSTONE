@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up – MSWDO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { margin:0; display:flex; font-family:'Poppins',sans-serif; height:100vh; background:#f8fafa; }
+    .left,.right { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:40px; }
+    .right { background:#024b3c; color:white; text-align:center; }
+    form { background:#fff; padding:30px 40px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+    input, select { width:250px; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:5px; outline:none; }
+    button { background:#024b3c; color:white; border:none; padding:10px 25px; border-radius:6px; cursor:pointer; }
+    .return { margin-top:15px; background:transparent; border:2px solid #024b3c; color:#024b3c; font-weight:600; padding:8px 20px; border-radius:6px; }
+    .flash { margin-bottom:10px; color:green; font-weight:600; }
+    .errors { color: red; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+<div class="left">
+  <h2>Sign Up</h2>
+
+  {% if message %}<div class="flash">{{ message }}</div>{% endif %}
+  {% if form.non_field_errors %}<div class="errors">{{ form.non_field_errors }}</div>{% endif %}
+
+ <form method="post">
+    {% csrf_token %}
+    {{ form.email.errors }}{{ form.email }}<br>
+    {{ form.username.errors }}{{ form.username }}<br>
+    {{ form.password1.errors }}{{ form.password1 }}<br>
+    {{ form.password2.errors }}{{ form.password2 }}<br>
+    {{ form.role.errors }}{{ form.role }}<br>
+    <button type="submit">Sign Up</button>
+</form>
+
+  <a class="return" href="{% url 'login' %}">← Return</a>
+</div>
+
+<div class="right">
+  <h3>Join the MSWDO Platform</h3>
+  <p>Collaborate with staff and administrators to improve assistance program delivery and tracking.</p>
+</div>
+</body>
+</html>
