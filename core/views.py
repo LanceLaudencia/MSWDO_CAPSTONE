@@ -13,7 +13,7 @@ from django.utils import timezone
 from ml.model_loader import predict_input
 from django.db.models.functions import TruncMonth
 
-
+from django.utils.timezone import now
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
@@ -30,9 +30,9 @@ from django.core.paginator import Paginator
 from django.utils.encoding import smart_str
 from django.shortcuts import render
 
+from django.db.models import Sum
 
-
-from .models import Client, Application, ApplicationDocument
+from .models import Client,  ApplicationDocument
 from .models import Assistance
 from .forms import (
     ClientForm,
@@ -153,7 +153,7 @@ def logout_view(request):
 def admin_account(request):
     # Only ADMIN can open admin account page
     if getattr(request.user, 'role', None) != 'admin' and not request.user.is_superuser:
-        return redirect('landing')
+        return redirect('dashboard')
 
     staff_members = User.objects.filter(role='staff')
 
@@ -197,109 +197,104 @@ from .models import Client, Application
 @login_required
 def dashboard(request):
 
-    # ---------------- Dashboard Stats ----------------
-    per_program = (
-        Application.objects.values('program')
-        .annotate(total=Count('id'))
-        .order_by('program')
-    )
-    programs = [p['program'] for p in per_program]
-    program_counts = [p['total'] for p in per_program]
+    # =============================
+    # BASIC COUNTS
+    # =============================
+    total_beneficiaries = Client.objects.count()
 
-    per_status = (
-        Application.objects.values('status')
-        .annotate(total=Count('id'))
-        .order_by('-total')
-    )
-    statuses = [p['status'] for p in per_status]
-    status_counts = [p['total'] for p in per_status]
+    pending_applications = Application.objects.filter(
+        status='pending'
+    ).count()
 
-    # Active clients per month
-    year = timezone.now().year
-    monthly = (
-        Client.objects.filter(created_at__year=year)
+    monthly_disbursements = Application.objects.filter(
+        status='approved',
+        created_at__month=now().month
+    ).aggregate(total=Sum('requested_amount'))['total'] or 0
+
+    # ❌ REMOVE ACTIVE EMERGENCIES
+    # active_emergencies → DELETE COMPLETELY
+
+    # =============================
+    # BAR CHART: BENEFICIARIES PER PROGRAM
+    # =============================
+    program_data = (
+        Application.objects
+        .values('aid_type')
+        .annotate(count=Count('id'))
+        .order_by('aid_type')
+    )
+
+    program_labels = [p['aid_type'] for p in program_data]
+    program_values = [p['count'] for p in program_data]
+
+    # =============================
+    # DOUGHNUT: STATUS DISTRIBUTION
+    # =============================
+    status_data = (
+        Application.objects
+        .values('status')
+        .annotate(count=Count('id'))
+    )
+
+    status_labels = [s['status'].capitalize() for s in status_data]
+    status_values = [s['count'] for s in status_data]
+
+    # =============================
+    # 🆕 BAR CHART: ELIGIBLE VS NOT ELIGIBLE
+    # =============================
+    eligible_count = Application.objects.filter(status='approved').count()
+    not_eligible_count = Application.objects.filter(status='rejected').count()
+
+    eligibility_labels = ['Eligible', 'Not Eligible']
+    eligibility_values = [eligible_count, not_eligible_count]
+
+    # =============================
+    # LINE CHART: CLIENTS OVER TIME
+    # =============================
+    six_months_ago = now() - timedelta(days=180)
+
+    monthly_clients = (
+        Client.objects
+        .filter(created_at__gte=six_months_ago)
         .annotate(month=TruncMonth('created_at'))
         .values('month')
-        .annotate(total=Count('id'))
+        .annotate(count=Count('id'))
         .order_by('month')
     )
 
-    month_labels = [e['month'].strftime('%b') for e in monthly if e.get('month')]
-    month_counts = [e['total'] for e in monthly if e.get('month')]
+    month_labels = [m['month'].strftime('%b %Y') for m in monthly_clients]
+    month_values = [m['count'] for m in monthly_clients]
 
-    if not month_labels:
-        month_labels = [calendar.month_abbr[i] for i in range(1, 13)]
-        month_counts = [0] * 12
+    # =============================
+    # LATEST CLIENTS
+    # =============================
+    latest_clients = Client.objects.order_by('-created_at')[:5]
 
-    latest_clients = Client.objects.order_by('-created_at')[:6]
+    return render(request, 'dashboard.html', {
+        'total_beneficiaries': total_beneficiaries,
+        'pending_applications': pending_applications,
+        'monthly_disbursements': monthly_disbursements,
 
-    # ---------------- ML Prediction ----------------
-    prediction = None
-    probability = None
-    inputs_used = None
+        'program_labels': program_labels,
+        'program_values': program_values,
 
-    if request.method == "POST":
-        try:
-            inputs_used = {
-                "Age": int(request.POST.get("Age") or 0),
-                "Income_Monthly": float(request.POST.get("Income_Monthly") or 0),
-                "Family_Size": int(request.POST.get("Family_Size") or 0),
-                "Sex": request.POST.get("Sex") or "",
-                "Region": request.POST.get("Region") or "",
-                "Employment_Status": request.POST.get("Employment_Status") or "",
-                "Has_Disability": 1 if request.POST.get("Has_Disability") == "Yes" else 0,
-                "Previous_Aid": request.POST.get("Previous_Aid") or "",
-                "Aid_Type_Applied": request.POST.get("Aid_Type_Applied") or "",
-            }
+        'status_labels': status_labels,
+        'status_values': status_values,
 
-            # MODEL PREDICT
-            pred, prob = predict_input(
-                inputs_used["Age"],
-                inputs_used["Income_Monthly"],
-                inputs_used["Family_Size"],
-                inputs_used["Sex"],
-                inputs_used["Region"],
-                inputs_used["Employment_Status"],
-                inputs_used["Has_Disability"],
-                inputs_used["Previous_Aid"],
-                inputs_used["Aid_Type_Applied"],
-            )
+        'eligibility_labels': eligibility_labels,
+        'eligibility_values': eligibility_values,
 
-            # ---------------- FIX: Clamp probability ----------------
-            prob = max(0, min(prob, 100))
+        'month_labels': month_labels,
+        'month_values': month_values,
 
-            # ---------------- FIX: Use confidence ranges ONLY ----------------
-            if prob < 70:
-                prediction = "Not Eligible"
-            else:
-                prediction = "Eligible"
-
-            probability = prob
-
-        except Exception as e:
-            print("ML prediction error:", e)
-            prediction = "Unavailable"
-            probability = None
-
-    # ---------------- Context ----------------
-    context = {
-        "program_labels": programs,
-        "program_values": program_counts,
-        "status_labels": statuses,
-        "status_values": status_counts,
-        "month_labels": month_labels,
-        "month_values": month_counts,
-        "latest_clients": latest_clients,
-        "prediction": prediction,
-        "probability": probability,
-        "inputs_used": inputs_used,
-    }
-
-    return render(request, "dashboard.html", context)
+        'latest_clients': latest_clients,
+    })
+from datetime import datetime
+from decimal import Decimal
+from ml.model_loader import predict_input
 
 @login_required
 def add_client(request):
-    # Allow STAFF, ADMIN, SUPERUSER
     if not (
         getattr(request.user, 'role', None) in ['staff', 'admin']
         or request.user.is_superuser
@@ -307,49 +302,96 @@ def add_client(request):
         return redirect('dashboard')
 
     if request.method == 'POST':
-        form = ClientForm(request.POST)
-        app_form = ApplicationForm(request.POST)
+        try:
+            # ===============================
+            # I. CREATE CLIENT
+            # ===============================
+            client = Client.objects.create(
+                first_name=request.POST.get('first_name', '').strip(),
+                middle_name=request.POST.get('middle_name') or None,
+                last_name=request.POST.get('last_name', '').strip(),
 
-        if form.is_valid() and app_form.is_valid():
-            client = form.save()
-            app = app_form.save(commit=False)
-            app.client = client
+                sex=request.POST.get('sex') or None,
+                birth_date=datetime.strptime(
+                    request.POST.get('birth_date'), "%Y-%m-%d"
+                ).date() if request.POST.get('birth_date') else None,
 
-            # ML PREDICTION
-            try:
-                from ml.predictor import predict_eligibility
+                civil_status=request.POST.get('civil_status') or None,
+                nationality=request.POST.get('nationality') or None,
 
-                ml_input = {
-                    "age": client.age,
-                    "income": client.income,
-                    "family_size": client.family_size,
-                    "is_pwd": 1 if client.is_pwd else 0,
-                }
+                address=request.POST.get('address') or None,
+                barangay=request.POST.get('barangay') or None,
+                municipality=request.POST.get('municipality') or None,
 
-                prediction = predict_eligibility(ml_input)
+                email=request.POST.get('email') or None,
+                contact_no=request.POST.get('contact_no') or None,
 
-                app.status = "eligible" if prediction == 1 else "not eligible"
+                livelihood=request.POST.get('livelihood') or None,
+                monthly_income=Decimal(request.POST.get('monthly_income') or 0),
+                household_size=int(request.POST.get('household_size') or 1),
 
-            except Exception as e:
-                print("ML prediction error:", e)
-                app.status = "pending"  # fallback
-
-            app.save()
-
-            messages.success(
-                request,
-                f"Client created. ML Eligibility: {app.status}"
+                has_disability=request.POST.get('has_disability'),
+                is_senior=request.POST.get('is_senior'),
+                previous_aid=request.POST.get('previous_aid'),
             )
-            return redirect('dashboard')
 
-    else:
-        form = ClientForm()
-        app_form = ApplicationForm()
+            # ===============================
+            # II. CREATE APPLICATION
+            # ===============================
+            application = Application.objects.create(
+                client=client,
+                aid_type=request.POST.get('aid_type'),
+                requested_amount=Decimal(request.POST.get('requested_amount') or 0),
+                reason=request.POST.get('reason') or None,
+                status='pending'
+            )
 
-    return render(request, 'add_client.html', {
-        'form': form,
-        'app_form': app_form
-    })
+            # ===============================
+            # III. ML ELIGIBILITY PREDICTION
+            # ===============================
+            ml_input = {
+                "monthly_income": float(client.monthly_income),
+                "household_size": client.household_size,
+                "has_disability": 1 if client.has_disability == 'Yes' else 0,
+                "is_senior": 1 if client.is_senior == 'Yes' else 0,
+                "previous_aid": 1 if client.previous_aid == 'Yes' else 0,
+            }
+
+            prediction = predict_input(ml_input)
+
+            application.eligibility_result = (
+                "Eligible" if prediction == 1 else "Not Eligible"
+            )
+            application.status = (
+                "approved" if prediction == 1 else "pending"
+            )
+            application.save()
+
+            # ===============================
+            # IV. UPLOAD DOCUMENTS
+            # ===============================
+            files = {
+                'Valid Government ID': request.FILES.get('valid_id'),
+                'Barangay Certificate': request.FILES.get('barangay_certificate'),
+                'Supporting Document': request.FILES.get('other_document'),
+            }
+
+            for name, file in files.items():
+                if file:
+                    ApplicationDocument.objects.create(
+                        application=application,
+                        name=name,
+                        file=file
+                    )
+
+            messages.success(request, "Application submitted & evaluated successfully.")
+            return redirect('application_detail', application.id)
+
+        except Exception as e:
+            print("Submission Error:", e)
+            messages.error(request, "Submission failed.")
+
+    return render(request, 'add_client.html')
 
 # --- Simple APIs ---
 @login_required
@@ -365,46 +407,62 @@ def api_status_counts(request):
 
 
 # --- Assistance Program ---
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.core.paginator import Paginator
+from django.db.models import Q
+
 @login_required
 def assistance_program(request, program='SEA'):
-    if not (getattr(request.user, 'role', None) == 'admin' or request.user.is_staff or request.user.is_superuser):
+    user = request.user
+
+    # ✅ ALLOW: admin role OR staff OR superuser
+    if not (
+        user.is_superuser
+        or user.is_staff
+        or getattr(user, 'role', None) in ['admin', 'staff']
+    ):
         return redirect('landing')
 
     program = request.GET.get('program', program).upper()
-    form = AssistanceFilterForm(request.GET or None)
-    qs = Application.objects.filter(program__iexact=program).select_related('client').order_by('-created_at')
 
+    # ✅ FILTER APPLICATIONS BY PROGRAM
+    qs = Application.objects.filter(
+        aid_type__iexact=program
+    ).select_related('client').order_by('-created_at')
+
+    # 🔍 SEARCH
     q = request.GET.get('q', '').strip()
     if q:
-        qs = qs.filter(Q(client__first_name__icontains=q) |
-                       Q(client__last_name__icontains=q) |
-                       Q(client__email__icontains=q))
+        qs = qs.filter(
+            Q(client__first_name__icontains=q) |
+            Q(client__last_name__icontains=q) |
+            Q(client__email__icontains=q)
+        )
 
-    status = request.GET.get('status', '')
+    # 📌 STATUS FILTER
+    status = request.GET.get('status', '').strip()
     if status:
         qs = qs.filter(status__iexact=status)
 
-    view_pending = request.GET.get('view', '') == 'pending'
-    if view_pending:
-        qs = qs.filter(status__iexact='pending')
+    # ⏳ PENDING SHORTCUT
+    if request.GET.get('view') == 'pending':
+        qs = qs.filter(status='pending')
 
+    # 📤 EXPORT CSV
     if request.GET.get('export') == 'csv':
         return assistance_export_csv(qs, program)
 
+    # 📄 PAGINATION
     paginator = Paginator(qs, 10)
-    page_obj = paginator.get_page(request.GET.get('page', 1))
+    page_obj = paginator.get_page(request.GET.get('page'))
 
     context = {
         'program': program,
-        'form': form,
         'applications': page_obj,
-        'paginator': paginator,
-        'view_pending': view_pending,
     }
-    
-    
-    return render(request, 'assistance_program.html', context)
 
+    return render(request, 'assistance_program.html', context)
 
 def assistance_export_csv(qs, program):
     response = HttpResponse(content_type='text/csv')
@@ -415,8 +473,8 @@ def assistance_export_csv(qs, program):
     for idx, app in enumerate(qs, start=1):
         name = f"{app.client.first_name} {app.client.last_name}"
         email = app.client.email or ''
-        barangay = getattr(app, 'barangay', '') or ''
-        livelihood = getattr(app, 'livelihood', '') or ''
+        barangay = app.barangay or ''
+        livelihood = app.livelihood or ''
         amount = f"₱{float(app.amount or 0):,.2f}"
         status = app.status
         date = app.created_at.strftime('%Y-%m-%d %H:%M')
@@ -424,18 +482,25 @@ def assistance_export_csv(qs, program):
                          smart_str(livelihood), amount, status, date])
     return response
 
-
 @login_required
 def application_detail(request, pk):
-    app = get_object_or_404(Application, pk=pk)
-    form = DocumentUploadForm(request.POST or None, request.FILES or None)
-    if request.method == 'POST' and form.is_valid():
-        doc = form.save(commit=False)
-        doc.application = app
-        doc.save()
-        messages.success(request, "Document uploaded.")
-        return redirect('application_detail', pk=pk)
-    return render(request, 'application_detail.html', {'application': app, 'form': form})
+    application = get_object_or_404(
+        Application.objects.select_related('client').prefetch_related('documents'),
+        pk=pk
+    )
+
+    context = {
+        'application': application,
+        'client': application.client,
+        'documents': application.documents.all(),
+        'aid_type': application.aid_type,
+        'requested_amount': application.requested_amount,
+        'reason': application.reason,
+        'status': application.status,
+        'eligibility_result': application.eligibility_result,
+    }
+
+    return render(request, 'application_detail.html', context)
 
 
 @login_required
@@ -463,77 +528,6 @@ def document_download(request, doc_id):
 
 
 
-@login_required
-def assistance_program(request):
-
-    # Allow only staff/admin
-    if not (
-        getattr(request.user, 'role', None) in ['staff', 'admin']
-        or request.user.is_superuser
-    ):
-        return redirect('landing')
-
-    # ----------------------
-    # Program (default to AICS)
-    # ----------------------
-    program = request.GET.get("program", "AICS").upper()
-
-    # Base queryset
-    qs = Application.objects.filter(program__iexact=program)\
-                            .select_related("client")\
-                            .order_by("-created_at")
-
-    # ----------------------
-    # Search
-    # ----------------------
-    search = request.GET.get("q", "").strip()
-    if search:
-        qs = qs.filter(
-            Q(client__first_name__icontains=search) |
-            Q(client__last_name__icontains=search) |
-            Q(client__email__icontains=search)
-        )
-
-    # ----------------------
-    # Status Filter
-    # ----------------------
-    status = request.GET.get("status", "").strip()
-    if status:
-        qs = qs.filter(status__iexact=status)
-
-    # ----------------------
-    # View Pending Only
-    # ----------------------
-    view_pending = request.GET.get("view") == "pending"
-    if view_pending:
-        qs = qs.filter(status__iexact="pending")
-
-    # ----------------------
-    # CSV Export
-    # ----------------------
-    if request.GET.get("export") == "csv":
-        return assistance_export_csv(qs, program)
-
-    # ----------------------
-    # Pagination
-    # ----------------------
-    paginator = Paginator(qs, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    # ----------------------
-    # Render
-    # ----------------------
-    context = {
-        "applications": page_obj,
-        "paginator": paginator,
-        "program": program,
-        "view_pending": view_pending,
-        "search": search,
-        "status": status,
-    }
-
-    return render(request, "assistance_program.html", context)
 
 @login_required
 def staff_account(request):
@@ -634,29 +628,34 @@ def ml_predict_view(request):
 
 @login_required
 def pending_applications(request):
-    # Allow only staff/admin/superuser
-    if not (getattr(request.user, 'role', None) in ['staff', 'admin'] 
-            or request.user.is_superuser):
+    # ✅ Allow staff, admin, superuser
+    if not (
+        getattr(request.user, 'role', None) in ['staff', 'admin']
+        or request.user.is_superuser
+    ):
         return redirect('landing')
 
-    # Allowed programs
+    # ✅ Valid programs (must match Application.PROGRAM_CHOICES)
     allowed_programs = ["AICS", "SEA", "REDCARD", "EA"]
 
-    # Get selected program: If none -> show ALL
+    # ✅ Selected program (optional)
     program = request.GET.get("program", "").upper()
 
-    # Base queryset: pending applications
-    qs = Application.objects.filter(status__iexact="pending")\
-                            .select_related("client")\
-                            .order_by("-created_at")
+    # ✅ Base queryset: PENDING applications
+    qs = (
+        Application.objects
+        .filter(status="pending")
+        .select_related("client")
+        .order_by("-created_at")
+    )
 
-    # Apply filtering only if program is valid
+    # ✅ Filter by program (CORRECT FIELD: aid_type)
     if program in allowed_programs:
-        qs = qs.filter(program__iexact=program)
+        qs = qs.filter(aid_type__iexact=program)
     else:
-        program = "ALL"   # For context display
+        program = "ALL"
 
-    # Optional search
+    # ✅ Search (client fields)
     search = request.GET.get("q", "").strip()
     if search:
         qs = qs.filter(
@@ -665,14 +664,12 @@ def pending_applications(request):
             Q(client__email__icontains=search)
         )
 
-    # Pagination
+    # ✅ Pagination
     paginator = Paginator(qs, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginator.get_page(request.GET.get("page"))
 
     context = {
         "applications": page_obj,
-        "paginator": paginator,
         "program": program,
         "allowed_programs": allowed_programs,
         "search": search,
@@ -728,3 +725,177 @@ def toggle_staff_status(request, staff_id):
     staff.save()
 
     return redirect('admin_account')
+
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(['GET'])
+def test_api(request):
+    return Response({"message": "Django connected to React successfully!"})
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.db.models import Count
+from django.utils import timezone
+from datetime import timedelta
+
+from .models import Client, Application
+
+
+@api_view(["GET"])
+def dashboard_api(request):
+    program_data = (
+        Application.objects
+        .values("program")
+        .annotate(count=Count("id"))
+    )
+
+    status_data = (
+        Application.objects
+        .values("status")
+        .annotate(count=Count("id"))
+    )
+
+    monthly_data = (
+        Client.objects
+        .annotate(month=TruncMonth("created_at"))
+        .values("month")
+        .annotate(count=Count("id"))
+        .order_by("month")
+    )
+
+    latest_clients = Client.objects.order_by("-created_at")[:5]
+
+    return Response({
+        "programs": {
+            "labels": [p["program"] for p in program_data],
+            "values": [p["count"] for p in program_data],
+        },
+        "statuses": {
+            "labels": [s["status"] for s in status_data],
+            "values": [s["count"] for s in status_data],
+        },
+        "months": {
+            "labels": [m["month"].strftime("%Y-%m") for m in monthly_data],
+            "values": [m["count"] for m in monthly_data],
+        },
+        "latest_clients": [
+            {
+                "name": f"{c.first_name} {c.last_name}",
+                "email": c.email,
+                "created": c.created_at.strftime("%Y-%m-%d"),
+            }
+            for c in latest_clients
+        ]
+    })
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def dashboard_data(request):
+    program_counts = (
+        Application.objects.values("program")
+        .annotate(total=Count("id"))
+    )
+
+    status_counts = (
+        Application.objects.values("status")
+        .annotate(total=Count("id"))
+    )
+
+    program_labels = [p["program"] for p in program_counts]
+    program_values = [p["total"] for p in program_counts]
+
+    status_labels = [s["status"] for s in status_counts]
+    status_values = [s["total"] for s in status_counts]
+
+    latest_clients = list(
+        Client.objects.order_by("-id")
+        .values("id", "full_name", "barangay")[:5]
+    )
+
+    return JsonResponse({
+        "program_chart": {
+            "labels": program_labels,
+            "data": program_values
+        },
+        "status_chart": {
+            "labels": status_labels,
+            "data": status_values
+        },
+        "latest_clients": latest_clients
+    })
+
+
+@login_required
+def application_approve(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if not (
+        getattr(request.user, 'role', None) in ['admin', 'staff']
+        or request.user.is_superuser
+    ):
+        return redirect('dashboard')
+
+    application.status = 'approved'
+    application.eligibility_result = 'Eligible'
+    application.save()
+
+    messages.success(request, "Application approved.")
+    return redirect('application_detail', pk=pk)
+
+
+@login_required
+def application_reject(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if not (
+        getattr(request.user, 'role', None) in ['admin', 'staff']
+        or request.user.is_superuser
+    ):
+        return redirect('dashboard')
+
+    application.status = 'rejected'
+    application.eligibility_result = 'Not Eligible'
+    application.save()
+
+    messages.warning(request, "Application rejected.")
+    return redirect('application_detail', pk=pk)
+
+
+@login_required
+def application_edit(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+    client = application.client
+
+    if not (
+        getattr(request.user, 'role', None) in ['admin', 'staff']
+        or request.user.is_superuser
+    ):
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        # Update client
+        client.first_name = request.POST.get('first_name')
+        client.last_name = request.POST.get('last_name')
+        client.contact_no = request.POST.get('contact_no')
+        client.email = request.POST.get('email')
+        client.save()
+
+        # Update application
+        application.aid_type = request.POST.get('aid_type')
+        application.requested_amount = request.POST.get('requested_amount')
+        application.reason = request.POST.get('reason')
+        application.save()
+
+        messages.success(request, "Application updated.")
+        return redirect('application_detail', pk=pk)
+
+    return render(request, 'application_edit.html', {
+        'application': application,
+        'client': client
+    })

@@ -1,47 +1,401 @@
 {% load static %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>MSWDO Admin</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8">
+  <title>MSWDO Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
-    body { font-family:Inter, sans-serif; background:#f5f7fa; margin:0; display:flex; }
-    .sidebar { width:260px; background:#0e3b24; color:#fff; min-height:100vh; position:fixed; padding:20px; }
-    .nav-link { color:#dfeee7; display:block; padding:10px; margin-bottom:6px; text-decoration:none; border-radius:8px; }
-    .nav-link:hover{ background:#145433; color:#fff; }
-    .main-content{ margin-left:280px; padding:24px; width:100%; }
-    .card { border-radius:12px; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* ================= SIDEBAR ================= */
+    .sidebar {
+      width: 270px;
+      background: linear-gradient(180deg, #0d3821 0%, #145433 50%, #1a6944 100%);
+      color: #fff;
+      min-height: 100vh;
+      position: fixed;
+      padding: 28px 20px;
+      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.08);
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .sidebar-header img {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar-header .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header .logo-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+
+    .sidebar-header .logo-subtitle {
+      font-size: 11px;
+      opacity: 0.75;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: rgba(255, 255, 255, 0.5);
+      margin: 24px 0 12px 14px;
+    }
+
+    .nav-link {
+      color: #e8f5ed;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 15px;
+      font-weight: 500;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: #fff;
+      transform: translateX(-4px);
+      transition: transform 0.3s ease;
+    }
+
+    .nav-link i {
+      font-size: 19px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.25);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-link.active::before {
+      transform: translateX(0);
+    }
+
+    .sidebar hr {
+      border-color: rgba(255, 255, 255, 0.15);
+      margin: 24px 0;
+      opacity: 1;
+    }
+
+    .nav-link.logout-link {
+      margin-top: auto;
+      background-color: rgba(220, 53, 69, 0.15);
+      border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .nav-link.logout-link:hover {
+      background-color: rgba(220, 53, 69, 0.25);
+      border-color: rgba(220, 53, 69, 0.5);
+    }
+
+    /* ================= MAIN CONTENT ================= */
+    .main-content {
+      margin-left: 270px;
+      padding: 32px 36px;
+      width: calc(100% - 270px);
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding: 20px 24px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .page-header h3 {
+      margin: 0;
+      font-weight: 700;
+      color: #0d3821;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-header h3 i {
+      font-size: 32px;
+      color: #145433;
+    }
+
+    .breadcrumb {
+      background: transparent;
+      padding: 0;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .breadcrumb-item {
+      color: #6c757d;
+    }
+
+    .breadcrumb-item.active {
+      color: #145433;
+      font-weight: 600;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+      color: #adb5bd;
+    }
+
+    /* ================= CARDS ================= */
+    .card {
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      padding: 16px 20px;
+    }
+
+    /* ================= BUTTONS ================= */
+    .btn-primary {
+      background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0d3821 0%, #145433 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(20, 84, 51, 0.3);
+    }
+
+    /* ================= FOOTER SPACE ================= */
+    .content-wrapper {
+      min-height: calc(100vh - 120px);
+    }
+
+    /* ================= RESPONSIVE ================= */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 80px;
+        padding: 20px 10px;
+      }
+
+      .sidebar-header .logo-text,
+      .nav-link span,
+      .nav-section-title {
+        display: none;
+      }
+
+      .sidebar-header {
+        justify-content: center;
+      }
+
+      .nav-link {
+        justify-content: center;
+        padding: 12px;
+      }
+
+      .main-content {
+        margin-left: 80px;
+        width: calc(100% - 80px);
+        padding: 20px;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .page-header h3 {
+        font-size: 24px;
+      }
+    }
+
+    /* ================= ANIMATIONS ================= */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .content-wrapper > * {
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    /* ================= UTILITY CLASSES ================= */
+    .badge-custom {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .text-muted-custom {
+      color: #6c757d;
+      font-size: 14px;
+    }
   </style>
 </head>
+
 <body>
-  <div class="sidebar">
-    <div class="mb-4">
-      <img src="/mnt/data/admin dash.png" alt="logo" style="width:44px;border-radius:50%;vertical-align:middle">
-      <span style="font-weight:700; margin-left:10px;">MSWDO</span>
-    </div>
-    <a href="{% url 'dashboard' %}" class="nav-link">🏠 Dashboard</a>
-    <a href="{% url 'assistance_program' %}" class="nav-link">🔎 Assistance Program</a>
-    <a href="{% url 'pending_applications' %}" class="nav-link">🔎 Pending Applications</a>
-    <a href="{% url 'admin_account' %}" class="nav-link">👤 Account</a>
-    <hr style="border-color:#244e39;">
-    <a href="{% url 'logout' %}" class="nav-link">🔒 Log Out</a>
-  </div>
 
-  <div class="main-content">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h3 style="margin:0;color:#113322">DASHBOARD</h3>
-      
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="{% static 'images/admin_dash.png' %}" alt="MSWDO Logo">
+      <div class="logo-text">
+        <div class="logo-title">MSWDO</div>
+        <div class="logo-subtitle">Admin Portal</div>
+      </div>
     </div>
 
-    {% block content %}{% endblock %}
-  </div>
+    <div class="nav-section-title">Main</div>
 
+    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-speedometer2"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <a href="{% url 'assistance_program' %}" class="nav-link {% if request.resolver_match.url_name == 'assistance_program' %}active{% endif %}">
+      <i class="bi bi-folder-check"></i>
+      <span>Assistance Programs</span>
+    </a>
+
+    <a href="{% url 'pending_applications' %}" class="nav-link {% if request.resolver_match.url_name == 'pending_applications' %}active{% endif %}">
+      <i class="bi bi-hourglass-split"></i>
+      <span>Pending Applications</span>
+    </a>
+
+    <hr>
+
+    <div class="nav-section-title">Settings</div>
+
+    <a href="{% url 'admin_account' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_account' %}active{% endif %}">
+      <i class="bi bi-person-circle"></i>
+      <span>Account</span>
+    </a>
+
+    <hr>
+
+    <a href="{% url 'logout' %}" class="nav-link logout-link">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Logout</span>
+    </a>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h3>{% block page_title %}Dashboard{% endblock %}</h3>
+        <nav aria-label="breadcrumb" class="mt-1">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}" style="text-decoration: none; color: #145433;">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{% block breadcrumb %}Dashboard{% endblock %}</li>
+          </ol>
+        </nav>
+      </div>
+      <div>
+        {% block page_actions %}{% endblock %}
+      </div>
+    </div>
+
+    <div class="content-wrapper">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+  {% block extra_js %}{% endblock %}
 
-  
 </body>
 </html>

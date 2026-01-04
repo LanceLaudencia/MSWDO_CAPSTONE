@@ -1,86 +1,333 @@
 {% extends "base.html" %}
 {% load static %}
+{% block page_title %}
+  <i class="bi bi-folder-check"></i>
+  Assistance Programs
+{% endblock %}
+
+{% block breadcrumb %}Assistance Programs{% endblock %}
+
+{% block page_actions %}
+  <div class="d-flex gap-2">
+    <a href="{% url 'add_client' %}" class="btn btn-success shadow-sm d-flex align-items-center gap-2">
+      <i class="bi bi-person-plus"></i> New Client
+    </a>
+    <a href="?export=csv&program={{ program }}" class="btn btn-dark shadow-sm d-flex align-items-center gap-2">
+      <i class="bi bi-download"></i> Export CSV
+    </a>
+  </div>
+{% endblock %}
+
 {% block content %}
 
 <style>
   .program-badge {
-    font-size: 0.9rem;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
-  .badge-sea { background: #1E8449; color: white; }
-  .badge-aics { background: #2E86C1; color: white; }
-  .badge-redcard { background: #C0392B; color: white; }
-  .badge-ea { background: #8E44AD; color: white; }
-  .sticky-header {
-    position: sticky;
-    top: 75px;
-    z-index: 50;
-    background: white;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e1e1e1;
+  .badge-sea { 
+    background: linear-gradient(135deg, #1E8449 0%, #27AE60 100%); 
+    color: white; 
   }
-  .table-hover tbody tr:hover {
-    background-color: #f8f9fa;
+  .badge-aics { 
+    background: linear-gradient(135deg, #2E86C1 0%, #3498DB 100%); 
+    color: white; 
+  }
+  .badge-redcard { 
+    background: linear-gradient(135deg, #C0392B 0%, #E74C3C 100%); 
+    color: white; 
+  }
+  .badge-ea { 
+    background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%); 
+    color: white; 
   }
 
-  /* Ensure action buttons show text */
+  .program-description {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 16px 20px;
+    border-radius: 12px;
+    border-left: 4px solid;
+    margin-top: 16px;
+    margin-bottom: 24px;
+  }
+
+  .program-description.sea { border-left-color: #1E8449; }
+  .program-description.aics { border-left-color: #2E86C1; }
+  .program-description.redcard { border-left-color: #C0392B; }
+  .program-description.ea { border-left-color: #8E44AD; }
+
+  .program-description p {
+    margin: 0;
+    color: #495057;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .filter-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    margin-bottom: 24px;
+  }
+
+  .filter-card label {
+    font-weight: 600;
+    color: #0d3821;
+    font-size: 13px;
+    margin-bottom: 8px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-select, .form-control {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 10px 14px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+  }
+
+  .form-select:focus, .form-control:focus {
+    border-color: #145433;
+    box-shadow: 0 0 0 3px rgba(20, 84, 51, 0.1);
+  }
+
+  .table-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 0;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+  }
+
+  .table {
+    margin: 0;
+  }
+
+  .table thead {
+    background: linear-gradient(135deg, #0d3821 0%, #145433 100%);
+    color: #fff;
+  }
+
+  .table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    padding: 16px 12px;
+    border: none;
+  }
+
+  .table tbody td {
+    padding: 16px 12px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f3f5;
+  }
+
+  .table-hover tbody tr {
+    transition: all 0.2s ease;
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
   .action-btn {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 10px !important;
+    gap: 6px;
+    padding: 6px 12px !important;
+    font-size: 13px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-outline-primary:hover {
+    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
+    border-color: #145433;
+  }
+
+  .btn-outline-danger:hover {
+    background: linear-gradient(135deg, #C0392B 0%, #E74C3C 100%);
+    border-color: #C0392B;
+  }
+
+  .btn-outline-info:hover {
+    background: linear-gradient(135deg, #2E86C1 0%, #3498DB 100%);
+    border-color: #2E86C1;
+  }
+
+  .status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .client-name {
+    font-weight: 600;
+    color: #0d3821;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .client-email {
+    font-size: 12px;
+    color: #6c757d;
+  }
+
+  .pagination {
+    margin-top: 24px;
+  }
+
+  .page-link {
+    border-radius: 8px;
+    margin: 0 4px;
+    border: 2px solid #e9ecef;
+    color: #145433;
+    font-weight: 600;
+    padding: 8px 14px;
+    transition: all 0.3s ease;
+  }
+
+  .page-link:hover {
+    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
+    border-color: #145433;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .page-item.active .page-link {
+    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
+    border-color: #145433;
+    box-shadow: 0 4px 12px rgba(20, 84, 51, 0.3);
+  }
+
+  .page-item.disabled .page-link {
+    background: #f8f9fa;
+    border-color: #e9ecef;
+  }
+
+  .empty-state {
+    padding: 60px 20px;
+    text-align: center;
+  }
+
+  .empty-state i {
+    font-size: 64px;
+    color: #dee2e6;
+    margin-bottom: 16px;
+  }
+
+  .empty-state p {
+    color: #6c757d;
+    font-size: 16px;
+    margin: 0;
+  }
+
+  .btn-filter-group .btn {
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #0d3821 0%, #145433 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(20, 84, 51, 0.3);
+  }
+
+  .btn-outline-secondary {
+    border: 2px solid #6c757d;
+    color: #6c757d;
+    font-weight: 600;
+  }
+
+  .btn-outline-secondary:hover {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .row-number {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 13px;
+  }
+
+  @media (max-width: 768px) {
+    .filter-card {
+      padding: 16px;
+    }
+
+    .table-responsive {
+      border-radius: 0;
+    }
+
+    .action-btn {
+      padding: 4px 8px !important;
+      font-size: 12px;
+    }
   }
 </style>
 
+<!-- Program Header -->
+<div class="d-flex align-items-center gap-3 mb-3">
+  <span class="program-badge
+    {% if program == 'SEA' %}badge-sea
+    {% elif program == 'AICS' %}badge-aics
+    {% elif program == 'REDCARD' %}badge-redcard
+    {% elif program == 'EA' %}badge-ea
+    {% endif %}">{{ program }}</span>
+</div>
 
-<div class="card shadow p-4 mb-4">
+<div class="program-description 
+  {% if program == 'SEA' %}sea
+  {% elif program == 'AICS' %}aics
+  {% elif program == 'REDCARD' %}redcard
+  {% elif program == 'EA' %}ea
+  {% endif %}">
+  <p>
+    {% if program == 'SEA' %}
+      <strong>Sustainable Livelihood Enterprise Assistance:</strong> Supporting small entrepreneurs with resources and opportunities for sustainable business growth.
+    {% elif program == 'AICS' %}
+      <strong>Assistance to Individuals in Crisis Situation:</strong> Providing immediate cash support for families facing emergency situations and urgent needs.
+    {% elif program == 'REDCARD' %}
+      <strong>RED CARD Program:</strong> Enabling indigent residents to access essential services, benefits, and healthcare assistance.
+    {% elif program == 'EA' %}
+      <strong>Educational Assistance:</strong> Supporting students with financial aid to help them continue their education and achieve their academic goals.
+    {% endif %}
+  </p>
+</div>
 
-  <!-- Sticky Header -->
-  <div class="sticky-header mb-3 d-flex justify-content-between align-items-center">
-    <div>
-      <h2 class="fw-bold mb-1" style="color:#154734;">Assistance Program</h2>
-
-      <span class="program-badge
-        {% if program == 'SEA' %}badge-sea
-        {% elif program == 'AICS' %}badge-aics
-        {% elif program == 'REDCARD' %}badge-redcard
-        {% elif program == 'EA' %}badge-ea
-        {% endif %}
-      ">
-        {{ program }}
-      </span>
-
-      <p class="text-muted small mt-2">
-        {% if program == 'SEA' %}
-          Sustainable Livelihood Enterprise Assistance Program for small entrepreneurs.
-        {% elif program == 'AICS' %}
-          AICS program provides immediate cash support for families in crisis.
-        {% elif program == 'REDCARD' %}
-          RED CARD allows indigent residents to access essential services and benefits.
-        {% elif program == 'EA' %}
-          Educational Assistance for students requiring financial support.
-        {% endif %}
-      </p>
-    </div>
-
-    <div class="d-flex gap-2">
-      <a href="{% url 'add_client' %}" class="btn btn-success shadow-sm">
-        <i class="bi bi-person-plus"></i> New Client
-      </a>
-      <a href="?export=csv&program={{ program }}" class="btn btn-dark shadow-sm">
-        <i class="bi bi-download"></i> Export CSV
-      </a>
-    </div>
-  </div>
-
-
-  <!-- Filters -->
-  <form method="get" class="row g-3 mb-3">
-
-    <div class="col-md-3">
-      <label class="small fw-bold">Program</label>
+<!-- Filters -->
+<div class="filter-card">
+  <form method="get" class="row g-3">
+    <div class="col-lg-3 col-md-6">
+      <label>Program Type</label>
       <select name="program" class="form-select" onchange="this.form.submit()">
         <option value="SEA" {% if program == 'SEA' %}selected{% endif %}>SEA</option>
         <option value="AICS" {% if program == 'AICS' %}selected{% endif %}>AICS</option>
@@ -89,14 +336,14 @@
       </select>
     </div>
 
-    <div class="col-md-3">
-      <label class="small fw-bold">Search</label>
+    <div class="col-lg-3 col-md-6">
+      <label>Search Applicant</label>
       <input type="text" name="q" value="{{ request.GET.q }}" 
-             class="form-control" placeholder="Search name/email">
+             class="form-control" placeholder="Name or email...">
     </div>
 
-    <div class="col-md-3">
-      <label class="small fw-bold">Status</label>
+    <div class="col-lg-3 col-md-6">
+      <label>Application Status</label>
       <select name="status" class="form-select">
         <option value="">All Status</option>
         <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
@@ -105,133 +352,124 @@
       </select>
     </div>
 
-    <div class="col-md-3 d-flex align-items-end gap-2">
-      <button class="btn btn-primary w-50">
-        <i class="bi bi-filter"></i> Filter
+    <div class="col-lg-3 col-md-12 d-flex align-items-end gap-2 btn-filter-group">
+      <button type="submit" class="btn btn-primary flex-grow-1">
+        <i class="bi bi-filter"></i> Apply Filters
       </button>
-
-      <a href="?view=pending&program={{ program }}" class="btn btn-outline-secondary w-50">
+      <a href="?view=pending&program={{ program }}" class="btn btn-outline-secondary flex-grow-1">
         <i class="bi bi-clock-history"></i> Pending
       </a>
     </div>
   </form>
+</div>
 
-
-  <!-- Main Table -->
+<!-- Main Table -->
+<div class="table-card">
   <div class="table-responsive">
-    <table class="table table-hover align-middle">
-      <thead class="table-light">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
         <tr>
-          <th style="width:40px;">#</th>
-          <th>Name</th>
+          <th style="width:50px;">#</th>
+          <th>Applicant</th>
           <th>Barangay</th>
           <th>Livelihood</th>
-          <th>Requirements</th>
-          <th>Date</th>
+          <th>Documents</th>
+          <th>Date Applied</th>
           <th>Status</th>
-          <th style="width:160px;">Actions</th>
+          <th style="width:180px;">Actions</th>
         </tr>
       </thead>
 
       <tbody>
-
         {% for app in applications %}
         <tr>
-          <td>{{ forloop.counter0|add:applications.start_index }}</td>
-
+          <td class="row-number">{{ forloop.counter0|add:applications.start_index }}</td>
           <td>
-            <strong>{{ app.client.first_name }} {{ app.client.last_name }}</strong><br>
-            <small class="text-muted">{{ app.client.email }}</small>
+            <div class="client-name">{{ app.client.first_name }} {{ app.client.last_name }}</div>
+            <div class="client-email">{{ app.client.email }}</div>
           </td>
-
           <td>{{ app.client.barangay|default:"—" }}</td>
-          <td>{{ app.livelihood|default:"—" }}</td>
-
+          <td>{{ app.client.livelihood|default:"—" }}</td>
           <td>
             {% for doc in app.documents.all %}
-              <a href="{% url 'document_download' doc.id %}"
-                 class="btn btn-sm btn-outline-info mb-1 action-btn">
+              <a href="{% url 'document_download' doc.id %}" class="btn btn-sm btn-outline-info mb-1 action-btn">
                 <i class="bi bi-file-earmark-text"></i> View
               </a>
             {% empty %}
               <span class="text-muted small">No documents</span>
             {% endfor %}
           </td>
-
-          <td>{{ app.created_at|date:"M d, Y" }}</td>
-
+          <td>
+            <div style="font-size: 14px; color: #495057;">{{ app.created_at|date:"M d, Y" }}</div>
+            <div style="font-size: 12px; color: #6c757d;">{{ app.created_at|date:"h:i A" }}</div>
+          </td>
           <td>
             {% if app.status == 'approved' %}
-              <span class="badge bg-success">Approved</span>
+              <span class="badge bg-success status-badge">Approved</span>
             {% elif app.status == 'rejected' %}
-              <span class="badge bg-danger">Rejected</span>
+              <span class="badge bg-danger status-badge">Rejected</span>
             {% elif app.status == 'referral' %}
-              <span class="badge bg-primary">Referral</span>
+              <span class="badge bg-primary status-badge">Referral</span>
             {% else %}
-              <span class="badge bg-warning text-dark">{{ app.status|capfirst }}</span>
+              <span class="badge bg-warning text-dark status-badge">{{ app.status|capfirst }}</span>
             {% endif %}
           </td>
-
           <td>
-            <!-- VIEW BUTTON WITH TEXT -->
-            <a href="{% url 'application_detail' app.id %}" 
-               class="btn btn-sm btn-outline-primary action-btn me-1">
-              <i class="bi bi-eye"></i> View
-            </a>
-
-            <!-- DELETE BUTTON WITH TEXT -->
-            <form method="post" action="{% url 'application_delete' app.id %}" 
-                  style="display:inline;">
-              {% csrf_token %}
-              <button type="submit"
-                class="btn btn-sm btn-outline-danger action-btn"
-                onclick="return confirm('Delete this application?');">
-                <i class="bi bi-trash"></i> Delete
-              </button>
-            </form>
+            <div class="d-flex gap-1">
+              <a href="{% url 'application_detail' app.id %}" class="btn btn-sm btn-outline-primary action-btn" title="View Details">
+                <i class="bi bi-eye"></i>
+              </a>
+              <form method="post" action="{% url 'application_delete' app.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger action-btn" title="Delete Application"
+                        onclick="return confirm('Are you sure you want to delete this application?');">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </div>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="8" class="text-center text-muted py-4">
-            No records found for {{ program }}.
+          <td colspan="8">
+            <div class="empty-state">
+              <i class="bi bi-inbox"></i>
+              <p>No applications found for {{ program }}.</p>
+              <p class="text-muted small mt-2">Try adjusting your filters or add a new client to get started.</p>
+            </div>
           </td>
         </tr>
         {% endfor %}
-
       </tbody>
     </table>
   </div>
-
-
-  <!-- Pagination -->
-  <nav>
-    <ul class="pagination justify-content-center">
-      {% if applications.has_previous %}
-      <li class="page-item"><a class="page-link" href="?page={{ applications.previous_page_number }}&program={{ program }}">&laquo;</a></li>
-      {% else %}
-      <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-      {% endif %}
-
-      {% for num in applications.paginator.page_range %}
-        {% if applications.number == num %}
-          <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-        {% elif num > applications.number|add:-3 and num < applications.number|add:3 %}
-          <li class="page-item"><a class="page-link" href="?page={{ num }}&program={{ program }}">{{ num }}</a></li>
-        {% endif %}
-      {% endfor %}
-
-      {% if applications.has_next %}
-      <li class="page-item"><a class="page-link" href="?page={{ applications.next_page_number }}&program={{ program }}">&raquo;</a></li>
-      {% else %}
-      <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-      {% endif %}
-    </ul>
-  </nav>
-
 </div>
 
+<!-- Pagination -->
+{% if applications.paginator.num_pages > 1 %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if applications.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ applications.previous_page_number }}&program={{ program }}">&laquo; Prev</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">&laquo; Prev</span></li>
+    {% endif %}
 
+    {% for num in applications.paginator.page_range %}
+      {% if applications.number == num %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+      {% elif num > applications.number|add:-3 and num < applications.number|add:3 %}
+        <li class="page-item"><a class="page-link" href="?page={{ num }}&program={{ program }}">{{ num }}</a></li>
+      {% endif %}
+    {% endfor %}
 
+    {% if applications.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ applications.next_page_number }}&program={{ program }}">Next &raquo;</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
 
 {% endblock %}

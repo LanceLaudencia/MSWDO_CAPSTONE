@@ -3,43 +3,277 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up – MSWDO</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { margin:0; display:flex; font-family:'Poppins',sans-serif; height:100vh; background:#f8fafa; }
-    .left,.right { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:40px; }
-    .right { background:#024b3c; color:white; text-align:center; }
-    form { background:#fff; padding:30px 40px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-    input, select { width:250px; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:5px; outline:none; }
-    button { background:#024b3c; color:white; border:none; padding:10px 25px; border-radius:6px; cursor:pointer; }
-    .return { margin-top:15px; background:transparent; border:2px solid #024b3c; color:#024b3c; font-weight:600; padding:8px 20px; border-radius:6px; }
-    .flash { margin-bottom:10px; color:green; font-weight:600; }
-    .errors { color: red; margin-bottom: 10px; }
+    * { box-sizing: border-box; }
+    body { 
+      margin: 0; 
+      display: flex; 
+      font-family: 'Poppins', sans-serif; 
+      min-height: 100vh; 
+      background: #f8fafa; 
+    }
+    .left, .right { 
+      flex: 1; 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: center; 
+      align-items: center; 
+      padding: 40px; 
+    }
+    .left {
+      background: linear-gradient(135deg, #f8fafa 0%, #e8f5f3 100%);
+    }
+    .right { 
+      background: linear-gradient(135deg, #024b3c 0%, #036654 100%);
+      color: white; 
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .right::before {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+      top: -100px;
+      right: -100px;
+    }
+    .right::after {
+      content: '';
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 50%;
+      bottom: -50px;
+      left: -50px;
+    }
+    .right-content {
+      position: relative;
+      z-index: 1;
+      max-width: 400px;
+    }
+    .right h3 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+    .right p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      opacity: 0.95;
+    }
+    .form-container {
+      background: #fff;
+      padding: 40px 45px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+      max-width: 420px;
+      width: 100%;
+    }
+    .form-container h2 {
+      margin: 0 0 10px 0;
+      font-size: 1.8rem;
+      color: #024b3c;
+      font-weight: 700;
+    }
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      color: #374151;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    input, select { 
+      width: 100%; 
+      padding: 12px 15px; 
+      border: 2px solid #e5e7eb; 
+      border-radius: 8px; 
+      outline: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+    input:focus, select:focus { 
+      border-color: #024b3c; 
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(2,75,60,0.1);
+    }
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23374151' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      padding-right: 40px;
+    }
+    button { 
+      width: 100%;
+      background: linear-gradient(135deg, #024b3c 0%, #036654 100%);
+      color: white; 
+      border: none; 
+      padding: 14px 25px; 
+      border-radius: 8px; 
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      font-family: 'Poppins', sans-serif;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(2,75,60,0.3);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .return { 
+      margin-top: 20px; 
+      background: transparent; 
+      border: 2px solid #024b3c; 
+      color: #024b3c; 
+      font-weight: 600; 
+      padding: 10px 24px; 
+      border-radius: 8px;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+    .return:hover {
+      background: #024b3c;
+      color: white;
+      transform: translateY(-2px);
+    }
+    .flash { 
+      padding: 12px 16px;
+      margin-bottom: 20px; 
+      color: #047857; 
+      background: #d1fae5;
+      border-left: 4px solid #047857;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    .errors, .errorlist { 
+      color: #dc2626; 
+      background: #fee2e2;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      border-left: 4px solid #dc2626;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      list-style: none;
+      margin-left: 0;
+      padding-left: 16px;
+    }
+    .errorlist li {
+      margin: 4px 0;
+    }
+    .field-errors {
+      color: #dc2626;
+      font-size: 0.85rem;
+      margin-top: 4px;
+      display: block;
+    }
+    .field-errors ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .field-errors li {
+      margin: 2px 0;
+    }
+    input.error, select.error {
+      border-color: #dc2626;
+    }
+    @media (max-width: 968px) {
+      body { flex-direction: column; }
+      .right { order: -1; padding: 30px 20px; }
+      .left { padding: 30px 20px; }
+      .form-container { padding: 30px 25px; }
+    }
   </style>
 </head>
 <body>
 <div class="left">
-  <h2>Sign Up</h2>
+  <div class="form-container">
+    <h2>Sign Up</h2>
+    <p class="subtitle">Create your account to get started</p>
 
-  {% if message %}<div class="flash">{{ message }}</div>{% endif %}
-  {% if form.non_field_errors %}<div class="errors">{{ form.non_field_errors }}</div>{% endif %}
+    {% if message %}<div class="flash">{{ message }}</div>{% endif %}
+    {% if form.non_field_errors %}<div class="errors">{{ form.non_field_errors }}</div>{% endif %}
 
- <form method="post">
-    {% csrf_token %}
-    {{ form.email.errors }}{{ form.email }}<br>
-    {{ form.username.errors }}{{ form.username }}<br>
-    {{ form.password1.errors }}{{ form.password1 }}<br>
-    {{ form.password2.errors }}{{ form.password2 }}<br>
-    {{ form.role.errors }}{{ form.role }}<br>
-    <button type="submit">Sign Up</button>
-</form>
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="id_email">Email Address</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+          <span class="field-errors">{{ form.email.errors }}</span>
+        {% endif %}
+      </div>
 
-  <a class="return" href="{% url 'login' %}">← Return</a>
+      <div class="form-group">
+        <label for="id_username">Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <span class="field-errors">{{ form.username.errors }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_password1">Password</label>
+        {{ form.password1 }}
+        {% if form.password1.errors %}
+          <span class="field-errors">{{ form.password1.errors }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_password2">Confirm Password</label>
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+          <span class="field-errors">{{ form.password2.errors }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_role">Role</label>
+        {{ form.role }}
+        {% if form.role.errors %}
+          <span class="field-errors">{{ form.role.errors }}</span>
+        {% endif %}
+      </div>
+
+      <button type="submit">Create Account</button>
+    </form>
+
+    <a class="return" href="{% url 'login' %}">← Return to Login</a>
+  </div>
 </div>
 
 <div class="right">
-  <h3>Join the MSWDO Platform</h3>
-  <p>Collaborate with staff and administrators to improve assistance program delivery and tracking.</p>
+  <div class="right-content">
+    <h3>Join the MSWDO Platform</h3>
+    <p>Collaborate with staff and administrators to improve assistance program delivery and tracking.</p>
+  </div>
 </div>
 </body>
 </html>

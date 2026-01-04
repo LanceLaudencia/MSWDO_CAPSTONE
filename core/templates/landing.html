@@ -1,144 +1,606 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MSWDO Landing Page</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <title>MSWDO | Municipal Social Welfare & Development Office</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
   <style>
-    html { scroll-behavior: smooth; }
-    body { margin: 0; font-family: 'Poppins', sans-serif; background: #f4f6f8; color: #333; }
-    header { background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 10; }
-    .navbar { display:flex; justify-content:space-between; align-items:center; padding:15px 50px; }
-    .logo { font-size:24px; font-weight:700; color:#006d5b; }
-    .navbar ul { list-style:none; display:flex; gap:25px; margin:0; padding:0; }
-    .navbar ul li a { text-decoration:none; color:#333; font-weight:500; transition:0.3s; }
-    .navbar ul li a:hover { color:#006d5b; }
-    .account-btn { background:#006d5b; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:500; }
-    .hero { display:flex; align-items:center; justify-content:space-between; background: linear-gradient(135deg,#e8f5f3,#d2f3ec); padding:60px 80px; flex-wrap:wrap; }
-    .hero-text { max-width:500px; }
-    .hero h1 { font-size:32px; color:#006d5b; }
-    .hero p { color:#555; font-size:18px; }
-    .hero button { background:#006d5b; color:white; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; }
-    .hero img { width:250px; }
-    section { padding:60px 80px; }
-    section h2 { color:#006d5b; font-size:26px; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
-    .services { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:25px; }
-    .service-card { background:white; border-radius:10px; padding:20px; box-shadow:0 3px 8px rgba(0,0,0,0.1); transition:transform 0.3s; }
-    .service-card:hover { transform:translateY(-5px); }
-    .service-card h3 { color:#006d5b; margin-bottom:10px; }
-    footer { background:#006d5b; color:white; text-align:center; padding:20px; margin-top:40px; }
-    @media (max-width:768px) {
-      .hero { flex-direction:column; text-align:center; }
-      .hero img { margin-top:20px; }
-      .navbar { flex-direction:column; gap:10px; }
+    :root{
+      --primary:#006d5b;
+      --secondary:#0fa18c;
+      --bg:#f4f6f8;
+      --dark:#333;
+      --light:#fff;
+      --transition:0.4s;
+    }
+
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; font-family:'Poppins',sans-serif; background:var(--bg); color:var(--dark);
+      overflow-x:hidden;
+    }
+
+    /* ================= NAVBAR ================= */
+    header{
+      position:sticky; top:0; z-index:999; background:rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px); box-shadow:0 2px 10px rgba(0,0,0,0.08);
+      transition:var(--transition);
+    }
+
+    .navbar{
+      display:flex; justify-content:space-between; align-items:center;
+      padding:15px 60px; flex-wrap:wrap; transition:var(--transition);
+    }
+
+    .navbar.active{
+      padding:10px 60px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.15);
+      background:rgba(255,255,255,0.98);
+    }
+
+    .logo{
+      font-size:24px; font-weight:700; color:var(--primary);
+      transition:var(--transition);
+    }
+
+    .logo:hover{
+      transform:scale(1.05);
+      text-shadow:0 2px 8px rgba(0,109,91,0.3);
+    }
+
+    .navbar ul{
+      list-style:none; display:flex; gap:25px; margin:0; padding:0; flex-wrap:wrap;
+    }
+
+    .navbar ul li a{
+      text-decoration:none; color:#444; font-weight:500;
+      position:relative; transition:var(--transition);
+    }
+
+    .navbar ul li a.active,
+    .navbar ul li a:hover{
+      color:var(--primary);
+    }
+
+    .navbar ul li a::after{
+      content:''; position:absolute; width:0; height:2px; 
+      background:linear-gradient(90deg,var(--primary),var(--secondary));
+      bottom:-5px; left:0; transition:var(--transition);
+    }
+
+    .navbar ul li a:hover::after,
+    .navbar ul li a.active::after{width:100%}
+
+    .account-btn{
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      color:white; border:none; padding:8px 18px; border-radius:30px;
+      cursor:pointer; font-weight:500; transition:var(--transition);
+      box-shadow:0 4px 15px rgba(0,109,91,0.3);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .account-btn::before{
+      content:''; position:absolute; top:50%; left:50%;
+      width:0; height:0; border-radius:50%;
+      background:rgba(255,255,255,0.3);
+      transform:translate(-50%,-50%);
+      transition:width 0.6s, height 0.6s;
+    }
+
+    .account-btn:hover::before{
+      width:300px; height:300px;
+    }
+
+    .account-btn:hover{transform:scale(1.05); box-shadow:0 6px 20px rgba(0,109,91,0.4)}
+
+    /* ================= HERO ================= */
+    .hero{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:100px 90px; 
+      background:linear-gradient(135deg,#e6f6f3,#c9efe7);
+      flex-wrap:wrap; overflow:hidden;
+      position:relative;
+    }
+
+    .hero::before{
+      content:''; position:absolute; top:-50%; right:-10%;
+      width:600px; height:600px; border-radius:50%;
+      background:radial-gradient(circle, rgba(15,161,140,0.1), transparent);
+      animation:pulse 8s ease-in-out infinite;
+    }
+
+    .hero::after{
+      content:''; position:absolute; bottom:-30%; left:-5%;
+      width:400px; height:400px; border-radius:50%;
+      background:radial-gradient(circle, rgba(0,109,91,0.08), transparent);
+      animation:pulse 6s ease-in-out infinite reverse;
+    }
+
+    @keyframes pulse{
+      0%,100%{transform:scale(1); opacity:0.5}
+      50%{transform:scale(1.2); opacity:0.8}
+    }
+
+    .hero-text{max-width:520px; position:relative; z-index:2}
+    .hero h1{
+      font-size:42px; color:var(--primary); margin-bottom:20px;
+      animation:slideInLeft 1s ease-out;
+    }
+    .hero p{
+      font-size:18px; color:#555; line-height:1.6;
+      animation:slideInLeft 1s ease-out 0.2s backwards;
+    }
+
+    @keyframes slideInLeft{
+      from{opacity:0; transform:translateX(-50px)}
+      to{opacity:1; transform:translateX(0)}
+    }
+
+    .hero a button{
+      margin-top:25px; background:linear-gradient(135deg,var(--primary),var(--secondary));
+      color:white; padding:14px 28px; border:none; border-radius:30px;
+      cursor:pointer; font-size:16px; box-shadow:0 8px 25px rgba(0,109,91,0.3);
+      transition:0.3s; position:relative; overflow:hidden;
+      animation:slideInLeft 1s ease-out 0.4s backwards;
+    }
+
+    .hero a button::before{
+      content:''; position:absolute; top:0; left:-100%;
+      width:100%; height:100%;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition:left 0.5s;
+    }
+
+    .hero a button:hover::before{
+      left:100%;
+    }
+
+    .hero a button:hover{
+      transform:scale(1.05) translateY(-2px); 
+      box-shadow:0 12px 30px rgba(0,109,91,0.4);
+    }
+
+    .hero img{
+      width:320px; max-width:100%;
+      animation:float 4s ease-in-out infinite;
+      position:relative; z-index:2;
+      filter:drop-shadow(0 10px 25px rgba(0,109,91,0.2));
+    }
+
+    @keyframes float{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-15px)}
+    }
+
+    /* ================= SECTIONS ================= */
+    section{padding:100px 90px; position:relative}
+    section h2{
+      color:var(--primary); font-size:30px; margin-bottom:30px; 
+      display:flex; align-items:center; gap:12px;
+      position:relative;
+      padding-bottom:15px;
+    }
+
+    section h2::after{
+      content:''; position:absolute; bottom:0; left:0;
+      width:60px; height:3px;
+      background:linear-gradient(90deg,var(--primary),var(--secondary));
+      border-radius:2px;
+    }
+
+    section h2 i{
+      animation:iconBounce 2s ease-in-out infinite;
+    }
+
+    @keyframes iconBounce{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.2)}
+    }
+
+    section p{font-size:16px; color:#555; line-height:1.8}
+    .fade-in{
+      opacity:0; transform:translateY(40px); 
+      transition:opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+
+    .fade-in.visible{
+      opacity:1; transform:translateY(0);
+    }
+
+    /* ================= CARDS ================= */
+    .services{
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:30px;
+    }
+
+    .service-card{
+      background:white; border-radius:18px; padding:25px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.08); 
+      transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+      position:relative; text-align:center;
+      overflow:hidden;
+    }
+
+    .service-card::before{
+      content:''; position:absolute; top:0; left:0;
+      width:100%; height:100%;
+      background:linear-gradient(135deg, rgba(0,109,91,0.05), rgba(15,161,140,0.05));
+      opacity:0; transition:opacity 0.4s;
+    }
+
+    .service-card:hover::before{
+      opacity:1;
+    }
+
+    .service-card:hover{
+      transform:translateY(-15px) scale(1.02); 
+      box-shadow:0 20px 40px rgba(0,109,91,0.15);
+    }
+
+    .service-card h3{
+      color:var(--primary); margin:15px 0 10px 0;
+      transition:var(--transition);
+    }
+
+    .service-card:hover h3{
+      transform:scale(1.05);
+    }
+
+    .service-card img{
+      border-radius:12px; width:100%; max-height:200px; object-fit:cover; margin-bottom:10px;
+      transition:var(--transition);
+    }
+
+    .service-card:hover img{
+      transform:scale(1.05);
+    }
+
+    .service-card i{
+      font-size:40px; color:var(--primary); margin:10px 0;
+      transition:var(--transition);
+    }
+
+    .service-card:hover i{
+      transform:rotate(360deg) scale(1.1);
+      color:var(--secondary);
+    }
+
+    .service-card button{
+      margin-top:15px; background:linear-gradient(135deg,var(--primary),var(--secondary)); 
+      color:white; border:none; padding:10px 22px; border-radius:20px; 
+      cursor:pointer; transition:var(--transition);
+      position:relative; overflow:hidden;
+      z-index:1;
+    }
+
+    .service-card button::before{
+      content:''; position:absolute; top:50%; left:50%;
+      width:0; height:0; background:rgba(255,255,255,0.3);
+      border-radius:50%; transform:translate(-50%,-50%);
+      transition:width 0.5s, height 0.5s; z-index:-1;
+    }
+
+    .service-card button:hover::before{
+      width:200px; height:200px;
+    }
+
+    .service-card button:hover{
+      transform:scale(1.1); 
+      box-shadow:0 8px 20px rgba(0,109,91,0.3);
+    }
+
+    /* ================= CONTACT ================= */
+    .contact-box{
+      background:white; padding:35px; border-radius:20px; 
+      box-shadow:0 10px 30px rgba(0,0,0,0.1);
+      max-width:600px; margin:auto; text-align:left;
+      transition:var(--transition);
+      position:relative; overflow:hidden;
+    }
+
+    .contact-box::before{
+      content:''; position:absolute; top:-50%; right:-50%;
+      width:200px; height:200px; border-radius:50%;
+      background:radial-gradient(circle, rgba(0,109,91,0.1), transparent);
+      animation:float 6s ease-in-out infinite;
+    }
+
+    .contact-box:hover{
+      transform:translateY(-5px);
+      box-shadow:0 15px 40px rgba(0,109,91,0.15);
+    }
+
+    .contact-box p{
+      padding:12px; border-left:3px solid var(--primary);
+      margin:10px 0; transition:var(--transition);
+      background:rgba(0,109,91,0.02);
+      border-radius:5px;
+    }
+
+    .contact-box p:hover{
+      background:rgba(0,109,91,0.05);
+      transform:translateX(5px);
+    }
+
+    /* ================= FOOTER ================= */
+    footer{
+      background:linear-gradient(135deg,var(--primary),var(--secondary)); 
+      color:white; text-align:center; padding:25px; margin-top:60px;
+      position:relative; overflow:hidden;
+    }
+
+    footer::before{
+      content:''; position:absolute; top:-50%; left:-10%;
+      width:300px; height:300px; border-radius:50%;
+      background:rgba(255,255,255,0.05);
+      animation:pulse 8s ease-in-out infinite;
+    }
+
+    footer p{
+      position:relative; z-index:1;
+    }
+
+    /* ================= BACK TO TOP ================= */
+    #backTop{
+      position:fixed; bottom:40px; right:40px; background:var(--primary);
+      color:white; padding:10px 15px; border-radius:50%; cursor:pointer;
+      font-size:18px; display:none; z-index:999;
+      box-shadow:0 5px 15px rgba(0,0,0,0.2); transition:var(--transition);
+    }
+
+    #backTop:hover{
+      transform:scale(1.2) rotate(360deg);
+      box-shadow:0 8px 20px rgba(0,109,91,0.4);
+    }
+
+    /* ================= PARALLAX DECORATION ================= */
+    .parallax-circle{
+      position:absolute; border-radius:50%; pointer-events:none;
+      opacity:0.1; z-index:1;
+    }
+
+    .circle-1{
+      width:150px; height:150px; background:var(--primary);
+      top:10%; left:5%; animation:float 7s ease-in-out infinite;
+    }
+
+    .circle-2{
+      width:100px; height:100px; background:var(--secondary);
+      bottom:20%; right:10%; animation:float 5s ease-in-out infinite reverse;
+    }
+
+    /* ================= RESPONSIVE ================= */
+    @media(max-width:900px){
+      .hero{flex-direction:column; text-align:center; gap:20px} 
+      .hero-text{text-align:center} 
+      section{padding:70px 30px} 
+      .navbar{flex-direction:column; gap:15px; align-items:center}
+      .parallax-circle{display:none}
+    }
+
+    /* ================= LOADING ANIMATION ================= */
+    @keyframes fadeInUp{
+      from{opacity:0; transform:translateY(30px)}
+      to{opacity:1; transform:translateY(0)}
+    }
+
+    .service-card{
+      animation:fadeInUp 0.6s ease-out backwards;
+    }
+
+    .service-card:nth-child(1){animation-delay:0.1s}
+    .service-card:nth-child(2){animation-delay:0.2s}
+    .service-card:nth-child(3){animation-delay:0.3s}
+    .service-card:nth-child(4){animation-delay:0.4s}
+    .service-card:nth-child(5){animation-delay:0.5s}
+    .service-card:nth-child(6){animation-delay:0.6s}
+
+    /* Hide broken images gracefully */
+    img {
+      background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <nav class="navbar">
-      <div class="logo"><i class="fas fa-hand-holding-heart"></i> MSWDO</div>
-      <ul>
-        <li><a href="#home">Home</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#services">Services</a></li>
-        <li><a href="#mission">Mission & Vision</a></li>
-        <li><a href="#announcements">Announcements</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
 
-      {% if user.is_authenticated %}
-        <form method="post" action="{% url 'logout' %}" style="display:inline;">
-          {% csrf_token %}
-          <button class="account-btn"><i class="fas fa-user"></i> Logout</button>
-        </form>
-      {% else %}
-        <a class="account-btn" href="{% url 'select_account' %}"><i class="fas fa-user"></i> Account</a>
+<!-- Parallax Decorations -->
+<div class="parallax-circle circle-1"></div>
+<div class="parallax-circle circle-2"></div>
 
-      {% endif %}
-    </nav>
-  </header>
+<header>
+  <nav class="navbar" id="navbar">
+    <div class="logo"><i class="fas fa-hand-holding-heart"></i> MSWDO</div>
+    <ul>
+      <li><a href="#home" class="nav-link active">Home</a></li>
+      <li><a href="#about" class="nav-link">About</a></li>
+      <li><a href="#services" class="nav-link">Services</a></li>
+      <li><a href="#mission" class="nav-link">Mission</a></li>
+      <li><a href="#announcements" class="nav-link">Announcements</a></li>
+      <li><a href="#contact" class="nav-link">Contact</a></li>
+    </ul>
 
-  <section id="home" class="hero">
-    <div class="hero-text">
-      <h1><i class="fas fa-people-carry"></i> Streamlining Social Welfare Services</h1>
-      <p>To Better Serve and Uplift Our Communities</p>
-      <a href="{% url 'signup' %}"><button>View All Programs</button></a>
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button class="account-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </form>
+    {% else %}
+      <a href="{% url 'select_account' %}"><button class="account-btn"><i class="fas fa-user"></i> Account</button></a>
+    {% endif %}
+  </nav>
+</header>
+
+<!-- HERO -->
+<section id="home" class="hero">
+  <div class="hero-text">
+    <h1>Empowering Communities Through Social Welfare</h1>
+    <p>Digital transformation of Municipal Social Welfare and Development services for faster, transparent, and citizen‑centered assistance.</p>
+    <a href="{% url 'signup' %}"><button>Explore Programs</button></a>
+  </div>
+  <img src="{% static 'images/DSWD-Symbol.png' %}" alt="DSWD Logo" onerror="this.style.display='none'">
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="fade-in">
+  <h2><i class="fas fa-info-circle"></i> About DSWD & MSWDO</h2>
+  <p>The <strong>Department of Social Welfare and Development (DSWD)</strong> is the primary government agency in the Philippines for social protection and poverty-reduction programs.</p>
+  <p>The <strong>Municipal Social Welfare and Development Office (MSWDO)</strong> ensures national programs are implemented effectively at the municipal level.</p>
+
+  <div class="services">
+    <div class="service-card fade-in">
+      <img src="{% static 'images/dswd-outreach.jpg' %}" alt="DSWD Outreach" onerror="this.style.display='none'">
+      <p>DSWD outreach and on-site assistance activities for vulnerable communities.</p>
     </div>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/DSWD_Logo.png" alt="DSWD Logo">
-  </section>
-
-  <section id="about">
-    <h2><i class="fas fa-info-circle"></i> About the System</h2>
-    <p>
-      The <strong>MSWDO Management System</strong> is a centralized platform designed to support the
-      Municipal Social Welfare and Development Office in efficiently managing, monitoring, and
-      delivering social services. It promotes transparency, reduces paperwork, and ensures that
-      assistance reaches those who need it most.
-    </p>
-  </section>
-
-  <section id="services">
-    <h2><i class="fas fa-hand-holding-medical"></i> Our Services</h2>
-    <div class="services">
-      <div class="service-card">
-        <h3>Self Employment Assistance (SEA)</h3>
-        <p>Provision of capital assistance to individuals or groups engaged in small-scale businesses.</p>
-        <button>Apply Now</button>
-      </div>
-      <div class="service-card">
-        <h3>Aid to Individuals in Crisis Situation (AICS)</h3>
-        <p>Temporary assistance for families facing economic difficulties or emergencies.</p>
-        <button>Apply Now</button>
-      </div>
-      <div class="service-card">
-        <h3>Socorro Health Care Card</h3>
-        <p>Unified health care benefits for indigents and government employees.</p>
-        <button>Apply Now</button>
-      </div>
+    <div class="service-card fade-in">
+      <img src="{% static 'images/office2.jpg' %}" alt="MSWDO Office" onerror="this.style.display='none'">
+      <p>Municipal Social Welfare and Development Office serving local beneficiaries.</p>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section id="mission">
-    <h2><i class="fas fa-lightbulb"></i> Mission, Vision & Objectives</h2>
-    <p><b>Vision:</b> A municipality of self-reliant and empowered people whose rights are protected and potentials developed.</p>
-    <p><b>Mission:</b> To uplift the well-being of the poor and disadvantaged through social programs and empowerment.</p>
-    <p><b>Objectives:</b> Strengthen community participation and improve quality of life.</p>
-  </section>
-
-  <section id="announcements">
-    <h2><i class="fas fa-bullhorn"></i> Announcements</h2>
-    <div class="services">
-      <div class="service-card">
-        <h3><i class="fas fa-leaf"></i> Eco-Friendly Initiatives</h3>
-        <p>Learn about our commitment to environmentally sustainable practices.</p>
-        <button>Read More</button>
-      </div>
-      <div class="service-card">
-        <h3><i class="fas fa-home"></i> Clean and Safe Homes</h3>
-        <p>Encouraging cleanliness and health safety in every household.</p>
-        <button>Read More</button>
-      </div>
-      <div class="service-card">
-        <h3><i class="fas fa-calendar-alt"></i> Upcoming Community Events</h3>
-        <p>Join our community programs aimed at empowerment and support.</p>
-        <button>Read More</button>
-      </div>
+<!-- SERVICES -->
+<section id="services" class="fade-in">
+  <h2><i class="fas fa-hands-helping"></i> DSWD Programs Implemented by MSWDO</h2>
+  <div class="services">
+    <div class="service-card fade-in">
+      <img src="{% static 'images/aics.jpg' %}" alt="AICS" onerror="this.style.display='none'">
+      <i class="fas fa-ambulance"></i>
+      <h3>AICS</h3>
+      <p>Provides financial, medical, burial, transportation, and food assistance to crisis-affected families.</p>
+      <button>Apply Now</button>
     </div>
-  </section>
+    <div class="service-card fade-in">
+      <img src="{% static 'images/sea.jpg' %}" alt="SEA" onerror="this.style.display='none'">
+      <i class="fas fa-briefcase"></i>
+      <h3>SEA-K</h3>
+      <p>Livelihood capital and skills training for poor families to establish sustainable income projects.</p>
+      <button>Apply Now</button>
+    </div>
+    <div class="service-card fade-in">
+      <img src="{% static 'images/senior-pwd.jpg' %}" alt="Senior & PWD" onerror="this.style.display='none'">
+      <i class="fas fa-wheelchair"></i>
+      <h3>Senior & PWD Assistance</h3>
+      <p>Social pension, benefits, and support services for senior citizens and persons with disabilities.</p>
+      <button>Apply Now</button>
+    </div>
+  </div>
+</section>
 
-  <section id="contact">
-    <h2><i class="fas fa-phone"></i> Contact Us</h2>
-    <p><b>Call Us:</b> +639 235 201 888</p>
-    <p><b>Email:</b> hello@mswdo.gov.ph</p>
-    <p><b>Address:</b> Municipal Hall, Socorro, Philippines</p>
-  </section>
+<!-- MISSION -->
+<section id="mission" class="fade-in">
+  <h2><i class="fas fa-bullseye"></i> Vision, Mission & Core Values</h2>
+  <p><b>Vision:</b> Empowered communities with improved quality of life.</p>
+  <p><b>Mission:</b> Lead the formulation and coordination of social welfare programs.</p>
+  <p><b>Core Values:</b> Maka-Diyos, Maka-Tao, Makabayan, at Makakalikasan.</p>
+</section>
 
-  <footer>
-    <p>© 2025 MSWDO – All Rights Reserved</p>
-  </footer>
+<!-- ANNOUNCEMENTS -->
+<section id="announcements" class="fade-in">
+  <h2><i class="fas fa-bullhorn"></i> Official Updates & Activities</h2>
+  <div class="services">
+    <div class="service-card fade-in">
+      <img src="{% static 'images/dswd-relief-operations.jpg' %}" alt="Disaster Relief" onerror="this.style.display='none'">
+      <h3>Disaster Relief Operations</h3>
+      <p>Distribution of relief goods to families affected by calamities and emergencies.</p>
+      <button>Read More</button>
+    </div>
+    <div class="service-card fade-in">
+      <img src="{% static 'images/feeding.jpg' %}" alt="Feeding Program" onerror="this.style.display='none'">
+      <h3>Supplementary Feeding Program</h3>
+      <p>Improving child nutrition through community-based feeding activities.</p>
+      <button>Read More</button>
+    </div>
+    <div class="service-card fade-in">
+      <img src="{% static 'images/community.jpg' %}" alt="Community Development" onerror="this.style.display='none'">
+      <h3>Community Development Programs</h3>
+      <p>Capacity-building and empowerment activities for barangays and sectors.</p>
+      <button>Read More</button>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="fade-in">
+  <h2><i class="fas fa-phone"></i> Contact Information</h2>
+  <div class="contact-box fade-in">
+    <p><b>📞 Phone:</b> +63 923 520 1888</p>
+    <p><b>📧 Email:</b> mswdo@socorro.gov.ph</p>
+    <p><b>📍 Address:</b> Municipal Hall, Socorro, Philippines</p>
+  </div>
+</section>
+
+<!-- BACK TO TOP -->
+<div id="backTop"><i class="fas fa-chevron-up"></i></div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 MSWDO | Municipal Social Welfare & Development Office</p>
+</footer>
+
+<!-- ================= JS ================= -->
+<script>
+  // Back to top button
+  const backTop = document.getElementById('backTop');
+  window.addEventListener('scroll', () => {
+    if(window.scrollY > 500){ backTop.style.display = 'block'; } else { backTop.style.display = 'none'; }
+
+    // Navbar shrink on scroll
+    const navbar = document.getElementById('navbar');
+    if(window.scrollY > 50){ navbar.classList.add('active'); } else { navbar.classList.remove('active'); }
+
+    // Active link highlight
+    document.querySelectorAll('.nav-link').forEach(link => {
+      const section = document.querySelector(link.getAttribute('href'));
+      if(section && section.offsetTop <= window.scrollY + 80 && section.offsetTop + section.offsetHeight > window.scrollY + 80){
+        link.classList.add('active');
+      } else { link.classList.remove('active'); }
+    });
+  });
+
+  backTop.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+  // Scroll reveal fade-in with improved animation
+  const faders = document.querySelectorAll('.fade-in');
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){ 
+        entry.target.classList.add('visible');
+      }
+    });
+  },{threshold:0.2});
+  faders.forEach(fader=>observer.observe(fader));
+
+  // Parallax effect for decorative circles
+  window.addEventListener('mousemove', (e) => {
+    const circles = document.querySelectorAll('.parallax-circle');
+    circles.forEach((circle, index) => {
+      const speed = (index + 1) * 0.05;
+      const x = (window.innerWidth - e.pageX * speed) / 100;
+      const y = (window.innerHeight - e.pageY * speed) / 100;
+      circle.style.transform = `translate(${x}px, ${y}px)`;
+    });
+  });
+
+  // Smooth entrance animation for hero section
+  window.addEventListener('load', () => {
+    const heroH1 = document.querySelector('.hero-text h1');
+    const heroP = document.querySelector('.hero-text p');
+    if(heroH1) heroH1.style.animation = 'slideInLeft 1s ease-out';
+    if(heroP) heroP.style.animation = 'slideInLeft 1s ease-out 0.2s backwards';
+  });
+</script>
+
 </body>
 </html>

@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from .views import test_api
+from .views import dashboard_data
 
 urlpatterns = [
     path('', views.landing, name='landing'),
@@ -42,4 +44,18 @@ urlpatterns = [
 path('client/<int:pk>/delete/', views.client_delete, name='client_delete'),
 path("toggle_staff/<int:staff_id>/", views.toggle_staff_status, name="toggle_staff"),
 
+
+   
+path("api/dashboard/", dashboard_data, name="dashboard_data"),
+
+    path('api/test/', test_api, name='test_api'),
+
+    # Application actions
+path('application/<int:pk>/approve/', views.application_approve, name='application_approve'),
+path('application/<int:pk>/reject/', views.application_reject, name='application_reject'),
+path('application/<int:pk>/edit/', views.application_edit, name='application_edit'),
+
 ]
+
+
+

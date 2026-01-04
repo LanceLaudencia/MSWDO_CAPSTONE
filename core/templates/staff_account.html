@@ -1,68 +1,144 @@
 {% extends "base.html" %}
+
+{% block page_title %}
+  <i class="bi bi-person-circle"></i>
+  Account
+{% endblock %}
+
+{% block breadcrumb %}Account{% endblock %}
+
 {% block content %}
 
-<div class="container mt-4">
-
-    <!-- Page Header -->
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <h2 class="fw-bold text-primary">Staff Dashboard</h2>
-    </div>
-
-    <!-- Welcome Card -->
-    <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-body p-4">
-            <h5 class="card-title mb-3">
-                👋 Welcome, <span class="text-dark fw-semibold">{{ staff.get_full_name }}</span>!
-            </h5>
-
-            <p class="text-muted mb-4">
-                Here’s your overview and quick access to tools available for Staff members.
-            </p>
-
-            <!-- Quick Actions -->
-            <div class="row g-3">
-
-                <div class="col-md-4">
-                    <a href="#" class="text-decoration-none">
-                        <div class="p-3 rounded-3 shadow-sm bg-light hover-scale">
-                            <h6 class="fw-bold text-secondary mb-2">📁 View Submissions</h6>
-                            <p class="small text-muted mb-0">Check citizen applications</p>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-md-4">
-                    <a href="#" class="text-decoration-none">
-                        <div class="p-3 rounded-3 shadow-sm bg-light hover-scale">
-                            <h6 class="fw-bold text-secondary mb-2">📝 Manage Reports</h6>
-                            <p class="small text-muted mb-0">Generate or view reports</p>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-md-4">
-                    <a href="#" class="text-decoration-none">
-                        <div class="p-3 rounded-3 shadow-sm bg-light hover-scale">
-                            <h6 class="fw-bold text-secondary mb-2">⚙️ Settings</h6>
-                            <p class="small text-muted mb-0">Update your account</p>
-                        </div>
-                    </a>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-</div>
-
 <style>
-    .hover-scale {
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+  .welcome-card {
+    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
+    border-radius: 20px;
+    padding: 48px 40px;
+    box-shadow: 0 8px 24px rgba(20, 84, 51, 0.25);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .welcome-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .welcome-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -5%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .welcome-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .greeting-icon {
+    font-size: 56px;
+    margin-bottom: 20px;
+    display: inline-block;
+    animation: wave 2s ease-in-out infinite;
+  }
+
+  @keyframes wave {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(20deg); }
+    75% { transform: rotate(-20deg); }
+  }
+
+  .greeting-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  .staff-name {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 16px;
+    border-radius: 10px;
+    display: inline-block;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+
+  .greeting-subtitle {
+    font-size: 18px;
+    opacity: 0.95;
+    margin-top: 16px;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.25);
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 24px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .role-badge i {
+    font-size: 18px;
+  }
+
+  @media (max-width: 768px) {
+    .welcome-card {
+      padding: 32px 24px;
     }
-    .hover-scale:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+
+    .greeting-title {
+      font-size: 24px;
     }
+
+    .greeting-subtitle {
+      font-size: 16px;
+    }
+
+    .greeting-icon {
+      font-size: 48px;
+    }
+  }
 </style>
+
+<!-- Welcome Card -->
+<div class="welcome-card">
+  <div class="welcome-content">
+    <div class="greeting-icon">👋</div>
+    
+    <h1 class="greeting-title">
+      Welcome back, <span class="staff-name">{{ staff.get_full_name }}</span>!
+    </h1>
+    
+    <p class="greeting-subtitle">
+      You're logged in as a staff member of the MSWDO Admin Portal. Use the navigation menu to access assistance programs, review applications, and manage your account.
+    </p>
+
+    <div class="role-badge">
+      <i class="bi bi-shield-check"></i>
+      Staff Member
+    </div>
+  </div>
+</div>
 
 {% endblock %}

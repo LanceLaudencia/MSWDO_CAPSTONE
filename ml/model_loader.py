@@ -17,35 +17,29 @@ scaler = joblib.load(SCALER_PATH)
 model_columns = joblib.load(COLUMNS_PATH)
 
 # ---------------- Prediction Function ----------------
-def predict_input(Age, Income_Monthly, Family_Size, Sex, Region, Employment_Status,
-                  Has_Disability, Previous_Aid, Aid_Type_Applied):
+def predict_input(data):
+    """
+    TEMPORARY RULE-BASED LOGIC
+    Replace later with trained ML model
+    """
 
-    # Create DataFrame matching training columns
-    df = pd.DataFrame([{
-        "Age": Age,
-        "Income_Monthly": Income_Monthly,
-        "Family_Size": Family_Size,
-        "Sex": Sex,
-        "Region": Region,
-        "Employment_Status": Employment_Status,
-        "Has_Disability": Has_Disability,
-        "Previous_Aid": Previous_Aid,
-        "Aid_Type_Applied": Aid_Type_Applied
-    }])
+    income = data.get("monthly_income", 0)
+    household = data.get("household_size", 1)
+    has_disability = data.get("has_disability", 0)
+    is_senior = data.get("is_senior", 0)
+    previous_aid = data.get("previous_aid", 0)
 
-    # One-hot encode exactly like training
-    df_encoded = pd.get_dummies(df)
+    score = 0
 
-    # Align with the model’s training columns
-    df_encoded = df_encoded.reindex(columns=model_columns, fill_value=0)
+    if income <= 10000:
+        score += 2
+    if household >= 4:
+        score += 1
+    if has_disability:
+        score += 2
+    if is_senior:
+        score += 1
+    if not previous_aid:
+        score += 1
 
-    # Scale numeric columns only
-    df_encoded[["Age", "Income_Monthly", "Family_Size"]] = scaler.transform(
-        df_encoded[["Age", "Income_Monthly", "Family_Size"]]
-    )
-
-    # Predict
-    prediction = model.predict(df_encoded)[0]
-    probability = model.predict_proba(df_encoded)[0].max()
-
-    return prediction, round(probability * 100, 2)
+    return 1 if score >= 4 else 0

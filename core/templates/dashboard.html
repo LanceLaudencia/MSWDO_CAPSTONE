@@ -1,205 +1,800 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% block content %}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- ========================= DASHBOARD CHARTS ========================= -->
-<div class="row g-3">
+<div class="container-fluid">
 
-  <!-- Bar Chart -->
-  <div class="col-12 col-lg-7">
-    <div class="card p-3" style="height:340px">
-      <h5>Beneficiaries per Program</h5>
-      <canvas id="barChart" style="max-height:260px"></canvas>
+  <!-- ===================== PAGE HEADER ===================== -->
+  <div class="d-flex justify-content-between align-items-center mb-4 page-header">
+    <div>
+      <h3 class="fw-bold text-primary mb-0 animate-slide-in">📊 Dashboard Overview</h3>
+      <span class="text-muted small animate-fade-in">Real-time system insights</span>
     </div>
+    <div class="pulse-dot"></div>
   </div>
 
-  <!-- Doughnut Chart -->
-  <div class="col-12 col-lg-5">
-    <div class="card p-3" style="height:340px">
-      <h5>Application Status Distribution</h5>
-      <canvas id="doughnutChart" style="max-height:260px"></canvas>
+  <!-- ===================== TOP STAT CARDS ===================== -->
+  <div class="row g-4 mb-4">
+
+    <div class="col-md-3">
+      <div class="card stat-card shadow-sm border-0 rounded-4 card-animate" style="animation-delay: 0.1s">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="fw-bold mb-0 counter-number" data-target="{{ total_beneficiaries|default:0 }}">0</h4>
+            <small class="text-muted">Total Beneficiaries</small>
+          </div>
+          <div class="icon-wrapper icon-primary">
+            <i class="bi bi-people-fill fs-1"></i>
+          </div>
+        </div>
+        <div class="card-glow glow-primary"></div>
+      </div>
     </div>
+
+    <div class="col-md-3">
+      <div class="card stat-card shadow-sm border-0 rounded-4 card-animate" style="animation-delay: 0.2s">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="fw-bold mb-0 counter-number" data-target="{{ pending_applications|default:0 }}">0</h4>
+            <small class="text-muted">Pending Applications</small>
+          </div>
+          <div class="icon-wrapper icon-warning">
+            <i class="bi bi-hourglass-split fs-1"></i>
+          </div>
+        </div>
+        <div class="card-glow glow-warning"></div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card stat-card shadow-sm border-0 rounded-4 card-animate" style="animation-delay: 0.3s">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="fw-bold mb-0">₱<span class="counter-number" data-target="{{ monthly_disbursements|default:0 }}">0</span></h4>
+            <small class="text-muted">Monthly Disbursements</small>
+          </div>
+          <div class="icon-wrapper icon-success">
+            <i class="bi bi-cash-coin fs-1"></i>
+          </div>
+        </div>
+        <div class="card-glow glow-success"></div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Line Chart -->
-  <div class="col-12">
-    <div class="card p-3">
-      <h5>Total Active Clients Over Time</h5>
-      <canvas id="lineChart" style="height:240px"></canvas>
+  <!-- ===================== CHARTS ===================== -->
+  <div class="row g-4">
+
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0 rounded-4 h-100 chart-card card-animate" style="animation-delay: 0.5s">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-semibold mb-0">
+              <i class="bi bi-bar-chart-fill text-primary me-2"></i>
+              Beneficiaries per Program
+            </h6>
+            <span class="badge bg-primary-subtle text-primary">Active</span>
+          </div>
+          <canvas id="barChart" height="120"></canvas>
+        </div>
+      </div>
     </div>
+
+    <div class="col-lg-5">
+      <div class="card shadow-sm border-0 rounded-4 h-100 chart-card card-animate" style="animation-delay: 0.6s">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-semibold mb-0">
+              <i class="bi bi-pie-chart-fill text-primary me-2"></i>
+              Application Status Distribution
+            </h6>
+            <span class="badge bg-info-subtle text-info">Live</span>
+          </div>
+          <canvas id="doughnutChart" height="140"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 rounded-4 chart-card card-animate" style="animation-delay: 0.7s">
+        <div class="card-body">
+          <h6 class="fw-semibold mb-3">
+            <i class="bi bi-check2-circle text-success me-2"></i>
+            Eligibility Overview
+          </h6>
+          <canvas id="eligibilityChart" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 rounded-4 chart-card card-animate" style="animation-delay: 0.8s">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-semibold mb-0">
+              <i class="bi bi-graph-up text-primary me-2"></i>
+              Active Clients Over Time
+            </h6>
+            <span class="badge bg-success-subtle text-success">Trending</span>
+          </div>
+          <canvas id="lineChart" height="90"></canvas>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Latest Clients -->
-  <div class="col-12">
-    <div class="card p-3">
-      <h5>Latest Clients</h5>
-      <table class="table table-sm table-hover">
-        <thead class="table-light">
-          <tr>
-            <th>#</th><th>Name</th><th>Email</th><th>Created</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for c in latest_clients %}
-          <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ c.first_name }} {{ c.last_name }}</td>
-            <td>{{ c.email }}</td>
-            <td>{{ c.created_at|date:"Y-m-d H:i" }}</td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="4">No clients yet.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <!-- ===================== LATEST CLIENTS ===================== -->
+  <div class="card shadow-sm border-0 rounded-4 mt-4 table-card card-animate" style="animation-delay: 0.9s">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-semibold mb-0">
+          <i class="bi bi-person-lines-fill text-primary me-2"></i>
+          Latest Clients
+        </h6>
+        <a href="#" class="text-decoration-none small text-primary hover-link">View All →</a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle modern-table">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Date Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in latest_clients %}
+            <tr class="table-row-animate" style="animation-delay: {{ forloop.counter|add:9 }}00ms">
+              <td>
+                <span class="badge bg-light text-dark">{{ forloop.counter }}</span>
+              </td>
+              <td class="fw-semibold">{{ c.first_name }} {{ c.last_name }}</td>
+              <td>{{ c.email }}</td>
+              <td>
+                <span class="text-muted">{{ c.created_at|date:"Y-m-d" }}</span>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                No clients found.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
     </div>
   </div>
 
 </div>
 
-<!-- ========================= ML PREDICTION FORM ========================= -->
-<div class="card p-4 shadow-sm mt-4">
-  <h5 class="card-title mb-3">Machine Learning Prediction</h5>
-
-  <form method="POST">
-    {% csrf_token %}
-
-    <div class="row">
-      <div class="col-md-4 mb-3">
-        <label class="form-label">Age</label>
-        <input type="number" name="Age" class="form-control" required>
-      </div>
-
-      <div class="col-md-4 mb-3">
-        <label class="form-label">Monthly Income</label>
-        <input type="number" name="Income_Monthly" class="form-control" required>
-      </div>
-
-      <div class="col-md-4 mb-3">
-        <label class="form-label">Family Size</label>
-        <input type="number" name="Family_Size" class="form-control" required>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-4 mb-3">
-        <label class="form-label">Sex</label>
-        <select name="Sex" class="form-select" required>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-        </select>
-      </div>
-
-      <div class="col-md-4 mb-3">
-        <label class="form-label">Region</label>
-        <select name="Region" class="form-select" required>
-          <option value="Urban">Urban</option>
-          <option value="Rural">Rural</option>
-        </select>
-      </div>
-
-      <div class="col-md-4 mb-3">
-        <label class="form-label">Employment Status</label>
-        <select name="Employment_Status" class="form-select" required>
-          <option value="Employed">Employed</option>
-          <option value="Unemployed">Unemployed</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-4 mb-3">
-        <label class="form-label">Has Disability?</label>
-        <select name="Has_Disability" class="form-select" required>
-          <option value="No">No</option>
-          <option value="Yes">Yes</option>
-        </select>
-      </div>
-
-      <div class="col-md-4 mb-3">
-        <label class="form-label">Previous Aid Received?</label>
-        <select name="Previous_Aid" class="form-select" required>
-          <option value="No">No</option>
-          <option value="Yes">Yes</option>
-        </select>
-      </div>
-
-      <div class="col-md-4 mb-3">
-        <label class="form-label">Aid Type Applied</label>
-        <select name="Aid_Type_Applied" class="form-select" required>
-          <option value="Financial">Financial</option>
-          <option value="Medical">Medical</option>
-          <option value="Food">Food</option>
-          <option value="Housing">Housing</option>
-        </select>
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary w-100">Predict</button>
-  </form>
-</div>
-
-<!-- ========================= ML PREDICTION RESULT ========================= -->
-{% if prediction %}
-<div class="alert mt-3 
-  {% if probability < 70 %} alert-danger 
-  {% else %} alert-success 
-  {% endif %}">
-  
-  <h5 class="mb-1">Prediction Result</h5>
-
-  <p class="mb-2">
-    <strong>Eligibility:</strong>
-    {% if probability < 70 %}
-      <span class="text-danger">Not Eligible</span>
-    {% else %}
-      <span class="text-success">Eligible</span>
-    {% endif %}
-    <br>
-
-    <strong>Confidence:</strong> {{ probability|floatformat:2 }}%
-  </p>
-
-  <h6>Inputs Used:</h6>
-  <pre class="small bg-light p-2 border rounded">{{ inputs_used }}</pre>
-
-</div>
-{% endif %}
-
-<!-- ========================= CHART SCRIPTS ========================= -->
+<!-- ===================== JSON DATA ===================== -->
 {{ program_labels|json_script:"program_labels" }}
 {{ program_values|json_script:"program_values" }}
 {{ status_labels|json_script:"status_labels" }}
 {{ status_values|json_script:"status_values" }}
 {{ month_labels|json_script:"month_labels" }}
 {{ month_values|json_script:"month_values" }}
+{{ eligibility_labels|json_script:"eligibility_labels" }}
+{{ eligibility_values|json_script:"eligibility_values" }}
 
 <script>
-const programs = JSON.parse(document.getElementById('program_labels').textContent);
-const programCounts = JSON.parse(document.getElementById('program_values').textContent);
-const statuses = JSON.parse(document.getElementById('status_labels').textContent);
-const statusCounts = JSON.parse(document.getElementById('status_values').textContent);
-const monthLabels = JSON.parse(document.getElementById('month_labels').textContent);
-const monthCounts = JSON.parse(document.getElementById('month_values').textContent);
+// Helper function to safely parse JSON data
+function safeParseJSON(elementId, defaultValue = []) {
+  try {
+    const element = document.getElementById(elementId);
+    if (!element || !element.textContent) {
+      console.warn(`Element ${elementId} not found or empty, using default:`, defaultValue);
+      return defaultValue;
+    }
+    return JSON.parse(element.textContent);
+  } catch (error) {
+    console.error(`Error parsing ${elementId}:`, error);
+    return defaultValue;
+  }
+}
 
-new Chart(document.getElementById('barChart'), {
-    type: 'bar',
-    data: { labels: programs, datasets: [{ label: 'Beneficiaries', data: programCounts, borderRadius:6, barThickness:28 }] },
-    options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+// Parse all data with error handling
+const programs = safeParseJSON("program_labels", ["No Data"]);
+const programCounts = safeParseJSON("program_values", [0]);
+const statuses = safeParseJSON("status_labels", ["No Data"]);
+const statusCounts = safeParseJSON("status_values", [0]);
+const months = safeParseJSON("month_labels", ["No Data"]);
+const monthCounts = safeParseJSON("month_values", [0]);
+const eligibilityLabels = safeParseJSON("eligibility_labels", ["Eligible", "Not Eligible"]);
+const eligibilityValues = safeParseJSON("eligibility_values", [0, 0]);
+
+console.log("Dashboard Data Loaded:", {
+  programs, programCounts, statuses, statusCounts, 
+  months, monthCounts, eligibilityLabels, eligibilityValues
 });
 
-new Chart(document.getElementById('doughnutChart'), {
-    type: 'doughnut',
-    data: { labels: statuses, datasets:[{ data: statusCounts }] },
-    options: { responsive:true, cutout: '70%', plugins:{legend:{position:'bottom'}} }
+// Vibrant color palettes
+const barChartColors = [
+  'rgba(99, 102, 241, 0.85)',   // Indigo
+  'rgba(236, 72, 153, 0.85)',   // Pink
+  'rgba(251, 146, 60, 0.85)',   // Orange
+  'rgba(34, 197, 94, 0.85)',    // Green
+  'rgba(59, 130, 246, 0.85)',   // Blue
+  'rgba(168, 85, 247, 0.85)',   // Purple
+  'rgba(239, 68, 68, 0.85)',    // Red
+  'rgba(20, 184, 166, 0.85)',   // Teal
+  'rgba(245, 158, 11, 0.85)',   // Amber
+  'rgba(139, 92, 246, 0.85)'    // Violet
+];
+
+const barChartHoverColors = barChartColors.map(color => color.replace('0.85', '1'));
+
+const doughnutChartColors = [
+  'rgba(249, 115, 22, 0.85)',   // Orange
+  'rgba(6, 182, 212, 0.85)',    // Cyan
+  'rgba(168, 85, 247, 0.85)',   // Purple
+  'rgba(236, 72, 153, 0.85)',   // Pink
+  'rgba(34, 197, 94, 0.85)',    // Green
+  'rgba(239, 68, 68, 0.85)',    // Red
+  'rgba(59, 130, 246, 0.85)',   // Blue
+  'rgba(245, 158, 11, 0.85)',   // Amber
+  'rgba(20, 184, 166, 0.85)',   // Teal
+  'rgba(217, 70, 239, 0.85)'    // Fuchsia
+];
+
+const doughnutHoverColors = doughnutChartColors.map(color => color.replace('0.85', '1'));
+
+// Bar Chart - Beneficiaries per Program
+const barCtx = document.getElementById("barChart");
+if (barCtx) {
+  new Chart(barCtx, {
+    type: "bar",
+    data: {
+      labels: programs,
+      datasets: [{
+        data: programCounts,
+        backgroundColor: barChartColors.slice(0, programs.length),
+        hoverBackgroundColor: barChartHoverColors.slice(0, programs.length),
+        borderRadius: 10,
+        barThickness: 40,
+        borderWidth: 2,
+        borderColor: 'rgba(255, 255, 255, 0.8)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: { 
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          padding: 15,
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 },
+          cornerRadius: 10,
+          displayColors: true,
+          boxWidth: 10,
+          boxHeight: 10,
+          boxPadding: 5
+        }
+      },
+      scales: { 
+        y: { 
+          beginAtZero: true,
+          grid: { 
+            color: 'rgba(0, 0, 0, 0.05)',
+            drawBorder: false
+          },
+          ticks: { 
+            font: { size: 12 },
+            padding: 10
+          }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { 
+            font: { size: 12 },
+            padding: 5
+          }
+        }
+      },
+      animation: {
+        duration: 2000,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
+}
+
+// Doughnut Chart - Application Status
+const doughnutCtx = document.getElementById("doughnutChart");
+if (doughnutCtx) {
+  new Chart(doughnutCtx, {
+    type: "doughnut",
+    data: {
+      labels: statuses,
+      datasets: [{
+        data: statusCounts,
+        backgroundColor: doughnutChartColors.slice(0, statuses.length),
+        hoverBackgroundColor: doughnutHoverColors.slice(0, statuses.length),
+        borderWidth: 3,
+        borderColor: '#fff',
+        hoverBorderWidth: 4,
+        hoverOffset: 15
+      }]
+    },
+    options: {
+      cutout: "65%",
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: { 
+        legend: { 
+          position: "bottom",
+          labels: {
+            padding: 20,
+            font: { size: 12, weight: '600' },
+            usePointStyle: true,
+            pointStyle: 'circle',
+            generateLabels: function(chart) {
+              const data = chart.data;
+              if (data.labels.length && data.datasets.length) {
+                return data.labels.map((label, i) => {
+                  const value = data.datasets[0].data[i];
+                  return {
+                    text: `${label} (${value})`,
+                    fillStyle: data.datasets[0].backgroundColor[i],
+                    hidden: false,
+                    index: i
+                  };
+                });
+              }
+              return [];
+            }
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          padding: 15,
+          cornerRadius: 10,
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 },
+          callbacks: {
+            label: function(context) {
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+              return ` ${context.label}: ${context.parsed} (${percentage}%)`;
+            }
+          }
+        }
+      },
+      animation: {
+        animateRotate: true,
+        animateScale: true,
+        duration: 2000,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
+}
+
+// Eligibility Chart
+const eligibilityCtx = document.getElementById("eligibilityChart");
+if (eligibilityCtx) {
+  new Chart(eligibilityCtx, {
+    type: "bar",
+    data: {
+      labels: eligibilityLabels,
+      datasets: [{
+        data: eligibilityValues,
+        backgroundColor: [
+          'rgba(34, 197, 94, 0.85)',   // green
+          'rgba(239, 68, 68, 0.85)'    // red
+        ],
+        hoverBackgroundColor: [
+          'rgba(34, 197, 94, 1)',
+          'rgba(239, 68, 68, 1)'
+        ],
+        borderRadius: 10,
+        barThickness: 60,
+        borderWidth: 2,
+        borderColor: 'rgba(255, 255, 255, 0.8)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: { 
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          padding: 15,
+          cornerRadius: 10
+        }
+      },
+      scales: { 
+        y: { 
+          beginAtZero: true,
+          grid: { 
+            color: 'rgba(0, 0, 0, 0.05)',
+            drawBorder: false
+          }
+        },
+        x: {
+          grid: { display: false }
+        }
+      },
+      animation: { 
+        duration: 1500,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
+}
+
+// Line Chart - Active Clients Over Time
+const lineCtx = document.getElementById("lineChart");
+if (lineCtx) {
+  const lineGradient = lineCtx.getContext('2d').createLinearGradient(0, 0, 0, 300);
+  lineGradient.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
+  lineGradient.addColorStop(1, 'rgba(99, 102, 241, 0.01)');
+
+  new Chart(lineCtx, {
+    type: "line",
+    data: {
+      labels: months,
+      datasets: [{
+        data: monthCounts,
+        fill: true,
+        backgroundColor: lineGradient,
+        borderColor: 'rgba(99, 102, 241, 0.9)',
+        borderWidth: 3,
+        tension: 0.4,
+        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 3,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: 'rgba(99, 102, 241, 1)',
+        pointHoverBorderWidth: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: { 
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          padding: 15,
+          cornerRadius: 10,
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 }
+        }
+      },
+      scales: { 
+        y: { 
+          beginAtZero: true,
+          grid: { 
+            color: 'rgba(0, 0, 0, 0.05)',
+            drawBorder: false
+          },
+          ticks: { 
+            font: { size: 12 },
+            padding: 10
+          }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { 
+            font: { size: 12 },
+            padding: 5
+          }
+        }
+      },
+      animation: {
+        duration: 2000,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
+}
+
+// Counter Animation
+function animateCounter(element) {
+  const target = parseInt(element.getAttribute('data-target')) || 0;
+  const duration = 2000;
+  const increment = target / (duration / 16);
+  let current = 0;
+  
+  const timer = setInterval(() => {
+    current += increment;
+    if (current >= target) {
+      element.textContent = target.toLocaleString();
+      clearInterval(timer);
+    } else {
+      element.textContent = Math.floor(current).toLocaleString();
+    }
+  }, 16);
+}
+
+// Intersection Observer for animations
+const observerOptions = {
+  threshold: 0.2,
+  rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      
+      // Animate counters
+      if (entry.target.classList.contains('stat-card')) {
+        const counter = entry.target.querySelector('.counter-number');
+        if (counter && !counter.classList.contains('animated')) {
+          counter.classList.add('animated');
+          animateCounter(counter);
+        }
+      }
+    }
+  });
+}, observerOptions);
+
+// Observe all animated elements
+document.querySelectorAll('.card-animate, .table-row-animate').forEach(el => {
+  observer.observe(el);
 });
 
-new Chart(document.getElementById('lineChart'), {
-    type: 'line',
-    data: { labels: monthLabels, datasets:[{ label:'Active Clients', data: monthCounts, fill:true, tension:0.3 }] },
-    options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+// Add hover effect to table rows
+document.querySelectorAll('.modern-table tbody tr').forEach(row => {
+  row.addEventListener('mouseenter', function() {
+    this.style.transform = 'scale(1.01)';
+  });
+  row.addEventListener('mouseleave', function() {
+    this.style.transform = 'scale(1)';
+  });
 });
 </script>
+
+<style>
+/* ===================== ANIMATIONS ===================== */
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* ===================== PAGE HEADER ===================== */
+.page-header {
+  position: relative;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(0, 109, 91, 0.05), rgba(15, 161, 140, 0.05));
+  border-radius: 1rem;
+  margin-bottom: 2rem !important;
+}
+
+.animate-slide-in {
+  animation: slideInDown 0.6s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.8s ease-out 0.2s backwards;
+}
+
+.pulse-dot {
+  width: 12px;
+  height: 12px;
+  background: #10b981;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+}
+
+/* ===================== STAT CARDS ===================== */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+  transition: left 0.5s;
+}
+
+.stat-card:hover::before {
+  left: 100%;
+}
+
+.stat-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 1rem 2rem rgba(0, 109, 91, 0.15) !important;
+}
+
+.icon-wrapper {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover .icon-wrapper {
+  transform: rotate(360deg) scale(1.1);
+}
+
+.icon-primary { color: #006d5b; }
+.icon-warning { color: #f59e0b; }
+.icon-success { color: #10b981; }
+.icon-danger { color: #ef4444; }
+
+.card-glow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  animation: glow 2s ease-in-out infinite;
+}
+
+.glow-primary { background: linear-gradient(90deg, #006d5b, #0fa18c); }
+.glow-warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.glow-success { background: linear-gradient(90deg, #10b981, #34d399); }
+.glow-danger { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+/* ===================== CARD ANIMATIONS ===================== */
+.card-animate {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease-out;
+}
+
+.card-animate.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===================== CHART CARDS ===================== */
+.chart-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.chart-card .badge {
+  font-size: 0.7rem;
+  padding: 0.35em 0.65em;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ===================== TABLE STYLING ===================== */
+.table-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.modern-table {
+  margin-bottom: 0;
+}
+
+.modern-table thead th {
+  border-bottom: 2px solid #e2e8f0;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1rem;
+}
+
+.modern-table tbody tr {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.modern-table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(0, 109, 91, 0.03), transparent);
+  transform: scale(1.01);
+}
+
+.table-row-animate {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: all 0.4s ease-out;
+}
+
+.table-row-animate.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.hover-link {
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.hover-link:hover {
+  transform: translateX(5px);
+  color: #0fa18c !important;
+}
+
+/* ===================== RESPONSIVE ADJUSTMENTS ===================== */
+@media (max-width: 768px) {
+  .stat-card {
+    margin-bottom: 1rem;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+  
+  .pulse-dot {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+}
+
+/* ===================== COUNTER STYLING ===================== */
+.counter-number {
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s ease;
+}
+
+.stat-card:hover .counter-number {
+  color: #006d5b;
+}
+</style>
 
 {% endblock %}

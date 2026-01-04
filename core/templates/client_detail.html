@@ -1,50 +1,56 @@
 {% extends "base.html" %}
+{% block page_title %}Client Details{% endblock %}
 {% block content %}
-<div class="card p-4">
-  <h4>Client Details</h4>
-  <p><strong>Name:</strong> {{ client.first_name }} {{ client.last_name }}</p>
-  <p><strong>Email:</strong> {{ client.email }}</p>
-  <p><strong>Barangay:</strong> {{ client.barangay }}</p>
+
+<div class="card shadow-sm p-4">
+
+  <h4 class="fw-bold mb-3">Beneficiary Details</h4>
+
+  <h6 class="text-success">Personal Information</h6>
+  <p><strong>Name:</strong> {{ client.first_name }} {{ client.middle_name }} {{ client.last_name }}</p>
+  <p><strong>Sex:</strong> {{ client.sex }}</p>
+  <p><strong>Date of Birth:</strong> {{ client.birth_date }}</p>
+  <p><strong>Civil Status:</strong> {{ client.civil_status }}</p>
+  <p><strong>Nationality:</strong> {{ client.nationality }}</p>
 
   <hr>
-  <h5>Applications</h5>
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Program</th>
-        <th>Status</th>
-        <th>Amount</th>
-        <th>Documents</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for app in applications %}
-      <tr>
-        <td>{{ forloop.counter }}</td>
-        <td>{{ app.program }}</td>
-        <td>{{ app.status }}</td>
-        <td>₱{{ app.amount|floatformat:2 }}</td>
-        <td>
-          {% for doc in app.documents.all %}
-            <a href="{% url 'document_download' doc.id %}">{{ doc.name|default:doc.file.name }}</a>{% if not forloop.last %}, {% endif %}
-          {% empty %}
-            No documents
-          {% endfor %}
-        </td>
-        <td>
-          <a href="{% url 'application_detail' app.id %}" class="btn btn-sm btn-primary">View</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="6">No applications found for this client.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
 
-  <div class="mt-3">
-    <a href="{% url 'pending_applications' %}" class="btn btn-secondary">Back to Pending Applications</a>
-  </div>
+  <h6 class="text-success">Address & Contact</h6>
+  <p><strong>Address:</strong> {{ client.address }}</p>
+  <p><strong>Barangay:</strong> {{ client.barangay }}</p>
+  <p><strong>Municipality:</strong> {{ client.municipality }}</p>
+  <p><strong>Contact:</strong> {{ client.contact_no }}</p>
+  <p><strong>Email:</strong> {{ client.email }}</p>
+
+  <hr>
+
+  <h6 class="text-success">Socio-Economic Profile</h6>
+  <p><strong>Livelihood:</strong> {{ client.livelihood }}</p>
+  <p><strong>Monthly Income:</strong> ₱{{ client.monthly_income }}</p>
+  <p><strong>Household Size:</strong> {{ client.household_size }}</p>
+  <p><strong>Disability:</strong> {{ client.has_disability }}</p>
+  <p><strong>Senior Citizen:</strong> {{ client.is_senior }}</p>
+  <p><strong>Previous Aid:</strong> {{ client.previous_aid }}</p>
+
+  <hr>
+
+  <h6 class="text-success">Assistance Request</h6>
+  <p><strong>Type:</strong> {{ client.aid_type }}</p>
+  <p><strong>Requested Amount:</strong> ₱{{ client.requested_amount }}</p>
+  <p><strong>Reason:</strong> {{ client.reason }}</p>
+
+  <hr>
+
+  <h6 class="text-success">Status & Prediction</h6>
+  <p><strong>Status:</strong> {{ client.status }}</p>
+  <p><strong>Eligibility Result:</strong>
+    {{ client.eligibility_result|default:"Not yet evaluated" }}
+  </p>
+
+  <a href="{% url 'pending_applications' %}" class="btn btn-secondary mt-3">
+    Back to List
+  </a>
+
 </div>
+
 {% endblock %}

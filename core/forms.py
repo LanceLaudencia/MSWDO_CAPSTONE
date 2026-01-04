@@ -21,13 +21,12 @@ class ClientForm(forms.ModelForm):
 class ApplicationForm(forms.ModelForm):
     class Meta:
         model = Application
-        fields = ['program', 'status', 'amount']
+        fields = ['aid_type', 'status', 'requested_amount']  # <-- use requested_amount
         widgets = {
-            'program': forms.Select(attrs={'class': 'form-control'}),
+            'aid_type': forms.Select(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
-            'amount': forms.NumberInput(attrs={'class': 'form-control'}),
+            'requested_amount': forms.NumberInput(attrs={'class': 'form-control'}),  # <-- updated
         }
-
 
 class SignupForm(UserCreationForm):
     role = forms.ChoiceField(choices=User.ROLES)
@@ -49,31 +48,35 @@ class DocumentUploadForm(forms.ModelForm):
 
 # FIXED — properly defined OUTSIDE the Meta class
 class AssistanceFilterForm(forms.Form):
-    program = forms.ChoiceField(
-        choices=[
-            ('SEA', 'SEA'),
-            ('AICS', 'AICS'),
-            ('REDCARD', 'REDCARD'),
-        ],
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
+    PROGRAM_CHOICES = [
+        ('SEA', 'SEA'),
+        ('AICS', 'AICS'),
+        ('REDCARD', 'RED CARD'),
+        ('EA', 'Educational Assistance (EA)'),
+    ]
 
+    STATUS_CHOICES = [
+        ('', 'All Status'),
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('referral', 'Referral'),
+        ('other', 'Others'),
+    ]
+
+    program = forms.ChoiceField(
+        choices=PROGRAM_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    status = forms.ChoiceField(
+        choices=STATUS_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
     q = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Search name or email'})
-    )
-
-    status = forms.ChoiceField(
-        choices=[
-            ('', 'All Status'),
-            ('pending', 'Pending'),
-            ('approved', 'Approved'),
-            ('rejected', 'Rejected'),
-            ('referral', 'Referral'),
-        ],
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Search name/email'})
     )
 
 

@@ -1,103 +1,436 @@
 {% extends "base.html" %}
+
+{% block page_title %}
+  <i class="bi bi-person-circle"></i>
+  Account
+{% endblock %}
+
+{% block breadcrumb %}Account{% endblock %}
+
 {% block content %}
 
-<div class="container mt-4">
+<style>
+  .admin-info-card {
+    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
+    border-radius: 20px;
+    padding: 36px 40px;
+    box-shadow: 0 8px 24px rgba(20, 84, 51, 0.25);
+    color: #fff;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
 
-    <!-- Page Header -->
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <h2 class="fw-bold text-primary">Admin Dashboard</h2>
+  .admin-info-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .admin-info-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .admin-icon {
+    font-size: 64px;
+    background: rgba(255, 255, 255, 0.2);
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+  }
+
+  .admin-details h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .admin-badge {
+    background: rgba(255, 215, 0, 0.9);
+    color: #000;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .admin-email {
+    font-size: 16px;
+    opacity: 0.95;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .admin-email i {
+    font-size: 18px;
+  }
+
+  .staff-section-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 0;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+  }
+
+  .staff-section-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 24px 28px;
+    border-bottom: 3px solid #145433;
+  }
+
+  .staff-section-header h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0d3821;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .staff-section-header h4 i {
+    font-size: 24px;
+    color: #145433;
+  }
+
+  .staff-count-badge {
+    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-left: auto;
+  }
+
+  .table-container {
+    padding: 0;
+  }
+
+  .table {
+    margin: 0;
+    width: 100%;
+  }
+
+  .table thead {
+    background: linear-gradient(135deg, #0d3821 0%, #145433 100%);
+    color: #fff;
+  }
+
+  .table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    padding: 18px 20px;
+    border: none;
+    white-space: nowrap;
+  }
+
+  .table tbody td {
+    padding: 20px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f3f5;
+  }
+
+  .table-hover tbody tr {
+    transition: all 0.25s ease;
+  }
+
+  .table-hover tbody tr:hover {
+    background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
+    transform: scale(1.005);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .row-number {
+    font-weight: 700;
+    color: #6c757d;
+    font-size: 15px;
+  }
+
+  .staff-name {
+    font-weight: 600;
+    color: #0d3821;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .staff-name i {
+    color: #145433;
+    font-size: 16px;
+  }
+
+  .staff-email {
+    color: #6c757d;
+    font-size: 14px;
+  }
+
+  .last-login {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .last-login-date {
+    font-size: 14px;
+    color: #495057;
+    font-weight: 500;
+  }
+
+  .last-login-time {
+    font-size: 12px;
+    color: #6c757d;
+  }
+
+  .status-badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .status-badge.active {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: #fff;
+  }
+
+  .status-badge.active::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .status-badge.inactive {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: #fff;
+  }
+
+  .toggle-btn {
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid;
+    background: transparent;
+  }
+
+  .toggle-btn.deactivate {
+    border-color: #dc3545;
+    color: #dc3545;
+  }
+
+  .toggle-btn.deactivate:hover {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.3);
+  }
+
+  .toggle-btn.activate {
+    border-color: #28a745;
+    color: #28a745;
+  }
+
+  .toggle-btn.activate:hover {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.3);
+  }
+
+  .empty-state {
+    padding: 80px 20px;
+    text-align: center;
+  }
+
+  .empty-state i {
+    font-size: 80px;
+    color: #dee2e6;
+    margin-bottom: 20px;
+  }
+
+  .empty-state h5 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .empty-state p {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .admin-info-content {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .admin-icon {
+      width: 80px;
+      height: 80px;
+      font-size: 56px;
+    }
+
+    .admin-details h3 {
+      font-size: 20px;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .staff-section-header {
+      padding: 20px;
+    }
+
+    .staff-section-header h4 {
+      font-size: 18px;
+      flex-wrap: wrap;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+  }
+</style>
+
+<!-- Admin Info Card -->
+<div class="admin-info-card">
+  <div class="admin-info-content">
+    <div class="admin-icon">
+      👑
     </div>
-
-    <!-- Admin Info Card -->
-    <div class="card shadow-sm border-0 rounded-3 mb-4">
-        <div class="card-body p-4">
-            <h5 class="card-title mb-3">
-                👑 Admin Account
-            </h5>
-
-            <p class="text-muted mb-1">
-                Signed in as:
-                <span class="fw-semibold text-dark">
-                    {{ admin.get_full_name|default:admin.username }}
-                </span>
-                ({{ admin.email }})
-            </p>
-        </div>
+    <div class="admin-details">
+      <h3>
+        {{ admin.get_full_name|default:admin.username }}
+        <span class="admin-badge">Administrator</span>
+      </h3>
+      <div class="admin-email">
+        <i class="bi bi-envelope-fill"></i>
+        {{ admin.email }}
+      </div>
     </div>
-
-    <!-- Staff Accounts Section -->
-    <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-body p-4">
-
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold text-secondary m-0">👥 Staff Accounts</h5>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Last Login</th>
-                            <th>Status</th>
-                            <th class="text-center">Action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for staff in staffs %}
-                        <tr class="hover-row">
-                            <td>{{ forloop.counter }}</td>
-                            <td class="fw-semibold">{{ staff.get_full_name|default:staff.username }}</td>
-                            <td>{{ staff.email }}</td>
-                            <td>{{ staff.last_login|date:"Y-m-d H:i" }}</td>
-                            <td>
-                                {% if staff.is_active %}
-                                    <span class="badge bg-success">Active</span>
-                                {% else %}
-                                    <span class="badge bg-danger">Deactivated</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-center">
-                                <form method="post" action="{% url 'toggle_staff' staff.id %}">
-                                    {% csrf_token %}
-                                    <button class="btn btn-sm btn-primary px-3" type="submit">
-                                        {% if staff.is_active %}
-                                            Deactivate
-                                        {% else %}
-                                            Activate
-                                        {% endif %}
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-3">
-                                No staff accounts found.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-
-                </table>
-            </div>
-
-        </div>
-    </div>
-
+  </div>
 </div>
 
+<!-- Staff Accounts Section -->
+<div class="staff-section-card">
+  <div class="staff-section-header">
+    <h4>
+      <i class="bi bi-people-fill"></i>
+      Staff Management
+      <span class="staff-count-badge">{{ staffs|length }} Staff Member{{ staffs|length|pluralize }}</span>
+    </h4>
+  </div>
 
-<style>
-    .hover-row {
-        transition: background-color 0.2s ease;
-    }
-    .hover-row:hover {
-        background-color: #f8f9fa !important;
-    }
-</style>
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="width: 60px;">#</th>
+            <th style="min-width: 180px;">Staff Member</th>
+            <th style="min-width: 200px;">Email Address</th>
+            <th style="min-width: 150px;">Last Login</th>
+            <th style="min-width: 120px;">Status</th>
+            <th style="min-width: 150px;" class="text-center">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for staff in staffs %}
+          <tr>
+            <td class="row-number">{{ forloop.counter }}</td>
+            
+            <td>
+              <div class="staff-name">
+                <i class="bi bi-person-badge"></i>
+                {{ staff.get_full_name|default:staff.username }}
+              </div>
+            </td>
+            
+            <td class="staff-email">{{ staff.email }}</td>
+            
+            <td>
+              {% if staff.last_login %}
+              <div class="last-login">
+                <div class="last-login-date">{{ staff.last_login|date:"M d, Y" }}</div>
+                <div class="last-login-time">{{ staff.last_login|date:"h:i A" }}</div>
+              </div>
+              {% else %}
+              <span class="text-muted">Never</span>
+              {% endif %}
+            </td>
+            
+            <td>
+              {% if staff.is_active %}
+                <span class="status-badge active">Active</span>
+              {% else %}
+                <span class="status-badge inactive">Inactive</span>
+              {% endif %}
+            </td>
+            
+            <td class="text-center">
+              <form method="post" action="{% url 'toggle_staff' staff.id %}" style="display: inline;">
+                {% csrf_token %}
+                <button class="toggle-btn {% if staff.is_active %}deactivate{% else %}activate{% endif %}" type="submit">
+                  {% if staff.is_active %}
+                    <i class="bi bi-x-circle"></i> Deactivate
+                  {% else %}
+                    <i class="bi bi-check-circle"></i> Activate
+                  {% endif %}
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <i class="bi bi-person-x"></i>
+                <h5>No Staff Members</h5>
+                <p>There are currently no staff accounts in the system.</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
 {% endblock %}

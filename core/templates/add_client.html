@@ -1,56 +1,244 @@
 {% extends "base.html" %}
+{% block page_title %}New Beneficiary{% endblock %}
 {% block content %}
 
-<div class="card p-4" style="max-width:900px">
-  <h4>Add New Client</h4>
+<div class="card shadow-sm p-4" style="max-width:1200px;margin:auto">
 
-  <form method="post">
+  <h4 class="fw-bold mb-1">DSWD Beneficiary Intake & Eligibility Assessment</h4>
+  <p class="text-muted mb-4">
+    Social Welfare Assistance Application (AICS / Medical / Financial / Food)
+  </p>
+
+  <!-- IMPORTANT -->
+  <form method="POST" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
 
-    <div class="row g-2">
-      
-      <div class="col-md-6">
-        {{ form.first_name.label_tag }} {{ form.first_name }}
+    <!-- ================================================= -->
+    <!-- I. PERSONAL INFORMATION -->
+    <!-- ================================================= -->
+    <h6 class="fw-semibold text-success border-bottom pb-2">I. Personal Information</h6>
+
+    <div class="row g-3 mt-2">
+      <div class="col-md-4">
+        <label class="form-label">First Name</label>
+        <input type="text" name="first_name" class="form-control" required>
       </div>
 
-      <div class="col-md-6">
-        {{ form.last_name.label_tag }} {{ form.last_name }}
+      <div class="col-md-4">
+        <label class="form-label">Middle Name</label>
+        <input type="text" name="middle_name" class="form-control">
       </div>
 
-      <div class="col-md-6">
-        {{ form.email.label_tag }} {{ form.email }}
+      <div class="col-md-4">
+        <label class="form-label">Last Name</label>
+        <input type="text" name="last_name" class="form-control" required>
       </div>
 
-      <div class="col-md-6">
-        {{ form.contact_no.label_tag }} {{ form.contact_no }}
+      <div class="col-md-3">
+        <label class="form-label">Sex</label>
+        <select name="sex" class="form-select" required>
+          <option value="">Select</option>
+          <option>Male</option>
+          <option>Female</option>
+        </select>
       </div>
 
-      <div class="col-md-6">
-        {{ form.barangay.label_tag }} {{ form.barangay }}
+      <div class="col-md-3">
+        <label class="form-label">Date of Birth</label>
+        <input type="date" name="birth_date" class="form-control" required>
       </div>
 
-      <div class="col-md-6">
-        {{ form.livelihood.label_tag }} {{ form.livelihood }}
+      <div class="col-md-3">
+        <label class="form-label">Civil Status</label>
+        <select name="civil_status" class="form-select" required>
+          <option value="">Select</option>
+          <option>Single</option>
+          <option>Married</option>
+          <option>Widowed</option>
+          <option>Separated</option>
+        </select>
       </div>
 
-      <hr>
-
-      <div class="col-md-6">
-        {{ app_form.program.label_tag }} {{ app_form.program }}
-      </div>
-
-      <div class="col-md-6">
-        {{ app_form.status.label_tag }} {{ app_form.status }}
-      </div>
-
-      <div class="col-md-6">
-        {{ app_form.amount.label_tag }} {{ app_form.amount }}
+      <div class="col-md-3">
+        <label class="form-label">Nationality</label>
+        <input type="text" name="nationality" value="Filipino" class="form-control">
       </div>
     </div>
 
-    <div class="mt-4">
-      <button class="btn btn-success">Create Client</button>
-      <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+    <!-- ================================================= -->
+    <!-- II. ADDRESS & CONTACT -->
+    <!-- ================================================= -->
+    <h6 class="fw-semibold text-success border-bottom pb-2 mt-4">
+      II. Address & Contact Information
+    </h6>
+
+    <div class="row g-3 mt-2">
+      <div class="col-md-6">
+        <label class="form-label">Complete Address</label>
+        <input type="text" name="address" class="form-control" required>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Barangay</label>
+        <input type="text" name="barangay" class="form-control" required>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Municipality</label>
+        <input type="text" name="municipality" class="form-control" required>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Contact Number</label>
+        <input type="text" name="contact_no" class="form-control" required>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control">
+      </div>
+    </div>
+
+    <!-- ================================================= -->
+    <!-- III. SOCIO-ECONOMIC PROFILE -->
+    <!-- ================================================= -->
+    <h6 class="fw-semibold text-success border-bottom pb-2 mt-4">
+      III. Socio-Economic Profile
+    </h6>
+
+    <div class="row g-3 mt-2">
+      <div class="col-md-4">
+        <label class="form-label">Primary Livelihood</label>
+        <input type="text" name="livelihood" class="form-control" required>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Monthly Household Income (₱)</label>
+        <input type="number" name="monthly_income" class="form-control" required>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Household Size</label>
+        <input type="number" name="household_size" class="form-control" required>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Person with Disability</label>
+        <select name="has_disability" class="form-select">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Senior Citizen</label>
+        <select name="is_senior" class="form-select">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Previous DSWD Assistance</label>
+        <select name="previous_aid" class="form-select">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ================================================= -->
+    <!-- IV. ASSISTANCE REQUEST -->
+    <!-- ================================================= -->
+    <h6 class="fw-semibold text-success border-bottom pb-2 mt-4">
+      IV. Assistance Requested
+    </h6>
+
+    <div class="row g-3 mt-2">
+      <div class="col-md-4">
+        <label class="form-label">Type of Assistance</label>
+        <select name="aid_type" class="form-select" required>
+  <option value="">Select</option>
+  <option value="SEA">SEA</option>
+  <option value="AICS">AICS</option>
+  <option value="REDCARD">REDCARD</option>
+  <option value="EA">Educational Assistance</option>
+</select>
+
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Requested Amount (₱)</label>
+        <input type="number" name="requested_amount" class="form-control" required>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Reason for Assistance</label>
+        <input type="text" name="reason" class="form-control" required>
+      </div>
+    </div>
+
+    <!-- DEFAULT STATUS -->
+    <input type="hidden" name="status" value="Pending">
+
+    <!-- ================================================= -->
+    <!-- V. REQUIRED DOCUMENTS -->
+    <!-- ================================================= -->
+    <h6 class="fw-semibold text-success border-bottom pb-2 mt-4">
+      V. Supporting Documents
+    </h6>
+
+    <div class="row g-3 mt-2">
+      <div class="col-md-4">
+        <label class="form-label">Valid Government ID</label>
+        <input type="file" name="valid_id" class="form-control" required>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Barangay Certificate</label>
+        <input type="file" name="barangay_certificate" class="form-control">
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Medical / Other Supporting Document</label>
+        <input type="file" name="other_document" class="form-control">
+      </div>
+    </div>
+
+    <!-- ================================================= -->
+    <!-- VI. ML ELIGIBILITY PREVIEW -->
+    <!-- ================================================= -->
+    <h6 class="fw-semibold text-success border-bottom pb-2 mt-4">
+      VI. ML Eligibility Prediction (Preview)
+    </h6>
+
+    <div class="alert alert-info small">
+      Eligibility will be computed using income, household size,
+      vulnerability indicators, and assistance type.
+      Final approval is subject to MSWDO validation.
+    </div>
+
+    <!-- ================================================= -->
+    <!-- DECLARATION -->
+    <!-- ================================================= -->
+    <div class="form-check mt-3">
+      <input class="form-check-input" type="checkbox" required>
+      <label class="form-check-label small">
+        I certify that the above information is true and correct.
+      </label>
+    </div>
+
+    <!-- ================================================= -->
+    <!-- ACTIONS -->
+    <!-- ================================================= -->
+    <div class="d-flex gap-2 mt-4">
+      <button type="submit" class="btn btn-success px-4">
+        <i class="bi bi-send"></i> Submit Application
+      </button>
+
+      <a href="{% url 'pending_applications' %}" class="btn btn-outline-secondary px-4">
+        Cancel
+      </a>
     </div>
 
   </form>
