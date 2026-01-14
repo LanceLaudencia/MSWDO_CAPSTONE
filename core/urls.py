@@ -41,19 +41,19 @@ urlpatterns = [
   path("pending/", views.pending_applications, name="pending_applications"),
 
   path('client/<int:pk>/', views.client_detail, name='client_view'),
-path('client/<int:pk>/delete/', views.client_delete, name='client_delete'),
-path("toggle_staff/<int:staff_id>/", views.toggle_staff_status, name="toggle_staff"),
+  path('client/<int:pk>/delete/', views.client_delete, name='client_delete'),
+  path("toggle_staff/<int:staff_id>/", views.toggle_staff_status, name="toggle_staff"),
 
 
    
-path("api/dashboard/", dashboard_data, name="dashboard_data"),
+  path("api/dashboard/", dashboard_data, name="dashboard_data"),
 
-    path('api/test/', test_api, name='test_api'),
+  path('api/test/', test_api, name='test_api'),
 
     # Application actions
-path('application/<int:pk>/approve/', views.application_approve, name='application_approve'),
-path('application/<int:pk>/reject/', views.application_reject, name='application_reject'),
-path('application/<int:pk>/edit/', views.application_edit, name='application_edit'),
+  path('application/<int:pk>/approve/', views.application_approve, name='application_approve'),
+  path('application/<int:pk>/reject/', views.application_reject, name='application_reject'),
+  path('application/<int:pk>/edit/', views.application_edit, name='application_edit'),
 
 ]
 
