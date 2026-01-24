@@ -121,3 +121,94 @@ class Assistance(models.Model):
 
     def __str__(self):
         return f"{self.client.full_name} - {self.program}"
+
+
+class AICSDetail(models.Model):
+    CRISIS_CHOICES = [
+        ('Medical', 'Medical'),
+        ('Burial', 'Burial'),
+        ('Transportation', 'Transportation'),
+        ('Educational', 'Educational'),
+    ]
+
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='aics_detail'
+    )
+
+    crisis_type = models.CharField(max_length=50, choices=CRISIS_CHOICES)
+    assessment_findings = models.TextField()
+
+    approved_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    released_at = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"AICS - {self.application.client.full_name}"
+
+
+class SEADetail(models.Model):
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='sea_detail'
+    )
+
+    business_type = models.CharField(max_length=255)
+    capital_requested = models.DecimalField(max_digits=12, decimal_places=2)
+
+    training_completed = models.BooleanField(default=False)
+    monitoring_notes = models.TextField(blank=True, null=True)
+
+    released_at = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"SEA - {self.application.client.full_name}"
+
+
+class REDCARDDetail(models.Model):
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='redcard_detail'
+    )
+
+    emergency_type = models.CharField(max_length=255)
+    reason = models.TextField(blank=True, null=True)
+
+    usage_count = models.PositiveIntegerField(default=1)
+    allowable_limit = models.PositiveIntegerField(default=3)
+
+    released_at = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"REDCARD - {self.application.client.full_name}"
+
+
+class EducationalAssistanceDetail(models.Model):
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='educational_detail'
+    )
+
+    school_name = models.CharField(max_length=255)
+    course_or_grade = models.CharField(max_length=255)
+
+    approved_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    released_at = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Educational - {self.application.client.full_name}"

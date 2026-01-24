@@ -1,4 +1,6 @@
 from pathlib import Path
+import pymysql
+pymysql.install_as_MySQLdb()
 
 # ======================
 # BASE DIRECTORY
@@ -99,10 +101,18 @@ TEMPLATES = [
 # ======================
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mswdo_db',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
     }
 }
+
 
 
 # ======================
@@ -126,13 +136,14 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'core.User'
 
 
+
 # ======================
 # INTERNATIONALIZATION
 # ======================
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Manila'
 USE_I18N = True
-USE_TZ = True
+USE_TZ = False
 
 
 # ======================

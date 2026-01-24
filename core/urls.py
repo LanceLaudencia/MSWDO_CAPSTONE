@@ -54,6 +54,16 @@ urlpatterns = [
   path('application/<int:pk>/approve/', views.application_approve, name='application_approve'),
   path('application/<int:pk>/reject/', views.application_reject, name='application_reject'),
   path('application/<int:pk>/edit/', views.application_edit, name='application_edit'),
+path("assistance/", views.assistance_program, name="assistance_program"),
+
+    # ✅ AICS
+    path("aics/add/", views.add_aics_case, name="add_aics_case"),
+    path("aics/<int:pk>/assessment/", views.aics_assessment, name="aics_assessment"),
+   path("aics/add/", views.add_aics_case, name="add_aics_case"),
+    path("aics/<int:pk>/assessment/", views.aics_assessment, name="aics_assessment"),
+    path("aics/<int:pk>/documents/", views.upload_aics_documents, name="upload_aics_documents"),
+path("aics/<int:pk>/approve/", views.approve_aics, name="approve_aics"),
+
 
 ]
 

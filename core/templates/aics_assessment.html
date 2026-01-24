@@ -1,0 +1,24 @@
+<h2>AICS Assessment</h2>
+
+<form method="post">
+{% csrf_token %}
+
+<label>Crisis Type</label>
+<select name="crisis_type">
+  <option>Medical</option>
+  <option>Burial</option>
+  <option>Transport</option>
+  <option>Educational</option>
+</select>
+
+<label>Assessment Findings</label>
+<textarea name="assessment"></textarea>
+
+<label>Requested Amount</label>
+<input type="number" name="requested_amount">
+
+<button type="submit">
+  Next: Upload Documents →
+</button>
+</form>
+

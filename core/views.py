@@ -110,7 +110,7 @@ def verify(request):
             user.is_verified = True
         user.save()
         del verification_codes[email]
-        return render(request, 'login.html', {"message": "✔ Email verified successfully! You can now log in."})
+        return render(request, 'verify_message.html', {"message": "✔ Email verified successfully! You can now log in."})
 
     return render(request, 'login.html', {"message": "Invalid verification link or code."})
 
@@ -293,87 +293,121 @@ from datetime import datetime
 from decimal import Decimal
 from ml.model_loader import predict_input
 
+
+from .models import (
+    AICSDetail,
+    SEADetail,
+    REDCARDDetail,
+    EducationalAssistanceDetail,
+)
 @login_required
 def add_client(request):
-    if not (
-        getattr(request.user, 'role', None) in ['staff', 'admin']
-        or request.user.is_superuser
-    ):
-        return redirect('dashboard')
+    # -------------------------
+    # 1️⃣ Role Check
+    # -------------------------
+    if not (getattr(request.user, "role", None) in ["staff", "admin"] or request.user.is_superuser):
+        return redirect("dashboard")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
-            # ===============================
-            # I. CREATE CLIENT
-            # ===============================
+            # -------------------------
+            # 2️⃣ Create Client
+            # -------------------------
             client = Client.objects.create(
-                first_name=request.POST.get('first_name', '').strip(),
-                middle_name=request.POST.get('middle_name') or None,
-                last_name=request.POST.get('last_name', '').strip(),
+                first_name=request.POST.get("first_name", "").strip(),
+                middle_name=request.POST.get("middle_name") or None,
+                last_name=request.POST.get("last_name", "").strip(),
 
-                sex=request.POST.get('sex') or None,
-                birth_date=datetime.strptime(
-                    request.POST.get('birth_date'), "%Y-%m-%d"
-                ).date() if request.POST.get('birth_date') else None,
+                sex=request.POST.get("sex") or None,
+                birth_date=(datetime.strptime(request.POST.get("birth_date"), "%Y-%m-%d").date()
+                            if request.POST.get("birth_date") else None),
+                civil_status=request.POST.get("civil_status") or None,
+                nationality=request.POST.get("nationality") or "Filipino",
 
-                civil_status=request.POST.get('civil_status') or None,
-                nationality=request.POST.get('nationality') or None,
+                address=request.POST.get("address") or None,
+                barangay=request.POST.get("barangay") or None,
+                municipality=request.POST.get("municipality") or None,
 
-                address=request.POST.get('address') or None,
-                barangay=request.POST.get('barangay') or None,
-                municipality=request.POST.get('municipality') or None,
+                email=request.POST.get("email") or None,
+                contact_no=request.POST.get("contact_no") or None,
 
-                email=request.POST.get('email') or None,
-                contact_no=request.POST.get('contact_no') or None,
+                livelihood=request.POST.get("livelihood") or None,
+                monthly_income=Decimal(request.POST.get("monthly_income") or 0),
+                household_size=int(request.POST.get("household_size") or 1),
 
-                livelihood=request.POST.get('livelihood') or None,
-                monthly_income=Decimal(request.POST.get('monthly_income') or 0),
-                household_size=int(request.POST.get('household_size') or 1),
-
-                has_disability=request.POST.get('has_disability'),
-                is_senior=request.POST.get('is_senior'),
-                previous_aid=request.POST.get('previous_aid'),
+                has_disability=request.POST.get("has_disability") == "Yes",
+                is_senior=request.POST.get("is_senior") == "Yes",
+                previous_aid=request.POST.get("previous_aid") == "Yes",
             )
 
-            # ===============================
-            # II. CREATE APPLICATION
-            # ===============================
+            # -------------------------
+            # 3️⃣ Create Application
+            # -------------------------
+            aid_type = request.POST.get("program")  # 'AICS', 'SEA', 'REDCARD', 'EA'
             application = Application.objects.create(
                 client=client,
-                aid_type=request.POST.get('aid_type'),
-                requested_amount=Decimal(request.POST.get('requested_amount') or 0),
-                reason=request.POST.get('reason') or None,
-                status='pending'
+                aid_type=aid_type,
+                requested_amount=Decimal(request.POST.get("requested_amount") or 0),
+                reason=request.POST.get("reason") or None,
+                status="pending",
             )
 
-            # ===============================
-            # III. ML ELIGIBILITY PREDICTION
-            # ===============================
+            # -------------------------
+            # 4️⃣ ML Eligibility Prediction
+            # -------------------------
             ml_input = {
                 "monthly_income": float(client.monthly_income),
                 "household_size": client.household_size,
-                "has_disability": 1 if client.has_disability == 'Yes' else 0,
-                "is_senior": 1 if client.is_senior == 'Yes' else 0,
-                "previous_aid": 1 if client.previous_aid == 'Yes' else 0,
+                "has_disability": int(client.has_disability),
+                "is_senior": int(client.is_senior),
+                "previous_aid": int(client.previous_aid),
             }
 
             prediction = predict_input(ml_input)
-
-            application.eligibility_result = (
-                "Eligible" if prediction == 1 else "Not Eligible"
-            )
-            application.status = (
-                "approved" if prediction == 1 else "pending"
-            )
+            application.eligibility_result = "Eligible" if prediction == 1 else "Not Eligible"
             application.save()
 
-            # ===============================
-            # IV. UPLOAD DOCUMENTS
-            # ===============================
+            # -------------------------
+            # 5️⃣ Program-specific Details
+            # -------------------------
+            if aid_type == "AICS":
+                AICSDetail.objects.create(
+                    application=application,
+                    crisis_type=request.POST.get("aics_crisis_type"),
+                    assessment_findings=request.POST.get("aics_assessment"),
+                    approved_amount=Decimal(request.POST.get("aics_approved_amount") or 0),
+                )
+
+            elif aid_type == "SEA":
+                SEADetail.objects.create(
+                    application=application,
+                    business_type=request.POST.get("sea_business_type"),
+                    capital_requested=Decimal(request.POST.get("sea_capital") or 0),
+                    training_completed=request.POST.get("sea_training") == "Yes",
+                    monitoring_notes=request.POST.get("sea_monitoring") or None,
+                )
+
+            elif aid_type == "REDCARD":
+                REDCARDDetail.objects.create(
+                    application=application,
+                    emergency_type=request.POST.get("redcard_emergency_type"),
+                    usage_count=int(request.POST.get("redcard_usage") or 1),
+                )
+
+            elif aid_type == "EA":
+                EducationalAssistanceDetail.objects.create(
+                    application=application,
+                    school_name=request.POST.get("school_name"),
+                    course_or_grade=request.POST.get("course_level"),
+                )
+
+            # -------------------------
+            # 6️⃣ Upload Documents
+            # -------------------------
             files = {
-                'Valid Government ID': request.FILES.get('valid_id'),
-                'Barangay Certificate': request.FILES.get('barangay_certificate'),
-                'Supporting Document': request.FILES.get('other_document'),
+                "Valid Government ID": request.FILES.get("valid_id"),
+                "Barangay Certificate": request.FILES.get("barangay_cert"),
+                "Other Supporting Document": request.FILES.get("other_docs"),
             }
 
             for name, file in files.items():
@@ -381,17 +415,17 @@ def add_client(request):
                     ApplicationDocument.objects.create(
                         application=application,
                         name=name,
-                        file=file
+                        file=file,
                     )
 
-            messages.success(request, "Application submitted & evaluated successfully.")
-            return redirect('application_detail', application.id)
+            messages.success(request, "Client and application saved successfully!")
+            return redirect("application_detail", application.id)
 
         except Exception as e:
-            print("Submission Error:", e)
-            messages.error(request, "Submission failed.")
+            print("ADD CLIENT ERROR:", e)
+            messages.error(request, "Submission failed. Please check the form and try again.")
 
-    return render(request, 'add_client.html')
+    return render(request, "add_client.html")
 
 # --- Simple APIs ---
 @login_required
@@ -898,4 +932,163 @@ def application_edit(request, pk):
     return render(request, 'application_edit.html', {
         'application': application,
         'client': client
+    })
+
+
+@login_required
+def add_aics_case(request):
+    if request.method == "POST":
+
+        # -------------------------------
+        # 1️⃣ SAVE CLIENT
+        # -------------------------------
+        client = Client.objects.create(
+            first_name=request.POST.get("first_name"),
+            middle_name=request.POST.get("middle_name") or None,
+            last_name=request.POST.get("last_name"),
+
+            sex=request.POST.get("sex") or None,
+            birth_date=request.POST.get("birth_date") or None,
+            civil_status=request.POST.get("civil_status") or None,
+
+            address=request.POST.get("address") or None,
+            barangay=request.POST.get("barangay"),
+            municipality=request.POST.get("municipality") or None,
+
+            contact_no=request.POST.get("contact_no") or None,
+            email=request.POST.get("email") or None,
+
+            livelihood=request.POST.get("livelihood") or None,
+            monthly_income=request.POST.get("monthly_income") or None,
+            household_size=request.POST.get("household_size") or None,
+
+            has_disability=request.POST.get("has_disability") or None,
+            is_senior=request.POST.get("is_senior") or None,
+        )
+
+        # -------------------------------
+        # 2️⃣ SAVE APPLICATION (AICS)
+        # -------------------------------
+        application = Application.objects.create(
+            client=client,
+            aid_type="AICS",
+            reason=request.POST.get("reason"),
+            status="pending",
+            eligibility_result="Not yet evaluated"
+        )
+
+        return redirect("aics/aics_assessment", application.id)
+
+    return render(request, "aics/add_aics_case.html")
+
+
+@login_required
+def aics_assessment(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if request.method == "POST":
+        application.reason = request.POST.get("assessment")
+        application.crisis_type = request.POST.get("crisis_type")
+        application.requested_amount = request.POST.get("requested_amount")
+
+        application.status = "assessed"
+        application.save()
+
+        return redirect("upload_aics_documents", application.id)
+
+    return render(request, "aics/aics_assessment.html", {
+        "application": application
+    })
+
+
+@login_required
+def upload_aics_documents(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if request.method == "POST":
+        for f in request.FILES.getlist("documents"):
+            ApplicationDocument.objects.create(
+                application=application,
+                file=f
+            )
+
+        application.status = "pending"
+        application.save()
+
+        return redirect("pending_applications")
+
+    return render(request, "aics/upload_documents.html", {
+        "application": application
+    })
+
+@login_required
+def approve_aics(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+    application.status = "approved"
+    application.save()
+    return redirect("pending_applications")
+
+
+@login_required
+def reject_aics(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+    application.status = "rejected"
+    application.save()
+    return redirect("pending_applications")
+
+@login_required
+def aics_history(request):
+    applications = Application.objects.filter(
+        aid_type="AICS",
+        status="released"
+    ).select_related("client")
+
+    return render(request, "aics/aics_history.html", {
+        "applications": applications
+    })
+
+@login_required
+def release_aics(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if request.method == "POST":
+        application.released_amount = request.POST.get("released_amount")
+        application.status = "released"
+        application.save()
+        return redirect("assistance_program")
+
+    return render(request, "release_aid.html", {
+        "application": application
+    })
+
+@login_required
+def approve_aics(request, pk):
+    application = get_object_or_404(
+        Application,
+        pk=pk,
+        aid_type="AICS"
+    )
+
+    # Only admin or staff
+    if not (
+        getattr(request.user, "role", None) in ["admin", "staff"]
+        or request.user.is_superuser
+    ):
+        return redirect("pending_applications")
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "approve":
+            application.status = "approved"
+            application.eligibility_result = "Eligible"
+        elif action == "reject":
+            application.status = "rejected"
+            application.eligibility_result = "Not Eligible"
+
+        application.save()
+        return redirect("pending_applications")
+
+    return render(request, "approve.html", {
+        "application": application
     })

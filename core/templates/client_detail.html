@@ -7,7 +7,7 @@
   <h4 class="fw-bold mb-3">Beneficiary Details</h4>
 
   <h6 class="text-success">Personal Information</h6>
-  <p><strong>Name:</strong> {{ client.first_name }} {{ client.middle_name }} {{ client.last_name }}</p>
+  <p><strong>Name:</strong> {{ client.first_name }} {% if client.middle_name %}{{ client.middle_name }}{% endif %} {{ client.last_name }}</p>
   <p><strong>Sex:</strong> {{ client.sex }}</p>
   <p><strong>Date of Birth:</strong> {{ client.birth_date }}</p>
   <p><strong>Civil Status:</strong> {{ client.civil_status }}</p>
@@ -28,24 +28,35 @@
   <p><strong>Livelihood:</strong> {{ client.livelihood }}</p>
   <p><strong>Monthly Income:</strong> ₱{{ client.monthly_income }}</p>
   <p><strong>Household Size:</strong> {{ client.household_size }}</p>
-  <p><strong>Disability:</strong> {{ client.has_disability }}</p>
-  <p><strong>Senior Citizen:</strong> {{ client.is_senior }}</p>
-  <p><strong>Previous Aid:</strong> {{ client.previous_aid }}</p>
+  <p><strong>Disability:</strong> {% if client.has_disability %}Yes{% else %}No{% endif %}</p>
+  <p><strong>Senior Citizen:</strong> {% if client.is_senior %}Yes{% else %}No{% endif %}</p>
+  <p><strong>Previous Aid:</strong> {% if client.previous_aid %}Yes{% else %}No{% endif %}</p>
 
   <hr>
 
-  <h6 class="text-success">Assistance Request</h6>
-  <p><strong>Type:</strong> {{ client.aid_type }}</p>
-  <p><strong>Requested Amount:</strong> ₱{{ client.requested_amount }}</p>
-  <p><strong>Reason:</strong> {{ client.reason }}</p>
+  <h6 class="text-success">Applications</h6>
+  {% for app in applications %}
+    <div class="border p-2 mb-2 rounded">
+      <p><strong>Type:</strong> {{ app.aid_type }}</p>
+      <p><strong>Requested Amount:</strong> ₱{{ app.requested_amount }}</p>
+      <p><strong>Reason:</strong> {{ app.reason }}</p>
+      <p><strong>Status:</strong> {{ app.status }}</p>
+      <p><strong>Eligibility Result:</strong> {{ app.eligibility_result|default:"Not yet evaluated" }}</p>
 
-  <hr>
-
-  <h6 class="text-success">Status & Prediction</h6>
-  <p><strong>Status:</strong> {{ client.status }}</p>
-  <p><strong>Eligibility Result:</strong>
-    {{ client.eligibility_result|default:"Not yet evaluated" }}
-  </p>
+      {% if app.documents.all %}
+        <p><strong>Documents:</strong></p>
+        <ul>
+          {% for doc in app.documents.all %}
+            <li>
+              <a href="{{ doc.file.url }}" target="_blank">{{ doc.name }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  {% empty %}
+    <p>No applications yet for this client.</p>
+  {% endfor %}
 
   <a href="{% url 'pending_applications' %}" class="btn btn-secondary mt-3">
     Back to List

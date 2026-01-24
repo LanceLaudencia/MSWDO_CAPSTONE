@@ -1,0 +1,11 @@
+<h2>AICS Assessment</h2>
+
+<form method="post" action="">
+    {% csrf_token %}
+
+    <textarea name="assessment" required></textarea>
+
+    <button type="submit">
+        Submit Assessment
+    </button>
+</form>
