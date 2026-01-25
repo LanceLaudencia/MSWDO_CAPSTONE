@@ -501,20 +501,45 @@ def assistance_program(request, program='SEA'):
 def assistance_export_csv(qs, program):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="{program}_applications.csv"'
+
     writer = csv.writer(response)
-    writer.writerow(['#', 'Full Name', 'Email', 'Barangay', 'Livelihood', 'Amount (₱)', 'Status', 'Date'])
+    writer.writerow([
+        '#',
+        'Full Name',
+        'Email',
+        'Barangay',
+        'Livelihood',
+        'Requested Amount (₱)',
+        'Status',
+        'Date',
+    ])
 
     for idx, app in enumerate(qs, start=1):
-        name = f"{app.client.first_name} {app.client.last_name}"
-        email = app.client.email or ''
-        barangay = app.barangay or ''
-        livelihood = app.livelihood or ''
-        amount = f"₱{float(app.amount or 0):,.2f}"
+        client = app.client
+
+        name = f"{client.first_name} {client.last_name}"
+        email = client.email or ''
+        barangay = client.barangay or ''
+        livelihood = client.livelihood or ''
+        amount = f"₱{float(app.requested_amount or 0):,.2f}"  # ✅ FIXED
         status = app.status
         date = app.created_at.strftime('%Y-%m-%d %H:%M')
-        writer.writerow([idx, smart_str(name), smart_str(email), smart_str(barangay),
-                         smart_str(livelihood), amount, status, date])
+
+        writer.writerow([
+            idx,
+            smart_str(name),
+            smart_str(email),
+            smart_str(barangay),
+            smart_str(livelihood),
+            amount,
+            status,
+            date,
+        ])
+
     return response
+
+
+
 
 @login_required
 def application_detail(request, pk):
@@ -936,159 +961,135 @@ def application_edit(request, pk):
 
 
 @login_required
-def add_aics_case(request):
-    if request.method == "POST":
-
-        # -------------------------------
-        # 1️⃣ SAVE CLIENT
-        # -------------------------------
-        client = Client.objects.create(
-            first_name=request.POST.get("first_name"),
-            middle_name=request.POST.get("middle_name") or None,
-            last_name=request.POST.get("last_name"),
-
-            sex=request.POST.get("sex") or None,
-            birth_date=request.POST.get("birth_date") or None,
-            civil_status=request.POST.get("civil_status") or None,
-
-            address=request.POST.get("address") or None,
-            barangay=request.POST.get("barangay"),
-            municipality=request.POST.get("municipality") or None,
-
-            contact_no=request.POST.get("contact_no") or None,
-            email=request.POST.get("email") or None,
-
-            livelihood=request.POST.get("livelihood") or None,
-            monthly_income=request.POST.get("monthly_income") or None,
-            household_size=request.POST.get("household_size") or None,
-
-            has_disability=request.POST.get("has_disability") or None,
-            is_senior=request.POST.get("is_senior") or None,
-        )
-
-        # -------------------------------
-        # 2️⃣ SAVE APPLICATION (AICS)
-        # -------------------------------
-        application = Application.objects.create(
-            client=client,
-            aid_type="AICS",
-            reason=request.POST.get("reason"),
-            status="pending",
-            eligibility_result="Not yet evaluated"
-        )
-
-        return redirect("aics/aics_assessment", application.id)
-
-    return render(request, "aics/add_aics_case.html")
-
-
-@login_required
-def aics_assessment(request, pk):
+def approve_application(request, pk):
     application = get_object_or_404(Application, pk=pk)
 
-    if request.method == "POST":
-        application.reason = request.POST.get("assessment")
-        application.crisis_type = request.POST.get("crisis_type")
-        application.requested_amount = request.POST.get("requested_amount")
+    if request.user.role not in ['admin'] and not request.user.is_superuser:
+        messages.error(request, "Unauthorized action.")
+        return redirect('client_detail', application.client.id)
 
-        application.status = "assessed"
-        application.save()
-
-        return redirect("upload_aics_documents", application.id)
-
-    return render(request, "aics/aics_assessment.html", {
-        "application": application
-    })
-
-
-@login_required
-def upload_aics_documents(request, pk):
-    application = get_object_or_404(Application, pk=pk)
-
-    if request.method == "POST":
-        for f in request.FILES.getlist("documents"):
-            ApplicationDocument.objects.create(
-                application=application,
-                file=f
-            )
-
-        application.status = "pending"
-        application.save()
-
-        return redirect("pending_applications")
-
-    return render(request, "aics/upload_documents.html", {
-        "application": application
-    })
-
-@login_required
-def approve_aics(request, pk):
-    application = get_object_or_404(Application, pk=pk)
-    application.status = "approved"
+    application.status = 'approved'
+    application.approved_by = request.user
+    application.approved_at = timezone.now()
     application.save()
-    return redirect("pending_applications")
+
+    messages.success(request, "Application approved.")
+    return redirect('client_detail', application.client.id)
 
 
 @login_required
-def reject_aics(request, pk):
+def reject_application(request, pk):
     application = get_object_or_404(Application, pk=pk)
-    application.status = "rejected"
+
+    if request.user.role not in ['admin'] and not request.user.is_superuser:
+        messages.error(request, "Unauthorized action.")
+        return redirect('client_detail', application.client.id)
+
+    application.status = 'rejected'
     application.save()
-    return redirect("pending_applications")
+
+    messages.warning(request, "Application disapproved.")
+    return redirect('client_detail', application.client.id)
+
 
 @login_required
-def aics_history(request):
-    applications = Application.objects.filter(
-        aid_type="AICS",
-        status="released"
-    ).select_related("client")
-
-    return render(request, "aics/aics_history.html", {
-        "applications": applications
-    })
-
-@login_required
-def release_aics(request, pk):
+def release_application(request, pk):
     application = get_object_or_404(Application, pk=pk)
 
     if request.method == "POST":
-        application.released_amount = request.POST.get("released_amount")
-        application.status = "released"
-        application.save()
-        return redirect("assistance_program")
+        amount = Decimal(request.POST.get('released_amount', 0))
 
-    return render(request, "release_aid.html", {
-        "application": application
-    })
+        application.released_amount = amount
+        application.status = 'released'
+        application.released_at = timezone.now()
+        application.save()
+
+        messages.success(request, "Aid released successfully.")
+
+    return redirect('client_detail', application.client.id)
 
 @login_required
-def approve_aics(request, pk):
-    application = get_object_or_404(
-        Application,
-        pk=pk,
-        aid_type="AICS"
-    )
+def approve_application(request, pk):
+    application = get_object_or_404(Application, pk=pk)
 
-    # Only admin or staff
-    if not (
-        getattr(request.user, "role", None) in ["admin", "staff"]
-        or request.user.is_superuser
-    ):
-        return redirect("pending_applications")
+    if request.user.role not in ['admin'] and not request.user.is_superuser:
+        messages.error(request, "Unauthorized action.")
+        return redirect('client_detail', application.client.id)
+
+    application.status = 'approved'
+    application.approved_by = request.user
+    application.approved_at = timezone.now()
+    application.save()
+
+    messages.success(request, "Application approved.")
+    return redirect('client_detail', application.client.id)
+
+
+@login_required
+def reject_application(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if request.user.role not in ['admin'] and not request.user.is_superuser:
+        messages.error(request, "Unauthorized action.")
+        return redirect('client_detail', application.client.id)
+
+    application.status = 'rejected'
+    application.save()
+
+    messages.warning(request, "Application disapproved.")
+    return redirect('client_detail', application.client.id)
+
+
+@login_required
+def release_application(request, pk):
+    application = get_object_or_404(Application, pk=pk)
 
     if request.method == "POST":
-        action = request.POST.get("action")
+        amount = Decimal(request.POST.get('released_amount', 0))
 
-        if action == "approve":
-            application.status = "approved"
-            application.eligibility_result = "Eligible"
-        elif action == "reject":
-            application.status = "rejected"
-            application.eligibility_result = "Not Eligible"
-
+        application.released_amount = amount
+        application.status = 'released'
+        application.released_at = timezone.now()
         application.save()
-        return redirect("pending_applications")
 
-    return render(request, "approve.html", {
-        "application": application
-    })
+        messages.success(request, "Aid released successfully.")
+
+    return redirect('client_detail', application.client.id)
+
+from django.contrib.auth.hashers import make_password
+
+def toggle_staff(request, staff_id):
+    staff = get_object_or_404(User, id=staff_id)
+    staff.is_active = not staff.is_active
+    staff.save()
+    messages.success(request, f"{staff.get_full_name()} is now {'active' if staff.is_active else 'inactive'}.")
+    return redirect('admin_account')
+
+
+def reset_staff_password(request, staff_id):
+    staff = get_object_or_404(User, id=staff_id)
+    # Simple password reset to 'password123' for demo; replace with proper workflow
+    staff.set_password('password123')
+    staff.save()
+    messages.success(request, f"Password for {staff.get_full_name()} has been reset.")
+    return redirect('admin_account')
+
+
+def edit_staff_role(request, staff_id):
+    staff = get_object_or_404(User, id=staff_id)
+    if request.method == "POST":
+        role = request.POST.get('role')
+        staff.role = role
+        staff.save()
+        messages.success(request, f"{staff.get_full_name()}'s role has been updated to {role}.")
+        return redirect('admin_account')
+    return render(request, 'edit_staff_role.html', {'staff': staff})
+
+
+def staff_activity_logs(request, staff_id):
+    staff = get_object_or_404(User, id=staff_id)
+    activity_logs = [
+        {"action": "Account Created", "date": staff.date_joined},
+        {"action": "Last Login", "date": staff.last_login or "Never"}
+    ]
+    return render(request, 'staff_activity_logs.html', {'staff': staff, 'activity_logs': activity_logs})

@@ -2,390 +2,614 @@
 {% block page_title %}New Beneficiary{% endblock %}
 {% block content %}
 
-<div class="card shadow-sm p-4" style="max-width:1200px;margin:auto">
+<style>
+  .intake-wrapper {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 60px 20px;
+  }
+  
+  .form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+  }
+  
+  .form-header {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    padding: 50px 40px;
+    color: white;
+    text-align: center;
+  }
+  
+  .form-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .form-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+  }
+  
+  .form-body {
+    padding: 50px;
+  }
+  
+  .section-divider {
+    display: flex;
+    align-items: center;
+    margin: 40px 0 30px 0;
+    gap: 15px;
+  }
+  
+  .section-divider::before {
+    content: '';
+    width: 6px;
+    height: 40px;
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    border-radius: 3px;
+  }
+  
+  .section-divider h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e3c72;
+    margin: 0;
+    flex-grow: 1;
+  }
+  
+  .section-divider .section-number {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+  
+  .form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+  
+  .form-control, .form-select {
+    border: 2px solid #e1e8ed;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    outline: none;
+  }
+  
+  .program-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 30px;
+    border-radius: 20px;
+    margin-top: 30px;
+    border: 3px solid #667eea;
+  }
+  
+  .program-section h3 {
+    color: #1e3c72;
+    font-weight: 700;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .program-section h3::before {
+    content: '✦';
+    font-size: 1.5rem;
+    color: #667eea;
+  }
+  
+  .alert-info {
+    background: linear-gradient(135deg, #e0f7ff 0%, #d0e8ff 100%);
+    border: 2px solid #4facfe;
+    border-radius: 15px;
+    padding: 20px;
+    color: #1e3c72;
+  }
+  
+  .form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+  }
+  
+  .btn-submit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+  }
+  
+  .btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+  }
+  
+  .btn-cancel {
+    background: white;
+    color: #6c757d;
+    border: 2px solid #e1e8ed;
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-cancel:hover {
+    background: #f8f9fa;
+    border-color: #6c757d;
+    color: #495057;
+  }
+  
+  .file-input-wrapper {
+    position: relative;
+  }
+  
+  .file-input-wrapper input[type="file"] {
+    cursor: pointer;
+  }
+  
+  .file-input-wrapper input[type="file"]::file-selector-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    margin-right: 15px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .file-input-wrapper input[type="file"]::file-selector-button:hover {
+    transform: scale(1.05);
+  }
+  
+  .declaration-box {
+    background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
+    border: 2px solid #ff9800;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 30px;
+  }
+  
+  .form-check-label {
+    font-weight: 500;
+    color: #2c3e50;
+  }
+</style>
 
-  <h4 class="fw-bold mb-1">DSWD Beneficiary Intake & Eligibility Assessment</h4>
-  <p class="text-muted mb-4">
-    Social Welfare Assistance Application (AICS / Medical / Financial / Food)
-  </p>
-
-  <!-- IMPORTANT -->
-  <form method="POST" enctype="multipart/form-data" novalidate>
-    {% csrf_token %}
-
-    <!-- ================================================= -->
-    <!-- I. PERSONAL INFORMATION -->
-    <!-- ================================================= -->
-    <h6 class="fw-semibold text-success border-bottom pb-2">I. Personal Information</h6>
-
-    <div class="row g-3 mt-2">
-      <div class="col-md-4">
-        <label class="form-label">First Name</label>
-        <input type="text" name="first_name" class="form-control" required>
-      </div>
-
-      <div class="col-md-4">
-        <label class="form-label">Middle Name</label>
-        <input type="text" name="middle_name" class="form-control">
-      </div>
-
-      <div class="col-md-4">
-        <label class="form-label">Last Name</label>
-        <input type="text" name="last_name" class="form-control" required>
-      </div>
-
-      <div class="col-md-3">
-        <label class="form-label">Sex</label>
-        <select name="sex" class="form-select" required>
-          <option value="">Select</option>
-          <option>Male</option>
-          <option>Female</option>
-        </select>
-      </div>
-
-      <div class="col-md-3">
-        <label class="form-label">Date of Birth</label>
-        <input type="date" name="birth_date" class="form-control" required>
-      </div>
-
-      <div class="col-md-3">
-        <label class="form-label">Civil Status</label>
-        <select name="civil_status" class="form-select" required>
-          <option value="">Select</option>
-          <option>Single</option>
-          <option>Married</option>
-          <option>Widowed</option>
-          <option>Separated</option>
-        </select>
-      </div>
-
-      <div class="col-md-3">
-        <label class="form-label">Nationality</label>
-        <input type="text" name="nationality" value="Filipino" class="form-control">
-      </div>
+<div class="intake-wrapper">
+  <div class="form-container">
+    
+    <div class="form-header">
+      <h1>DSWD Beneficiary Intake</h1>
+      <p>Social Welfare Assistance Application Form</p>
     </div>
+    
+    <div class="form-body">
+      <form method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
 
-    <!-- ================================================= -->
-    <!-- II. ADDRESS & CONTACT -->
-    <!-- ================================================= -->
-    <h6 class="fw-semibold text-success border-bottom pb-2 mt-4">
-      II. Address & Contact Information
-    </h6>
+        <!-- SECTION I: PERSONAL INFORMATION -->
+        <div class="section-divider">
+          <h2>Personal Information</h2>
+          <div class="section-number">I</div>
+        </div>
 
-    <div class="row g-3 mt-2">
-      <div class="col-md-6">
-        <label class="form-label">Complete Address</label>
-        <input type="text" name="address" class="form-control" required>
-      </div>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <label class="form-label">First Name *</label>
+            <input type="text" name="first_name" class="form-control" placeholder="Juan" required>
+          </div>
 
-      <div class="col-md-3">
-        <label class="form-label">Barangay</label>
-        <input type="text" name="barangay" class="form-control" required>
-      </div>
+          <div class="col-md-4">
+            <label class="form-label">Middle Name</label>
+            <input type="text" name="middle_name" class="form-control" placeholder="Santos">
+          </div>
 
-      <div class="col-md-3">
-        <label class="form-label">Municipality</label>
-        <input type="text" name="municipality" class="form-control" required>
-      </div>
+          <div class="col-md-4">
+            <label class="form-label">Last Name *</label>
+            <input type="text" name="last_name" class="form-control" placeholder="Dela Cruz" required>
+          </div>
 
-      <div class="col-md-4">
-        <label class="form-label">Contact Number</label>
-        <input type="text" name="contact_no" class="form-control" required>
-      </div>
+          <div class="col-md-3">
+            <label class="form-label">Sex *</label>
+            <select name="sex" class="form-select" required>
+              <option value="">Choose...</option>
+              <option>Male</option>
+              <option>Female</option>
+            </select>
+          </div>
 
-      <div class="col-md-4">
-        <label class="form-label">Email Address</label>
-        <input type="email" name="email" class="form-control">
-      </div>
+          <div class="col-md-3">
+            <label class="form-label">Date of Birth *</label>
+            <input type="date" name="birth_date" class="form-control" required>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Civil Status *</label>
+            <select name="civil_status" class="form-select" required>
+              <option value="">Choose...</option>
+              <option>Single</option>
+              <option>Married</option>
+              <option>Widowed</option>
+              <option>Separated</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Nationality</label>
+            <input type="text" name="nationality" value="Filipino" class="form-control">
+          </div>
+        </div>
+
+        <!-- SECTION II: ADDRESS & CONTACT -->
+        <div class="section-divider">
+          <h2>Address & Contact Information</h2>
+          <div class="section-number">II</div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-6">
+            <label class="form-label">Complete Address *</label>
+            <input type="text" name="address" class="form-control" placeholder="House No., Street Name" required>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Barangay *</label>
+            <input type="text" name="barangay" class="form-control" placeholder="Barangay Name" required>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Municipality *</label>
+            <input type="text" name="municipality" class="form-control" placeholder="City/Municipality" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Contact Number *</label>
+            <input type="text" name="contact_no" class="form-control" placeholder="09XX-XXX-XXXX" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" class="form-control" placeholder="your.email@example.com">
+          </div>
+        </div>
+
+        <!-- SECTION III: SOCIO-ECONOMIC -->
+        <div class="section-divider">
+          <h2>Socio-Economic Profile</h2>
+          <div class="section-number">III</div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <label class="form-label">Primary Livelihood *</label>
+            <input type="text" name="livelihood" class="form-control" placeholder="e.g., Farmer, Vendor" required>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Monthly Household Income (₱) *</label>
+            <input type="number" name="monthly_income" class="form-control" placeholder="0.00" required>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Household Size *</label>
+            <input type="number" name="household_size" class="form-control" placeholder="Number of members" required>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Person with Disability</label>
+            <select name="has_disability" class="form-select">
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Senior Citizen</label>
+            <select name="is_senior" class="form-select">
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Previous DSWD Assistance</label>
+            <select name="previous_aid" class="form-select">
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SECTION IV: PROGRAM ASSISTANCE -->
+        <div class="section-divider">
+          <h2>Program / Assistance Requested</h2>
+          <div class="section-number">IV</div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <label class="form-label">Select Program *</label>
+            <select name="program" id="programSelect" class="form-select" required>
+              <option value="">Choose Program...</option>
+              <option value="AICS">AICS - Crisis Assistance</option>
+              <option value="SEA">SEA - Self-Employment</option>
+              <option value="REDCARD">REDCARD - Emergency</option>
+              <option value="EDUCATIONAL">Educational Assistance</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Requested Amount (₱)</label>
+            <input type="number" name="requested_amount" class="form-control" placeholder="0.00">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Reason for Assistance</label>
+            <input type="text" name="reason" class="form-control" placeholder="Brief description">
+          </div>
+        </div>
+
+        <!-- AICS SECTION -->
+        <div id="AICSSection" class="program-section d-none">
+          <h3>AICS – Assistance to Individuals in Crisis Situation</h3>
+
+          <div class="row g-4">
+            <div class="col-md-4">
+              <label class="form-label">Crisis Type</label>
+              <select name="aics_crisis_type" class="form-select">
+                <option>Medical</option>
+                <option>Burial</option>
+                <option>Transportation</option>
+                <option>Educational</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Requested Amount (₱)</label>
+              <input type="number" name="aics_requested_amount" class="form-control" placeholder="0.00">
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label class="form-label">Assessment Findings</label>
+            <textarea name="aics_assessment" class="form-control" rows="3" placeholder="Enter assessment details..."></textarea>
+          </div>
+
+          <div class="row g-4 mt-3">
+            <div class="col-md-4">
+              <label class="form-label">Recommendation</label>
+              <select name="aics_recommendation" class="form-select">
+                <option>For Approval</option>
+                <option>Disapproved</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Approved Amount (₱)</label>
+              <input type="number" name="aics_approved_amount" class="form-control" placeholder="0.00">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Date Released</label>
+              <input type="date" name="aics_released_date" class="form-control">
+            </div>
+          </div>
+        </div>
+
+        <!-- SEA SECTION -->
+        <div id="SEASection" class="program-section d-none">
+          <h3>SEA – Self-Employment Assistance</h3>
+
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label">Business / Livelihood Type</label>
+              <input type="text" name="sea_business_type" class="form-control" placeholder="e.g., Sari-sari store, Tricycle">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Capital Requested (₱)</label>
+              <input type="number" name="sea_capital" class="form-control" placeholder="0.00">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Training Completed</label>
+              <select name="sea_training" class="form-select">
+                <option>No</option>
+                <option>Yes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label class="form-label">Monitoring Notes</label>
+            <textarea name="sea_monitoring" class="form-control" rows="3" placeholder="Enter monitoring details..."></textarea>
+          </div>
+        </div>
+
+        <!-- REDCARD SECTION -->
+        <div id="REDCARDSection" class="program-section d-none">
+          <h3>REDCARD – Emergency Assistance</h3>
+
+          <div class="row g-4">
+            <div class="col-md-4">
+              <label class="form-label">Emergency Type</label>
+              <input type="text" name="redcard_emergency_type" class="form-control" placeholder="Type of emergency">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Reason</label>
+              <input type="text" name="redcard_reason" class="form-control" placeholder="Detailed reason">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Times Availed</label>
+              <input type="number" name="redcard_usage" class="form-control" placeholder="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- EDUCATIONAL SECTION -->
+        <div id="EDUCATIONALSection" class="program-section d-none">
+          <h3>Educational Assistance Requirements</h3>
+
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label">School Name</label>
+              <input type="text" name="school_name" class="form-control" placeholder="Name of school">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Course / Grade Level</label>
+              <input type="text" name="course_level" class="form-control" placeholder="e.g., Grade 10, BS Computer Science">
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label class="form-label">Required Documents</label>
+            <div class="row g-3 mt-2">
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="doc1">
+                  <label class="form-check-label" for="doc1">Letter of Appeal</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="doc2">
+                  <label class="form-check-label" for="doc2">Certificate of Indigency</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="doc3">
+                  <label class="form-check-label" for="doc3">Grades (Last Semester)</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="doc4">
+                  <label class="form-check-label" for="doc4">Certificate of Enrollment</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="doc5">
+                  <label class="form-check-label" for="doc5">Billing Statement</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="doc6">
+                  <label class="form-check-label" for="doc6">Official Receipt</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" name="status" value="Pending">
+
+        <!-- SECTION V: SUPPORTING DOCUMENTS -->
+        <div class="section-divider">
+          <h2>Supporting Documents</h2>
+          <div class="section-number">V</div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <label class="form-label">Valid Government ID *</label>
+            <div class="file-input-wrapper">
+              <input type="file" name="valid_id" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Barangay Certificate</label>
+            <div class="file-input-wrapper">
+              <input type="file" name="barangay_certificate" class="form-control">
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Medical / Other Supporting Document</label>
+            <div class="file-input-wrapper">
+              <input type="file" name="other_document" class="form-control">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION VI: ML ELIGIBILITY -->
+        <div class="section-divider">
+          <h2>ML Eligibility Prediction</h2>
+          <div class="section-number">VI</div>
+        </div>
+
+        <div class="alert alert-info">
+          <strong>ℹ️ Automatic Eligibility Assessment</strong><br>
+          Eligibility will be computed using income, household size, vulnerability indicators, and assistance type. Final approval is subject to MSWDO validation.
+        </div>
+
+        <!-- DECLARATION -->
+        <div class="declaration-box">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="declaration" required>
+            <label class="form-check-label" for="declaration">
+              <strong>Declaration:</strong> I certify that all information provided above is true, correct, and complete to the best of my knowledge.
+            </label>
+          </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="d-flex gap-3 mt-5 justify-content-center">
+          <button type="submit" class="btn-submit">
+            Submit Application
+          </button>
+
+          <a href="{% url 'pending_applications' %}" class="btn-cancel">
+            Cancel
+          </a>
+        </div>
+
+      </form>
     </div>
-
-    <!-- ================================================= -->
-    <!-- III. SOCIO-ECONOMIC PROFILE -->
-    <!-- ================================================= -->
-    <h6 class="fw-semibold text-success border-bottom pb-2 mt-4">
-      III. Socio-Economic Profile
-    </h6>
-
-    <div class="row g-3 mt-2">
-      <div class="col-md-4">
-        <label class="form-label">Primary Livelihood</label>
-        <input type="text" name="livelihood" class="form-control" required>
-      </div>
-
-      <div class="col-md-4">
-        <label class="form-label">Monthly Household Income (₱)</label>
-        <input type="number" name="monthly_income" class="form-control" required>
-      </div>
-
-      <div class="col-md-4">
-        <label class="form-label">Household Size</label>
-        <input type="number" name="household_size" class="form-control" required>
-      </div>
-
-      <div class="col-md-4">
-        <label class="form-label">Person with Disability</label>
-        <select name="has_disability" class="form-select">
-          <option>No</option>
-          <option>Yes</option>
-        </select>
-      </div>
-
-      <div class="col-md-4">
-        <label class="form-label">Senior Citizen</label>
-        <select name="is_senior" class="form-select">
-          <option>No</option>
-          <option>Yes</option>
-        </select>
-      </div>
-
-      <div class="col-md-4">
-        <label class="form-label">Previous DSWD Assistance</label>
-        <select name="previous_aid" class="form-select">
-          <option>No</option>
-          <option>Yes</option>
-        </select>
-      </div>
-    </div>
-<!-- ================================================= -->
-<!-- IV. PROGRAM / ASSISTANCE REQUEST -->
-<!-- ================================================= -->
-<h6 class="fw-semibold text-success border-bottom pb-2 mt-4">
-  IV. Program / Assistance Requested
-</h6>
-
-<div class="row g-3 mt-2">
-  <div class="col-md-4">
-    <label class="form-label">Program</label>
-    <select name="program" id="programSelect" class="form-select" required>
-      <option value="">Select Program</option>
-      <option value="AICS">AICS</option>
-      <option value="SEA">SEA</option>
-      <option value="REDCARD">REDCARD</option>
-      <option value="EDUCATIONAL">Educational Assistance</option>
-    </select>
-  </div>
-
-  <div class="col-md-4">
-    <label class="form-label">Requested Amount (₱)</label>
-    <input type="number" name="requested_amount" class="form-control">
-  </div>
-
-  <div class="col-md-4">
-    <label class="form-label">Reason for Assistance</label>
-    <input type="text" name="reason" class="form-control">
   </div>
 </div>
-
-
-<div id="AICSSection" class="program-section d-none mt-4">
-
-  <h6 class="fw-semibold text-primary border-bottom pb-2">
-    AICS – Assistance to Individuals in Crisis Situation
-  </h6>
-
-  <div class="row g-3">
-    <div class="col-md-4">
-      <label class="form-label">Crisis Type</label>
-      <select name="aics_crisis_type" class="form-select">
-        <option>Medical</option>
-        <option>Burial</option>
-        <option>Transportation</option>
-        <option>Educational</option>
-      </select>
-    </div>
-
-    <div class="col-md-4">
-      <label class="form-label">Requested Amount (₱)</label>
-      <input type="number" name="aics_requested_amount" class="form-control">
-    </div>
-  </div>
-
-  <div class="mt-3">
-    <label class="form-label">Assessment Findings</label>
-    <textarea name="aics_assessment" class="form-control" rows="3"></textarea>
-  </div>
-
-  <div class="mt-3">
-    <label class="form-label">Recommendation</label>
-    <select name="aics_recommendation" class="form-select">
-      <option>For Approval</option>
-      <option>Disapproved</option>
-    </select>
-  </div>
-
-  <div class="row g-3 mt-3">
-    <div class="col-md-4">
-      <label class="form-label">Approved Amount (₱)</label>
-      <input type="number" name="aics_approved_amount" class="form-control">
-    </div>
-
-    <div class="col-md-4">
-      <label class="form-label">Date Released</label>
-      <input type="date" name="aics_released_date" class="form-control">
-    </div>
-  </div>
-
-</div>
-
-
-<div id="SEASection" class="program-section d-none mt-4">
-
-  <h6 class="fw-semibold text-primary border-bottom pb-2">
-    SEA – Self-Employment Assistance
-  </h6>
-
-  <div class="row g-3">
-    <div class="col-md-6">
-      <label class="form-label">Business / Livelihood Type</label>
-      <input type="text" name="sea_business_type" class="form-control">
-    </div>
-
-    <div class="col-md-3">
-      <label class="form-label">Capital Requested (₱)</label>
-      <input type="number" name="sea_capital" class="form-control">
-    </div>
-
-    <div class="col-md-3">
-      <label class="form-label">Training Completed</label>
-      <select name="sea_training" class="form-select">
-        <option>No</option>
-        <option>Yes</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="mt-3">
-    <label class="form-label">Monitoring Notes</label>
-    <textarea name="sea_monitoring" class="form-control" rows="3"></textarea>
-  </div>
-
-</div>
-
-
-<div id="REDCARDSection" class="program-section d-none mt-4">
-
-  <h6 class="fw-semibold text-primary border-bottom pb-2">
-    REDCARD – Emergency Assistance
-  </h6>
-
-  <div class="row g-3">
-    <div class="col-md-4">
-      <label class="form-label">Emergency Type</label>
-      <input type="text" name="redcard_emergency_type" class="form-control">
-    </div>
-
-    <div class="col-md-4">
-      <label class="form-label">Reason</label>
-      <input type="text" name="redcard_reason" class="form-control">
-    </div>
-
-    <div class="col-md-4">
-      <label class="form-label">Times Availed</label>
-      <input type="number" name="redcard_usage" class="form-control">
-    </div>
-  </div>
-
-</div>
-
-
-<div id="EDUCATIONALSection" class="program-section d-none mt-4">
-
-  <h6 class="fw-semibold text-primary border-bottom pb-2">
-    Educational Assistance Requirements
-  </h6>
-
-  <div class="row g-3">
-    <div class="col-md-6">
-      <label class="form-label">School Name</label>
-      <input type="text" name="school_name" class="form-control">
-    </div>
-
-    <div class="col-md-6">
-      <label class="form-label">Course / Grade Level</label>
-      <input type="text" name="course_level" class="form-control">
-    </div>
-  </div>
-
-  <div class="mt-3">
-    <label class="form-label">Required Documents</label><br>
-    <div class="form-check"><input type="checkbox"> Letter of Appeal</div>
-    <div class="form-check"><input type="checkbox"> Certificate of Indigency</div>
-    <div class="form-check"><input type="checkbox"> Grades (Last Semester)</div>
-    <div class="form-check"><input type="checkbox"> Certificate of Enrollment</div>
-    <div class="form-check"><input type="checkbox"> Billing Statement</div>
-    <div class="form-check"><input type="checkbox"> Official Receipt</div>
-  </div>
-
-</div>
-
-
-
-    <!-- DEFAULT STATUS -->
-    <input type="hidden" name="status" value="Pending">
-
-    <!-- ================================================= -->
-    <!-- V. REQUIRED DOCUMENTS -->
-    <!-- ================================================= -->
-    <h6 class="fw-semibold text-success border-bottom pb-2 mt-4">
-      V. Supporting Documents
-    </h6>
-
-    <div class="row g-3 mt-2">
-      <div class="col-md-4">
-        <label class="form-label">Valid Government ID</label>
-        <input type="file" name="valid_id" class="form-control" required>
-      </div>
-
-      <div class="col-md-4">
-        <label class="form-label">Barangay Certificate</label>
-        <input type="file" name="barangay_certificate" class="form-control">
-      </div>
-
-      <div class="col-md-4">
-        <label class="form-label">Medical / Other Supporting Document</label>
-        <input type="file" name="other_document" class="form-control">
-      </div>
-    </div>
-
-    <!-- ================================================= -->
-    <!-- VI. ML ELIGIBILITY PREVIEW -->
-    <!-- ================================================= -->
-    <h6 class="fw-semibold text-success border-bottom pb-2 mt-4">
-      VI. ML Eligibility Prediction (Preview)
-    </h6>
-
-    <div class="alert alert-info small">
-      Eligibility will be computed using income, household size,
-      vulnerability indicators, and assistance type.
-      Final approval is subject to MSWDO validation.
-    </div>
-
-    <!-- ================================================= -->
-    <!-- DECLARATION -->
-    <!-- ================================================= -->
-    <div class="form-check mt-3">
-      <input class="form-check-input" type="checkbox" required>
-      <label class="form-check-label small">
-        I certify that the above information is true and correct.
-      </label>
-    </div>
-
-    <!-- ================================================= -->
-    <!-- ACTIONS -->
-    <!-- ================================================= -->
-    <div class="d-flex gap-2 mt-4">
-      <button type="submit" class="btn btn-success px-4">
-        <i class="bi bi-send"></i> Submit Application
-      </button>
-
-      <a href="{% url 'pending_applications' %}" class="btn btn-outline-secondary px-4">
-        Cancel
-      </a>
-    </div>
-
-  </form>
-</div>
-
 
 <script>
   const programSelect = document.getElementById("programSelect");
@@ -398,6 +622,5 @@
     }
   });
 </script>
-
 
 {% endblock %}

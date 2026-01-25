@@ -56,15 +56,12 @@ urlpatterns = [
   path('application/<int:pk>/edit/', views.application_edit, name='application_edit'),
 path("assistance/", views.assistance_program, name="assistance_program"),
 
-    # ✅ AICS
-    path("aics/add/", views.add_aics_case, name="add_aics_case"),
-    path("aics/<int:pk>/assessment/", views.aics_assessment, name="aics_assessment"),
-   path("aics/add/", views.add_aics_case, name="add_aics_case"),
-    path("aics/<int:pk>/assessment/", views.aics_assessment, name="aics_assessment"),
-    path("aics/<int:pk>/documents/", views.upload_aics_documents, name="upload_aics_documents"),
-path("aics/<int:pk>/approve/", views.approve_aics, name="approve_aics"),
-
-
+  path('application/<int:pk>/approve/', views.approve_application, name='approve_application'),
+path('application/<int:pk>/reject/', views.reject_application, name='reject_application'),
+path('application/<int:pk>/release/', views.release_application, name='release_application'),
+path('staff/<int:staff_id>/reset_password/', views.reset_staff_password, name='reset_staff_password'),
+path('staff/<int:staff_id>/edit_role/', views.edit_staff_role, name='edit_staff_role'),
+ path('staff/<int:staff_id>/activity_logs/', views.staff_activity_logs, name='staff_activity_logs'),
 ]
 
 

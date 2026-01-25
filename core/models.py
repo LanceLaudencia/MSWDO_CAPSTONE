@@ -64,22 +64,27 @@ class Application(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('approved', 'Approved'),
+        ('released', 'Released'),
         ('rejected', 'Rejected'),
-        ('referral', 'Referrals'),
-        ('other', 'Others'),
-        ('organic', 'Organic Search'),
     ]
 
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='applications')
     aid_type = models.CharField(max_length=20, choices=PROGRAM_CHOICES)
     requested_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    reason = models.TextField(blank=True, null=True)
+    released_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
 
+    reason = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='pending')
     eligibility_result = models.CharField(max_length=50, blank=True, null=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    approved_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    released_at = models.DateTimeField(null=True, blank=True)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    
     def __str__(self):
         return f"{self.client.full_name} - {self.aid_type}"
 
