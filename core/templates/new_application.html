@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>New Assistance Application</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- PROGRAM -->
+    <label><strong>Program</strong></label>
+    <select name="program" id="program" required>
+        <option value="">Select Program</option>
+        <option value="AICS">AICS</option>
+        <option value="SEA">SEA</option>
+        <option value="REDCARD">REDCARD</option>
+        <option value="EA">Educational Assistance</option>
+    </select>
+
+    <hr>
+
+    <!-- AICS -->
+    <div>
+        <h3>AICS / SEA Crisis Type</h3>
+        <select name="reason">
+            <option value="">Select Type</option>
+            <option value="Medical">Medical</option>
+            <option value="Burial">Burial</option>
+            <option value="Transport">Transport</option>
+            <option value="Food">Food Assistance</option>
+            <option value="Educational">Educational (AICS)</option>
+        </select>
+    </div>
+
+    <hr>
+
+    <!-- CLIENT INFO -->
+    <h3>Applicant Information</h3>
+    <input name="first_name" placeholder="First Name" required>
+    <input name="last_name" placeholder="Last Name" required>
+    <input name="barangay" placeholder="Barangay">
+    <input name="livelihood" placeholder="Livelihood">
+
+    <hr>
+
+    <!-- DOCUMENTS -->
+    <h3>Upload Supporting Documents</h3>
+    <input type="file" name="documents" multiple>
+
+    <hr>
+
+    <!-- SUBMIT -->
+    <button type="submit">Submit for Approval</button>
+</form>
+
+{% endblock %}

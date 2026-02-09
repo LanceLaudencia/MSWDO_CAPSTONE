@@ -1,0 +1,11 @@
+<h2>Upload Supporting Documents</h2>
+
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+
+<input type="file" name="documents" multiple>
+
+<button type="submit">
+  Submit for Approval
+</button>
+</form>

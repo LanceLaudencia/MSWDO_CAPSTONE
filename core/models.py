@@ -54,35 +54,89 @@ class Client(models.Model):
 # ASSISTANCE APPLICATION
 # ========================
 class Application(models.Model):
+
+    # ================= PROGRAM TYPES =================
     PROGRAM_CHOICES = [
-        ('SEA', 'SEA'),
         ('AICS', 'AICS'),
-        ('REDCARD', 'REDCARD'),
-        ('EA', 'Educational Assistance'),
+        ('SEA', 'Sustainable Livelihood (SEA)'),
+        ('REDCARD', 'Red Card'),
+        ('EDUCATIONAL', 'Educational Assistance'),
     ]
 
+    # ================= WORKFLOW STATUS =================
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
-        ('referral', 'Referrals'),
-        ('other', 'Others'),
-        ('organic', 'Organic Search'),
+        ('PENDING', 'Pending Review'),
+        ('ASSESSMENT', 'Under Assessment'),
+        ('APPROVAL', 'For Approval'),
+        ('RELEASE', 'For Release'),
+        ('RELEASED', 'Released'),
+        ('REJECTED', 'Rejected'),
     ]
 
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='applications')
-    aid_type = models.CharField(max_length=20, choices=PROGRAM_CHOICES)
-    requested_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    reason = models.TextField(blank=True, null=True)
+    # ================= RELATIONSHIP =================
+    client = models.ForeignKey(
+        'Client',
+        on_delete=models.CASCADE,
+        related_name='applications'
+    )
 
-    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='pending')
+    # ================= APPLICATION INFO =================
+    aid_type = models.CharField(max_length=20, choices=PROGRAM_CHOICES)
+
+    requested_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+    approved_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+    released_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+
+    reason = models.TextField(blank=True, null=True)
     eligibility_result = models.CharField(max_length=50, blank=True, null=True)
 
+    # ================= STATUS TRACKING =================
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='PENDING'
+    )
+
+    # ================= STAFF ACTION TRACKING =================
+    assessed_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assessed_applications'
+    )
+    approved_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='approved_applications'
+    )
+
+    assessed_at = models.DateTimeField(null=True, blank=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    released_at = models.DateTimeField(null=True, blank=True)
+
+    # ================= SYSTEM =================
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.client.full_name} - {self.aid_type}"
-
+        return f"{self.client.full_name} - {self.get_aid_type_display()} ({self.status})"
 # ========================
 # DOCUMENTS FOR APPLICATION
 # ========================
@@ -92,6 +146,7 @@ class ApplicationDocument(models.Model):
         on_delete=models.CASCADE,
         related_name='documents'  # unique, avoids clashes
     )
+    document_name = models.CharField(max_length=150)
     name = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
     file = models.FileField(upload_to='application_documents/%Y/%m/%d/')
@@ -121,3 +176,131 @@ class Assistance(models.Model):
 
     def __str__(self):
         return f"{self.client.full_name} - {self.program}"
+
+
+class AICSDetail(models.Model):
+    CRISIS_CHOICES = [
+        ('Medical', 'Medical'),
+        ('Burial', 'Burial'),
+        ('Transportation', 'Transportation'),
+        ('Educational', 'Educational'),
+    ]
+
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='aics_detail'
+    )
+
+    crisis_type = models.CharField(max_length=50, choices=CRISIS_CHOICES)
+    assessment_findings = models.TextField()
+
+    approved_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    released_at = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"AICS - {self.application.client.full_name}"
+
+
+class SEADetail(models.Model):
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='sea_detail'
+    )
+
+    business_type = models.CharField(max_length=255)
+    capital_requested = models.DecimalField(max_digits=12, decimal_places=2)
+
+    training_completed = models.BooleanField(default=False)
+    monitoring_notes = models.TextField(blank=True, null=True)
+
+    released_at = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"SEA - {self.application.client.full_name}"
+
+
+class REDCARDDetail(models.Model):
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='redcard_detail'
+    )
+
+    emergency_type = models.CharField(max_length=255)
+    reason = models.TextField(blank=True, null=True)
+
+    usage_count = models.PositiveIntegerField(default=1)
+    allowable_limit = models.PositiveIntegerField(default=3)
+
+    released_at = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"REDCARD - {self.application.client.full_name}"
+
+
+class EducationalAssistanceDetail(models.Model):
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='educational_detail'
+    )
+
+    school_name = models.CharField(max_length=255)
+    course_or_grade = models.CharField(max_length=255)
+
+    approved_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    released_at = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Educational - {self.application.client.full_name}"
+    
+    
+# ==============================
+# CLIENT LOGIN ACCOUNT
+# ==============================
+from django.contrib.auth.hashers import make_password, check_password
+
+class ClientAccount(models.Model):
+    client = models.OneToOneField(
+        "Client",
+        on_delete=models.CASCADE,
+        related_name="account"
+    )
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=255)  # hashed
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)
+
+    def __str__(self):
+        return f"Account: {self.client.full_name}"
+    
+
+    
+class Notification(models.Model):
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    link = models.CharField(max_length=255, blank=True, null=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']

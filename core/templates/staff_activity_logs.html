@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block page_title %}Staff Activity Logs{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+  <h4 class="fw-bold mb-3">Activity Logs for {{ staff.get_full_name|default:staff.username }}</h4>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Action</th>
+        <th>Date / Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in activity_logs %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ log.action }}</td>
+        <td>{{ log.date }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">No activity recorded.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <a href="{% url 'admin_account' %}" class="btn btn-secondary mt-3">← Back to Admin</a>
+</div>
+{% endblock %}

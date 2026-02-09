@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>AICS Approval</h3>
+
+<p><strong>Client:</strong> {{ application.client.full_name }}</p>
+<p><strong>Program:</strong> AICS</p>
+<p><strong>Requested Amount:</strong> ₱{{ application.requested_amount }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button name="action" value="approve" class="btn btn-success">
+        Approve
+    </button>
+    <button name="action" value="reject" class="btn btn-danger">
+        Reject
+    </button>
+</form>
+
+{% endblock %}
+

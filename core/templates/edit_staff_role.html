@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block page_title %}Edit Staff Role{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+  <h4 class="fw-bold mb-3">Edit Role for {{ staff.get_full_name|default:staff.username }}</h4>
+
+  <form method="POST">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label>Role</label>
+      <select name="role" class="form-select" required>
+        <option value="staff" {% if staff.role == "staff" %}selected{% endif %}>Staff</option>
+        <option value="admin" {% if staff.role == "admin" %}selected{% endif %}>Admin</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+    <a href="{% url 'admin_account' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

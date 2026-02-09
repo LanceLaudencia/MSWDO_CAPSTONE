@@ -1,0 +1,492 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Apply for Assistance Program</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f6e3f 0%, #2ecc71 100%);
+            min-height: 100vh;
+            padding: 60px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #0f6e3f 0%, #27ae60 50%, #2ecc71 100%);
+            border-radius: 30px 30px 0 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #0a4d2e;
+        }
+
+        .btn-back {
+            background: white;
+            color: #6c757d;
+            border: 2px solid #e1e8ed;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: #f8f9fa;
+            border-color: #6c757d;
+            color: #495057;
+            text-decoration: none;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #e8f8f0 0%, #d5f4e6 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 3px solid #27ae60;
+        }
+
+        .info-card h4 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0a4d2e;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-card h4::before {
+            content: '📋';
+            font-size: 1.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .info-item strong {
+            display: block;
+            color: #6c757d;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .info-item span {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, #27ae60 50%, transparent 100%);
+            margin: 25px 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        select, input[type="text"], input[type="number"], textarea, input[type="file"] {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+            margin-bottom: 20px;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.1);
+            background: white;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .program-box {
+            background: linear-gradient(135deg, #e8f8f0 0%, #d5f4e6 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-top: 30px;
+            border: 3px solid #27ae60;
+        }
+
+        .program-box h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0a4d2e;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .program-box h3::before {
+            content: '✦';
+            font-size: 1.5rem;
+            color: #27ae60;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(15, 110, 63, 0.4);
+            margin-top: 30px;
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(15, 110, 63, 0.6);
+        }
+
+        input[type="file"]::file-selector-button {
+            background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            margin-right: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 30px;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>Apply for Assistance Program</h2>
+        <a href="{% url 'client_dashboard' %}" class="btn-back">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <div class="info-card">
+        <h4>Applicant Information</h4>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Full Name</strong>
+                <span>{{ client.full_name }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Sex</strong>
+                <span>{{ client.sex }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Date of Birth</strong>
+                <span>{{ client.birth_date }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Civil Status</strong>
+                <span>{{ client.civil_status }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Nationality</strong>
+                <span>{{ client.nationality }}</span>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Address</strong>
+                <span>{{ client.address }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Barangay</strong>
+                <span>{{ client.barangay }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Municipality</strong>
+                <span>{{ client.municipality }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Contact Number</strong>
+                <span>{{ client.contact_no }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Email</strong>
+                <span>{{ client.email }}</span>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Livelihood</strong>
+                <span>{{ client.livelihood }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Monthly Income</strong>
+                <span style="color: #27ae60;">₱{{ client.monthly_income }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Household Size</strong>
+                <span>{{ client.household_size }}</span>
+            </div>
+            <div class="info-item">
+                <strong>PWD</strong>
+                <span>{{ client.has_disability }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Senior Citizen</strong>
+                <span>{{ client.is_senior }}</span>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label>Select Program *</label>
+        <select name="aid_type" id="aidType" required onchange="showFields()">
+            <option value="">Choose a program...</option>
+            <option value="AICS">AICS - Crisis Assistance</option>
+            <option value="SEA">SEA - Self-Employment</option>
+            <option value="REDCARD">Red Card - Emergency</option>
+            <option value="EDUCATIONAL">Educational Assistance</option>
+        </select>
+
+        <!-- AICS SECTION -->
+        <div id="AICS" class="program-box" style="display:none;">
+            <h3>AICS Requirements</h3>
+
+            <label>Crisis Type</label>
+            <input type="text" name="aics_crisis_type" placeholder="e.g., Medical, Burial">
+
+            <label>Assessment Findings</label>
+            <textarea name="aics_assessment" placeholder="Enter assessment details..."></textarea>
+
+            <label>Approved Amount (₱)</label>
+            <input type="number" step="0.01" name="aics_approved_amount" placeholder="0.00">
+
+            <hr>
+
+            <label>Barangay Certificate</label>
+            <input type="file" name="aics_barangay_cert">
+
+            <label>Medical Certificate / Death Certificate</label>
+            <input type="file" name="aics_medical_death_cert">
+
+            <label>Official Receipt</label>
+            <input type="file" name="aics_receipt">
+        </div>
+
+        <!-- SEA SECTION -->
+        <div id="SEA" class="program-box" style="display:none;">
+            <h3>SEA Requirements</h3>
+
+            <label>Business Type</label>
+            <input type="text" name="sea_business_type" placeholder="e.g., Sari-sari store, Tricycle">
+
+            <label>Capital Requested (₱)</label>
+            <input type="number" step="0.01" name="sea_capital" placeholder="0.00">
+
+            <label>Training Completed</label>
+            <select name="sea_training">
+                <option>No</option>
+                <option>Yes</option>
+            </select>
+
+            <label>Monitoring Notes</label>
+            <textarea name="sea_monitoring" placeholder="Enter monitoring notes..."></textarea>
+
+            <hr>
+
+            <label>Barangay Clearance</label>
+            <input type="file" name="sea_barangay_clearance">
+
+            <label>Cedula (Residence Certificate)</label>
+            <input type="file" name="sea_cedula">
+
+            <label>Project Proposal</label>
+            <input type="file" name="sea_project_proposal">
+
+            <label>Project Picture</label>
+            <input type="file" name="sea_project_picture">
+        </div>
+
+        <!-- REDCARD SECTION -->
+        <div id="REDCARD" class="program-box" style="display:none;">
+            <h3>Red Card Requirements</h3>
+
+            <label>Emergency Type</label>
+            <input type="text" name="redcard_emergency_type" placeholder="Type of emergency">
+
+            <label>Times Availed</label>
+            <input type="number" name="redcard_usage" placeholder="0">
+
+            <hr>
+
+            <label>Birth Certificate</label>
+            <input type="file" name="redcard_birth_cert">
+
+            <label>Valid ID Picture</label>
+            <input type="file" name="redcard_valid_id">
+
+            <label>Certificate of Indigency</label>
+            <input type="file" name="redcard_indigency">
+        </div>
+
+        <!-- EDUCATIONAL SECTION -->
+        <div id="EDUCATIONAL" class="program-box" style="display:none;">
+            <h3>Educational Assistance Requirements</h3>
+
+            <label>School Name</label>
+            <input type="text" name="school_name" placeholder="Name of school">
+
+            <label>Course / Grade Level</label>
+            <input type="text" name="course_level" placeholder="e.g., Grade 10, BS Computer Science">
+
+            <hr>
+
+            <label>Letter of Appeal</label>
+            <input type="file" name="edu_letter">
+
+            <label>Certificate of Indigency</label>
+            <input type="file" name="edu_indigency">
+
+            <label>Grades (Last Semester)</label>
+            <input type="file" name="edu_grades">
+
+            <label>Certificate of Enrollment</label>
+            <input type="file" name="edu_enrollment">
+
+            <label>Billing Statement</label>
+            <input type="file" name="edu_billing">
+
+            <label>Official Receipt</label>
+            <input type="file" name="edu_receipt">
+        </div>
+
+        <button type="submit">Submit Application</button>
+    </form>
+</div>
+
+<script>
+function showFields() {
+    document.querySelectorAll(".program-box").forEach(box => box.style.display = "none");
+    let selected = document.getElementById("aidType").value;
+    if(selected){
+        document.getElementById(selected).style.display = "block";
+    }
+}
+</script>
+
+</body>
+</html>

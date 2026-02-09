@@ -326,6 +326,8 @@
 
 <body>
 
+  
+
   <!-- ================= SIDEBAR ================= -->
   <aside class="sidebar">
     <div class="sidebar-header">
@@ -382,6 +384,41 @@
           </ol>
         </nav>
       </div>
+      <li class="nav-item dropdown">
+  
+    <i class="bi bi-bell fs-4"></i>
+{% if unread_notifications_count > 0 %}
+  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+    {{ unread_notifications_count }}
+  </span>
+{% endif %}
+</a>
+
+<ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
+  <li class="dropdown-header fw-bold">Notifications</li>
+
+  {% for notif in notifications %}
+  <li>
+    <form method="POST" action="{% url 'mark_notification_read' notif.pk %}">
+      {% csrf_token %}
+      <button type="submit"
+        onclick="event.stopPropagation();"
+        class="dropdown-item small text-start w-100 border-0 bg-transparent {% if not notif.is_read %}fw-bold{% endif %}">
+
+        {{ notif.message }}<br>
+        <span class="text-muted small">{{ notif.created_at|timesince }} ago</span>
+
+      </button>
+    </form>
+  </li>
+  {% empty %}
+  <li><span class="dropdown-item text-muted">No notifications</span></li>
+  {% endfor %}
+</ul>
+
+</ul>
+</li>
+
       <div>
         {% block page_actions %}{% endblock %}
       </div>

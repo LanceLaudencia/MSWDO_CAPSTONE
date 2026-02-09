@@ -1,0 +1,273 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Client Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #e8f8f0 0%, #d5f4e6 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .dashboard {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header-card {
+            background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+            border-radius: 25px;
+            padding: 40px;
+            color: white;
+            box-shadow: 0 15px 50px rgba(15, 110, 63, 0.4);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-card h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-card p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            margin-bottom: 20px;
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: white;
+            color: #0f6e3f;
+            border-color: white;
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            border-color: #27ae60;
+        }
+
+        .card-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 8px 25px rgba(15, 110, 63, 0.3);
+        }
+
+        .card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0a4d2e;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: #6c757d;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .card a {
+            display: inline-block;
+            padding: 14px 35px;
+            background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 15px rgba(15, 110, 63, 0.3);
+        }
+
+        .card a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(15, 110, 63, 0.5);
+            text-decoration: none;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-card h4 {
+            color: #6c757d;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #27ae60;
+        }
+
+        @media (max-width: 768px) {
+            .header-card {
+                padding: 30px 25px;
+            }
+
+            .header-card h2 {
+                font-size: 2rem;
+            }
+
+            .actions {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    
+    <div class="header-card">
+        <div class="header-content">
+            <h2>Welcome, {{ client.first_name }} 👋</h2>
+            <p>Manage your profile, check your application status, or apply for assistance programs.</p>
+            <a href="{% url 'landing' %}" class="btn-logout">
+                ← Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Optional Stats Row (you can populate with real data) -->
+    <!--
+    <div class="stats-row">
+        <div class="stat-card">
+            <h4>Total Applications</h4>
+            <div class="number">3</div>
+        </div>
+        <div class="stat-card">
+            <h4>Approved</h4>
+            <div class="number">1</div>
+        </div>
+        <div class="stat-card">
+            <h4>Pending</h4>
+            <div class="number">2</div>
+        </div>
+    </div>
+    -->
+
+    <div class="actions">
+        <div class="card">
+            <div class="card-icon">
+                ✏️
+            </div>
+            <h3>Edit Profile</h3>
+            <p>Update your personal and contact information.</p>
+            <a href="{% url 'client_edit_profile' %}">Edit Profile</a>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">
+                📋
+            </div>
+            <h3>View Application Status</h3>
+            <p>Check if your applications are pending, approved, or denied.</p>
+            <a href="{% url 'client_applications' %}">View Status</a>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">
+                📝
+            </div>
+            <h3>Apply for Assistance</h3>
+            <p>Submit a new application for available programs.</p>
+            <a href="{% url 'client_apply_program' %}">Apply Now</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

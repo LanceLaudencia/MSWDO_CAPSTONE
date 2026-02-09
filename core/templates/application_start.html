@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>New Assistance Application</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <label>Select Program</label>
+    <select name="program" required>
+        <option value="">-- Select --</option>
+        <option value="AICS">AICS</option>
+        <option value="SEA">SEA</option>
+        <option value="REDCARD">REDCARD</option>
+        <option value="EA">Educational Assistance</option>
+    </select>
+
+    <br><br>
+    <button type="submit">Continue</button>
+</form>
+
+{% endblock %}

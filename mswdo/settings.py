@@ -1,4 +1,6 @@
 from pathlib import Path
+import pymysql
+pymysql.install_as_MySQLdb()
 
 # ======================
 # BASE DIRECTORY
@@ -26,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    
 
     # Third-party
     'rest_framework',
@@ -99,10 +102,18 @@ TEMPLATES = [
 # ======================
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mswdo_db',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
     }
 }
+
 
 
 # ======================
@@ -126,13 +137,14 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'core.User'
 
 
+
 # ======================
 # INTERNATIONALIZATION
 # ======================
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Manila'
 USE_I18N = True
-USE_TZ = True
+USE_TZ = False
 
 
 # ======================
@@ -148,8 +160,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # ======================
 # MEDIA FILES
 # ======================
+import os
+
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # ======================
@@ -168,3 +182,9 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # DEFAULT PRIMARY KEY
 # ======================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+LOGIN_URL = 'client_login'
+LOGIN_REDIRECT_URL = 'client_dashboard'
+
+

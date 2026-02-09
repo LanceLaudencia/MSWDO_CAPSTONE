@@ -54,7 +54,25 @@ urlpatterns = [
   path('application/<int:pk>/approve/', views.application_approve, name='application_approve'),
   path('application/<int:pk>/reject/', views.application_reject, name='application_reject'),
   path('application/<int:pk>/edit/', views.application_edit, name='application_edit'),
+path("assistance/", views.assistance_program, name="assistance_program"),
 
+  path('application/<int:pk>/approve/', views.approve_application, name='approve_application'),
+path('application/<int:pk>/reject/', views.reject_application, name='reject_application'),
+path('application/<int:pk>/release/', views.release_application, name='release_application'),
+path('staff/<int:staff_id>/reset_password/', views.reset_staff_password, name='reset_staff_password'),
+path('staff/<int:staff_id>/edit_role/', views.edit_staff_role, name='edit_staff_role'),
+ path('staff/<int:staff_id>/activity_logs/', views.staff_activity_logs, name='staff_activity_logs'),
+
+#client
+path('client-login/', views.client_login, name='client_login'),
+path('client-dashboard/', views.client_dashboard, name='client_dashboard'),
+path("client/register/", views.client_register, name="client_register"),
+path('client/profile/edit/', views.client_edit_profile, name='client_edit_profile'),
+    path('client/applications/', views.client_applications, name='client_applications'),
+    path('client/apply/', views.client_apply_program, name='client_apply_program'),
+path('notifications/read/<int:pk>/', views.mark_notification_read, name='mark_notification_read')
+
+    
 ]
 
 

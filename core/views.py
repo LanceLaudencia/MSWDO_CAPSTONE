@@ -110,7 +110,7 @@ def verify(request):
             user.is_verified = True
         user.save()
         del verification_codes[email]
-        return render(request, 'login.html', {"message": "✔ Email verified successfully! You can now log in."})
+        return render(request, 'verify_message.html', {"message": "✔ Email verified successfully! You can now log in."})
 
     return render(request, 'login.html', {"message": "Invalid verification link or code."})
 
@@ -293,90 +293,133 @@ from datetime import datetime
 from decimal import Decimal
 from ml.model_loader import predict_input
 
+
+from .models import (
+    AICSDetail,
+    SEADetail,
+    REDCARDDetail,
+    EducationalAssistanceDetail,
+)
+
 @login_required
 def add_client(request):
-    if not (
-        getattr(request.user, 'role', None) in ['staff', 'admin']
-        or request.user.is_superuser
-    ):
-        return redirect('dashboard')
 
-    if request.method == 'POST':
+    if not (getattr(request.user, "role", None) in ["staff", "admin"] or request.user.is_superuser):
+        return redirect("dashboard")
+
+    if request.method == "POST":
         try:
-            # ===============================
-            # I. CREATE CLIENT
-            # ===============================
+            # ================= CLIENT =================
             client = Client.objects.create(
-                first_name=request.POST.get('first_name', '').strip(),
-                middle_name=request.POST.get('middle_name') or None,
-                last_name=request.POST.get('last_name', '').strip(),
-
-                sex=request.POST.get('sex') or None,
-                birth_date=datetime.strptime(
-                    request.POST.get('birth_date'), "%Y-%m-%d"
-                ).date() if request.POST.get('birth_date') else None,
-
-                civil_status=request.POST.get('civil_status') or None,
-                nationality=request.POST.get('nationality') or None,
-
-                address=request.POST.get('address') or None,
-                barangay=request.POST.get('barangay') or None,
-                municipality=request.POST.get('municipality') or None,
-
-                email=request.POST.get('email') or None,
-                contact_no=request.POST.get('contact_no') or None,
-
-                livelihood=request.POST.get('livelihood') or None,
-                monthly_income=Decimal(request.POST.get('monthly_income') or 0),
-                household_size=int(request.POST.get('household_size') or 1),
-
-                has_disability=request.POST.get('has_disability'),
-                is_senior=request.POST.get('is_senior'),
-                previous_aid=request.POST.get('previous_aid'),
+                first_name=request.POST.get("first_name"),
+                middle_name=request.POST.get("middle_name") or None,
+                last_name=request.POST.get("last_name"),
+                sex=request.POST.get("sex"),
+                birth_date=datetime.strptime(request.POST.get("birth_date"), "%Y-%m-%d").date(),
+                civil_status=request.POST.get("civil_status"),
+                nationality=request.POST.get("nationality"),
+                address=request.POST.get("address"),
+                barangay=request.POST.get("barangay"),
+                municipality=request.POST.get("municipality"),
+                email=request.POST.get("email") or None,
+                contact_no=request.POST.get("contact_no"),
+                livelihood=request.POST.get("livelihood"),
+                monthly_income=Decimal(request.POST.get("monthly_income")),
+                household_size=int(request.POST.get("household_size")),
+                has_disability=request.POST.get("has_disability") == "Yes",
+                is_senior=request.POST.get("is_senior") == "Yes",
+                previous_aid=request.POST.get("previous_aid") == "Yes",
             )
 
-            # ===============================
-            # II. CREATE APPLICATION
-            # ===============================
+            # ================= APPLICATION =================
+            aid_type = request.POST.get("program")
+
             application = Application.objects.create(
                 client=client,
-                aid_type=request.POST.get('aid_type'),
-                requested_amount=Decimal(request.POST.get('requested_amount') or 0),
-                reason=request.POST.get('reason') or None,
-                status='pending'
+                aid_type=aid_type,
+                requested_amount=Decimal(request.POST.get("requested_amount") or 0),
+                reason=request.POST.get("reason"),
+                status="pending",
             )
 
-            # ===============================
-            # III. ML ELIGIBILITY PREDICTION
-            # ===============================
+            # ================= ML PREDICTION =================
             ml_input = {
                 "monthly_income": float(client.monthly_income),
                 "household_size": client.household_size,
-                "has_disability": 1 if client.has_disability == 'Yes' else 0,
-                "is_senior": 1 if client.is_senior == 'Yes' else 0,
-                "previous_aid": 1 if client.previous_aid == 'Yes' else 0,
+                "has_disability": int(client.has_disability),
+                "is_senior": int(client.is_senior),
+                "previous_aid": int(client.previous_aid),
             }
 
             prediction = predict_input(ml_input)
-
-            application.eligibility_result = (
-                "Eligible" if prediction == 1 else "Not Eligible"
-            )
-            application.status = (
-                "approved" if prediction == 1 else "pending"
-            )
+            application.eligibility_result = "Eligible" if prediction == 1 else "Not Eligible"
             application.save()
 
-            # ===============================
-            # IV. UPLOAD DOCUMENTS
-            # ===============================
-            files = {
-                'Valid Government ID': request.FILES.get('valid_id'),
-                'Barangay Certificate': request.FILES.get('barangay_certificate'),
-                'Supporting Document': request.FILES.get('other_document'),
-            }
+            # ================= AICS =================
+            if aid_type == "AICS":
+                AICSDetail.objects.create(
+                    application=application,
+                    crisis_type=request.POST.get("aics_crisis_type"),
+                    assessment_findings=request.POST.get("aics_assessment"),
+                    approved_amount=Decimal(request.POST.get("aics_approved_amount") or 0),
+                )
 
-            for name, file in files.items():
+                docs = {
+                    "AICS Barangay Cert": request.FILES.get("aics_barangay_cert"),
+                    "Medical/Death Cert": request.FILES.get("aics_medical_death_cert"),
+                    "Official Receipt": request.FILES.get("aics_receipt"),
+                }
+
+            # ================= SEA =================
+            elif aid_type == "SEA":
+                SEADetail.objects.create(
+                    application=application,
+                    business_type=request.POST.get("sea_business_type"),
+                    capital_requested=Decimal(request.POST.get("sea_capital") or 0),
+                    training_completed=request.POST.get("sea_training") == "Yes",
+                    monitoring_notes=request.POST.get("sea_monitoring"),
+                )
+
+                docs = {
+                    "Barangay Clearance": request.FILES.get("sea_barangay_clearance"),
+                    "Cedula": request.FILES.get("sea_cedula"),
+                    "Project Proposal": request.FILES.get("sea_project_proposal"),
+                    "Project Picture": request.FILES.get("sea_project_picture"),
+                }
+
+            # ================= REDCARD =================
+            elif aid_type == "REDCARD":
+                REDCARDDetail.objects.create(
+                    application=application,
+                    emergency_type=request.POST.get("redcard_emergency_type"),
+                    usage_count=request.POST.get("redcard_usage"),
+                )
+
+                docs = {
+                    "Birth Certificate": request.FILES.get("redcard_birth_cert"),
+                    "Valid ID Picture": request.FILES.get("redcard_valid_id"),
+                    "Certificate of Indigency": request.FILES.get("redcard_indigency"),
+                }
+
+            # ================= EDUCATIONAL =================
+            elif aid_type == "EDUCATIONAL":
+                EducationalAssistanceDetail.objects.create(
+                    application=application,
+                    school_name=request.POST.get("school_name"),
+                    course_or_grade=request.POST.get("course_level"),
+                )
+
+                docs = {
+                    "Letter of Appeal": request.FILES.get("edu_letter"),
+                    "Certificate of Indigency": request.FILES.get("edu_indigency"),
+                    "Grades": request.FILES.get("edu_grades"),
+                    "Certificate of Enrollment": request.FILES.get("edu_enrollment"),
+                    "Billing Statement": request.FILES.get("edu_billing"),
+                    "Official Receipt": request.FILES.get("edu_receipt"),
+                }
+
+            # ================= SAVE PROGRAM DOCS =================
+            for name, file in docs.items():
                 if file:
                     ApplicationDocument.objects.create(
                         application=application,
@@ -384,14 +427,14 @@ def add_client(request):
                         file=file
                     )
 
-            messages.success(request, "Application submitted & evaluated successfully.")
-            return redirect('application_detail', application.id)
+            messages.success(request, "Application submitted successfully!")
+            return redirect("application_detail", application.id)
 
         except Exception as e:
-            print("Submission Error:", e)
+            print("ERROR:", e)
             messages.error(request, "Submission failed.")
 
-    return render(request, 'add_client.html')
+    return render(request, "add_client.html")
 
 # --- Simple APIs ---
 @login_required
@@ -416,22 +459,30 @@ from django.db.models import Q
 def assistance_program(request, program='SEA'):
     user = request.user
 
-    # ✅ ALLOW: admin role OR staff OR superuser
+    # ✅ ROLE CHECK (your custom role system)
     if not (
         user.is_superuser
-        or user.is_staff
         or getattr(user, 'role', None) in ['admin', 'staff']
     ):
         return redirect('landing')
 
+    # ✅ GET PROGRAM (from URL OR dropdown)
     program = request.GET.get('program', program).upper()
 
-    # ✅ FILTER APPLICATIONS BY PROGRAM
-    qs = Application.objects.filter(
-        aid_type__iexact=program
-    ).select_related('client').order_by('-created_at')
+    # 🛑 SAFETY: ensure valid program
+    if program not in ['SEA', 'AICS', 'REDCARD', 'EA']:
+        program = 'SEA'
 
-    # 🔍 SEARCH
+    # ✅ MAIN QUERY (THIS is your assistance records)
+    qs = (
+        Application.objects
+        .filter(aid_type=program)
+        .select_related('client')
+        .prefetch_related('documents')  # 🚀 avoids N+1 query for files
+        .order_by('-created_at')
+    )
+
+    # 🔍 SEARCH FILTER
     q = request.GET.get('q', '').strip()
     if q:
         qs = qs.filter(
@@ -443,44 +494,68 @@ def assistance_program(request, program='SEA'):
     # 📌 STATUS FILTER
     status = request.GET.get('status', '').strip()
     if status:
-        qs = qs.filter(status__iexact=status)
+        qs = qs.filter(status=status)
 
     # ⏳ PENDING SHORTCUT
     if request.GET.get('view') == 'pending':
         qs = qs.filter(status='pending')
 
-    # 📤 EXPORT CSV
+    # 📤 CSV EXPORT
     if request.GET.get('export') == 'csv':
         return assistance_export_csv(qs, program)
 
     # 📄 PAGINATION
     paginator = Paginator(qs, 10)
-    page_obj = paginator.get_page(request.GET.get('page'))
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
-    context = {
-        'program': program,
+    return render(request, 'assistance_program.html', {
         'applications': page_obj,
-    }
-
-    return render(request, 'assistance_program.html', context)
+        'program': program,
+    })
 
 def assistance_export_csv(qs, program):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="{program}_applications.csv"'
+
     writer = csv.writer(response)
-    writer.writerow(['#', 'Full Name', 'Email', 'Barangay', 'Livelihood', 'Amount (₱)', 'Status', 'Date'])
+    writer.writerow([
+        '#',
+        'Full Name',
+        'Email',
+        'Barangay',
+        'Livelihood',
+        'Requested Amount (₱)',
+        'Status',
+        'Date',
+    ])
 
     for idx, app in enumerate(qs, start=1):
-        name = f"{app.client.first_name} {app.client.last_name}"
-        email = app.client.email or ''
-        barangay = app.barangay or ''
-        livelihood = app.livelihood or ''
-        amount = f"₱{float(app.amount or 0):,.2f}"
+        client = app.client
+
+        name = f"{client.first_name} {client.last_name}"
+        email = client.email or ''
+        barangay = client.barangay or ''
+        livelihood = client.livelihood or ''
+        amount = f"₱{float(app.requested_amount or 0):,.2f}"  # ✅ FIXED
         status = app.status
         date = app.created_at.strftime('%Y-%m-%d %H:%M')
-        writer.writerow([idx, smart_str(name), smart_str(email), smart_str(barangay),
-                         smart_str(livelihood), amount, status, date])
+
+        writer.writerow([
+            idx,
+            smart_str(name),
+            smart_str(email),
+            smart_str(barangay),
+            smart_str(livelihood),
+            amount,
+            status,
+            date,
+        ])
+
     return response
+
+
+
 
 @login_required
 def application_detail(request, pk):
@@ -488,6 +563,9 @@ def application_detail(request, pk):
         Application.objects.select_related('client').prefetch_related('documents'),
         pk=pk
     )
+    application = Application.objects.get(id=pk)
+    client = application.client
+    documents = application.documents.all()
 
     context = {
         'application': application,
@@ -498,6 +576,11 @@ def application_detail(request, pk):
         'reason': application.reason,
         'status': application.status,
         'eligibility_result': application.eligibility_result,
+         # ✅ CORRECT RELATED NAMES
+        "aics": getattr(application, "aics_detail", None),
+        "sea": getattr(application, "sea_detail", None),
+        "redcard": getattr(application, "redcard_detail", None),
+        "edu": getattr(application, "educational_detail", None),
     }
 
     return render(request, 'application_detail.html', context)
@@ -628,34 +711,34 @@ def ml_predict_view(request):
 
 @login_required
 def pending_applications(request):
-    # ✅ Allow staff, admin, superuser
+
+    # 🔐 Allow only staff/admin/superuser
     if not (
         getattr(request.user, 'role', None) in ['staff', 'admin']
         or request.user.is_superuser
     ):
         return redirect('landing')
 
-    # ✅ Valid programs (must match Application.PROGRAM_CHOICES)
-    allowed_programs = ["AICS", "SEA", "REDCARD", "EA"]
+    # ✅ Must match PROGRAM_CHOICES
+    allowed_programs = ["AICS", "SEA", "REDCARD", "EDUCATIONAL"]
 
-    # ✅ Selected program (optional)
     program = request.GET.get("program", "").upper()
 
-    # ✅ Base queryset: PENDING applications
+    # 🔹 Base queryset (PENDING only)
     qs = (
         Application.objects
-        .filter(status="pending")
+        .filter(status="PENDING")
         .select_related("client")
         .order_by("-created_at")
     )
 
-    # ✅ Filter by program (CORRECT FIELD: aid_type)
+    # 🔹 Filter by program
     if program in allowed_programs:
-        qs = qs.filter(aid_type__iexact=program)
+        qs = qs.filter(aid_type=program)
     else:
         program = "ALL"
 
-    # ✅ Search (client fields)
+    # 🔹 Search client
     search = request.GET.get("q", "").strip()
     if search:
         qs = qs.filter(
@@ -664,7 +747,7 @@ def pending_applications(request):
             Q(client__email__icontains=search)
         )
 
-    # ✅ Pagination
+    # 🔹 Pagination
     paginator = Paginator(qs, 10)
     page_obj = paginator.get_page(request.GET.get("page"))
 
@@ -676,6 +759,7 @@ def pending_applications(request):
     }
 
     return render(request, "pending_applications.html", context)
+
 
 @login_required
 def client_detail(request, pk):
@@ -835,19 +919,51 @@ def dashboard_data(request):
 def application_approve(request, pk):
     application = get_object_or_404(Application, pk=pk)
 
+    # 🔒 Role Check
     if not (
         getattr(request.user, 'role', None) in ['admin', 'staff']
         or request.user.is_superuser
     ):
         return redirect('dashboard')
 
+    # ✅ Update Application Status
     application.status = 'approved'
     application.eligibility_result = 'Eligible'
+    application.approved_by = request.user
+    application.approved_at = timezone.now()
     application.save()
 
-    messages.success(request, "Application approved.")
-    return redirect('application_detail', pk=pk)
+    # 📧 SEND EMAIL TO CLIENT
+    client = application.client
+    if client.email:
+        subject = "Your Assistance Application Has Been Approved"
 
+        message = f"""
+Good day {client.full_name},
+
+Your application for {application.aid_type} assistance has been APPROVED.
+
+Application Details:
+Program: {application.aid_type}
+Requested Amount: ₱{application.requested_amount}
+Status: Approved
+
+Our office will contact you regarding the release schedule.
+
+Thank you,
+MSWDO Office
+"""
+
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=None,  # Uses DEFAULT_FROM_EMAIL in settings
+            recipient_list=[client.email],
+            fail_silently=False,
+        )
+
+    messages.success(request, "Application approved and client notified by email.")
+    return redirect('application_detail', pk=pk)
 
 @login_required
 def application_reject(request, pk):
@@ -899,3 +1015,402 @@ def application_edit(request, pk):
         'application': application,
         'client': client
     })
+
+
+@login_required
+def approve_application(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if request.user.role not in ['admin'] and not request.user.is_superuser:
+        messages.error(request, "Unauthorized action.")
+        return redirect('client_detail', application.client.id)
+
+    application.status = 'approved'
+    application.approved_by = request.user
+    application.approved_at = timezone.now()
+    application.save()
+
+    messages.success(request, "Application approved.")
+    return redirect('client_detail', application.client.id)
+
+
+@login_required
+def reject_application(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if request.user.role not in ['admin'] and not request.user.is_superuser:
+        messages.error(request, "Unauthorized action.")
+        return redirect('client_detail', application.client.id)
+
+    application.status = 'rejected'
+    application.save()
+
+    messages.warning(request, "Application disapproved.")
+    return redirect('client_detail', application.client.id)
+
+
+@login_required
+def release_application(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if request.method == "POST":
+        amount = Decimal(request.POST.get('released_amount', 0))
+
+        application.released_amount = amount
+        application.status = 'released'
+        application.released_at = timezone.now()
+        application.save()
+
+        messages.success(request, "Aid released successfully.")
+
+    return redirect('client_detail', application.client.id)
+
+@login_required
+def approve_application(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if request.user.role not in ['admin'] and not request.user.is_superuser:
+        messages.error(request, "Unauthorized action.")
+        return redirect('client_detail', application.client.id)
+
+    application.status = 'approved'
+    application.approved_by = request.user
+    application.approved_at = timezone.now()
+    application.save()
+
+    messages.success(request, "Application approved.")
+    return redirect('client_detail', application.client.id)
+
+
+@login_required
+def reject_application(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if request.user.role not in ['admin'] and not request.user.is_superuser:
+        messages.error(request, "Unauthorized action.")
+        return redirect('client_detail', application.client.id)
+
+    application.status = 'rejected'
+    application.save()
+
+    messages.warning(request, "Application disapproved.")
+    return redirect('client_detail', application.client.id)
+
+
+@login_required
+def release_application(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if request.method == "POST":
+        amount = Decimal(request.POST.get('released_amount', 0))
+
+        application.released_amount = amount
+        application.status = 'released'
+        application.released_at = timezone.now()
+        application.save()
+
+        messages.success(request, "Aid released successfully.")
+
+    return redirect('client_detail', application.client.id)
+
+from django.contrib.auth.hashers import make_password
+
+def toggle_staff(request, staff_id):
+    staff = get_object_or_404(User, id=staff_id)
+    staff.is_active = not staff.is_active
+    staff.save()
+    messages.success(request, f"{staff.get_full_name()} is now {'active' if staff.is_active else 'inactive'}.")
+    return redirect('admin_account')
+
+
+def reset_staff_password(request, staff_id):
+    staff = get_object_or_404(User, id=staff_id)
+    # Simple password reset to 'password123' for demo; replace with proper workflow
+    staff.set_password('password123')
+    staff.save()
+    messages.success(request, f"Password for {staff.get_full_name()} has been reset.")
+    return redirect('admin_account')
+
+
+def edit_staff_role(request, staff_id):
+    staff = get_object_or_404(User, id=staff_id)
+    if request.method == "POST":
+        role = request.POST.get('role')
+        staff.role = role
+        staff.save()
+        messages.success(request, f"{staff.get_full_name()}'s role has been updated to {role}.")
+        return redirect('admin_account')
+    return render(request, 'edit_staff_role.html', {'staff': staff})
+
+
+def staff_activity_logs(request, staff_id):
+    staff = get_object_or_404(User, id=staff_id)
+    activity_logs = [
+        {"action": "Account Created", "date": staff.date_joined},
+        {"action": "Last Login", "date": staff.last_login or "Never"}
+    ]
+    return render(request, 'staff_activity_logs.html', {'staff': staff, 'activity_logs': activity_logs})
+
+
+
+
+from .models import ClientAccount
+from django.contrib import messages
+
+def client_login(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+
+        try:
+            account = ClientAccount.objects.select_related("client").get(email=email)
+
+            if account.check_password(password):
+                request.session["client_account_id"] = account.id
+                request.session["client_id"] = account.client.id
+                request.session["client_name"] = account.client.full_name
+
+                messages.success(request, "Login successful!")
+                return redirect("client_dashboard")
+            else:
+                messages.error(request, "Invalid password.")
+
+        except ClientAccount.DoesNotExist:
+            messages.error(request, "No account found with that email.")
+
+    return render(request, "client_login.html")
+
+
+
+def client_register(request):
+    if request.method == "POST":
+        client = Client.objects.create(
+            # I. PERSONAL
+            first_name=request.POST['first_name'],
+            middle_name=request.POST.get('middle_name'),
+            last_name=request.POST['last_name'],
+            sex=request.POST.get('sex'),
+            birth_date=request.POST.get('dob'),
+            civil_status=request.POST.get('civil_status'),
+            nationality=request.POST.get('nationality'),
+
+            # II. ADDRESS
+            address=request.POST.get('address'),
+            barangay=request.POST.get('barangay'),
+            municipality=request.POST.get('municipality'),
+            contact_no=request.POST.get('contact_number'),  # 🔥 FIXED
+            email=request.POST.get('email'),
+
+            # III. SOCIO ECONOMIC
+            livelihood=request.POST.get('livelihood'),
+            monthly_income=request.POST.get('monthly_income') or 0,
+            household_size=request.POST.get('household_size') or 1,
+            has_disability=request.POST.get('pwd'),         # 🔥 FIXED
+            is_senior=request.POST.get('senior'),           # 🔥 FIXED
+            previous_aid=request.POST.get('previous_dswd'), # 🔥 FIXED
+        )
+
+        # Create login account
+        account = ClientAccount.objects.create(
+            client=client,
+            email=request.POST['email']
+        )
+        account.set_password(request.POST['password'])
+        account.save()
+
+        messages.success(request, "Registration successful. You can now log in.")
+        return redirect('client_login')
+
+    return render(request, 'client_register.html')
+
+def client_dashboard(request):
+    client_id = request.session.get("client_id")
+
+    if not client_id:
+        return redirect("client_login")
+
+    client = Client.objects.get(id=client_id)
+
+    return render(request, "client_dashboard.html", {
+        "client": client
+    })
+
+def client_edit_profile(request):
+    client_id = request.session.get('client_id')
+
+    if not client_id:
+        return redirect('client_login')  # not logged in
+
+    client = Client.objects.get(id=client_id)
+
+    if request.method == "POST":
+        # PERSONAL
+        client.first_name = request.POST.get('first_name')
+        client.middle_name = request.POST.get('middle_name')
+        client.last_name = request.POST.get('last_name')
+        client.sex = request.POST.get('sex')
+        client.birth_date = request.POST.get('dob')
+        client.civil_status = request.POST.get('civil_status')
+        client.nationality = request.POST.get('nationality')
+
+        # ADDRESS
+        client.address = request.POST.get('address')
+        client.barangay = request.POST.get('barangay')
+        client.municipality = request.POST.get('municipality')
+        client.contact_no = request.POST.get('contact_number')
+        client.email = request.POST.get('email')
+
+        # SOCIO-ECONOMIC
+        client.livelihood = request.POST.get('livelihood')
+        client.monthly_income = request.POST.get('monthly_income') or 0
+        client.household_size = request.POST.get('household_size') or 1
+        client.has_disability = request.POST.get('pwd')
+        client.is_senior = request.POST.get('senior')
+        client.previous_aid = request.POST.get('previous_dswd')
+
+        client.save()
+
+        messages.success(request, "Profile updated successfully.")
+        return redirect('client_edit_profile')
+
+    return render(request, 'client_edit_profile.html', {'client': client})
+
+def client_applications(request):
+    client_id = request.session.get('client_id')
+
+    if not client_id:
+        return redirect('client_login')
+
+    client = Client.objects.get(id=client_id)
+
+    applications = Application.objects.filter(client=client).order_by('-created_at')
+
+    return render(request, 'client_applications.html', {
+        'client': client,
+        'applications': applications
+    })
+
+from django.db import transaction
+from .models import Notification
+def client_apply_program(request):
+    client_id = request.session.get("client_id")
+    if not client_id:
+        return redirect("client_login")
+
+    client = get_object_or_404(Client, id=client_id)
+
+    if request.method == "POST":
+        aid_type = request.POST.get("aid_type")
+
+        if not aid_type:
+            return redirect("client_apply_program")
+
+        with transaction.atomic():
+
+            # ================= CREATE MAIN APPLICATION =================
+            application = Application.objects.create(
+                client=client,
+                aid_type=aid_type,
+                status="pending"
+            )
+
+            docs = {}
+
+            # ================= AICS =================
+            if aid_type == "AICS":
+                AICSDetail.objects.create(
+                    application=application,
+                    crisis_type=request.POST.get("aics_crisis_type"),
+                    assessment_findings=request.POST.get("aics_assessment"),
+                    approved_amount=Decimal(request.POST.get("aics_approved_amount") or 0),
+                )
+
+                docs = {
+                    "AICS Barangay Certificate": request.FILES.get("aics_barangay_cert"),
+                    "Medical / Death Certificate": request.FILES.get("aics_medical_death_cert"),
+                    "Official Receipt": request.FILES.get("aics_receipt"),
+                }
+
+            # ================= SEA =================
+            elif aid_type == "SEA":
+                SEADetail.objects.create(
+                    application=application,
+                    business_type=request.POST.get("sea_business_type"),
+                    capital_requested=Decimal(request.POST.get("sea_capital") or 0),
+                    training_completed=request.POST.get("sea_training") == "Yes",
+                    monitoring_notes=request.POST.get("sea_monitoring"),
+                )
+
+                docs = {
+                    "Barangay Clearance": request.FILES.get("sea_barangay_clearance"),
+                    "Cedula": request.FILES.get("sea_cedula"),
+                    "Project Proposal": request.FILES.get("sea_project_proposal"),
+                    "Project Picture": request.FILES.get("sea_project_picture"),
+                }
+
+            # ================= RED CARD =================
+            elif aid_type == "REDCARD":
+                REDCARDDetail.objects.create(
+                    application=application,
+                    emergency_type=request.POST.get("redcard_emergency_type"),
+                    usage_count=request.POST.get("redcard_usage"),
+                )
+
+                docs = {
+                    "Birth Certificate": request.FILES.get("redcard_birth_cert"),
+                    "Valid ID Picture": request.FILES.get("redcard_valid_id"),
+                    "Certificate of Indigency": request.FILES.get("redcard_indigency"),
+                }
+
+            # ================= EDUCATIONAL ASSISTANCE =================
+            elif aid_type == "EA":
+                EducationalAssistanceDetail.objects.create(
+                    application=application,
+                    school_name=request.POST.get("school_name"),
+                    course_or_grade=request.POST.get("course_level"),
+                )
+
+                docs = {
+                    "Letter of Appeal": request.FILES.get("edu_letter"),
+                    "Certificate of Indigency": request.FILES.get("edu_indigency"),
+                    "Grades": request.FILES.get("edu_grades"),
+                    "Certificate of Enrollment": request.FILES.get("edu_enrollment"),
+                    "Billing Statement": request.FILES.get("edu_billing"),
+                    "Official Receipt": request.FILES.get("edu_receipt"),
+                }
+
+            # ================= SAVE DOCUMENTS =================
+            for name, file in docs.items():
+                if file:
+                    ApplicationDocument.objects.create(
+                        application=application,
+                        document_name=name,
+                        file=file
+                    )
+
+            # ================= 🔔 CREATE NOTIFICATIONS =================
+            staff_admins = User.objects.filter(is_staff=True) | User.objects.filter(is_superuser=True)
+
+            for user in staff_admins.distinct():
+                Notification.objects.create(
+                    recipient=user,
+                    message=f"New application from {client.full_name} for {aid_type}",
+                    link=f"/application/{application.id}/"
+                )
+
+        return redirect("client_applications")
+
+    return render(request, "client_apply_program.html", {"client": client})
+
+from django.views.decorators.http import require_POST
+@login_required
+@require_POST
+def mark_notification_read(request, pk):
+    notif = get_object_or_404(Notification, pk=pk)
+
+    # ✅ correct field name
+    if notif.recipient == request.user:
+        notif.is_read = True
+        notif.save()
+
+    return redirect(request.META.get('HTTP_REFERER', 'admin_account'))

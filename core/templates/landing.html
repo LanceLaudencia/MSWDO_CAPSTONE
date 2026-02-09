@@ -1334,6 +1334,17 @@
           padding: 36px;
         }
       }
+      .apply-btn {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  border: none;
+  box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
+}
+
+.apply-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(40, 167, 69, 0.4);
+}
+
 
       @media (max-width: 768px) {
         .nav-menu {
@@ -1434,7 +1445,6 @@
 
   {% load static %}
 
-  <!DOCTYPE html>
   <html lang="en">
     <head>
       <meta charset="UTF-8" />
@@ -1514,7 +1524,7 @@
               Building stronger communities together.
             </p>
             <div class="hero-buttons">
-              <a href="{% url 'signup' %}" class="btn-primary">
+              <a href="#announcements" class="btn-primary">
                 <span>Explore Programs</span>
                 <i class="fas fa-arrow-right"></i>
               </a>
@@ -1522,6 +1532,12 @@
                 <i class="fas fa-play-circle"></i>
                 <span>Learn More</span>
               </a>
+
+                <a href="{% url 'client_login' %}" class="btn-primary apply-btn">
+    <i class="fas fa-file-signature"></i>
+    <span>Apply Now</span>
+  </a>
+
             </div>
             <div class="hero-stats">
               <div class="stat-item">
@@ -1543,7 +1559,6 @@
               <img
                 src="{% static 'images/DSWD-Symbol.png' %}"
                 alt="DSWD Logo"
-                onerror="this.src='https://via.placeholder.com/500x500/006d5b/ffffff?text=DSWD+Logo'"
               />
               <div class="floating-card card-1">
                 <i class="fas fa-heart"></i>
@@ -1617,7 +1632,6 @@
                 <img
                   src="{% static 'images/dswd-outreach.jpg' %}"
                   alt="DSWD Outreach"
-                  onerror="this.style.display='none'"
                 />
                 <div class="about-card-overlay">
                   <p>
@@ -1630,7 +1644,6 @@
                 <img
                   src="{% static 'images/office2.jpg' %}"
                   alt="MSWDO Office"
-                  onerror="this.style.display='none'"
                 />
                 <div class="about-card-overlay">
                   <p>
@@ -1663,21 +1676,18 @@
               <div class="service-icon">
                 <i class="fas fa-ambulance"></i>
               </div>
-              <img
-                src="{% static 'images/aics.jpg' %}"
-                alt="AICS"
-                onerror="this.src='https://via.placeholder.com/400x240/006d5b/ffffff?text=AICS+Program'"
-              />
+              <img src="{% static 'images/aics.jpg' %}" alt="AICS" />
               <div class="service-content">
                 <h3>AICS</h3>
                 <p>
-                  Provides financial, medical, burial, transportation, and food
-                  assistance to crisis-affected families.
+                  AICS is a social welfare program of the Philippine Department
+                  of Social Welfare and Development (DSWD) designed to provide
+                  immediate, short-term support to individuals and families
+                  facing unforeseen crises or difficult life circumstances.
+                  These could include unexpected illness, death of a family
+                  member, natural disasters, accidents, loss of income, and
+                  other emergencies.
                 </p>
-                <button class="service-btn">
-                  <span>Apply Now</span>
-                  <i class="fas fa-arrow-right"></i>
-                </button>
               </div>
             </div>
 
@@ -1685,21 +1695,17 @@
               <div class="service-icon">
                 <i class="fas fa-briefcase"></i>
               </div>
-              <img
-                src="{% static 'images/sea.jpg' %}"
-                alt="SEA"
-                onerror="this.src='https://via.placeholder.com/400x240/0fa18c/ffffff?text=SEA-K+Program'"
-              />
+              <img src="{% static 'images/sea.jpg' %}" alt="SEA" />
               <div class="service-content">
                 <h3>SEA-K</h3>
                 <p>
-                  Livelihood capital and skills training for poor families to
-                  establish sustainable income projects.
+                  It's a livelihood and capability building program originally
+                  implemented by the Philippine Department of Social Welfare and
+                  Development (DSWD) that provides livelihood capital, skills
+                  training, and entrepreneurial support to poor and
+                  disadvantaged families so they can establish and manage
+                  sustainable income-generating projects.
                 </p>
-                <button class="service-btn">
-                  <span>Apply Now</span>
-                  <i class="fas fa-arrow-right"></i>
-                </button>
               </div>
             </div>
 
@@ -1710,18 +1716,17 @@
               <img
                 src="{% static 'images/senior-pwd.jpg' %}"
                 alt="Senior & PWD"
-                onerror="this.src='https://via.placeholder.com/400x240/00c9a7/ffffff?text=Senior+%26+PWD'"
               />
               <div class="service-content">
                 <h3>Senior & PWD Assistance</h3>
                 <p>
-                  Social pension, benefits, and support services for senior
-                  citizens and persons with disabilities.
+                  Senior & PWD Assistance refers to a set of government-provided
+                  social protection programs, pensions, benefits, and support
+                  services designed to improve the quality of life, dignity, and
+                  well-being of senior citizens and persons with disabilities
+                  (PWDs), especially those who are indigent, vulnerable, or
+                  without regular income.
                 </p>
-                <button class="service-btn">
-                  <span>Apply Now</span>
-                  <i class="fas fa-arrow-right"></i>
-                </button>
               </div>
             </div>
           </div>
@@ -1788,7 +1793,6 @@
                 <img
                   src="{% static 'images/dswd-relief-operations.jpg' %}"
                   alt="Disaster Relief"
-                  onerror="this.style.display='none'"
                 />
                 <div class="announcement-badge">Relief</div>
               </div>
@@ -1808,9 +1812,8 @@
             <div class="announcement-card fade-in">
               <div class="announcement-image">
                 <img
-                  src="{% static 'images/feeding.jpg' %}"
+                  src="{% static 'images/fed.jpg' %}"
                   alt="Feeding Program"
-                  onerror="this.style.display='none'"
                 />
                 <div class="announcement-badge">Nutrition</div>
               </div>
@@ -1832,7 +1835,6 @@
                 <img
                   src="{% static 'images/community.jpg' %}"
                   alt="Community Development"
-                  onerror="this.style.display='none'"
                 />
                 <div class="announcement-badge">Development</div>
               </div>
