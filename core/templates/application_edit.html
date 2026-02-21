@@ -2,6 +2,7 @@
 {% block page_title %}Edit Application{% endblock %}
 {% block content %}
 
+<<<<<<< HEAD
 <div class="card shadow-sm border-0">
   <div class="card-body p-4">
 
@@ -98,6 +99,329 @@
 
     </form>
 
+=======
+<style>
+  .edit-wrapper {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    min-height: 100vh;
+    padding: 60px 20px;
+  }
+  
+  .edit-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+  
+  .edit-header {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    padding: 40px;
+    color: white;
+    text-align: center;
+  }
+  
+  .edit-header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .edit-header p {
+    margin: 8px 0 0 0;
+    font-size: 1rem;
+    opacity: 0.95;
+  }
+  
+  .edit-body {
+    padding: 45px;
+  }
+  
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+    margin-top: 35px;
+  }
+  
+  .section-header:first-child {
+    margin-top: 0;
+  }
+  
+  .section-header::before {
+    content: '';
+    width: 5px;
+    height: 35px;
+    background: linear-gradient(180deg, #fa709a 0%, #fee140 100%);
+    border-radius: 3px;
+  }
+  
+  .section-header h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #c2185b;
+    margin: 0;
+  }
+  
+  .form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    display: block;
+  }
+  
+  .form-label::after {
+    content: ' *';
+    color: #e74c3c;
+    display: none;
+  }
+  
+  .form-label.required::after {
+    display: inline;
+  }
+  
+  .form-control, .form-select, textarea {
+    border: 2px solid #e8e8e8;
+    border-radius: 15px;
+    padding: 14px 18px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fafafa;
+  }
+  
+  .form-control:focus, .form-select:focus, textarea:focus {
+    border-color: #fa709a;
+    box-shadow: 0 0 0 4px rgba(250, 112, 154, 0.1);
+    outline: none;
+    background: white;
+  }
+  
+  textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+  }
+  
+  .divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #e8e8e8 50%, transparent 100%);
+    margin: 35px 0;
+  }
+  
+  .action-bar {
+    display: flex;
+    gap: 15px;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 3px solid #f5f5f5;
+  }
+  
+  .btn-save {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+    border: none;
+    padding: 16px 45px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 25px rgba(250, 112, 154, 0.4);
+  }
+  
+  .btn-save:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 35px rgba(250, 112, 154, 0.6);
+  }
+  
+  .btn-cancel {
+    background: white;
+    color: #6c757d;
+    border: 2px solid #e8e8e8;
+    padding: 16px 45px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-cancel:hover {
+    background: #f8f9fa;
+    border-color: #6c757d;
+    color: #495057;
+    transform: translateY(-2px);
+  }
+  
+  .input-icon {
+    position: relative;
+  }
+  
+  .input-icon::before {
+    content: '₱';
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 700;
+    color: #fa709a;
+    font-size: 1.1rem;
+    z-index: 1;
+  }
+  
+  .input-icon input {
+    padding-left: 40px;
+  }
+  
+  .info-badge {
+    background: linear-gradient(135deg, #e0f7ff 0%, #fff5e6 100%);
+    border-left: 4px solid #fa709a;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    color: #495057;
+    font-size: 0.95rem;
+  }
+  
+  .info-badge strong {
+    color: #c2185b;
+  }
+</style>
+
+<div class="edit-wrapper">
+  <div class="edit-container">
+    
+    <div class="edit-header">
+      <h1>✏️ Edit Application</h1>
+      <p>Update assistance application details</p>
+    </div>
+    
+    <div class="edit-body">
+      
+      <div class="info-badge">
+        <strong>📝 Note:</strong> Make sure all required fields are filled out correctly before saving changes.
+      </div>
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <!-- CLIENT INFORMATION SECTION -->
+        <div class="section-header">
+          <h2>Client Information</h2>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <label class="form-label required">First Name</label>
+            <input type="text" name="first_name" class="form-control"
+                   value="{{ client.first_name }}" 
+                   placeholder="Enter first name"
+                   required>
+          </div>
+          
+          <div class="col-md-4">
+            <label class="form-label">Middle Name</label>
+            <input type="text" name="middle_name" class="form-control"
+                   value="{{ client.middle_name }}"
+                   placeholder="Enter middle name">
+          </div>
+          
+          <div class="col-md-4">
+            <label class="form-label required">Last Name</label>
+            <input type="text" name="last_name" class="form-control"
+                   value="{{ client.last_name }}"
+                   placeholder="Enter last name"
+                   required>
+          </div>
+        </div>
+
+        <div class="row g-4 mt-2">
+          <div class="col-md-6">
+            <label class="form-label">Contact Number</label>
+            <input type="text" name="contact_no" class="form-control"
+                   value="{{ client.contact_no }}"
+                   placeholder="09XX-XXX-XXXX">
+          </div>
+          
+          <div class="col-md-6">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" class="form-control"
+                   value="{{ client.email }}"
+                   placeholder="email@example.com">
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- ASSISTANCE REQUEST SECTION -->
+        <div class="section-header">
+          <h2>Assistance Request</h2>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-12">
+            <label class="form-label required">Type of Assistance</label>
+            <select name="aid_type" class="form-select" required>
+              <option value="">Select assistance type...</option>
+              <option value="SEA" {% if application.aid_type == "SEA" %}selected{% endif %}>
+                SEA - Self-Employment Assistance
+              </option>
+              <option value="AICS" {% if application.aid_type == "AICS" %}selected{% endif %}>
+                AICS - Assistance to Individuals in Crisis Situation
+              </option>
+              <option value="REDCARD" {% if application.aid_type == "REDCARD" %}selected{% endif %}>
+                REDCARD - Emergency Assistance
+              </option>
+              <option value="EA" {% if application.aid_type == "EA" %}selected{% endif %}>
+                Educational Assistance
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row g-4 mt-2">
+          <div class="col-md-12">
+            <label class="form-label">Requested Amount</label>
+            <div class="input-icon">
+              <input type="number" step="0.01" name="requested_amount"
+                     class="form-control"
+                     value="{{ application.requested_amount }}"
+                     placeholder="0.00">
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 mt-2">
+          <div class="col-md-12">
+            <label class="form-label">Reason for Assistance</label>
+            <textarea name="reason" class="form-control" 
+                      placeholder="Provide a detailed reason for requesting assistance...">{{ application.reason }}</textarea>
+          </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="action-bar">
+          <button type="submit" class="btn-save">
+            💾 Save Changes
+          </button>
+
+          <a href="{% url 'application_detail' client.id %}" class="btn-cancel">
+            ✖ Cancel
+          </a>
+        </div>
+
+      </form>
+
+    </div>
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
   </div>
 </div>
 

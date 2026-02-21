@@ -117,6 +117,7 @@ class Application(models.Model):
     ]
 
     STATUS_CHOICES = [
+<<<<<<< HEAD
         ('PENDING', 'Pending Review'),
         ('ASSESSMENT', 'Under Assessment'),
         ('APPROVAL', 'For Approval'),
@@ -155,7 +156,31 @@ class Application(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+=======
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('released', 'Released'),
+        ('rejected', 'Rejected'),
+    ]
 
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='applications')
+    aid_type = models.CharField(max_length=20, choices=PROGRAM_CHOICES)
+    requested_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    released_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+
+    reason = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='pending')
+    eligibility_result = models.CharField(max_length=50, blank=True, null=True)
+
+    approved_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    released_at = models.DateTimeField(null=True, blank=True)
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    
     def __str__(self):
         return f"{self.client.full_name} - {self.get_aid_type_display()} ({self.status})"
 
@@ -202,9 +227,12 @@ class Assistance(models.Model):
         return f"{self.client.full_name} - {self.program}"
 
 
+<<<<<<< HEAD
 # ========================
 # AICS DETAIL
 # ========================
+=======
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
 class AICSDetail(models.Model):
     CRISIS_CHOICES = [
         ('Medical', 'Medical'),
@@ -214,15 +242,34 @@ class AICSDetail(models.Model):
     ]
 
     application = models.OneToOneField(
+<<<<<<< HEAD
         Application, on_delete=models.CASCADE, related_name='aics_detail'
     )
     crisis_type = models.CharField(max_length=50, choices=CRISIS_CHOICES)
+=======
+        Application,
+        on_delete=models.CASCADE,
+        related_name='aics_detail'
+    )
+
+    crisis_type = models.CharField(max_length=50, choices=CRISIS_CHOICES)
+    assessment_findings = models.TextField()
+
+    approved_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
     released_at = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return f"AICS - {self.application.client.full_name}"
 
 
+<<<<<<< HEAD
 # ========================
 # SEA DETAIL
 # ========================
@@ -230,12 +277,28 @@ class SEADetail(models.Model):
     application = models.OneToOneField(
         Application, on_delete=models.CASCADE, related_name='sea_detail'
     )
+=======
+class SEADetail(models.Model):
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='sea_detail'
+    )
+
+    business_type = models.CharField(max_length=255)
+    capital_requested = models.DecimalField(max_digits=12, decimal_places=2)
+
+    training_completed = models.BooleanField(default=False)
+    monitoring_notes = models.TextField(blank=True, null=True)
+
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
     released_at = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return f"SEA - {self.application.client.full_name}"
 
 
+<<<<<<< HEAD
 # ========================
 # REDCARD DETAIL
 # ========================
@@ -247,12 +310,28 @@ class REDCARDDetail(models.Model):
     reason = models.TextField(blank=True, null=True)
     usage_count = models.PositiveIntegerField(default=1)
     allowable_limit = models.PositiveIntegerField(default=3)
+=======
+class REDCARDDetail(models.Model):
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='redcard_detail'
+    )
+
+    emergency_type = models.CharField(max_length=255)
+    reason = models.TextField(blank=True, null=True)
+
+    usage_count = models.PositiveIntegerField(default=1)
+    allowable_limit = models.PositiveIntegerField(default=3)
+
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
     released_at = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return f"REDCARD - {self.application.client.full_name}"
 
 
+<<<<<<< HEAD
 # ========================
 # EDUCATIONAL ASSISTANCE DETAIL
 # ========================
@@ -263,10 +342,30 @@ class EducationalAssistanceDetail(models.Model):
     school_name = models.CharField(max_length=255)
     course_or_grade = models.CharField(max_length=255)
     approved_amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+=======
+class EducationalAssistanceDetail(models.Model):
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='educational_detail'
+    )
+
+    school_name = models.CharField(max_length=255)
+    course_or_grade = models.CharField(max_length=255)
+
+    approved_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
     released_at = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return f"Educational - {self.application.client.full_name}"
+<<<<<<< HEAD
 
 
 # ==============================
@@ -304,3 +403,5 @@ class Notification(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+=======
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788

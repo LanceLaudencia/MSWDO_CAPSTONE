@@ -309,6 +309,7 @@ from .models import (
     REDCARDDetail,
     EducationalAssistanceDetail,
 )
+<<<<<<< HEAD
 
 from .models import FamilyMember
 @login_required
@@ -408,6 +409,117 @@ def add_client(request):
 
             # ================= PROGRAM-SPECIFIC DETAILS =================
             docs = {}
+=======
+@login_required
+def add_client(request):
+    # -------------------------
+    # 1️⃣ Role Check
+    # -------------------------
+    if not (getattr(request.user, "role", None) in ["staff", "admin"] or request.user.is_superuser):
+        return redirect("dashboard")
+
+    if request.method == "POST":
+        try:
+            # -------------------------
+            # 2️⃣ Create Client
+            # -------------------------
+            client = Client.objects.create(
+                first_name=request.POST.get("first_name", "").strip(),
+                middle_name=request.POST.get("middle_name") or None,
+                last_name=request.POST.get("last_name", "").strip(),
+
+                sex=request.POST.get("sex") or None,
+                birth_date=(datetime.strptime(request.POST.get("birth_date"), "%Y-%m-%d").date()
+                            if request.POST.get("birth_date") else None),
+                civil_status=request.POST.get("civil_status") or None,
+                nationality=request.POST.get("nationality") or "Filipino",
+
+                address=request.POST.get("address") or None,
+                barangay=request.POST.get("barangay") or None,
+                municipality=request.POST.get("municipality") or None,
+
+                email=request.POST.get("email") or None,
+                contact_no=request.POST.get("contact_no") or None,
+
+                livelihood=request.POST.get("livelihood") or None,
+                monthly_income=Decimal(request.POST.get("monthly_income") or 0),
+                household_size=int(request.POST.get("household_size") or 1),
+
+                has_disability=request.POST.get("has_disability") == "Yes",
+                is_senior=request.POST.get("is_senior") == "Yes",
+                previous_aid=request.POST.get("previous_aid") == "Yes",
+            )
+
+            # -------------------------
+            # 3️⃣ Create Application
+            # -------------------------
+            aid_type = request.POST.get("program")  # 'AICS', 'SEA', 'REDCARD', 'EA'
+            application = Application.objects.create(
+                client=client,
+                aid_type=aid_type,
+                requested_amount=Decimal(request.POST.get("requested_amount") or 0),
+                reason=request.POST.get("reason") or None,
+                status="pending",
+            )
+
+            # -------------------------
+            # 4️⃣ ML Eligibility Prediction
+            # -------------------------
+            ml_input = {
+                "monthly_income": float(client.monthly_income),
+                "household_size": client.household_size,
+                "has_disability": int(client.has_disability),
+                "is_senior": int(client.is_senior),
+                "previous_aid": int(client.previous_aid),
+            }
+
+            prediction = predict_input(ml_input)
+            application.eligibility_result = "Eligible" if prediction == 1 else "Not Eligible"
+            application.save()
+
+            # -------------------------
+            # 5️⃣ Program-specific Details
+            # -------------------------
+            if aid_type == "AICS":
+                AICSDetail.objects.create(
+                    application=application,
+                    crisis_type=request.POST.get("aics_crisis_type"),
+                    assessment_findings=request.POST.get("aics_assessment"),
+                    approved_amount=Decimal(request.POST.get("aics_approved_amount") or 0),
+                )
+
+            elif aid_type == "SEA":
+                SEADetail.objects.create(
+                    application=application,
+                    business_type=request.POST.get("sea_business_type"),
+                    capital_requested=Decimal(request.POST.get("sea_capital") or 0),
+                    training_completed=request.POST.get("sea_training") == "Yes",
+                    monitoring_notes=request.POST.get("sea_monitoring") or None,
+                )
+
+            elif aid_type == "REDCARD":
+                REDCARDDetail.objects.create(
+                    application=application,
+                    emergency_type=request.POST.get("redcard_emergency_type"),
+                    usage_count=int(request.POST.get("redcard_usage") or 1),
+                )
+
+            elif aid_type == "EA":
+                EducationalAssistanceDetail.objects.create(
+                    application=application,
+                    school_name=request.POST.get("school_name"),
+                    course_or_grade=request.POST.get("course_level"),
+                )
+
+            # -------------------------
+            # 6️⃣ Upload Documents
+            # -------------------------
+            files = {
+                "Valid Government ID": request.FILES.get("valid_id"),
+                "Barangay Certificate": request.FILES.get("barangay_cert"),
+                "Other Supporting Document": request.FILES.get("other_docs"),
+            }
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
 
             if aid_type == "AICS":
                 AICSDetail.objects.create(
@@ -462,6 +574,7 @@ def add_client(request):
                 if file:
                     ApplicationDocument.objects.create(
                         application=application,
+<<<<<<< HEAD
                         name=doc_name,
                         file=file,
                     )
@@ -473,6 +586,18 @@ def add_client(request):
             import traceback
             traceback.print_exc()
             messages.error(request, f"Submission failed: {e}")
+=======
+                        name=name,
+                        file=file,
+                    )
+
+            messages.success(request, "Client and application saved successfully!")
+            return redirect("application_detail", application.id)
+
+        except Exception as e:
+            print("ADD CLIENT ERROR:", e)
+            messages.error(request, "Submission failed. Please check the form and try again.")
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
 
     return render(request, "add_client.html")
 
@@ -1369,6 +1494,7 @@ def staff_activity_logs(request, staff_id):
         {"action": "Account Created", "date": staff.date_joined},
         {"action": "Last Login", "date": staff.last_login or "Never"}
     ]
+<<<<<<< HEAD
     return render(request, 'staff_activity_logs.html', {'staff': staff, 'activity_logs': activity_logs})
 
 
@@ -1769,3 +1895,6 @@ def get_notifications_json(request):
     unread_count = notifications.filter(is_read=False).count()
 
     return JsonResponse({'notifications': data, 'unread_count': unread_count})
+=======
+    return render(request, 'staff_activity_logs.html', {'staff': staff, 'activity_logs': activity_logs})
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788

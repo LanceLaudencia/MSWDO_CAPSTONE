@@ -4,7 +4,11 @@
 
 <style>
   .detail-wrapper {
+<<<<<<< HEAD
     background: linear-gradient(135deg, #e8f8f0 0%, #d5f4e6 100%);
+=======
+    background: linear-gradient(135deg, #e0f7ff 0%, #f0f4ff 100%);
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
     min-height: 100vh;
     padding: 40px 20px;
   }
@@ -15,6 +19,7 @@
   }
   
   .profile-card {
+<<<<<<< HEAD
     background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
     border-radius: 15px;
     padding: 40px;
@@ -27,6 +32,44 @@
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 8px;
+=======
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 25px;
+    padding: 40px;
+    color: white;
+    box-shadow: 0 15px 50px rgba(102, 126, 234, 0.4);
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .profile-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: pulse 15s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  
+  .profile-header {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .client-name {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
   }
   
   .client-id {
@@ -48,6 +91,7 @@
   
   .info-card {
     background: white;
+<<<<<<< HEAD
     border-radius: 15px;
     padding: 30px;
     margin-bottom: 25px;
@@ -66,13 +110,43 @@
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 2px solid #e9ecef;
+=======
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+    border: none;
+    transition: all 0.3s ease;
+  }
+  
+  .info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+  }
+  
+  .card-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1e3c72;
+    margin-bottom: 25px;
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
     display: flex;
     align-items: center;
     gap: 10px;
   }
+<<<<<<< HEAD
 
   .card-title i {
     color: #27ae60;
+=======
+  
+  .card-title::before {
+    content: '';
+    width: 5px;
+    height: 30px;
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    border-radius: 3px;
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
   }
   
   .info-label {
@@ -91,6 +165,30 @@
     margin-bottom: 0;
   }
   
+<<<<<<< HEAD
+=======
+  .highlight-amount {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+  }
+  
+  .amount-label {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  
+  .amount-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+  }
+  
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
   .action-buttons {
     display: flex;
     gap: 15px;
@@ -99,6 +197,7 @@
   }
   
   .btn-modern {
+<<<<<<< HEAD
     padding: 12px 24px;
     border-radius: 8px;
     font-weight: 600;
@@ -120,6 +219,54 @@
   .btn-edit   { background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); color: white; }
   .btn-approve{ background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
   .btn-reject { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white; }
+=======
+    padding: 15px 35px;
+    border-radius: 50px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+  }
+  
+  .btn-modern:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  }
+  
+  .btn-back {
+    background: white;
+    color: #6c757d;
+    border: 2px solid #e1e8ed;
+  }
+  
+  .btn-back:hover {
+    background: #f8f9fa;
+    color: #495057;
+    border-color: #6c757d;
+  }
+  
+  .btn-print {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+  }
+  
+  .btn-edit {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+  }
+  
+  .btn-approve {
+    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+    color: white;
+  }
+  
+  .btn-reject {
+    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    color: white;
+  }
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
   
   .badge-pill {
     padding: 8px 20px;
@@ -128,6 +275,7 @@
     font-size: 0.95rem;
   }
   
+<<<<<<< HEAD
   .program-detail-item {
     background: #f8f9fa;
     padding: 15px 20px;
@@ -359,13 +507,122 @@
         <div class="col-md-3">
           <div class="info-label">Nationality</div>
           <p class="info-value">{{ client.nationality|default:"—" }}</p>
+=======
+  .reason-box {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    border-left: 5px solid #667eea;
+    padding: 20px;
+    border-radius: 12px;
+    font-style: italic;
+    color: #495057;
+    line-height: 1.6;
+  }
+  
+  @media print {
+    .detail-wrapper {
+      background: white;
+      padding: 0;
+    }
+    .action-buttons,
+    .btn-modern {
+      display: none !important;
+    }
+    .info-card {
+      box-shadow: none !important;
+      border: 1px solid #dee2e6 !important;
+      page-break-inside: avoid;
+    }
+    .profile-card {
+      background: #667eea !important;
+      box-shadow: none !important;
+    }
+  }
+</style>
+
+<div class="detail-wrapper">
+  <div class="detail-container">
+    
+    <!-- Profile Header Card -->
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+          <div>
+            <h1 class="client-name">
+              {{ client.first_name }}
+              {% if client.middle_name %}{{ client.middle_name }}{% endif %}
+              {{ client.last_name }}
+            </h1>
+            <p class="client-id">Beneficiary ID: #{{ client.id }}</p>
+          </div>
+          <span class="status-badge-large
+            {% if application.status == 'approved' %}bg-success
+            {% elif application.status == 'rejected' %}bg-danger
+            {% elif application.status == 'pending' %}bg-warning text-dark
+            {% else %}bg-secondary{% endif %}">
+            {{ application.status|title }}
+          </span>
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
         </div>
       </div>
     </div>
 
+<<<<<<< HEAD
     <!-- ── Address & Contact ── -->
     <div class="info-card">
       <h2 class="card-title"><i class="bi bi-geo-alt-fill"></i> Address & Contact</h2>
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="info-label">Address</div>
+          <p class="info-value">{{ client.address|default:"—" }}</p>
+        </div>
+        <div class="col-md-3">
+          <div class="info-label">Barangay</div>
+          <p class="info-value">{{ client.barangay|default:"—" }}</p>
+        </div>
+        <div class="col-md-3">
+          <div class="info-label">Municipality</div>
+          <p class="info-value">{{ client.municipality|default:"—" }}</p>
+        </div>
+        <div class="col-md-6">
+          <div class="info-label">Contact Number</div>
+          <p class="info-value">{{ client.contact_no|default:"—" }}</p>
+        </div>
+        <div class="col-md-6">
+          <div class="info-label">Email Address</div>
+          <p class="info-value text-break">{{ client.email|default:"—" }}</p>
+=======
+    <!-- Personal Information -->
+    <div class="info-card">
+      <h2 class="card-title">Personal Information</h2>
+      <div class="row g-4">
+        <div class="col-md-3">
+          <div class="info-label">Sex</div>
+          <p class="info-value">{{ client.sex|default:"—" }}</p>
+        </div>
+        <div class="col-md-3">
+          <div class="info-label">Date of Birth</div>
+          <p class="info-value">{{ client.birth_date|date:"M d, Y"|default:"—" }}</p>
+        </div>
+        <div class="col-md-3">
+          <div class="info-label">Civil Status</div>
+          <p class="info-value">{{ client.civil_status|default:"—" }}</p>
+        </div>
+        <div class="col-md-3">
+          <div class="info-label">Nationality</div>
+          <p class="info-value">{{ client.nationality|default:"—" }}</p>
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
+        </div>
+      </div>
+    </div>
+
+<<<<<<< HEAD
+    <!-- ── Socio-Economic Profile ── -->
+    <div class="info-card">
+      <h2 class="card-title"><i class="bi bi-bar-chart-fill"></i> Socio-Economic Profile</h2>
+=======
+    <!-- Address & Contact -->
+    <div class="info-card">
+      <h2 class="card-title">Address & Contact</h2>
       <div class="row g-4">
         <div class="col-md-6">
           <div class="info-label">Address</div>
@@ -390,9 +647,10 @@
       </div>
     </div>
 
-    <!-- ── Socio-Economic Profile ── -->
+    <!-- Socio-Economic Profile -->
     <div class="info-card">
-      <h2 class="card-title"><i class="bi bi-bar-chart-fill"></i> Socio-Economic Profile</h2>
+      <h2 class="card-title">Socio-Economic Profile</h2>
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
       <div class="row g-4">
         <div class="col-md-4">
           <div class="info-label">Livelihood</div>
@@ -400,6 +658,7 @@
         </div>
         <div class="col-md-4">
           <div class="info-label">Monthly Income</div>
+<<<<<<< HEAD
           <p class="info-value" style="color:#27ae60; font-size:1.5rem;">
             ₱{{ client.monthly_income|floatformat:2|default:"0.00" }}
           </p>
@@ -417,6 +676,33 @@
           <p class="mb-0">
             <span class="badge badge-pill {% if client.has_disability == 'Yes' %}bg-info{% else %}bg-secondary{% endif %}">
               {{ client.has_disability|default:"No" }}
+=======
+          <p class="info-value" style="color: #667eea; font-size: 1.5rem;">
+            ₱{{ client.monthly_income|floatformat:2|default:"0.00" }}
+          </p>
+        </div>
+        <div class="col-md-4">
+          <div class="info-label">Household Size</div>
+          <p class="info-value">{{ client.household_size|default:"—" }}</p>
+        </div>
+        <div class="col-md-4">
+          <div class="info-label">Previous Aid</div>
+          <p class="info-value">{{ client.previous_aid|default:"—" }}</p>
+        </div>
+        <div class="col-md-4">
+          <div class="info-label">Person with Disability</div>
+          <p class="mb-0">
+            <span class="badge badge-pill {{ client.has_disability|yesno:"bg-info,bg-secondary,bg-secondary" }}">
+              {{ client.has_disability|yesno:"Yes,No,—" }}
+            </span>
+          </p>
+        </div>
+        <div class="col-md-4">
+          <div class="info-label">Senior Citizen</div>
+          <p class="mb-0">
+            <span class="badge badge-pill {{ client.is_senior|yesno:"bg-warning text-dark,bg-secondary,bg-secondary" }}">
+              {{ client.is_senior|yesno:"Yes,No,—" }}
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
             </span>
           </p>
         </div>
@@ -446,6 +732,7 @@
       </div>
     </div>
 
+<<<<<<< HEAD
     <!-- ── Beneficiary's Family Information ── -->
     {% if family_members %}
     <div class="info-card">
@@ -541,17 +828,40 @@
           <p class="info-value">{{ application.get_aid_type_display }}</p>
         </div>
         <div class="col-md-4">
+=======
+    <!-- Assistance Request -->
+    <div class="info-card">
+      <h2 class="card-title">Assistance Request Details</h2>
+      
+      <div class="row g-4 mb-4">
+        <div class="col-md-4">
+          <div class="info-label">Aid Type</div>
+          <p class="info-value">{{ application.aid_type }}</p>
+        </div>
+        <div class="col-md-4">
+          <div class="highlight-amount">
+            <div class="amount-label">Requested Amount</div>
+            <div class="amount-value">₱{{ application.requested_amount|floatformat:2 }}</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
           <div class="info-label">Eligibility Result</div>
           <p class="mb-0">
             <span class="badge badge-pill
               {% if application.eligibility_result == 'Eligible' %}bg-success
               {% elif application.eligibility_result == 'Not Eligible' %}bg-danger
+<<<<<<< HEAD
               {% else %}bg-secondary{% endif %}"
               style="font-size:1.1rem; padding:10px 25px;">
+=======
+              {% else %}bg-secondary{% endif %}" style="font-size: 1.1rem; padding: 10px 25px;">
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
               {{ application.eligibility_result|default:"Not yet evaluated" }}
             </span>
           </p>
         </div>
+<<<<<<< HEAD
         <div class="col-md-4">
           <div class="info-label">Approved Amount</div>
           <p class="info-value" style="color:#27ae60; font-size:1.4rem;">
@@ -561,6 +871,14 @@
               <span style="color:#adb5bd; font-size:1rem;">Not yet approved</span>
             {% endif %}
           </p>
+=======
+      </div>
+
+      <div>
+        <div class="info-label">Reason for Assistance</div>
+        <div class="reason-box">
+          {{ application.reason }}
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
         </div>
         <div class="col-md-4">
           <div class="info-label">Date Submitted</div>
@@ -591,6 +909,7 @@
       </div>
     </div>
 
+<<<<<<< HEAD
     <!-- ── Program-Specific Details ── -->
     <div class="info-card">
       <h2 class="card-title"><i class="bi bi-folder2-open"></i> Program-Specific Details</h2>
@@ -672,11 +991,35 @@
            onclick="return confirm('Move this application to Assessment?')">
           🔍 Start Assessment
         </a>
+=======
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <a href="{% url 'pending_applications' %}" class="btn-modern btn-back">
+        ← Back to List
+      </a>
+      
+      <button class="btn-modern btn-print" onclick="window.print()">
+        🖨️ Print Details
+      </button>
+
+      <a href="{% url 'application_edit' application.id %}" class="btn-modern btn-edit">
+        ✏️ Edit Application
+      </a>
+
+      {% if application.status == 'pending' %}
+        <a href="{% url 'application_approve' application.id %}"
+           class="btn-modern btn-approve"
+           onclick="return confirm('Are you sure you want to APPROVE this application?')">
+          ✅ Approve
+        </a>
+
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
         <a href="{% url 'application_reject' application.id %}"
            class="btn-modern btn-reject"
            onclick="return confirm('Are you sure you want to REJECT this application?')">
           ❌ Reject
         </a>
+<<<<<<< HEAD
 
       {% elif application.status == 'ASSESSMENT' %}
         <a href="{% url 'application_advance' application.id %}"
@@ -718,6 +1061,8 @@
         <span class="btn-modern" style="background:#fdecea; color:#dc3545; border:2px solid #dc3545; cursor:default;">
           ❌ Rejected
         </span>
+=======
+>>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
       {% endif %}
     </div>
 
