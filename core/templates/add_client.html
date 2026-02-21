@@ -229,6 +229,128 @@
     font-weight: 500;
     color: #2c3e50;
   }
+
+  /* ================= FAMILY TABLE ================= */
+  .family-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  }
+
+  .family-table thead tr th {
+    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
+    color: #fff;
+    text-align: center;
+    padding: 10px 8px;
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.2);
+    white-space: nowrap;
+  }
+
+  .family-table tbody tr:nth-child(even) {
+    background: #f5faf7;
+  }
+
+  .family-table tbody tr:hover {
+    background: #e8f5ed;
+  }
+
+  .family-table td {
+    border: 1px solid #d5e8dc;
+    padding: 4px 5px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .family-table td input[type="text"],
+  .family-table td input[type="number"] {
+    border: none;
+    border-radius: 6px;
+    padding: 5px 6px;
+    width: 100%;
+    font-size: 0.85rem;
+    background: transparent;
+    text-align: center;
+    outline: none;
+    transition: background 0.2s;
+  }
+
+  .family-table td input[type="text"]:focus,
+  .family-table td input[type="number"]:focus {
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(39,174,96,0.25);
+  }
+
+  .family-table td input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #27ae60;
+    cursor: pointer;
+  }
+
+  .btn-add-row {
+    background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-add-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(15,110,63,0.3);
+  }
+
+  .btn-remove-row {
+    background: #fff;
+    color: #dc3545;
+    border: 2px solid #dc3545;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-remove-row:hover {
+    background: #dc3545;
+    color: #fff;
+  }
+
+  /* 4Ps badge shown when Yes is selected */
+  .fourps-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-top: 6px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .fourps-badge.visible {
+    opacity: 1;
+  }
 </style>
 
 <div class="intake-wrapper">
@@ -374,12 +496,77 @@
               <option>Yes</option>
             </select>
           </div>
+
+          <!-- 4Ps FIELD -->
+          <div class="col-md-4">
+            <label class="form-label">4Ps Member
+              <span style="font-size:0.8rem; color:#6c757d; font-weight:400;">(Pantawid Pamilyang Pilipino Program)</span>
+            </label>
+            <select name="is_4ps" id="fourpsSelect" class="form-select">
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+            <span class="fourps-badge" id="fourpsBadge">
+              <i class="bi bi-patch-check-fill"></i> 4Ps Beneficiary
+            </span>
+          </div>
+
+          <!-- 4Ps HH ID — shown only when Yes -->
+          <div class="col-md-4" id="fourpsIdWrapper" style="display:none;">
+            <label class="form-label">4Ps Household ID No.</label>
+            <input type="text" name="fourps_id" id="fourpsId" class="form-control" placeholder="e.g., 112-0001-000001">
+          </div>
+
         </div>
 
-        <!-- SECTION IV: PROGRAM ASSISTANCE -->
+        <!-- SECTION IV: BENEFICIARY'S FAMILY INFORMATION -->
         <div class="section-divider">
-          <h2>Program / Assistance Requested</h2>
+          <h2>Beneficiary's Family Information</h2>
           <div class="section-number">IV</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="family-table" id="familyTable">
+            <thead>
+              <tr>
+                <th rowspan="3">Name</th>
+                <th rowspan="3">Age</th>
+                <th rowspan="3">Sex</th>
+                <th colspan="3">Civil Status</th>
+                <th rowspan="3">Relationship<br>to the Client</th>
+                <th colspan="4">Educational Attainment</th>
+                <th rowspan="3">Occupation</th>
+                <th rowspan="3">Income</th>
+              </tr>
+              <tr>
+                <th>S</th>
+                <th>M</th>
+                <th>W</th>
+                <th>Elem.</th>
+                <th>HS</th>
+                <th>Coll. / Voc.</th>
+                <th>Illit.</th>
+              </tr>
+            </thead>
+            <tbody id="familyTableBody">
+              <!-- Rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-3 d-flex gap-2">
+          <button type="button" class="btn-add-row" onclick="addFamilyRow()">
+            <i class="bi bi-plus-circle"></i> Add Member
+          </button>
+          <button type="button" class="btn-remove-row" onclick="removeLastRow()">
+            <i class="bi bi-dash-circle"></i> Remove Last
+          </button>
+        </div>
+
+        <!-- SECTION V: PROGRAM ASSISTANCE -->
+        <div class="section-divider" style="margin-top:40px;">
+          <h2>Program / Assistance Requested</h2>
+          <div class="section-number">V</div>
         </div>
 
         <div class="row g-4">
@@ -394,15 +581,6 @@
             </select>
           </div>
 
-          <div class="col-md-4">
-            <label class="form-label">Requested Amount (₱)</label>
-            <input type="number" name="requested_amount" class="form-control" placeholder="0.00">
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Reason for Assistance</label>
-            <input type="text" name="reason" class="form-control" placeholder="Brief description">
-          </div>
         </div>
 
         <!-- AICS SECTION -->
@@ -421,15 +599,6 @@
               </select>
             </div>
 
-            <div class="col-md-4">
-              <label class="form-label">Requested Amount (₱)</label>
-              <input type="number" name="aics_requested_amount" class="form-control" placeholder="0.00">
-            </div>
-          </div>
-
-          <div class="mt-4">
-            <label class="form-label">Assessment Findings</label>
-            <textarea name="aics_assessment" class="form-control" rows="3" placeholder="Enter assessment details..."></textarea>
           </div>
 
           <!-- MEDICAL REQUIREMENTS -->
@@ -471,50 +640,11 @@
             </div>
           </div>
 
-          <div class="row g-4 mt-3">
-            <div class="col-md-4">
-              <label class="form-label">Recommendation</label>
-              <select name="aics_recommendation" class="form-select">
-                <option>For Approval</option>
-                <option>Disapproved</option>
-              </select>
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Approved Amount (₱)</label>
-              <input type="number" name="aics_approved_amount" class="form-control" placeholder="0.00">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Date Released</label>
-              <input type="date" name="aics_released_date" class="form-control">
-            </div>
-          </div>
         </div>
 
         <!-- SEA SECTION -->
         <div id="SEASection" class="program-section d-none">
           <h3>SEA – Self-Employment Assistance</h3>
-
-          <div class="row g-4">
-            <div class="col-md-6">
-              <label class="form-label">Business / Livelihood Type</label>
-              <input type="text" name="sea_business_type" class="form-control" placeholder="e.g., Sari-sari store, Tricycle">
-            </div>
-
-            <div class="col-md-3">
-              <label class="form-label">Capital Requested (₱)</label>
-              <input type="number" name="sea_capital" class="form-control" placeholder="0.00">
-            </div>
-
-            <div class="col-md-3">
-              <label class="form-label">Training Completed</label>
-              <select name="sea_training" class="form-select">
-                <option>No</option>
-                <option>Yes</option>
-              </select>
-            </div>
-          </div>
 
           <h5>Required Documents (SEA)</h5>
 
@@ -540,10 +670,6 @@
             </div>
           </div>
 
-          <div class="mt-4">
-            <label class="form-label">Monitoring Notes</label>
-            <textarea name="sea_monitoring" class="form-control" rows="3" placeholder="Enter monitoring details..."></textarea>
-          </div>
         </div>
 
         <!-- REDCARD SECTION -->
@@ -707,23 +833,74 @@
 </div>
 
 <script>
+  // ── Family Table ─────────────────────────────────────────────
+  function addFamilyRow() {
+    const tbody = document.getElementById('familyTableBody');
+    const i = tbody.rows.length;
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><input type="text" name="family_name_${i}" placeholder="Full Name"></td>
+      <td><input type="number" name="family_age_${i}" placeholder="0" min="0" max="120" style="width:50px"></td>
+      <td>
+        <select name="family_sex_${i}" style="border:none;background:transparent;font-size:0.85rem;text-align:center;outline:none;width:100%">
+          <option value="">-</option>
+          <option>M</option>
+          <option>F</option>
+        </select>
+      </td>
+      <td><input type="checkbox" name="family_cs_s_${i}"></td>
+      <td><input type="checkbox" name="family_cs_m_${i}"></td>
+      <td><input type="checkbox" name="family_cs_w_${i}"></td>
+      <td><input type="text" name="family_rel_${i}" placeholder="e.g. Spouse"></td>
+      <td><input type="checkbox" name="family_edu_elem_${i}"></td>
+      <td><input type="checkbox" name="family_edu_hs_${i}"></td>
+      <td><input type="checkbox" name="family_edu_coll_${i}"></td>
+      <td><input type="checkbox" name="family_edu_illit_${i}"></td>
+      <td><input type="text" name="family_occ_${i}" placeholder="Occupation"></td>
+      <td><input type="number" name="family_inc_${i}" placeholder="0.00" min="0"></td>
+    `;
+    tbody.appendChild(row);
+  }
+
+  function removeLastRow() {
+    const tbody = document.getElementById('familyTableBody');
+    if (tbody.rows.length > 0) tbody.deleteRow(-1);
+  }
+
+  // Start with 5 blank rows
+  for (let x = 0; x < 5; x++) addFamilyRow();
+
+  // ── 4Ps toggle ──────────────────────────────────────────────
+  const fourpsSelect    = document.getElementById('fourpsSelect');
+  const fourpsBadge     = document.getElementById('fourpsBadge');
+  const fourpsIdWrapper = document.getElementById('fourpsIdWrapper');
+  const fourpsId        = document.getElementById('fourpsId');
+
+  fourpsSelect.addEventListener('change', function () {
+    const is4ps = this.value === 'Yes';
+    fourpsBadge.classList.toggle('visible', is4ps);
+    fourpsIdWrapper.style.display = is4ps ? '' : 'none';
+    if (is4ps) {
+      fourpsId.setAttribute('required', 'required');
+    } else {
+      fourpsId.removeAttribute('required');
+      fourpsId.value = '';
+    }
+  });
+
+  // ── Program section toggle ───────────────────────────────────
   const programSelect = document.getElementById("programSelect");
   const sections = document.querySelectorAll(".program-section");
 
   const crisisType = document.getElementById("crisisType");
   const medicalReq = document.getElementById("medicalReq");
-  const burialReq = document.getElementById("burialReq");
+  const burialReq  = document.getElementById("burialReq");
 
   crisisType.addEventListener("change", function () {
     medicalReq.classList.add("d-none");
     burialReq.classList.add("d-none");
-
-    if (this.value === "Medical") {
-      medicalReq.classList.remove("d-none");
-    }
-    else if (this.value === "Burial") {
-      burialReq.classList.remove("d-none");
-    }
+    if (this.value === "Medical") medicalReq.classList.remove("d-none");
+    else if (this.value === "Burial") burialReq.classList.remove("d-none");
   });
 
   programSelect.addEventListener("change", function () {
@@ -732,7 +909,6 @@
       const selectedSection = document.getElementById(this.value + "Section");
       if (selectedSection) {
         selectedSection.classList.remove("d-none");
-        // Make fields in the selected program section required
         const inputs = selectedSection.querySelectorAll('input[type="text"], input[type="number"], select, textarea');
         inputs.forEach(input => {
           if (input.name && !input.name.includes('_monitoring') && !input.name.includes('_assessment')) {
@@ -743,14 +919,13 @@
     }
   });
 
-  // Form validation on submit
-  document.querySelector('form').addEventListener('submit', function(e) {
+  // ── Form validation ──────────────────────────────────────────
+  document.querySelector('form').addEventListener('submit', function (e) {
     const requiredFields = this.querySelectorAll('[required]');
-    let allFilled = true;
+    let allFilled  = true;
     let firstEmpty = null;
 
     requiredFields.forEach(field => {
-      // Only check visible fields
       if (field.offsetParent !== null) {
         if (!field.value.trim()) {
           allFilled = false;
@@ -772,9 +947,8 @@
     }
   });
 
-  // Remove red border when user starts typing
   document.querySelectorAll('input, select, textarea').forEach(field => {
-    field.addEventListener('input', function() {
+    field.addEventListener('input', function () {
       this.style.borderColor = '';
     });
   });

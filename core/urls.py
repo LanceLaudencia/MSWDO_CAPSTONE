@@ -70,8 +70,12 @@ path("client/register/", views.client_register, name="client_register"),
 path('client/profile/edit/', views.client_edit_profile, name='client_edit_profile'),
     path('client/applications/', views.client_applications, name='client_applications'),
     path('client/apply/', views.client_apply_program, name='client_apply_program'),
-path('notifications/read/<int:pk>/', views.mark_notification_read, name='mark_notification_read')
+path('notifications/read/<int:pk>/', views.mark_notification_read, name='mark_notification_read'),
 
+ path('access/', views.access_code_view, name='access_code'),
+
+ path('notifications/json/', views.get_notifications_json, name='notifications_json'),
+path('application/<int:pk>/advance/', views.application_advance, name='application_advance'),
     
 ]
 

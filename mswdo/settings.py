@@ -91,6 +91,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.notifications_processor',
             ],
         },
     },
@@ -176,6 +177,15 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'jefflaud19@gmail.com'
 EMAIL_HOST_PASSWORD = 'uixs nxil lybq mqio'  # move to env variable
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# ======================
+# SMS
+# ======================
+
+IPROG_API_KEY = "b53c74cad05f3a91aeec5f5d007fc40838c9dd4c"
+IPROG_URL = "https://www.iprogsms.com/api/v1/sms_messages"
+
+
 
 
 # ======================

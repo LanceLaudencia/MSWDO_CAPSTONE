@@ -17,8 +17,7 @@
 
   <!-- ===================== TOP STAT CARDS ===================== -->
   <div class="row g-4 mb-4">
-
-    <div class="col-md-3">
+    <div class="col-md-4">
       <div class="card stat-card shadow-sm border-0 rounded-4 card-animate" style="animation-delay: 0.1s">
         <div class="card-body d-flex justify-content-between align-items-center">
           <div>
@@ -33,7 +32,7 @@
       </div>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-4">
       <div class="card stat-card shadow-sm border-0 rounded-4 card-animate" style="animation-delay: 0.2s">
         <div class="card-body d-flex justify-content-between align-items-center">
           <div>
@@ -48,11 +47,11 @@
       </div>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-4">
       <div class="card stat-card shadow-sm border-0 rounded-4 card-animate" style="animation-delay: 0.3s">
         <div class="card-body d-flex justify-content-between align-items-center">
           <div>
-            <h4 class="fw-bold mb-0">₱<span class="counter-number" data-target="{{ monthly_disbursements|default:0 }}">0</span></h4>
+            <h4 class="fw-bold mb-0">₱<span class="counter-number" data-target="{{ monthly_disbursements|floatformat:0|default:0 }}">0</span></h4>
             <small class="text-muted">Monthly Disbursements</small>
           </div>
           <div class="icon-wrapper icon-success">
@@ -62,12 +61,50 @@
         <div class="card-glow glow-success"></div>
       </div>
     </div>
+  </div>
 
+  <!-- ===================== PIPELINE MINI-STATS ===================== -->
+  <div class="row g-3 mb-4">
+    <div class="col">
+      <div class="pipeline-card" style="border-left-color:#f59e0b;">
+        <div class="pipeline-count">{{ pipeline_counts.pending }}</div>
+        <div class="pipeline-label">Pending</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="pipeline-card" style="border-left-color:#17a2b8;">
+        <div class="pipeline-count">{{ pipeline_counts.assessment }}</div>
+        <div class="pipeline-label">Assessment</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="pipeline-card" style="border-left-color:#6f42c1;">
+        <div class="pipeline-count">{{ pipeline_counts.approval }}</div>
+        <div class="pipeline-label">For Approval</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="pipeline-card" style="border-left-color:#fd7e14;">
+        <div class="pipeline-count">{{ pipeline_counts.release }}</div>
+        <div class="pipeline-label">For Release</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="pipeline-card" style="border-left-color:#28a745;">
+        <div class="pipeline-count">{{ pipeline_counts.released }}</div>
+        <div class="pipeline-label">Released</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="pipeline-card" style="border-left-color:#dc3545;">
+        <div class="pipeline-count">{{ pipeline_counts.rejected }}</div>
+        <div class="pipeline-label">Rejected</div>
+      </div>
+    </div>
   </div>
 
   <!-- ===================== CHARTS ===================== -->
   <div class="row g-4">
-
     <div class="col-lg-7">
       <div class="card shadow-sm border-0 rounded-4 h-100 chart-card card-animate" style="animation-delay: 0.5s">
         <div class="card-body">
@@ -124,7 +161,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- ===================== LATEST CLIENTS ===================== -->
@@ -135,7 +171,7 @@
           <i class="bi bi-person-lines-fill text-primary me-2"></i>
           Latest Clients
         </h6>
-        <a href="#" class="text-decoration-none small text-primary hover-link">View All →</a>
+        <a href="{% url 'pending_applications' %}" class="text-decoration-none small text-primary hover-link">View All →</a>
       </div>
 
       <div class="table-responsive">
@@ -144,25 +180,38 @@
             <tr>
               <th>#</th>
               <th>Name</th>
-              <th>Email</th>
+              <th>Barangay</th>
+              <th>Program</th>
               <th>Date Created</th>
             </tr>
           </thead>
           <tbody>
             {% for c in latest_clients %}
             <tr class="table-row-animate" style="animation-delay: {{ forloop.counter|add:9 }}00ms">
-              <td>
-                <span class="badge bg-light text-dark">{{ forloop.counter }}</span>
-              </td>
+              <td><span class="badge bg-light text-dark">{{ forloop.counter }}</span></td>
               <td class="fw-semibold">{{ c.first_name }} {{ c.last_name }}</td>
-              <td>{{ c.email }}</td>
+              <td>{{ c.barangay|default:"—" }}</td>
               <td>
-                <span class="text-muted">{{ c.created_at|date:"Y-m-d" }}</span>
+                {% with latest_app=c.applications.first %}
+                  {% if latest_app %}
+                    <span class="badge rounded-pill
+                      {% if latest_app.aid_type == 'AICS' %}bg-primary
+                      {% elif latest_app.aid_type == 'SEA' %}bg-success
+                      {% elif latest_app.aid_type == 'REDCARD' %}bg-danger
+                      {% elif latest_app.aid_type == 'EDUCATIONAL' %}bg-warning text-dark
+                      {% else %}bg-secondary{% endif %}">
+                      {{ latest_app.aid_type }}
+                    </span>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                {% endwith %}
               </td>
+              <td><span class="text-muted">{{ c.created_at|date:"M d, Y" }}</span></td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="4" class="text-center text-muted py-5">
+              <td colspan="5" class="text-center text-muted py-5">
                 <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                 No clients found.
               </td>
@@ -171,7 +220,6 @@
           </tbody>
         </table>
       </div>
-
     </div>
   </div>
 
@@ -188,14 +236,10 @@
 {{ eligibility_values|json_script:"eligibility_values" }}
 
 <script>
-// Helper function to safely parse JSON data
 function safeParseJSON(elementId, defaultValue = []) {
   try {
     const element = document.getElementById(elementId);
-    if (!element || !element.textContent) {
-      console.warn(`Element ${elementId} not found or empty, using default:`, defaultValue);
-      return defaultValue;
-    }
+    if (!element || !element.textContent) return defaultValue;
     return JSON.parse(element.textContent);
   } catch (error) {
     console.error(`Error parsing ${elementId}:`, error);
@@ -203,181 +247,64 @@ function safeParseJSON(elementId, defaultValue = []) {
   }
 }
 
-// Parse all data with error handling
-const programs = safeParseJSON("program_labels", ["No Data"]);
-const programCounts = safeParseJSON("program_values", [0]);
-const statuses = safeParseJSON("status_labels", ["No Data"]);
-const statusCounts = safeParseJSON("status_values", [0]);
-const months = safeParseJSON("month_labels", ["No Data"]);
-const monthCounts = safeParseJSON("month_values", [0]);
+const programs          = safeParseJSON("program_labels",     ["No Data"]);
+const programCounts     = safeParseJSON("program_values",     [0]);
+const statuses          = safeParseJSON("status_labels",      ["No Data"]);
+const statusCounts      = safeParseJSON("status_values",      [0]);
+const months            = safeParseJSON("month_labels",       ["No Data"]);
+const monthCounts       = safeParseJSON("month_values",       [0]);
 const eligibilityLabels = safeParseJSON("eligibility_labels", ["Eligible", "Not Eligible"]);
 const eligibilityValues = safeParseJSON("eligibility_values", [0, 0]);
 
-console.log("Dashboard Data Loaded:", {
-  programs, programCounts, statuses, statusCounts, 
-  months, monthCounts, eligibilityLabels, eligibilityValues
-});
+const barChartColors      = ['rgba(99,102,241,0.85)','rgba(236,72,153,0.85)','rgba(251,146,60,0.85)','rgba(34,197,94,0.85)','rgba(59,130,246,0.85)','rgba(168,85,247,0.85)','rgba(239,68,68,0.85)','rgba(20,184,166,0.85)','rgba(245,158,11,0.85)','rgba(139,92,246,0.85)'];
+const barChartHoverColors = barChartColors.map(c => c.replace('0.85','1'));
+const doughnutChartColors = ['rgba(249,115,22,0.85)','rgba(6,182,212,0.85)','rgba(168,85,247,0.85)','rgba(236,72,153,0.85)','rgba(34,197,94,0.85)','rgba(239,68,68,0.85)','rgba(59,130,246,0.85)','rgba(245,158,11,0.85)','rgba(20,184,166,0.85)','rgba(217,70,239,0.85)'];
+const doughnutHoverColors = doughnutChartColors.map(c => c.replace('0.85','1'));
 
-// Vibrant color palettes
-const barChartColors = [
-  'rgba(99, 102, 241, 0.85)',   // Indigo
-  'rgba(236, 72, 153, 0.85)',   // Pink
-  'rgba(251, 146, 60, 0.85)',   // Orange
-  'rgba(34, 197, 94, 0.85)',    // Green
-  'rgba(59, 130, 246, 0.85)',   // Blue
-  'rgba(168, 85, 247, 0.85)',   // Purple
-  'rgba(239, 68, 68, 0.85)',    // Red
-  'rgba(20, 184, 166, 0.85)',   // Teal
-  'rgba(245, 158, 11, 0.85)',   // Amber
-  'rgba(139, 92, 246, 0.85)'    // Violet
-];
-
-const barChartHoverColors = barChartColors.map(color => color.replace('0.85', '1'));
-
-const doughnutChartColors = [
-  'rgba(249, 115, 22, 0.85)',   // Orange
-  'rgba(6, 182, 212, 0.85)',    // Cyan
-  'rgba(168, 85, 247, 0.85)',   // Purple
-  'rgba(236, 72, 153, 0.85)',   // Pink
-  'rgba(34, 197, 94, 0.85)',    // Green
-  'rgba(239, 68, 68, 0.85)',    // Red
-  'rgba(59, 130, 246, 0.85)',   // Blue
-  'rgba(245, 158, 11, 0.85)',   // Amber
-  'rgba(20, 184, 166, 0.85)',   // Teal
-  'rgba(217, 70, 239, 0.85)'    // Fuchsia
-];
-
-const doughnutHoverColors = doughnutChartColors.map(color => color.replace('0.85', '1'));
-
-// Bar Chart - Beneficiaries per Program
+// Bar Chart
 const barCtx = document.getElementById("barChart");
 if (barCtx) {
   new Chart(barCtx, {
     type: "bar",
     data: {
       labels: programs,
-      datasets: [{
-        data: programCounts,
-        backgroundColor: barChartColors.slice(0, programs.length),
-        hoverBackgroundColor: barChartHoverColors.slice(0, programs.length),
-        borderRadius: 10,
-        barThickness: 40,
-        borderWidth: 2,
-        borderColor: 'rgba(255, 255, 255, 0.8)'
-      }]
+      datasets: [{ data: programCounts, backgroundColor: barChartColors.slice(0, programs.length), hoverBackgroundColor: barChartHoverColors.slice(0, programs.length), borderRadius: 10, barThickness: 40, borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)' }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: { 
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(0, 0, 0, 0.85)',
-          padding: 15,
-          titleFont: { size: 14, weight: 'bold' },
-          bodyFont: { size: 13 },
-          cornerRadius: 10,
-          displayColors: true,
-          boxWidth: 10,
-          boxHeight: 10,
-          boxPadding: 5
-        }
-      },
-      scales: { 
-        y: { 
-          beginAtZero: true,
-          grid: { 
-            color: 'rgba(0, 0, 0, 0.05)',
-            drawBorder: false
-          },
-          ticks: { 
-            font: { size: 12 },
-            padding: 10
-          }
-        },
-        x: {
-          grid: { display: false },
-          ticks: { 
-            font: { size: 12 },
-            padding: 5
-          }
-        }
-      },
-      animation: {
-        duration: 2000,
-        easing: 'easeOutQuart'
-      }
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(0,0,0,0.85)', padding: 15, titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 13 }, cornerRadius: 10 } },
+      scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }, ticks: { font: { size: 12 }, padding: 10 } }, x: { grid: { display: false }, ticks: { font: { size: 12 }, padding: 5 } } },
+      animation: { duration: 2000, easing: 'easeOutQuart' }
     }
   });
 }
 
-// Doughnut Chart - Application Status
+// Doughnut Chart
 const doughnutCtx = document.getElementById("doughnutChart");
 if (doughnutCtx) {
   new Chart(doughnutCtx, {
     type: "doughnut",
     data: {
       labels: statuses,
-      datasets: [{
-        data: statusCounts,
-        backgroundColor: doughnutChartColors.slice(0, statuses.length),
-        hoverBackgroundColor: doughnutHoverColors.slice(0, statuses.length),
-        borderWidth: 3,
-        borderColor: '#fff',
-        hoverBorderWidth: 4,
-        hoverOffset: 15
-      }]
+      datasets: [{ data: statusCounts, backgroundColor: doughnutChartColors.slice(0, statuses.length), hoverBackgroundColor: doughnutHoverColors.slice(0, statuses.length), borderWidth: 3, borderColor: '#fff', hoverBorderWidth: 4, hoverOffset: 15 }]
     },
     options: {
-      cutout: "65%",
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: { 
-        legend: { 
-          position: "bottom",
-          labels: {
-            padding: 20,
-            font: { size: 12, weight: '600' },
-            usePointStyle: true,
-            pointStyle: 'circle',
-            generateLabels: function(chart) {
-              const data = chart.data;
-              if (data.labels.length && data.datasets.length) {
-                return data.labels.map((label, i) => {
-                  const value = data.datasets[0].data[i];
-                  return {
-                    text: `${label} (${value})`,
-                    fillStyle: data.datasets[0].backgroundColor[i],
-                    hidden: false,
-                    index: i
-                  };
-                });
-              }
-              return [];
+      cutout: "65%", responsive: true, maintainAspectRatio: true,
+      plugins: {
+        legend: { position: "bottom", labels: { padding: 20, font: { size: 12, weight: '600' }, usePointStyle: true, pointStyle: 'circle',
+          generateLabels: function(chart) {
+            const data = chart.data;
+            if (data.labels.length && data.datasets.length) {
+              return data.labels.map((label, i) => ({ text: `${label} (${data.datasets[0].data[i]})`, fillStyle: data.datasets[0].backgroundColor[i], hidden: false, index: i }));
             }
+            return [];
           }
-        },
-        tooltip: {
-          backgroundColor: 'rgba(0, 0, 0, 0.85)',
-          padding: 15,
-          cornerRadius: 10,
-          titleFont: { size: 14, weight: 'bold' },
-          bodyFont: { size: 13 },
-          callbacks: {
-            label: function(context) {
-              const total = context.dataset.data.reduce((a, b) => a + b, 0);
-              const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
-              return ` ${context.label}: ${context.parsed} (${percentage}%)`;
-            }
-          }
+        }},
+        tooltip: { backgroundColor: 'rgba(0,0,0,0.85)', padding: 15, cornerRadius: 10, titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 13 },
+          callbacks: { label: function(context) { const total = context.dataset.data.reduce((a,b)=>a+b,0); const pct = total > 0 ? ((context.parsed/total)*100).toFixed(1) : 0; return ` ${context.label}: ${context.parsed} (${pct}%)`; } }
         }
       },
-      animation: {
-        animateRotate: true,
-        animateScale: true,
-        duration: 2000,
-        easing: 'easeOutQuart'
-      }
+      animation: { animateRotate: true, animateScale: true, duration: 2000, easing: 'easeOutQuart' }
     }
   });
 }
@@ -389,117 +316,34 @@ if (eligibilityCtx) {
     type: "bar",
     data: {
       labels: eligibilityLabels,
-      datasets: [{
-        data: eligibilityValues,
-        backgroundColor: [
-          'rgba(34, 197, 94, 0.85)',   // green
-          'rgba(239, 68, 68, 0.85)'    // red
-        ],
-        hoverBackgroundColor: [
-          'rgba(34, 197, 94, 1)',
-          'rgba(239, 68, 68, 1)'
-        ],
-        borderRadius: 10,
-        barThickness: 60,
-        borderWidth: 2,
-        borderColor: 'rgba(255, 255, 255, 0.8)'
-      }]
+      datasets: [{ data: eligibilityValues, backgroundColor: ['rgba(34,197,94,0.85)','rgba(239,68,68,0.85)'], hoverBackgroundColor: ['rgba(34,197,94,1)','rgba(239,68,68,1)'], borderRadius: 10, barThickness: 60, borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)' }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: { 
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(0, 0, 0, 0.85)',
-          padding: 15,
-          cornerRadius: 10
-        }
-      },
-      scales: { 
-        y: { 
-          beginAtZero: true,
-          grid: { 
-            color: 'rgba(0, 0, 0, 0.05)',
-            drawBorder: false
-          }
-        },
-        x: {
-          grid: { display: false }
-        }
-      },
-      animation: { 
-        duration: 1500,
-        easing: 'easeOutQuart'
-      }
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(0,0,0,0.85)', padding: 15, cornerRadius: 10 } },
+      scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false } }, x: { grid: { display: false } } },
+      animation: { duration: 1500, easing: 'easeOutQuart' }
     }
   });
 }
 
-// Line Chart - Active Clients Over Time
+// Line Chart
 const lineCtx = document.getElementById("lineChart");
 if (lineCtx) {
   const lineGradient = lineCtx.getContext('2d').createLinearGradient(0, 0, 0, 300);
-  lineGradient.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
-  lineGradient.addColorStop(1, 'rgba(99, 102, 241, 0.01)');
-
+  lineGradient.addColorStop(0, 'rgba(99,102,241,0.4)');
+  lineGradient.addColorStop(1, 'rgba(99,102,241,0.01)');
   new Chart(lineCtx, {
     type: "line",
     data: {
       labels: months,
-      datasets: [{
-        data: monthCounts,
-        fill: true,
-        backgroundColor: lineGradient,
-        borderColor: 'rgba(99, 102, 241, 0.9)',
-        borderWidth: 3,
-        tension: 0.4,
-        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 3,
-        pointRadius: 6,
-        pointHoverRadius: 8,
-        pointHoverBackgroundColor: 'rgba(99, 102, 241, 1)',
-        pointHoverBorderWidth: 4
-      }]
+      datasets: [{ data: monthCounts, fill: true, backgroundColor: lineGradient, borderColor: 'rgba(99,102,241,0.9)', borderWidth: 3, tension: 0.4, pointBackgroundColor: 'rgba(99,102,241,1)', pointBorderColor: '#fff', pointBorderWidth: 3, pointRadius: 6, pointHoverRadius: 8 }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: { 
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(0, 0, 0, 0.85)',
-          padding: 15,
-          cornerRadius: 10,
-          titleFont: { size: 14, weight: 'bold' },
-          bodyFont: { size: 13 }
-        }
-      },
-      scales: { 
-        y: { 
-          beginAtZero: true,
-          grid: { 
-            color: 'rgba(0, 0, 0, 0.05)',
-            drawBorder: false
-          },
-          ticks: { 
-            font: { size: 12 },
-            padding: 10
-          }
-        },
-        x: {
-          grid: { display: false },
-          ticks: { 
-            font: { size: 12 },
-            padding: 5
-          }
-        }
-      },
-      animation: {
-        duration: 2000,
-        easing: 'easeOutQuart'
-      }
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(0,0,0,0.85)', padding: 15, cornerRadius: 10, titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 13 } } },
+      scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }, ticks: { font: { size: 12 }, padding: 10 } }, x: { grid: { display: false }, ticks: { font: { size: 12 }, padding: 5 } } },
+      animation: { duration: 2000, easing: 'easeOutQuart' }
     }
   });
 }
@@ -507,293 +351,102 @@ if (lineCtx) {
 // Counter Animation
 function animateCounter(element) {
   const target = parseInt(element.getAttribute('data-target')) || 0;
-  const duration = 2000;
-  const increment = target / (duration / 16);
+  const increment = target / (2000 / 16);
   let current = 0;
-  
   const timer = setInterval(() => {
     current += increment;
-    if (current >= target) {
-      element.textContent = target.toLocaleString();
-      clearInterval(timer);
-    } else {
-      element.textContent = Math.floor(current).toLocaleString();
-    }
+    if (current >= target) { element.textContent = target.toLocaleString(); clearInterval(timer); }
+    else { element.textContent = Math.floor(current).toLocaleString(); }
   }, 16);
 }
-
-// Intersection Observer for animations
-const observerOptions = {
-  threshold: 0.2,
-  rootMargin: '0px 0px -50px 0px'
-};
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       entry.target.classList.add('visible');
-      
-      // Animate counters
       if (entry.target.classList.contains('stat-card')) {
         const counter = entry.target.querySelector('.counter-number');
-        if (counter && !counter.classList.contains('animated')) {
-          counter.classList.add('animated');
-          animateCounter(counter);
-        }
+        if (counter && !counter.classList.contains('animated')) { counter.classList.add('animated'); animateCounter(counter); }
       }
     }
   });
-}, observerOptions);
+}, { threshold: 0.2, rootMargin: '0px 0px -50px 0px' });
 
-// Observe all animated elements
-document.querySelectorAll('.card-animate, .table-row-animate').forEach(el => {
-  observer.observe(el);
-});
-
-// Add hover effect to table rows
+document.querySelectorAll('.card-animate, .table-row-animate').forEach(el => observer.observe(el));
 document.querySelectorAll('.modern-table tbody tr').forEach(row => {
-  row.addEventListener('mouseenter', function() {
-    this.style.transform = 'scale(1.01)';
-  });
-  row.addEventListener('mouseleave', function() {
-    this.style.transform = 'scale(1)';
-  });
+  row.addEventListener('mouseenter', function() { this.style.transform = 'scale(1.01)'; });
+  row.addEventListener('mouseleave', function() { this.style.transform = 'scale(1)'; });
 });
 </script>
 
 <style>
-/* ===================== ANIMATIONS ===================== */
-@keyframes slideInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes slideInDown { from { opacity:0; transform:translateY(-30px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeInUp    { from { opacity:0; transform:translateY(30px);  } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse       { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.7; transform:scale(1.1); } }
+@keyframes glow        { 0%,100% { opacity:0.3; } 50% { opacity:0.6; } }
+
+.page-header { position:relative; padding:1rem; background:linear-gradient(135deg,rgba(0,109,91,0.05),rgba(15,161,140,0.05)); border-radius:1rem; margin-bottom:2rem !important; }
+.animate-slide-in { animation:slideInDown 0.6s ease-out; }
+.animate-fade-in  { animation:fadeInUp 0.8s ease-out 0.2s backwards; }
+.pulse-dot { width:12px; height:12px; background:#10b981; border-radius:50%; animation:pulse 2s ease-in-out infinite; box-shadow:0 0 0 0 rgba(16,185,129,0.4); }
+
+/* Pipeline cards */
+.pipeline-card {
+  background: #fff;
+  border-left: 4px solid #ccc;
+  border-radius: 10px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+.pipeline-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.pipeline-count { font-size: 1.8rem; font-weight: 700; color: #1a1a2e; line-height: 1; }
+.pipeline-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-top: 4px; font-weight: 600; }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+.stat-card { position:relative; overflow:hidden; transition:all 0.4s cubic-bezier(0.175,0.885,0.32,1.275); background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); }
+.stat-card::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.8),transparent); transition:left 0.5s; }
+.stat-card:hover::before { left:100%; }
+.stat-card:hover { transform:translateY(-8px) scale(1.02); box-shadow:0 1rem 2rem rgba(0,109,91,0.15) !important; }
+.stat-card:hover .icon-wrapper { transform:rotate(360deg) scale(1.1); }
+.icon-wrapper { transition:all 0.3s ease; }
+.icon-primary { color:#006d5b; }
+.icon-warning { color:#f59e0b; }
+.icon-success { color:#10b981; }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.1);
-  }
-}
+.card-glow { position:absolute; bottom:0; left:0; width:100%; height:4px; animation:glow 2s ease-in-out infinite; }
+.glow-primary { background:linear-gradient(90deg,#006d5b,#0fa18c); }
+.glow-warning { background:linear-gradient(90deg,#f59e0b,#fbbf24); }
+.glow-success { background:linear-gradient(90deg,#10b981,#34d399); }
 
-@keyframes glow {
-  0%, 100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
+.card-animate { opacity:0; transform:translateY(30px); transition:all 0.6s ease-out; }
+.card-animate.visible { opacity:1; transform:translateY(0); }
 
-/* ===================== PAGE HEADER ===================== */
-.page-header {
-  position: relative;
-  padding: 1rem;
-  background: linear-gradient(135deg, rgba(0, 109, 91, 0.05), rgba(15, 161, 140, 0.05));
-  border-radius: 1rem;
-  margin-bottom: 2rem !important;
-}
+.chart-card { background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); transition:all 0.3s ease; }
+.chart-card:hover { transform:translateY(-4px); box-shadow:0 1rem 2rem rgba(0,0,0,0.1) !important; }
+.chart-card .badge { font-size:0.7rem; padding:0.35em 0.65em; font-weight:600; letter-spacing:0.5px; }
 
-.animate-slide-in {
-  animation: slideInDown 0.6s ease-out;
-}
+.table-card { background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); }
+.modern-table { margin-bottom:0; }
+.modern-table thead th { border-bottom:2px solid #e2e8f0; color:#475569; font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px; padding:1rem; }
+.modern-table tbody tr { transition:all 0.3s ease; border-bottom:1px solid #f1f5f9; }
+.modern-table tbody tr:hover { background:linear-gradient(90deg,rgba(0,109,91,0.03),transparent); }
 
-.animate-fade-in {
-  animation: fadeInUp 0.8s ease-out 0.2s backwards;
-}
+.table-row-animate { opacity:0; transform:translateX(-20px); transition:all 0.4s ease-out; }
+.table-row-animate.visible { opacity:1; transform:translateX(0); }
 
-.pulse-dot {
-  width: 12px;
-  height: 12px;
-  background: #10b981;
-  border-radius: 50%;
-  animation: pulse 2s ease-in-out infinite;
-  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-}
+.hover-link { transition:all 0.3s ease; font-weight:500; }
+.hover-link:hover { transform:translateX(5px); color:#0fa18c !important; }
 
-/* ===================== STAT CARDS ===================== */
-.stat-card {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-}
+.counter-number { font-variant-numeric:tabular-nums; transition:color 0.3s ease; }
+.stat-card:hover .counter-number { color:#006d5b; }
 
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
-  transition: left 0.5s;
-}
-
-.stat-card:hover::before {
-  left: 100%;
-}
-
-.stat-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 1rem 2rem rgba(0, 109, 91, 0.15) !important;
-}
-
-.icon-wrapper {
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.stat-card:hover .icon-wrapper {
-  transform: rotate(360deg) scale(1.1);
-}
-
-.icon-primary { color: #006d5b; }
-.icon-warning { color: #f59e0b; }
-.icon-success { color: #10b981; }
-.icon-danger { color: #ef4444; }
-
-.card-glow {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  animation: glow 2s ease-in-out infinite;
-}
-
-.glow-primary { background: linear-gradient(90deg, #006d5b, #0fa18c); }
-.glow-warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-.glow-success { background: linear-gradient(90deg, #10b981, #34d399); }
-.glow-danger { background: linear-gradient(90deg, #ef4444, #f87171); }
-
-/* ===================== CARD ANIMATIONS ===================== */
-.card-animate {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.6s ease-out;
-}
-
-.card-animate.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ===================== CHART CARDS ===================== */
-.chart-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  transition: all 0.3s ease;
-}
-
-.chart-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1) !important;
-}
-
-.chart-card .badge {
-  font-size: 0.7rem;
-  padding: 0.35em 0.65em;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-/* ===================== TABLE STYLING ===================== */
-.table-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-}
-
-.modern-table {
-  margin-bottom: 0;
-}
-
-.modern-table thead th {
-  border-bottom: 2px solid #e2e8f0;
-  color: #475569;
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 1rem;
-}
-
-.modern-table tbody tr {
-  transition: all 0.3s ease;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.modern-table tbody tr:hover {
-  background: linear-gradient(90deg, rgba(0, 109, 91, 0.03), transparent);
-  transform: scale(1.01);
-}
-
-.table-row-animate {
-  opacity: 0;
-  transform: translateX(-20px);
-  transition: all 0.4s ease-out;
-}
-
-.table-row-animate.visible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.hover-link {
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-
-.hover-link:hover {
-  transform: translateX(5px);
-  color: #0fa18c !important;
-}
-
-/* ===================== RESPONSIVE ADJUSTMENTS ===================== */
-@media (max-width: 768px) {
-  .stat-card {
-    margin-bottom: 1rem;
-  }
-  
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start !important;
-    gap: 0.5rem;
-  }
-  
-  .pulse-dot {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-  }
-}
-
-/* ===================== COUNTER STYLING ===================== */
-.counter-number {
-  font-variant-numeric: tabular-nums;
-  transition: color 0.3s ease;
-}
-
-.stat-card:hover .counter-number {
-  color: #006d5b;
+@media (max-width:768px) {
+  .stat-card { margin-bottom:1rem; }
+  .page-header { flex-direction:column; align-items:flex-start !important; gap:0.5rem; }
+  .pulse-dot { position:absolute; top:1rem; right:1rem; }
+  .pipeline-card { padding:12px 8px; }
+  .pipeline-count { font-size:1.4rem; }
 }
 </style>
 

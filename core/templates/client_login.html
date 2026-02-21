@@ -1,0 +1,258 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Client Login</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    .login-page {
+      background: linear-gradient(135deg, #0f6e3f 0%, #2ecc71 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-page::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: pulse 15s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(180deg); }
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 450px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 30px;
+      padding: 50px 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg, #0f6e3f 0%, #27ae60 50%, #2ecc71 100%);
+    }
+
+    .login-card h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #0a4d2e;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .login-card > p {
+      color: #6c757d;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1rem;
+    }
+
+    .alert {
+      background: linear-gradient(135deg, #fee140 0%, #fa709a 100%);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      font-weight: 600;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid #e1e8ed;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #27ae60;
+      box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.1);
+      background: white;
+    }
+
+    .btn-login {
+      width: 100%;
+      background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px rgba(15, 110, 63, 0.4);
+      margin-bottom: 15px;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(15, 110, 63, 0.6);
+    }
+
+    .btn-return {
+      display: block;
+      width: 100%;
+      background: white;
+      color: #6c757d;
+      border: 2px solid #e1e8ed;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-return:hover {
+      background: #f8f9fa;
+      border-color: #6c757d;
+      color: #495057;
+      text-decoration: none;
+    }
+
+    .login-footer {
+      margin-top: 30px;
+      padding-top: 25px;
+      border-top: 2px solid #f0f0f0;
+      text-align: center;
+      color: #6c757d;
+      font-size: 0.95rem;
+    }
+
+    .login-footer a {
+      color: #27ae60;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .login-footer a:hover {
+      color: #0f6e3f;
+      text-decoration: underline;
+    }
+
+    /* Logo/Icon at top (optional) */
+    .login-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+      border-radius: 50%;
+      margin: 0 auto 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      box-shadow: 0 8px 25px rgba(15, 110, 63, 0.3);
+    }
+
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 40px 30px;
+      }
+
+      .login-card h2 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body class="login-page">
+
+<div class="login-container">
+  <div class="login-card">
+    
+    <!-- Optional Icon/Logo -->
+    <div class="login-icon">
+      👤
+    </div>
+
+    <h2>Client Login</h2>
+    <p>Access your application status and submit requests.</p>
+
+    {% for message in messages %}
+      <div class="alert">{{ message }}</div>
+    {% endfor %}
+
+    <form method="POST">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" name="email" required class="form-control" placeholder="your.email@example.com">
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" required class="form-control" placeholder="Enter your password">
+      </div>
+
+      <button type="submit" class="btn-login">Login</button>
+
+      <a href="{% url 'landing' %}" class="btn-return">← Return to Home</a>
+    </form>
+
+    <div class="login-footer">
+      Don't have an account?
+      <a href="{% url 'client_register' %}">Register here</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

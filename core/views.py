@@ -200,19 +200,26 @@ def dashboard(request):
     # =============================
     # BASIC COUNTS
     # =============================
-    total_beneficiaries = Client.objects.count()
-
-    pending_applications = Application.objects.filter(
-        status='pending'
-    ).count()
+    total_beneficiaries  = Client.objects.count()
+    pending_applications = Application.objects.filter(status='PENDING').count()
 
     monthly_disbursements = Application.objects.filter(
-        status='approved',
-        created_at__month=now().month
-    ).aggregate(total=Sum('requested_amount'))['total'] or 0
+        status='RELEASED',
+        created_at__month=now().month,
+        created_at__year=now().year,
+    ).aggregate(total=Sum('approved_amount'))['total'] or 0
 
-    # ❌ REMOVE ACTIVE EMERGENCIES
-    # active_emergencies → DELETE COMPLETELY
+    # =============================
+    # PIPELINE STAGE COUNTS
+    # =============================
+    pipeline_counts = {
+        'pending':    Application.objects.filter(status='PENDING').count(),
+        'assessment': Application.objects.filter(status='ASSESSMENT').count(),
+        'approval':   Application.objects.filter(status='APPROVAL').count(),
+        'release':    Application.objects.filter(status='RELEASE').count(),
+        'released':   Application.objects.filter(status='RELEASED').count(),
+        'rejected':   Application.objects.filter(status='REJECTED').count(),
+    }
 
     # =============================
     # BAR CHART: BENEFICIARIES PER PROGRAM
@@ -240,10 +247,10 @@ def dashboard(request):
     status_values = [s['count'] for s in status_data]
 
     # =============================
-    # 🆕 BAR CHART: ELIGIBLE VS NOT ELIGIBLE
+    # BAR CHART: ELIGIBLE VS NOT ELIGIBLE
     # =============================
-    eligible_count = Application.objects.filter(status='approved').count()
-    not_eligible_count = Application.objects.filter(status='rejected').count()
+    eligible_count     = Application.objects.filter(eligibility_result='Eligible').count()
+    not_eligible_count = Application.objects.filter(eligibility_result='Not Eligible').count()
 
     eligibility_labels = ['Eligible', 'Not Eligible']
     eligibility_values = [eligible_count, not_eligible_count]
@@ -271,9 +278,10 @@ def dashboard(request):
     latest_clients = Client.objects.order_by('-created_at')[:5]
 
     return render(request, 'dashboard.html', {
-        'total_beneficiaries': total_beneficiaries,
-        'pending_applications': pending_applications,
+        'total_beneficiaries':   total_beneficiaries,
+        'pending_applications':  pending_applications,
         'monthly_disbursements': monthly_disbursements,
+        'pipeline_counts':       pipeline_counts,
 
         'program_labels': program_labels,
         'program_values': program_values,
@@ -289,6 +297,7 @@ def dashboard(request):
 
         'latest_clients': latest_clients,
     })
+
 from datetime import datetime
 from decimal import Decimal
 from ml.model_loader import predict_input
@@ -301,6 +310,7 @@ from .models import (
     EducationalAssistanceDetail,
 )
 
+from .models import FamilyMember
 @login_required
 def add_client(request):
 
@@ -324,12 +334,51 @@ def add_client(request):
                 email=request.POST.get("email") or None,
                 contact_no=request.POST.get("contact_no"),
                 livelihood=request.POST.get("livelihood"),
-                monthly_income=Decimal(request.POST.get("monthly_income")),
-                household_size=int(request.POST.get("household_size")),
-                has_disability=request.POST.get("has_disability") == "Yes",
-                is_senior=request.POST.get("is_senior") == "Yes",
-                previous_aid=request.POST.get("previous_aid") == "Yes",
+                monthly_income=Decimal(request.POST.get("monthly_income") or 0),
+                household_size=int(request.POST.get("household_size") or 0),
+                has_disability=request.POST.get("has_disability", "No"),
+                is_senior=request.POST.get("is_senior", "No"),
+                previous_aid=request.POST.get("previous_aid", "No"),
+                is_4ps=request.POST.get("is_4ps", "No"),
+                fourps_id=request.POST.get("fourps_id") or None,
             )
+
+            # ================= FAMILY MEMBERS =================
+            index = 0
+            while index <= 50:
+                name = request.POST.get(f"family_name_{index}", "").strip()
+                if name:
+                    cs_s  = request.POST.get(f"family_cs_s_{index}")
+                    cs_m  = request.POST.get(f"family_cs_m_{index}")
+                    cs_w  = request.POST.get(f"family_cs_w_{index}")
+                    civil_status = "S" if cs_s else "M" if cs_m else "W" if cs_w else None
+
+                    edu_elem  = request.POST.get(f"family_edu_elem_{index}")
+                    edu_hs    = request.POST.get(f"family_edu_hs_{index}")
+                    edu_coll  = request.POST.get(f"family_edu_coll_{index}")
+                    edu_illit = request.POST.get(f"family_edu_illit_{index}")
+                    education = (
+                        "Elem"     if edu_elem  else
+                        "HS"       if edu_hs    else
+                        "Coll/Voc" if edu_coll  else
+                        "Illit"    if edu_illit else None
+                    )
+
+                    raw_age    = request.POST.get(f"family_age_{index}", "").strip()
+                    raw_income = request.POST.get(f"family_inc_{index}", "").strip()
+
+                    FamilyMember.objects.create(
+                        client=client,
+                        name=name,
+                        age=int(raw_age) if raw_age else None,
+                        sex=request.POST.get(f"family_sex_{index}") or None,
+                        civil_status=civil_status,
+                        relationship=request.POST.get(f"family_rel_{index}") or None,
+                        educational_attainment=education,
+                        occupation=request.POST.get(f"family_occ_{index}") or None,
+                        income=Decimal(raw_income) if raw_income else None,
+                    )
+                index += 1
 
             # ================= APPLICATION =================
             aid_type = request.POST.get("program")
@@ -337,102 +386,93 @@ def add_client(request):
             application = Application.objects.create(
                 client=client,
                 aid_type=aid_type,
-                requested_amount=Decimal(request.POST.get("requested_amount") or 0),
-                reason=request.POST.get("reason"),
-                status="pending",
+                status="PENDING",
             )
 
             # ================= ML PREDICTION =================
-            ml_input = {
-                "monthly_income": float(client.monthly_income),
-                "household_size": client.household_size,
-                "has_disability": int(client.has_disability),
-                "is_senior": int(client.is_senior),
-                "previous_aid": int(client.previous_aid),
-            }
+            try:
+                ml_input = {
+                    "monthly_income": float(client.monthly_income),
+                    "household_size": client.household_size,
+                    "has_disability": 1 if client.has_disability == "Yes" else 0,
+                    "is_senior":      1 if client.is_senior      == "Yes" else 0,
+                    "previous_aid":   1 if client.previous_aid   == "Yes" else 0,
+                }
+                prediction = predict_input(ml_input)
+                application.eligibility_result = "Eligible" if prediction == 1 else "Not Eligible"
+            except Exception as ml_error:
+                print("ML ERROR:", ml_error)
+                application.eligibility_result = "Not Eligible"
 
-            prediction = predict_input(ml_input)
-            application.eligibility_result = "Eligible" if prediction == 1 else "Not Eligible"
             application.save()
 
-            # ================= AICS =================
+            # ================= PROGRAM-SPECIFIC DETAILS =================
+            docs = {}
+
             if aid_type == "AICS":
                 AICSDetail.objects.create(
                     application=application,
                     crisis_type=request.POST.get("aics_crisis_type"),
-                    assessment_findings=request.POST.get("aics_assessment"),
-                    approved_amount=Decimal(request.POST.get("aics_approved_amount") or 0),
                 )
-
                 docs = {
                     "AICS Barangay Cert": request.FILES.get("aics_barangay_cert"),
                     "Medical/Death Cert": request.FILES.get("aics_medical_death_cert"),
-                    "Official Receipt": request.FILES.get("aics_receipt"),
+                    "Official Receipt":   request.FILES.get("aics_receipt"),
                 }
 
-            # ================= SEA =================
             elif aid_type == "SEA":
-                SEADetail.objects.create(
-                    application=application,
-                    business_type=request.POST.get("sea_business_type"),
-                    capital_requested=Decimal(request.POST.get("sea_capital") or 0),
-                    training_completed=request.POST.get("sea_training") == "Yes",
-                    monitoring_notes=request.POST.get("sea_monitoring"),
-                )
-
+                SEADetail.objects.create(application=application)
                 docs = {
                     "Barangay Clearance": request.FILES.get("sea_barangay_clearance"),
-                    "Cedula": request.FILES.get("sea_cedula"),
-                    "Project Proposal": request.FILES.get("sea_project_proposal"),
-                    "Project Picture": request.FILES.get("sea_project_picture"),
+                    "Cedula":             request.FILES.get("sea_cedula"),
+                    "Project Proposal":   request.FILES.get("sea_project_proposal"),
+                    "Project Picture":    request.FILES.get("sea_project_picture"),
                 }
 
-            # ================= REDCARD =================
             elif aid_type == "REDCARD":
                 REDCARDDetail.objects.create(
                     application=application,
                     emergency_type=request.POST.get("redcard_emergency_type"),
-                    usage_count=request.POST.get("redcard_usage"),
+                    reason=request.POST.get("redcard_reason"),
+                    usage_count=request.POST.get("redcard_usage") or 1,
                 )
-
                 docs = {
-                    "Birth Certificate": request.FILES.get("redcard_birth_cert"),
-                    "Valid ID Picture": request.FILES.get("redcard_valid_id"),
-                    "Certificate of Indigency": request.FILES.get("redcard_indigency"),
+                    "Birth Certificate":         request.FILES.get("redcard_birth_cert"),
+                    "Valid ID Picture":           request.FILES.get("redcard_valid_id"),
+                    "Certificate of Indigency":  request.FILES.get("redcard_indigency"),
                 }
 
-            # ================= EDUCATIONAL =================
             elif aid_type == "EDUCATIONAL":
                 EducationalAssistanceDetail.objects.create(
                     application=application,
                     school_name=request.POST.get("school_name"),
                     course_or_grade=request.POST.get("course_level"),
                 )
-
                 docs = {
-                    "Letter of Appeal": request.FILES.get("edu_letter"),
-                    "Certificate of Indigency": request.FILES.get("edu_indigency"),
-                    "Grades": request.FILES.get("edu_grades"),
+                    "Letter of Appeal":          request.FILES.get("edu_letter"),
+                    "Certificate of Indigency":  request.FILES.get("edu_indigency"),
+                    "Grades":                    request.FILES.get("edu_grades"),
                     "Certificate of Enrollment": request.FILES.get("edu_enrollment"),
-                    "Billing Statement": request.FILES.get("edu_billing"),
-                    "Official Receipt": request.FILES.get("edu_receipt"),
+                    "Billing Statement":         request.FILES.get("edu_billing"),
+                    "Official Receipt":          request.FILES.get("edu_receipt"),
                 }
 
-            # ================= SAVE PROGRAM DOCS =================
-            for name, file in docs.items():
+            # ================= SAVE DOCUMENTS =================
+            for doc_name, file in docs.items():
                 if file:
                     ApplicationDocument.objects.create(
                         application=application,
-                        name=name,
-                        file=file
+                        name=doc_name,
+                        file=file,
                     )
 
             messages.success(request, "Application submitted successfully!")
             return redirect("application_detail", application.id)
 
         except Exception as e:
-            print("ERROR:", e)
-            messages.error(request, "Submission failed.")
+            import traceback
+            traceback.print_exc()
+            messages.error(request, f"Submission failed: {e}")
 
     return render(request, "add_client.html")
 
@@ -563,27 +603,114 @@ def application_detail(request, pk):
         Application.objects.select_related('client').prefetch_related('documents'),
         pk=pk
     )
-    application = Application.objects.get(id=pk)
     client = application.client
-    documents = application.documents.all()
 
     context = {
         'application': application,
-        'client': application.client,
+        'client': client,
         'documents': application.documents.all(),
         'aid_type': application.aid_type,
-        'requested_amount': application.requested_amount,
-        'reason': application.reason,
         'status': application.status,
         'eligibility_result': application.eligibility_result,
-         # ✅ CORRECT RELATED NAMES
-        "aics": getattr(application, "aics_detail", None),
-        "sea": getattr(application, "sea_detail", None),
-        "redcard": getattr(application, "redcard_detail", None),
-        "edu": getattr(application, "educational_detail", None),
+        'family_members': client.family_members.all(),
+        'aics':    getattr(application, 'aics_detail', None),
+        'sea':     getattr(application, 'sea_detail', None),
+        'redcard': getattr(application, 'redcard_detail', None),
+        'edu':     getattr(application, 'educational_detail', None),
     }
 
     return render(request, 'application_detail.html', context)
+
+
+@login_required
+def application_advance(request, pk):
+    """Advances application through the pipeline: PENDING→ASSESSMENT→APPROVAL→RELEASE→RELEASED"""
+    application = get_object_or_404(Application, pk=pk)
+
+    if not (getattr(request.user, 'role', None) in ['admin', 'staff'] or request.user.is_superuser):
+        messages.error(request, "You do not have permission to update applications.")
+        return redirect('dashboard')
+
+    pipeline = ['PENDING', 'ASSESSMENT', 'APPROVAL', 'RELEASE', 'RELEASED']
+
+    if application.status in pipeline:
+        current_index = pipeline.index(application.status)
+        if current_index < len(pipeline) - 1:
+            next_status = pipeline[current_index + 1]
+            application.status = next_status
+
+            # Track who did what at each stage
+            if next_status == 'ASSESSMENT':
+                application.assessed_by = request.user
+                application.assessed_at = timezone.now()
+            elif next_status == 'APPROVAL':
+                application.approved_by = request.user
+                application.approved_at = timezone.now()
+            elif next_status == 'RELEASED':
+                application.released_at = timezone.now()
+
+            application.save()
+
+            # ── Notify client when assistance is released ──────────────
+            if next_status == 'RELEASED':
+                client = application.client
+
+                # Email
+                if client.email:
+                    subject = "Your Assistance Has Been Released — MSWDO"
+                    message = f"""
+Good day {client.full_name},
+
+We are pleased to inform you that your {application.get_aid_type_display()} assistance
+application has been RELEASED and is now ready for claiming.
+
+Application Details:
+  Program      : {application.get_aid_type_display()}
+  Status       : Released
+  Date Released: {timezone.now().strftime('%B %d, %Y')}
+  {"Approved Amount: ₱" + str(application.approved_amount) if application.approved_amount else ""}
+
+Please visit the MSWDO office to claim your assistance. Bring a valid ID.
+
+For inquiries, please contact our office directly.
+
+Thank you,
+MSWDO Office
+Municipal Social Welfare and Development Office
+"""
+                    try:
+                        send_mail(
+                            subject,
+                            message.strip(),
+                            from_email=None,
+                            recipient_list=[client.email],
+                            fail_silently=False,
+                        )
+                        print(f"Release email sent to {client.email}")
+                    except Exception as e:
+                        print(f"Release email failed: {e}")
+
+                # SMS
+                if client.contact_no:
+                    sms_message = (
+                        f"Good day {client.full_name}! "
+                        f"Your {application.get_aid_type_display()} assistance has been RELEASED. "
+                        f"Please visit the MSWDO office to claim it. Bring a valid ID. "
+                        f"Thank you!"
+                    )
+                    try:
+                        sms_response = send_sms(client.contact_no, sms_message)
+                        print("SMS Response:", sms_response)
+                    except Exception as e:
+                        print(f"Release SMS failed: {e}")
+
+            messages.success(request, f"Application moved to: {application.get_status_display()}")
+        else:
+            messages.info(request, "Application is already at the final stage.")
+    else:
+        messages.error(request, "Cannot advance a rejected application.")
+
+    return redirect('application_detail', pk=pk)
 
 
 @login_required
@@ -915,55 +1042,148 @@ def dashboard_data(request):
     })
 
 
+from .utils import send_sms  # 👈 IMPORT THIS
+
 @login_required
 def application_approve(request, pk):
     application = get_object_or_404(Application, pk=pk)
 
-    # 🔒 Role Check
-    if not (
-        getattr(request.user, 'role', None) in ['admin', 'staff']
-        or request.user.is_superuser
-    ):
+    if not (getattr(request.user, 'role', None) in ['admin', 'staff'] or request.user.is_superuser):
+        messages.error(request, "You do not have permission to approve applications.")
         return redirect('dashboard')
 
-    # ✅ Update Application Status
-    application.status = 'approved'
+    application.status = 'APPROVAL'   # moves to "For Approval" stage in the pipeline
     application.eligibility_result = 'Eligible'
     application.approved_by = request.user
     application.approved_at = timezone.now()
     application.save()
 
-    # 📧 SEND EMAIL TO CLIENT
     client = application.client
+
+    # ── Email ──────────────────────────────────────────────────────────
     if client.email:
         subject = "Your Assistance Application Has Been Approved"
-
         message = f"""
 Good day {client.full_name},
 
-Your application for {application.aid_type} assistance has been APPROVED.
+Your application for {application.get_aid_type_display()} assistance has been APPROVED
+and is now being processed for release.
 
 Application Details:
-Program: {application.aid_type}
-Requested Amount: ₱{application.requested_amount}
-Status: Approved
+  Program : {application.get_aid_type_display()}
+  Status  : For Approval
 
 Our office will contact you regarding the release schedule.
 
 Thank you,
 MSWDO Office
 """
+        try:
+            send_mail(subject, message, from_email=None, recipient_list=[client.email], fail_silently=False)
+        except Exception as e:
+            print("Email sending failed:", e)
 
-        send_mail(
-            subject=subject,
-            message=message,
-            from_email=None,  # Uses DEFAULT_FROM_EMAIL in settings
-            recipient_list=[client.email],
-            fail_silently=False,
+    # ── SMS ────────────────────────────────────────────────────────────
+    if client.contact_no:
+        sms_message = (
+            f"Good day {client.full_name}! "
+            f"Your {application.get_aid_type_display()} assistance application has been APPROVED "
+            f"and is now for release processing. MSWDO Office."
         )
+        try:
+            sms_response = send_sms(client.contact_no, sms_message)
+            print("SMS Response:", sms_response)
+            if sms_response.get("status") != 200:
+                print(f"SMS may not have delivered to {client.contact_no}.")
+        except Exception as e:
+            print("SMS sending failed:", e)
+    else:
+        print("No contact number found for this client.")
 
-    messages.success(request, "Application approved and client notified by email.")
+    messages.success(request, "Application approved. Client notified by email and SMS (Globe only).")
     return redirect('application_detail', pk=pk)
+
+
+@login_required
+def application_reject(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if not (getattr(request.user, 'role', None) in ['admin', 'staff'] or request.user.is_superuser):
+        messages.error(request, "You do not have permission to reject applications.")
+        return redirect('dashboard')
+
+    application.status = 'REJECTED'
+    application.eligibility_result = 'Not Eligible'
+    application.save()
+
+    client = application.client
+
+    # ── Email ──────────────────────────────────────────────────────────
+    if client.email:
+        subject = "Update on Your Assistance Application"
+        message = f"""
+Good day {client.full_name},
+
+We regret to inform you that your application for {application.get_aid_type_display()} assistance
+has been reviewed and could not be approved at this time.
+
+Application Details:
+  Program : {application.get_aid_type_display()}
+  Status  : Rejected
+
+If you have questions, please visit or contact the MSWDO office.
+
+Thank you,
+MSWDO Office
+"""
+        try:
+            send_mail(subject, message, from_email=None, recipient_list=[client.email], fail_silently=False)
+        except Exception as e:
+            print("Email sending failed:", e)
+
+    # ── SMS ────────────────────────────────────────────────────────────
+    if client.contact_no:
+        sms_message = (
+            f"Good day {client.full_name}. "
+            f"Your {application.get_aid_type_display()} assistance application was not approved. "
+            f"Please visit the MSWDO office for more information."
+        )
+        try:
+            sms_response = send_sms(client.contact_no, sms_message)
+            print("SMS Response:", sms_response)
+        except Exception as e:
+            print("SMS sending failed:", e)
+
+    messages.success(request, "Application rejected. Client has been notified.")
+    return redirect('application_detail', pk=pk)
+
+
+def send_sms(phone_number, message):
+    # Auto-convert PH number format (09XXXXXXXXX → 639XXXXXXXXX)
+    if phone_number.startswith("09"):
+        phone_number = "63" + phone_number[1:]
+
+    payload = {
+        "apikey": settings.IPROG_API_KEY,
+        "number": phone_number,
+        "message": message,
+    }
+
+    try:
+        response = requests.post(settings.IPROG_URL, data=payload, timeout=10)
+
+        print("===== SMS DEBUG =====")
+        print("Number Sent To:", phone_number)
+        print("Status Code:   ", response.status_code)
+        print("Response:      ", response.text)
+        print("=====================")
+
+        return response.json()
+
+    except Exception as e:
+        print("SMS ERROR:", str(e))
+        return {"error": str(e)}
+
 
 @login_required
 def application_reject(request, pk):
@@ -1184,42 +1404,94 @@ def client_login(request):
 
 def client_register(request):
     if request.method == "POST":
-        client = Client.objects.create(
-            # I. PERSONAL
-            first_name=request.POST['first_name'],
-            middle_name=request.POST.get('middle_name'),
-            last_name=request.POST['last_name'],
-            sex=request.POST.get('sex'),
-            birth_date=request.POST.get('dob'),
-            civil_status=request.POST.get('civil_status'),
-            nationality=request.POST.get('nationality'),
+        password  = request.POST.get('password')
+        password2 = request.POST.get('confirm_password')
 
-            # II. ADDRESS
-            address=request.POST.get('address'),
-            barangay=request.POST.get('barangay'),
-            municipality=request.POST.get('municipality'),
-            contact_no=request.POST.get('contact_number'),  # 🔥 FIXED
-            email=request.POST.get('email'),
+        if password != password2:
+            messages.error(request, "Passwords do not match.")
+            return render(request, 'client_register.html')
 
-            # III. SOCIO ECONOMIC
-            livelihood=request.POST.get('livelihood'),
-            monthly_income=request.POST.get('monthly_income') or 0,
-            household_size=request.POST.get('household_size') or 1,
-            has_disability=request.POST.get('pwd'),         # 🔥 FIXED
-            is_senior=request.POST.get('senior'),           # 🔥 FIXED
-            previous_aid=request.POST.get('previous_dswd'), # 🔥 FIXED
-        )
+        email = request.POST.get('email') or None
 
-        # Create login account
-        account = ClientAccount.objects.create(
-            client=client,
-            email=request.POST['email']
-        )
-        account.set_password(request.POST['password'])
-        account.save()
+        try:
+            client = Client.objects.create(
+                # I. Personal
+                first_name=request.POST.get('first_name'),
+                middle_name=request.POST.get('middle_name') or None,
+                last_name=request.POST.get('last_name'),
+                sex=request.POST.get('sex'),
+                birth_date=request.POST.get('birth_date'),
+                civil_status=request.POST.get('civil_status'),
+                nationality=request.POST.get('nationality') or 'Filipino',
 
-        messages.success(request, "Registration successful. You can now log in.")
-        return redirect('client_login')
+                # II. Address & Contact
+                address=request.POST.get('address'),
+                barangay=request.POST.get('barangay'),
+                municipality=request.POST.get('municipality'),
+                contact_no=request.POST.get('contact_no'),
+                email=email,
+
+                # III. Socio-Economic
+                livelihood=request.POST.get('livelihood'),
+                monthly_income=request.POST.get('monthly_income') or 0,
+                household_size=request.POST.get('household_size') or 1,
+                has_disability=request.POST.get('has_disability', 'No'),
+                is_senior=request.POST.get('is_senior', 'No'),
+                previous_aid=request.POST.get('previous_aid', 'No'),
+            )
+
+            # ── Family Members ──────────────────────────────────
+            index = 0
+            while index <= 50:
+                name = request.POST.get(f"family_name_{index}", "").strip()
+                if name:
+                    cs_s  = request.POST.get(f"family_cs_s_{index}")
+                    cs_m  = request.POST.get(f"family_cs_m_{index}")
+                    cs_w  = request.POST.get(f"family_cs_w_{index}")
+                    civil_status = "S" if cs_s else "M" if cs_m else "W" if cs_w else None
+
+                    edu_elem  = request.POST.get(f"family_edu_elem_{index}")
+                    edu_hs    = request.POST.get(f"family_edu_hs_{index}")
+                    edu_coll  = request.POST.get(f"family_edu_coll_{index}")
+                    edu_illit = request.POST.get(f"family_edu_illit_{index}")
+                    education = (
+                        "Elem"     if edu_elem  else
+                        "HS"       if edu_hs    else
+                        "Coll/Voc" if edu_coll  else
+                        "Illit"    if edu_illit else None
+                    )
+
+                    raw_age    = request.POST.get(f"family_age_{index}", "").strip()
+                    raw_income = request.POST.get(f"family_inc_{index}", "").strip()
+
+                    FamilyMember.objects.create(
+                        client=client,
+                        name=name,
+                        age=int(raw_age) if raw_age else None,
+                        sex=request.POST.get(f"family_sex_{index}") or None,
+                        civil_status=civil_status,
+                        relationship=request.POST.get(f"family_rel_{index}") or None,
+                        educational_attainment=education,
+                        occupation=request.POST.get(f"family_occ_{index}") or None,
+                        income=Decimal(raw_income) if raw_income else None,
+                    )
+                index += 1
+
+            # ── Account ─────────────────────────────────────────
+            account = ClientAccount.objects.create(
+                client=client,
+                email=request.POST.get('email'),
+            )
+            account.set_password(password)
+            account.save()
+
+            messages.success(request, "Registration successful. You can now log in.")
+            return redirect('client_login')
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            messages.error(request, f"Registration failed: {e}")
 
     return render(request, 'client_register.html')
 
@@ -1239,41 +1511,84 @@ def client_edit_profile(request):
     client_id = request.session.get('client_id')
 
     if not client_id:
-        return redirect('client_login')  # not logged in
+        return redirect('client_login')
 
-    client = Client.objects.get(id=client_id)
+    client = get_object_or_404(Client, id=client_id)
 
     if request.method == "POST":
-        # PERSONAL
-        client.first_name = request.POST.get('first_name')
-        client.middle_name = request.POST.get('middle_name')
-        client.last_name = request.POST.get('last_name')
-        client.sex = request.POST.get('sex')
-        client.birth_date = request.POST.get('dob')
-        client.civil_status = request.POST.get('civil_status')
-        client.nationality = request.POST.get('nationality')
+        # ── Personal ─────────────────────────────────────
+        client.first_name  = request.POST.get('first_name')
+        client.middle_name = request.POST.get('middle_name') or None
+        client.last_name   = request.POST.get('last_name')
+        client.sex         = request.POST.get('sex')
+        client.birth_date  = request.POST.get('birth_date')       # ✅ was 'dob'
+        client.civil_status= request.POST.get('civil_status')
+        client.nationality = request.POST.get('nationality') or 'Filipino'
 
-        # ADDRESS
-        client.address = request.POST.get('address')
-        client.barangay = request.POST.get('barangay')
+        # ── Address & Contact ────────────────────────────
+        client.address      = request.POST.get('address')
+        client.barangay     = request.POST.get('barangay')
         client.municipality = request.POST.get('municipality')
-        client.contact_no = request.POST.get('contact_number')
-        client.email = request.POST.get('email')
+        client.contact_no   = request.POST.get('contact_no')       # ✅ was 'contact_number'
+        client.email        = request.POST.get('email') or None
 
-        # SOCIO-ECONOMIC
-        client.livelihood = request.POST.get('livelihood')
+        # ── Socio-Economic ───────────────────────────────
+        client.livelihood     = request.POST.get('livelihood')
         client.monthly_income = request.POST.get('monthly_income') or 0
         client.household_size = request.POST.get('household_size') or 1
-        client.has_disability = request.POST.get('pwd')
-        client.is_senior = request.POST.get('senior')
-        client.previous_aid = request.POST.get('previous_dswd')
+        client.has_disability = request.POST.get('has_disability', 'No')  # ✅ was 'pwd'
+        client.is_senior      = request.POST.get('is_senior', 'No')       # ✅ was 'senior'
+        client.previous_aid   = request.POST.get('previous_aid', 'No')    # ✅ was 'previous_dswd'
 
         client.save()
+
+        # ── Family Members — replace all existing ────────
+        client.family_members.all().delete()
+
+        index = 0
+        while index <= 50:
+            name = request.POST.get(f"family_name_{index}", "").strip()
+            if name:
+                cs_s  = request.POST.get(f"family_cs_s_{index}")
+                cs_m  = request.POST.get(f"family_cs_m_{index}")
+                cs_w  = request.POST.get(f"family_cs_w_{index}")
+                civil_status = "S" if cs_s else "M" if cs_m else "W" if cs_w else None
+
+                edu_elem  = request.POST.get(f"family_edu_elem_{index}")
+                edu_hs    = request.POST.get(f"family_edu_hs_{index}")
+                edu_coll  = request.POST.get(f"family_edu_coll_{index}")
+                edu_illit = request.POST.get(f"family_edu_illit_{index}")
+                education = (
+                    "Elem"     if edu_elem  else
+                    "HS"       if edu_hs    else
+                    "Coll/Voc" if edu_coll  else
+                    "Illit"    if edu_illit else None
+                )
+
+                raw_age    = request.POST.get(f"family_age_{index}", "").strip()
+                raw_income = request.POST.get(f"family_inc_{index}", "").strip()
+
+                FamilyMember.objects.create(
+                    client=client,
+                    name=name,
+                    age=int(raw_age) if raw_age else None,
+                    sex=request.POST.get(f"family_sex_{index}") or None,
+                    civil_status=civil_status,
+                    relationship=request.POST.get(f"family_rel_{index}") or None,
+                    educational_attainment=education,
+                    occupation=request.POST.get(f"family_occ_{index}") or None,
+                    income=Decimal(raw_income) if raw_income else None,
+                )
+            index += 1
 
         messages.success(request, "Profile updated successfully.")
         return redirect('client_edit_profile')
 
-    return render(request, 'client_edit_profile.html', {'client': client})
+    family_members = client.family_members.all()
+    return render(request, 'client_edit_profile.html', {
+        'client': client,
+        'family_members': family_members,
+    })
 
 def client_applications(request):
     client_id = request.session.get('client_id')
@@ -1311,7 +1626,7 @@ def client_apply_program(request):
             application = Application.objects.create(
                 client=client,
                 aid_type=aid_type,
-                status="pending"
+                status="PENDING"
             )
 
             docs = {}
@@ -1353,7 +1668,7 @@ def client_apply_program(request):
                 REDCARDDetail.objects.create(
                     application=application,
                     emergency_type=request.POST.get("redcard_emergency_type"),
-                    usage_count=request.POST.get("redcard_usage"),
+                    usage_count=int(request.POST.get("redcard_usage") or 0),
                 )
 
                 docs = {
@@ -1407,10 +1722,50 @@ from django.views.decorators.http import require_POST
 @require_POST
 def mark_notification_read(request, pk):
     notif = get_object_or_404(Notification, pk=pk)
-
-    # ✅ correct field name
     if notif.recipient == request.user:
         notif.is_read = True
         notif.save()
 
-    return redirect(request.META.get('HTTP_REFERER', 'admin_account'))
+    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER', 'dashboard')
+    return redirect(next_url)
+
+
+ACCESS_CODE = "357246"
+
+def access_code_view(request):
+    if request.method == "POST":
+        entered_code = request.POST.get("access_code")
+
+        if entered_code == ACCESS_CODE:
+            request.session['access_granted'] = True
+            return redirect('select_account')
+        else:
+            messages.error(request, "Invalid access code.")
+
+    return render(request, "access_code.html")
+
+
+from django.http import JsonResponse
+
+@login_required
+def get_notifications_json(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'notifications': [], 'unread_count': 0})
+
+    notifications = Notification.objects.filter(
+        recipient=request.user
+    ).order_by('-created_at')[:10]
+
+    data = []
+    for n in notifications:
+        data.append({
+            'id':         n.pk,
+            'message':    n.message,
+            'is_read':    n.is_read,
+            'link':       n.link or '',
+            'created_at': n.created_at.strftime('%b %d, %Y %I:%M %p'),
+        })
+
+    unread_count = notifications.filter(is_read=False).count()
+
+    return JsonResponse({'notifications': data, 'unread_count': unread_count})

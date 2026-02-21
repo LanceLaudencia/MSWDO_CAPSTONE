@@ -2,80 +2,103 @@
 {% block page_title %}Edit Application{% endblock %}
 {% block content %}
 
-<div class="card shadow-sm p-4">
+<div class="card shadow-sm border-0">
+  <div class="card-body p-4">
 
-  <h4 class="fw-bold mb-3">Edit Assistance Application</h4>
+    <h4 class="fw-bold text-success mb-4">Edit Assistance Application</h4>
 
-  <form method="POST">
-    {% csrf_token %}
+    <form method="POST">
+      {% csrf_token %}
 
-    <h6 class="text-success">Client Information</h6>
+      <!-- ================= CLIENT INFORMATION ================= -->
+      <h6 class="text-muted mb-3">Client Information</h6>
 
-    <div class="row">
-      <div class="col-md-4 mb-3">
-        <label>First Name</label>
-        <input type="text" name="first_name" class="form-control"
-               value="{{ client.first_name }}" required>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">First Name</label>
+          <input type="text" name="first_name"
+                 class="form-control"
+                 value="{{ client.first_name }}" required>
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Middle Name</label>
+          <input type="text" name="middle_name"
+                 class="form-control"
+                 value="{{ client.middle_name }}">
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Last Name</label>
+          <input type="text" name="last_name"
+                 class="form-control"
+                 value="{{ client.last_name }}" required>
+        </div>
       </div>
 
-      <div class="col-md-4 mb-3">
-        <label>Last Name</label>
-        <input type="text" name="last_name" class="form-control"
-               value="{{ client.last_name }}" required>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Contact No</label>
+          <input type="text" name="contact_no"
+                 class="form-control"
+                 value="{{ client.contact_no }}">
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="email"
+                 class="form-control"
+                 value="{{ client.email }}">
+        </div>
       </div>
 
-      <div class="col-md-4 mb-3">
-        <label>Contact No</label>
-        <input type="text" name="contact_no" class="form-control"
-               value="{{ client.contact_no }}">
+      <hr class="my-4">
+
+      <!-- ================= APPLICATION DETAILS ================= -->
+      <h6 class="text-muted mb-3">Assistance Request</h6>
+
+      <div class="mb-3">
+        <label class="form-label">Type of Assistance</label>
+        <select name="aid_type" class="form-select" required>
+          <option value="">-- Select Assistance --</option>
+          <option value="SEA" {% if application.aid_type == "SEA" %}selected{% endif %}>SEA</option>
+          <option value="AICS" {% if application.aid_type == "AICS" %}selected{% endif %}>AICS</option>
+          <option value="REDCARD" {% if application.aid_type == "REDCARD" %}selected{% endif %}>REDCARD</option>
+          <option value="EA" {% if application.aid_type == "EA" %}selected{% endif %}>Educational Assistance</option>
+        </select>
       </div>
-    </div>
 
-    <div class="mb-3">
-      <label>Email</label>
-      <input type="email" name="email" class="form-control"
-             value="{{ client.email }}">
-    </div>
+      <div class="mb-3">
+        <label class="form-label">Requested Amount</label>
+        <input type="number"
+               step="0.01"
+               name="requested_amount"
+               class="form-control"
+               value="{{ application.requested_amount }}">
+      </div>
 
-    <hr>
+      <div class="mb-4">
+        <label class="form-label">Reason</label>
+        <textarea name="reason"
+                  class="form-control"
+                  rows="4">{{ application.reason }}</textarea>
+      </div>
 
-    <h6 class="text-success">Assistance Request</h6>
+      <!-- ================= BUTTONS ================= -->
+      <div class="d-flex justify-content-end gap-2">
+        <a href="{% url 'application_detail' application.id %}"
+           class="btn btn-outline-secondary">
+          Cancel
+        </a>
 
-    <div class="mb-3">
-      <label>Type of Assistance</label>
-      <select name="aid_type" class="form-select" required>
-        <option value="SEA" {% if application.aid_type == "SEA" %}selected{% endif %}>SEA</option>
-        <option value="AICS" {% if application.aid_type == "AICS" %}selected{% endif %}>AICS</option>
-        <option value="REDCARD" {% if application.aid_type == "REDCARD" %}selected{% endif %}>REDCARD</option>
-        <option value="EA" {% if application.aid_type == "EA" %}selected{% endif %}>Educational Assistance</option>
-      </select>
-    </div>
+        <button type="submit" class="btn btn-success">
+          💾 Save Changes
+        </button>
+      </div>
 
-    <div class="mb-3">
-      <label>Requested Amount</label>
-      <input type="number" step="0.01" name="requested_amount"
-             class="form-control"
-             value="{{ application.requested_amount }}">
-    </div>
+    </form>
 
-    <div class="mb-3">
-      <label>Reason</label>
-      <textarea name="reason" class="form-control" rows="3">{{ application.reason }}</textarea>
-    </div>
-
-    <div class="d-flex gap-2">
-      <button type="submit" class="btn btn-primary">
-        💾 Save Changes
-      </button>
-
-      <a href="{% url 'application_detail' application.id %}"
-         class="btn btn-secondary">
-        Cancel
-      </a>
-    </div>
-
-  </form>
-
+  </div>
 </div>
 
 {% endblock %}

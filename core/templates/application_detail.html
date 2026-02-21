@@ -16,41 +16,17 @@
   
   .profile-card {
     background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-    border-radius: 25px;
+    border-radius: 15px;
     padding: 40px;
     color: white;
-    box-shadow: 0 15px 50px rgba(15, 110, 63, 0.4);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     margin-bottom: 30px;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .profile-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    animation: pulse 15s ease-in-out infinite;
-  }
-  
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-  }
-  
-  .profile-header {
-    position: relative;
-    z-index: 1;
   }
   
   .client-name {
-    font-size: 2.5rem;
-    font-weight: 800;
+    font-size: 2rem;
+    font-weight: 700;
     margin-bottom: 8px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   }
   
   .client-id {
@@ -72,35 +48,31 @@
   
   .info-card {
     background: white;
-    border-radius: 20px;
+    border-radius: 15px;
     padding: 30px;
     margin-bottom: 25px;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
-    border: none;
-    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
   }
   
   .info-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
   }
   
   .card-title {
-    font-size: 1.3rem;
-    font-weight: 700;
+    font-size: 1.2rem;
+    font-weight: 600;
     color: #0a4d2e;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  
-  .card-title::before {
-    content: '';
-    width: 5px;
-    height: 30px;
-    background: linear-gradient(180deg, #0f6e3f 0%, #27ae60 100%);
-    border-radius: 3px;
+
+  .card-title i {
+    color: #27ae60;
   }
   
   .info-label {
@@ -119,27 +91,6 @@
     margin-bottom: 0;
   }
   
-  .highlight-amount {
-    background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-    color: white;
-    padding: 20px;
-    border-radius: 15px;
-    text-align: center;
-  }
-  
-  .amount-label {
-    font-size: 0.85rem;
-    opacity: 0.9;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-  }
-  
-  .amount-value {
-    font-size: 2.2rem;
-    font-weight: 700;
-  }
-  
   .action-buttons {
     display: flex;
     gap: 15px;
@@ -148,71 +99,33 @@
   }
   
   .btn-modern {
-    padding: 15px 35px;
-    border-radius: 50px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
     border: none;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     font-size: 0.95rem;
     text-decoration: none;
     display: inline-block;
   }
   
   .btn-modern:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    opacity: 0.9;
     text-decoration: none;
   }
   
-  .btn-back {
-    background: white;
-    color: #6c757d;
-    border: 2px solid #e1e8ed;
-  }
-  
-  .btn-back:hover {
-    background: #f8f9fa;
-    color: #495057;
-    border-color: #6c757d;
-  }
-  
-  .btn-print {
-    background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-    color: white;
-  }
-  
-  .btn-edit {
-    background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%);
-    color: white;
-  }
-  
-  .btn-approve {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    color: white;
-  }
-  
-  .btn-reject {
-    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
-    color: white;
-  }
+  .btn-back   { background: white; color: #6c757d; border: 2px solid #e1e8ed; }
+  .btn-back:hover { background: #f8f9fa; color: #495057; border-color: #6c757d; }
+  .btn-print  { background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%); color: white; }
+  .btn-edit   { background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); color: white; }
+  .btn-approve{ background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+  .btn-reject { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white; }
   
   .badge-pill {
     padding: 8px 20px;
     border-radius: 50px;
     font-weight: 600;
     font-size: 0.95rem;
-  }
-  
-  .reason-box {
-    background: linear-gradient(135deg, #e8f8f0 0%, #d5f4e6 100%);
-    border-left: 5px solid #27ae60;
-    padding: 20px;
-    border-radius: 12px;
-    font-style: italic;
-    color: #495057;
-    line-height: 1.6;
   }
   
   .program-detail-item {
@@ -232,6 +145,132 @@
     letter-spacing: 0.5px;
   }
   
+  /* ── 4Ps badge ── */
+  .fourps-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+    color: white;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 20px;
+  }
+
+  /* ── Family table ── */
+  .family-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+
+  .family-table thead th {
+    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
+    color: #fff;
+    text-align: center;
+    padding: 10px 8px;
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.2);
+    white-space: nowrap;
+  }
+
+  .family-table tbody tr:nth-child(even) { background: #f5faf7; }
+  .family-table tbody tr:hover           { background: #e8f5ed; }
+
+  .family-table td {
+    border: 1px solid #d5e8dc;
+    padding: 10px 12px;
+    text-align: center;
+    color: #212529;
+  }
+
+  .family-table td:first-child { text-align: left; font-weight: 600; }
+
+  .check-yes { color: #27ae60; font-size: 1.1rem; }
+  .check-no  { color: #dee2e6; font-size: 1.1rem; }
+
+  /* ── Workflow Stepper ── */
+  .stepper-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 20px 0 10px;
+  }
+
+  .stepper-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .stepper-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #e9ecef;
+    color: #adb5bd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    border: 3px solid #e9ecef;
+  }
+
+  .stepper-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #adb5bd;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .stepper-line {
+    flex: 1;
+    height: 3px;
+    background: #e9ecef;
+    min-width: 30px;
+    margin-bottom: 26px;
+    transition: background 0.3s ease;
+  }
+
+  .stepper-item.active .stepper-icon {
+    background: linear-gradient(135deg, #0f6e3f, #27ae60);
+    color: #fff;
+    border-color: #27ae60;
+    box-shadow: 0 0 0 4px rgba(39,174,96,0.2);
+  }
+  .stepper-item.active .stepper-label  { color: #0f6e3f; }
+
+  .stepper-item.completed .stepper-icon {
+    background: #27ae60;
+    color: #fff;
+    border-color: #27ae60;
+  }
+  .stepper-item.completed .stepper-label { color: #27ae60; }
+  .stepper-line.completed               { background: #27ae60; }
+
+  .stepper-item.rejected .stepper-icon {
+    background: #dc3545;
+    color: #fff;
+    border-color: #dc3545;
+  }
+  .stepper-item.rejected .stepper-label { color: #dc3545; }
+  .stepper-line.rejected                { background: #dc3545; }
+
+  @media (max-width: 576px) {
+    .stepper-line    { min-width: 16px; }
+    .stepper-label   { font-size: 0.65rem; }
+    .stepper-icon    { width: 38px; height: 38px; font-size: 1rem; }
+  }
+
+  /* ── Documents ── */
   .document-list {
     list-style: none;
     padding: 0;
@@ -239,20 +278,17 @@
   }
   
   .document-list li {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: #f8f9fa;
     padding: 15px 20px;
-    border-radius: 10px;
+    border-radius: 8px;
     margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
   }
   
-  .document-list li:hover {
-    transform: translateX(5px);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-  }
+  .document-list li:hover { background: #e9ecef; }
   
   .document-list a {
     color: #27ae60;
@@ -263,9 +299,7 @@
     gap: 8px;
   }
   
-  .document-list a:hover {
-    color: #0f6e3f;
-  }
+  .document-list a:hover { color: #0f6e3f; }
   
   .empty-state {
     text-align: center;
@@ -275,55 +309,40 @@
   }
   
   @media print {
-    .detail-wrapper {
-      background: white;
-      padding: 0;
-    }
-    .action-buttons,
-    .btn-modern {
-      display: none !important;
-    }
-    .info-card {
-      box-shadow: none !important;
-      border: 1px solid #dee2e6 !important;
-      page-break-inside: avoid;
-    }
-    .profile-card {
-      background: #0f6e3f !important;
-      box-shadow: none !important;
-    }
+    .detail-wrapper { background: white; padding: 0; }
+    .action-buttons, .btn-modern { display: none !important; }
+    .info-card { box-shadow: none !important; border: 1px solid #dee2e6 !important; page-break-inside: avoid; }
+    .profile-card { background: #0f6e3f !important; box-shadow: none !important; }
   }
 </style>
 
 <div class="detail-wrapper">
   <div class="detail-container">
     
-    <!-- Profile Header Card -->
+    <!-- ── Profile Header ── -->
     <div class="profile-card">
-      <div class="profile-header">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-          <div>
-            <h1 class="client-name">
-              {{ client.first_name }}
-              {% if client.middle_name %}{{ client.middle_name }}{% endif %}
-              {{ client.last_name }}
-            </h1>
-            <p class="client-id">Beneficiary ID: #{{ client.id }}</p>
-          </div>
-          <span class="status-badge-large
-            {% if application.status == 'approved' %}bg-success
-            {% elif application.status == 'rejected' %}bg-danger
-            {% elif application.status == 'pending' %}bg-warning text-dark
-            {% else %}bg-secondary{% endif %}">
-            {{ application.status|title }}
-          </span>
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+          <h1 class="client-name">
+            {{ client.first_name }}
+            {% if client.middle_name %}{{ client.middle_name }}{% endif %}
+            {{ client.last_name }}
+          </h1>
+          <p class="client-id">Beneficiary ID: #{{ client.id }}</p>
         </div>
+        <span class="status-badge-large
+          {% if application.status == 'APPROVED' or application.status == 'RELEASED' %}bg-success
+          {% elif application.status == 'REJECTED' %}bg-danger
+          {% elif application.status == 'PENDING' %}bg-warning text-dark
+          {% else %}bg-secondary{% endif %}">
+          {{ application.get_status_display }}
+        </span>
       </div>
     </div>
 
-    <!-- Personal Information -->
+    <!-- ── Personal Information ── -->
     <div class="info-card">
-      <h2 class="card-title">Personal Information</h2>
+      <h2 class="card-title"><i class="bi bi-person-fill"></i> Personal Information</h2>
       <div class="row g-4">
         <div class="col-md-3">
           <div class="info-label">Sex</div>
@@ -344,9 +363,9 @@
       </div>
     </div>
 
-    <!-- Address & Contact -->
+    <!-- ── Address & Contact ── -->
     <div class="info-card">
-      <h2 class="card-title">Address & Contact</h2>
+      <h2 class="card-title"><i class="bi bi-geo-alt-fill"></i> Address & Contact</h2>
       <div class="row g-4">
         <div class="col-md-6">
           <div class="info-label">Address</div>
@@ -371,9 +390,9 @@
       </div>
     </div>
 
-    <!-- Socio-Economic Profile -->
+    <!-- ── Socio-Economic Profile ── -->
     <div class="info-card">
-      <h2 class="card-title">Socio-Economic Profile</h2>
+      <h2 class="card-title"><i class="bi bi-bar-chart-fill"></i> Socio-Economic Profile</h2>
       <div class="row g-4">
         <div class="col-md-4">
           <div class="info-label">Livelihood</div>
@@ -381,7 +400,7 @@
         </div>
         <div class="col-md-4">
           <div class="info-label">Monthly Income</div>
-          <p class="info-value" style="color: #27ae60; font-size: 1.5rem;">
+          <p class="info-value" style="color:#27ae60; font-size:1.5rem;">
             ₱{{ client.monthly_income|floatformat:2|default:"0.00" }}
           </p>
         </div>
@@ -389,43 +408,137 @@
           <div class="info-label">Household Size</div>
           <p class="info-value">{{ client.household_size|default:"—" }}</p>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="info-label">Previous Aid</div>
           <p class="info-value">{{ client.previous_aid|default:"—" }}</p>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="info-label">Person with Disability</div>
           <p class="mb-0">
-            <span class="badge badge-pill {{ client.has_disability|yesno:"bg-info,bg-secondary,bg-secondary" }}">
-              {{ client.has_disability|yesno:"Yes,No,—" }}
+            <span class="badge badge-pill {% if client.has_disability == 'Yes' %}bg-info{% else %}bg-secondary{% endif %}">
+              {{ client.has_disability|default:"No" }}
             </span>
           </p>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="info-label">Senior Citizen</div>
           <p class="mb-0">
-            <span class="badge badge-pill {{ client.is_senior|yesno:"bg-warning text-dark,bg-secondary,bg-secondary" }}">
-              {{ client.is_senior|yesno:"Yes,No,—" }}
+            <span class="badge badge-pill {% if client.is_senior == 'Yes' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+              {{ client.is_senior|default:"No" }}
             </span>
+          </p>
+        </div>
+        <div class="col-md-3">
+          <div class="info-label">4Ps Member</div>
+          <p class="mb-0">
+            {% if client.is_4ps == 'Yes' %}
+              <span class="fourps-badge">
+                <i class="bi bi-patch-check-fill"></i> 4Ps Beneficiary
+              </span>
+              {% if client.fourps_id %}
+                <small class="d-block text-muted mt-1">ID: {{ client.fourps_id }}</small>
+              {% endif %}
+            {% else %}
+              <span class="badge badge-pill bg-secondary">No</span>
+            {% endif %}
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Assistance Request -->
+    <!-- ── Beneficiary's Family Information ── -->
+    {% if family_members %}
     <div class="info-card">
-      <h2 class="card-title">Assistance Request Details</h2>
-      
-      <div class="row g-4 mb-4">
+      <h2 class="card-title"><i class="bi bi-people-fill"></i> Beneficiary's Family Information</h2>
+      <div class="table-responsive">
+        <table class="family-table">
+          <thead>
+            <tr>
+              <th rowspan="2">Name</th>
+              <th rowspan="2">Age</th>
+              <th rowspan="2">Sex</th>
+              <th colspan="3">Civil Status</th>
+              <th rowspan="2">Relationship</th>
+              <th colspan="4">Educational Attainment</th>
+              <th rowspan="2">Occupation</th>
+              <th rowspan="2">Income</th>
+            </tr>
+            <tr>
+              <th>S</th><th>M</th><th>W</th>
+              <th>Elem.</th><th>HS</th><th>Coll./Voc.</th><th>Illit.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for member in family_members %}
+            <tr>
+              <td>{{ member.name }}</td>
+              <td>{{ member.age|default:"—" }}</td>
+              <td>{{ member.sex|default:"—" }}</td>
+              <td>{% if member.civil_status == 'S' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
+              <td>{% if member.civil_status == 'M' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
+              <td>{% if member.civil_status == 'W' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
+              <td>{{ member.relationship|default:"—" }}</td>
+              <td>{% if member.educational_attainment == 'Elem' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
+              <td>{% if member.educational_attainment == 'HS' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
+              <td>{% if member.educational_attainment == 'Coll/Voc' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
+              <td>{% if member.educational_attainment == 'Illit' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
+              <td>{{ member.occupation|default:"—" }}</td>
+              <td>{% if member.income %}₱{{ member.income|floatformat:2 }}{% else %}—{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ── Workflow Status Stepper ── -->
+    <div class="info-card">
+      <h2 class="card-title"><i class="bi bi-arrow-right-circle-fill"></i> Application Progress</h2>
+      <div class="stepper-wrapper">
+        {% with s=application.status %}
+        <div class="stepper-item {% if s == 'PENDING' %}active{% elif s != 'PENDING' %}completed{% endif %}">
+          <div class="stepper-icon"><i class="bi bi-hourglass-split"></i></div>
+          <div class="stepper-label">Pending</div>
+        </div>
+        <div class="stepper-line {% if s == 'ASSESSMENT' or s == 'APPROVAL' or s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}"></div>
+        <div class="stepper-item {% if s == 'ASSESSMENT' %}active{% elif s == 'APPROVAL' or s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}">
+          <div class="stepper-icon"><i class="bi bi-search"></i></div>
+          <div class="stepper-label">Assessment</div>
+        </div>
+        <div class="stepper-line {% if s == 'APPROVAL' or s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}"></div>
+        <div class="stepper-item {% if s == 'APPROVAL' %}active{% elif s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}">
+          <div class="stepper-icon"><i class="bi bi-check2-circle"></i></div>
+          <div class="stepper-label">For Approval</div>
+        </div>
+        <div class="stepper-line {% if s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}"></div>
+        <div class="stepper-item {% if s == 'RELEASE' %}active{% elif s == 'RELEASED' %}completed{% endif %}">
+          <div class="stepper-icon"><i class="bi bi-cash-coin"></i></div>
+          <div class="stepper-label">For Release</div>
+        </div>
+        <div class="stepper-line {% if s == 'RELEASED' %}completed{% endif %}"></div>
+        <div class="stepper-item {% if s == 'RELEASED' %}completed{% endif %}">
+          <div class="stepper-icon"><i class="bi bi-patch-check-fill"></i></div>
+          <div class="stepper-label">Released</div>
+        </div>
+        {% if s == 'REJECTED' %}
+        <div class="stepper-line rejected"></div>
+        <div class="stepper-item rejected">
+          <div class="stepper-icon"><i class="bi bi-x-circle-fill"></i></div>
+          <div class="stepper-label">Rejected</div>
+        </div>
+        {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+
+    <!-- ── Assistance Request ── -->
+    <div class="info-card">
+      <h2 class="card-title"><i class="bi bi-clipboard2-check-fill"></i> Assistance Request Details</h2>
+      <div class="row g-4">
         <div class="col-md-4">
           <div class="info-label">Aid Type</div>
-          <p class="info-value">{{ application.aid_type }}</p>
-        </div>
-        <div class="col-md-4">
-          <div class="highlight-amount">
-            <div class="amount-label">Requested Amount</div>
-            <div class="amount-value">₱{{ application.requested_amount|floatformat:2 }}</div>
-          </div>
+          <p class="info-value">{{ application.get_aid_type_display }}</p>
         </div>
         <div class="col-md-4">
           <div class="info-label">Eligibility Result</div>
@@ -433,54 +546,59 @@
             <span class="badge badge-pill
               {% if application.eligibility_result == 'Eligible' %}bg-success
               {% elif application.eligibility_result == 'Not Eligible' %}bg-danger
-              {% else %}bg-secondary{% endif %}" style="font-size: 1.1rem; padding: 10px 25px;">
+              {% else %}bg-secondary{% endif %}"
+              style="font-size:1.1rem; padding:10px 25px;">
               {{ application.eligibility_result|default:"Not yet evaluated" }}
             </span>
           </p>
         </div>
-      </div>
-
-      <div>
-        <div class="info-label">Reason for Assistance</div>
-        <div class="reason-box">
-          {{ application.reason }}
+        <div class="col-md-4">
+          <div class="info-label">Approved Amount</div>
+          <p class="info-value" style="color:#27ae60; font-size:1.4rem;">
+            {% if application.approved_amount %}
+              ₱{{ application.approved_amount|floatformat:2 }}
+            {% else %}
+              <span style="color:#adb5bd; font-size:1rem;">Not yet approved</span>
+            {% endif %}
+          </p>
         </div>
+        <div class="col-md-4">
+          <div class="info-label">Date Submitted</div>
+          <p class="info-value">{{ application.created_at|date:"M d, Y" }}</p>
+        </div>
+        <div class="col-md-4">
+          <div class="info-label">Last Updated</div>
+          <p class="info-value">{{ application.updated_at|date:"M d, Y" }}</p>
+        </div>
+        {% if application.assessed_by %}
+        <div class="col-md-4">
+          <div class="info-label">Assessed By</div>
+          <p class="info-value">{{ application.assessed_by.get_full_name|default:application.assessed_by.username }}</p>
+        </div>
+        {% endif %}
+        {% if application.approved_by %}
+        <div class="col-md-4">
+          <div class="info-label">Approved By</div>
+          <p class="info-value">{{ application.approved_by.get_full_name|default:application.approved_by.username }}</p>
+        </div>
+        {% endif %}
+        {% if application.released_at %}
+        <div class="col-md-4">
+          <div class="info-label">Date Released</div>
+          <p class="info-value">{{ application.released_at|date:"M d, Y" }}</p>
+        </div>
+        {% endif %}
       </div>
     </div>
 
-    <!-- Program Details -->
+    <!-- ── Program-Specific Details ── -->
     <div class="info-card">
-      <h2 class="card-title">Program-Specific Details</h2>
+      <h2 class="card-title"><i class="bi bi-folder2-open"></i> Program-Specific Details</h2>
 
       {% if aics %}
         <div class="program-detail-item">
           <strong>Crisis Type</strong>
           <span>{{ aics.crisis_type }}</span>
-        </div>
-        <div class="program-detail-item">
-          <strong>Assessment Findings</strong>
-          <span>{{ aics.assessment_findings|default:"—" }}</span>
-        </div>
-        <div class="program-detail-item">
-          <strong>Approved Amount</strong>
-          <span style="color: #27ae60; font-weight: 700; font-size: 1.2rem;">₱{{ aics.approved_amount|floatformat:2|default:"0.00" }}</span>
-        </div>
-      {% elif sea %}
-        <div class="program-detail-item">
-          <strong>Business / Livelihood Type</strong>
-          <span>{{ sea.business_type }}</span>
-        </div>
-        <div class="program-detail-item">
-          <strong>Capital Requested</strong>
-          <span style="color: #27ae60; font-weight: 700; font-size: 1.2rem;">₱{{ sea.capital_requested|floatformat:2 }}</span>
-        </div>
-        <div class="program-detail-item">
-          <strong>Training Completed</strong>
-          <span>{{ sea.training_completed }}</span>
-        </div>
-        <div class="program-detail-item">
-          <strong>Monitoring Notes</strong>
-          <span>{{ sea.monitoring_notes|default:"—" }}</span>
         </div>
       {% elif redcard %}
         <div class="program-detail-item">
@@ -504,6 +622,10 @@
           <strong>Course / Grade Level</strong>
           <span>{{ edu.course_or_grade }}</span>
         </div>
+      {% elif sea %}
+        <div class="empty-state">
+          <p>SEA application — documents attached below.</p>
+        </div>
       {% else %}
         <div class="empty-state">
           <p>No program-specific details available.</p>
@@ -511,15 +633,14 @@
       {% endif %}
     </div>
 
-    <!-- Uploaded Documents -->
+    <!-- ── Uploaded Documents ── -->
     <div class="info-card">
-      <h2 class="card-title">Uploaded Documents</h2>
-      
+      <h2 class="card-title"><i class="bi bi-paperclip"></i> Uploaded Documents</h2>
       {% if documents %}
         <ul class="document-list">
           {% for doc in documents %}
             <li>
-              <span style="font-weight: 600; color: #2c3e50;">{{ doc.name }}</span>
+              <span style="font-weight:600; color:#2c3e50;">{{ doc.name }}</span>
               <a href="{{ doc.file.url }}" target="_blank">
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                   <path d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
@@ -537,42 +658,70 @@
       {% endif %}
     </div>
 
-  <!-- Action Buttons -->
-<div class="action-buttons">
-  <a href="{% url 'pending_applications' %}" class="btn-modern btn-back">
-    ← Back to List
-  </a>
-  
-  <button class="btn-modern btn-print" onclick="window.print()">
-    🖨️ Print Details
-  </button>
+    <!-- ── Action Buttons ── -->
+    <div class="action-buttons">
+      <a href="{% url 'pending_applications' %}" class="btn-modern btn-back">← Back to List</a>
 
-  <a href="{% url 'application_edit' application.id %}" class="btn-modern btn-edit">
-    ✏️ Edit Application
-  </a>
+      <button class="btn-modern btn-print" onclick="window.print()">🖨️ Print Details</button>
 
-  {% if request.user.is_authenticated %}
-    
-    {# 🔒 STAFF / ADMIN CONTROLS #}
-    {% if request.user.role == "admin" or request.user.role == "staff" or request.user.is_superuser %}
-      
-      {% if application.status == "pending" %}
-        <a href="{% url 'application_approve' application.id %}"
+      <a href="{% url 'application_edit' application.id %}" class="btn-modern btn-edit">✏️ Edit</a>
+
+      {% if application.status == 'PENDING' %}
+        <a href="{% url 'application_advance' application.id %}"
            class="btn-modern btn-approve"
-           onclick="return confirm('Approve this application?')">
-          ✅ Approve
+           onclick="return confirm('Move this application to Assessment?')">
+          🔍 Start Assessment
         </a>
-
         <a href="{% url 'application_reject' application.id %}"
            class="btn-modern btn-reject"
-           onclick="return confirm('Reject this application?')">
+           onclick="return confirm('Are you sure you want to REJECT this application?')">
           ❌ Reject
         </a>
-      {% endif %}
 
-    {% endif %}
-  
-  {% endif %}
+      {% elif application.status == 'ASSESSMENT' %}
+        <a href="{% url 'application_advance' application.id %}"
+           class="btn-modern btn-approve"
+           onclick="return confirm('Submit this application for approval?')">
+          ✅ Submit for Approval
+        </a>
+        <a href="{% url 'application_reject' application.id %}"
+           class="btn-modern btn-reject"
+           onclick="return confirm('Are you sure you want to REJECT this application?')">
+          ❌ Reject
+        </a>
+
+      {% elif application.status == 'APPROVAL' %}
+        <a href="{% url 'application_advance' application.id %}"
+           class="btn-modern btn-approve"
+           onclick="return confirm('Approve and move to For Release?')">
+          💰 Approve for Release
+        </a>
+        <a href="{% url 'application_reject' application.id %}"
+           class="btn-modern btn-reject"
+           onclick="return confirm('Are you sure you want to REJECT this application?')">
+          ❌ Reject
+        </a>
+
+      {% elif application.status == 'RELEASE' %}
+        <a href="{% url 'application_advance' application.id %}"
+           class="btn-modern btn-approve"
+           onclick="return confirm('Mark this application as Released?')">
+          🏦 Mark as Released
+        </a>
+
+      {% elif application.status == 'RELEASED' %}
+        <span class="btn-modern" style="background:#e8f5ed; color:#27ae60; border:2px solid #27ae60; cursor:default;">
+          ✅ Completed
+        </span>
+
+      {% elif application.status == 'REJECTED' %}
+        <span class="btn-modern" style="background:#fdecea; color:#dc3545; border:2px solid #dc3545; cursor:default;">
+          ❌ Rejected
+        </span>
+      {% endif %}
+    </div>
+
+  </div>
 </div>
 
 {% endblock %}

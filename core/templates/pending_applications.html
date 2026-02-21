@@ -2,17 +2,20 @@
 
 {% block page_title %}
   <i class="bi bi-hourglass-split"></i>
-  Pending Applications
+  Applications
 {% endblock %}
 
-{% block breadcrumb %}Pending Applications{% endblock %}
+{% block breadcrumb %}Applications{% endblock %}
 
 {% block page_actions %}
   <div class="d-flex align-items-center gap-3">
     <div class="stats-badge">
       <i class="bi bi-inbox"></i>
-      <span class="fw-bold">{{ applications.paginator.count }}</span> Total Pending
+      <span class="fw-bold">{{ applications.paginator.count }}</span> Total
     </div>
+    <a href="{% url 'add_client' %}" class="btn btn-success btn-sm fw-semibold">
+      <i class="bi bi-plus-circle me-1"></i> New Application
+    </a>
   </div>
 {% endblock %}
 
@@ -31,45 +34,73 @@
     gap: 8px;
     box-shadow: 0 4px 12px rgba(244, 197, 66, 0.3);
   }
+  .stats-badge i { font-size: 18px; }
 
-  .stats-badge i {
-    font-size: 18px;
-  }
-
-  .intro-card {
-    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  .filter-card {
+    background: #fff;
     border-radius: 16px;
-    padding: 24px 28px;
-    margin-bottom: 24px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    border-left: 5px solid #f4c542;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   }
-
-  .intro-card h4 {
-    font-weight: 700;
-    color: #0d3821;
-    margin: 0 0 8px 0;
-    font-size: 20px;
-  }
-
-  .intro-card p {
-    margin: 0;
-    color: #6c757d;
+  .filter-card input,
+  .filter-card select {
+    border: 2px solid #e1e8ed;
+    border-radius: 10px;
+    padding: 9px 14px;
     font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
   }
+  .filter-card input:focus,
+  .filter-card select:focus {
+    border-color: #27ae60;
+    box-shadow: 0 0 0 3px rgba(39,174,96,0.1);
+  }
+  .filter-card input  { flex: 1; min-width: 200px; }
+  .filter-card select { min-width: 150px; }
+
+  .btn-filter {
+    background: linear-gradient(135deg, #145433 0%, #27ae60 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-filter:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  .btn-reset {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 2px solid #e1e8ed;
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+  .btn-reset:hover { background: #e9ecef; color: #495057; }
 
   .table-card {
     background: #fff;
     border-radius: 16px;
     padding: 0;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     overflow: hidden;
   }
 
-  .table {
-    margin: 0;
-    width: 100%;
-  }
+  .table { margin: 0; width: 100%; }
 
   .table thead {
     background: linear-gradient(135deg, #0d3821 0%, #145433 100%);
@@ -87,240 +118,111 @@
   }
 
   .table tbody td {
-    padding: 18px 16px;
+    padding: 16px;
     vertical-align: middle;
     border-bottom: 1px solid #f1f3f5;
   }
 
-  .table-hover tbody tr {
-    transition: all 0.25s ease;
-  }
-
+  .table-hover tbody tr { transition: all 0.25s ease; }
   .table-hover tbody tr:hover {
     background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
-    transform: scale(1.005);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    transform: scale(1.003);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
   }
 
-  .row-number {
-    font-weight: 700;
-    color: #6c757d;
-    font-size: 14px;
-    width: 60px;
-  }
-
-  .beneficiary-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .beneficiary-name {
-    font-weight: 600;
-    color: #0d3821;
-    font-size: 15px;
-  }
-
-  .beneficiary-email {
-    font-size: 13px;
-    color: #6c757d;
-  }
-
-  .program-badge {
-    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-    padding: 6px 14px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 13px;
-    color: #495057;
-    display: inline-block;
-    border: 2px solid #ced4da;
-  }
-
-  .program-badge.sea {
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-    border-color: #1E8449;
-    color: #155724;
-  }
-
-  .program-badge.aics {
-    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
-    border-color: #2E86C1;
-    color: #0c5460;
-  }
-
-  .program-badge.redcard {
-    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-    border-color: #C0392B;
-    color: #721c24;
-  }
-
-  .program-badge.ea {
-    background: linear-gradient(135deg, #e2d9f3 0%, #d4c5e8 100%);
-    border-color: #8E44AD;
-    color: #4a235a;
-  }
-
-  .date-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .date-primary {
-    font-size: 14px;
-    color: #495057;
-    font-weight: 500;
-  }
-
-  .date-secondary {
-    font-size: 12px;
-    color: #6c757d;
-  }
+  .row-number { font-weight: 700; color: #6c757d; font-size: 14px; }
 
   .status-badge {
-    padding: 8px 16px;
+    padding: 6px 14px;
     border-radius: 20px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.3px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    gap: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   }
+  .status-pending    { background: linear-gradient(135deg, #f4c542, #f0a500); color: #000; }
+  .status-assessment { background: linear-gradient(135deg, #17a2b8, #138496); color: #fff; }
+  .status-approval   { background: linear-gradient(135deg, #6f42c1, #5a32a3); color: #fff; }
+  .status-release    { background: linear-gradient(135deg, #fd7e14, #e06c00); color: #fff; }
+  .status-released   { background: linear-gradient(135deg, #28a745, #20c997); color: #fff; }
+  .status-rejected   { background: linear-gradient(135deg, #dc3545, #c82333); color: #fff; }
 
-  .status-badge.pending {
-    background: linear-gradient(135deg, #f4c542 0%, #f0a500 100%);
-    color: #000;
-  }
-
-  .status-badge.pending::before {
+  .status-pending::before {
     content: '';
-    width: 8px;
-    height: 8px;
+    width: 7px; height: 7px;
     background: #000;
     border-radius: 50%;
-    display: inline-block;
-    animation: pulse 2s ease-in-out infinite;
+    animation: blink 2s ease-in-out infinite;
   }
-
-  @keyframes pulse {
+  @keyframes blink {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  .status-badge.approved {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  }
-
-  .status-badge.rejected {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  }
-
-  .action-buttons {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+    50%       { opacity: 0.3; }
   }
 
   .action-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 10px;
+    gap: 5px;
+    padding: 7px 13px;
+    border-radius: 9px;
     font-size: 13px;
     text-decoration: none;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
     border: 2px solid;
   }
-
-  .btn-view {
-    border-color: #3a86ff;
-    color: #3a86ff;
-    background: rgba(58, 134, 255, 0.05);
-  }
-
+  .btn-view   { border-color: #3a86ff; color: #3a86ff; background: rgba(58,134,255,0.05); }
   .btn-view:hover {
-    background: linear-gradient(135deg, #3a86ff 0%, #2667cc 100%);
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(58, 134, 255, 0.3);
+    background: linear-gradient(135deg, #3a86ff, #2667cc);
+    color: #fff; transform: translateY(-2px);
+    box-shadow: 0 5px 14px rgba(58,134,255,0.3);
   }
-
-  .btn-delete {
-    border-color: #dc3545;
-    color: #dc3545;
-    background: rgba(220, 53, 69, 0.05);
-  }
-
+  .btn-delete { border-color: #dc3545; color: #dc3545; background: rgba(220,53,69,0.05); }
   .btn-delete:hover {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.3);
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: #fff; transform: translateY(-2px);
+    box-shadow: 0 5px 14px rgba(220,53,69,0.3);
   }
 
-  .empty-state {
-    padding: 80px 20px;
-    text-align: center;
+  .pagination-wrapper {
+    padding: 18px 22px;
+    border-top: 1px solid #f1f3f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
   }
-
-  .empty-state i {
-    font-size: 80px;
-    color: #dee2e6;
-    margin-bottom: 20px;
-  }
-
-  .empty-state h5 {
-    color: #495057;
+  .pagination-info { font-size: 13px; color: #6c757d; }
+  .pagination .page-link {
+    border-radius: 8px !important;
+    margin: 0 2px;
+    border: 2px solid #e1e8ed;
+    color: #145433;
     font-weight: 600;
-    margin-bottom: 12px;
+    font-size: 13px;
+    transition: all 0.2s;
   }
-
-  .empty-state p {
-    color: #6c757d;
-    font-size: 14px;
-    margin: 0;
-  }
+  .pagination .page-link:hover             { background: #145433; color: #fff; border-color: #145433; }
+  .pagination .page-item.active .page-link { background: linear-gradient(135deg, #145433, #27ae60); border-color: #145433; color: #fff; }
+  .pagination .page-item.disabled .page-link { opacity: 0.4; }
 
   @media (max-width: 768px) {
-    .table-card {
-      overflow-x: auto;
-    }
-
-    .action-buttons {
-      flex-direction: column;
-      width: 100%;
-    }
-
-    .action-btn {
-      width: 100%;
-      justify-content: center;
-    }
+    .filter-card input,
+    .filter-card select { width: 100%; }
   }
 </style>
 
-<!-- Info Card -->
-<div class="intro-card">
-  <h4>
-    <i class="bi bi-hourglass-split text-warning"></i>
-    Pending Applications
-  </h4>
-  <p>
-    These requests are waiting for staff review and approval. Open an application to assess documents and proceed with processing.
-  </p>
-</div>
-
-<!-- Main Table -->
+<!-- ── Main Table ── -->
 <div class="table-card">
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0">
       <thead>
         <tr>
-          <th style="width:60px;">#</th>
+          <th style="width:50px;">#</th>
           <th>Applicant</th>
           <th>Barangay</th>
           <th>Program</th>
@@ -329,80 +231,127 @@
           <th>Actions</th>
         </tr>
       </thead>
-
       <tbody>
         {% for app in applications %}
         <tr>
           <td class="row-number">{{ forloop.counter }}</td>
 
-          <!-- Applicant -->
           <td>
-            <div class="fw-semibold">{{ app.client.full_name }}</div>
-            <small class="text-muted">{{ app.client.email|default:"No email" }}</small>
+            <div class="fw-semibold" style="color:#0d3821;">{{ app.client.full_name }}</div>
+            <small class="text-muted">{{ app.client.contact_no|default:"No contact" }}</small>
           </td>
 
-          <!-- Barangay -->
           <td>{{ app.client.barangay|default:"—" }}</td>
 
-          <!-- Program Badge -->
           <td>
-            <span class="badge
-              {% if app.aid_type == 'SEA' %}bg-primary
-              {% elif app.aid_type == 'AICS' %}bg-info text-dark
+            <span class="badge rounded-pill
+              {% if app.aid_type == 'AICS' %}bg-info text-dark
+              {% elif app.aid_type == 'SEA' %}bg-success
               {% elif app.aid_type == 'REDCARD' %}bg-danger
-              {% elif app.aid_type == 'EDUCATIONAL' %}bg-success
-              {% endif %}">
+              {% elif app.aid_type == 'EDUCATIONAL' %}bg-warning text-dark
+              {% else %}bg-secondary{% endif %}"
+              style="padding:6px 14px; font-size:12px; font-weight:700;">
               {{ app.get_aid_type_display }}
             </span>
           </td>
 
-          <!-- Date -->
           <td>
-            {{ app.created_at|date:"M d, Y" }}<br>
+            <span style="font-size:14px; color:#495057; font-weight:500;">{{ app.created_at|date:"M d, Y" }}</span><br>
             <small class="text-muted">{{ app.created_at|date:"h:i A" }}</small>
           </td>
 
-          <!-- Status -->
           <td>
             {% if app.status == 'PENDING' %}
-              <span class="badge bg-warning text-dark">Pending</span>
-            {% elif app.status == 'APPROVED' %}
-              <span class="badge bg-success">Approved</span>
+              <span class="status-badge status-pending">Pending</span>
+            {% elif app.status == 'ASSESSMENT' %}
+              <span class="status-badge status-assessment"><i class="bi bi-search"></i> Assessment</span>
+            {% elif app.status == 'APPROVAL' %}
+              <span class="status-badge status-approval"><i class="bi bi-check2-circle"></i> For Approval</span>
+            {% elif app.status == 'RELEASE' %}
+              <span class="status-badge status-release"><i class="bi bi-cash-coin"></i> For Release</span>
             {% elif app.status == 'RELEASED' %}
-              <span class="badge bg-primary">Released</span>
+              <span class="status-badge status-released"><i class="bi bi-patch-check-fill"></i> Released</span>
             {% elif app.status == 'REJECTED' %}
-              <span class="badge bg-danger">Rejected</span>
+              <span class="status-badge status-rejected"><i class="bi bi-x-circle-fill"></i> Rejected</span>
+            {% else %}
+              <span class="status-badge" style="background:#e9ecef;color:#495057;">{{ app.status }}</span>
             {% endif %}
           </td>
 
-          <!-- Actions -->
           <td>
-            <a href="{% url 'application_detail' app.id %}" class="btn btn-sm btn-outline-primary">
-              <i class="bi bi-eye"></i> View
-            </a>
-
-            <!-- ⚠️ Delete APPLICATION, not client -->
-            <a href="{% url 'application_delete' app.id %}"
-               onclick="return confirm('Delete this application?');"
-               class="btn btn-sm btn-outline-danger">
-              <i class="bi bi-trash"></i>
-            </a>
+            <div class="d-flex gap-2">
+              <a href="{% url 'application_detail' app.id %}" class="action-btn btn-view">
+                <i class="bi bi-eye"></i> View
+              </a>
+              <a href="{% url 'application_delete' app.id %}"
+                 onclick="return confirm('Delete this application?');"
+                 class="action-btn btn-delete">
+                <i class="bi bi-trash"></i>
+              </a>
+            </div>
           </td>
         </tr>
 
         {% empty %}
         <tr>
           <td colspan="7" class="text-center py-5">
-            <i class="bi bi-check-circle fs-1 text-success"></i>
-            <h5 class="mt-2">No Pending Applications</h5>
-            <p class="text-muted">All applications have been processed.</p>
+            <i class="bi bi-check-circle fs-1 text-success d-block mb-3"></i>
+            <h5 class="text-muted fw-semibold">No Applications Found</h5>
+            <p class="text-muted mb-0">
+              {% if request.GET.q or request.GET.aid_type or request.GET.status %}
+                No results match your filters. <a href="{% url 'pending_applications' %}">Clear filters</a>
+              {% else %}
+                All applications have been processed.
+              {% endif %}
+            </p>
           </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-</div>
 
+  {% if applications.paginator.num_pages > 1 %}
+  <div class="pagination-wrapper">
+    <span class="pagination-info">
+      Showing {{ applications.start_index }}–{{ applications.end_index }} of {{ applications.paginator.count }} applications
+    </span>
+    <nav>
+      <ul class="pagination mb-0">
+        {% if applications.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ applications.previous_page_number }}&q={{ request.GET.q }}&aid_type={{ request.GET.aid_type }}&status={{ request.GET.status }}">
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i></span></li>
+        {% endif %}
+
+        {% for num in applications.paginator.page_range %}
+          {% if applications.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+          {% elif num > applications.number|add:'-3' and num < applications.number|add:'3' %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ num }}&q={{ request.GET.q }}&aid_type={{ request.GET.aid_type }}&status={{ request.GET.status }}">{{ num }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if applications.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ applications.next_page_number }}&q={{ request.GET.q }}&aid_type={{ request.GET.aid_type }}&status={{ request.GET.status }}">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right"></i></span></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+
+</div>
 
 {% endblock %}

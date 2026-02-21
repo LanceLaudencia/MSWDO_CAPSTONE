@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Access Code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f6e3f 0%, #2ecc71 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+        }
+
+        .otp-card {
+            background: white;
+            border-radius: 30px;
+            padding: 60px 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .otp-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #0f6e3f 0%, #27ae60 50%, #2ecc71 100%);
+            border-radius: 30px 30px 0 0;
+        }
+
+        .lock-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 8px 25px rgba(15, 110, 63, 0.3);
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0a4d2e;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            color: #6c757d;
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+
+        .error {
+            background: linear-gradient(135deg, #fee140 0%, #fa709a 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);
+        }
+
+        .otp-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 35px;
+        }
+
+        .otp-box {
+            width: 55px;
+            height: 65px;
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            border: 3px solid #e1e8ed;
+            border-radius: 12px;
+            background: #fafafa;
+            transition: all 0.3s ease;
+            color: #0a4d2e;
+        }
+
+        .otp-box:focus {
+            border-color: #27ae60;
+            box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.15);
+            outline: none;
+            background: white;
+            transform: scale(1.05);
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(15, 110, 63, 0.4);
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(15, 110, 63, 0.6);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            .otp-card {
+                padding: 40px 30px;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            .otp-box {
+                width: 45px;
+                height: 55px;
+                font-size: 24px;
+            }
+
+            .otp-container {
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="otp-card">
+    <div class="lock-icon">
+        🔒
+    </div>
+
+    <h2>Enter Access Code</h2>
+    <p class="subtitle">Please enter the 6-digit code to continue</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="error">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" id="otp-form">
+        {% csrf_token %}
+
+        <div class="otp-container">
+            <input type="password" maxlength="1" class="otp-box" required>
+            <input type="password" maxlength="1" class="otp-box" required>
+            <input type="password" maxlength="1" class="otp-box" required>
+            <input type="password" maxlength="1" class="otp-box" required>
+            <input type="password" maxlength="1" class="otp-box" required>
+            <input type="password" maxlength="1" class="otp-box" required>
+        </div>
+
+        <!-- Hidden full access code -->
+        <input type="hidden" name="access_code" id="access_code">
+
+        <button type="submit">Verify Code</button>
+    </form>
+</div>
+
+<script>
+    const inputs = document.querySelectorAll(".otp-box");
+    const hiddenInput = document.getElementById("access_code");
+
+    inputs.forEach((input, index) => {
+        input.addEventListener("input", (e) => {
+            if (e.target.value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+            updateHiddenInput();
+        });
+
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Backspace" && !e.target.value && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+
+        // Auto-submit when all 6 digits are entered
+        input.addEventListener("input", () => {
+            let allFilled = true;
+            inputs.forEach(inp => {
+                if (!inp.value) allFilled = false;
+            });
+            if (allFilled) {
+                updateHiddenInput();
+                // Optional: Auto-submit after short delay
+                // setTimeout(() => document.getElementById("otp-form").submit(), 300);
+            }
+        });
+    });
+
+    function updateHiddenInput() {
+        let code = "";
+        inputs.forEach(input => {
+            code += input.value;
+        });
+        hiddenInput.value = code;
+    }
+
+    // Focus first input on load
+    inputs[0].focus();
+</script>
+
+</body>
+</html>

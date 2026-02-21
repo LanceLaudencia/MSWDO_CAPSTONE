@@ -1,0 +1,448 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Apply for Assistance Program</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f6e3f 0%, #2ecc71 100%);
+      min-height: 100vh;
+      padding: 60px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: -50%; right: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: bg-pulse 15s ease-in-out infinite;
+    }
+
+    @keyframes bg-pulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50%       { transform: scale(1.1) rotate(180deg); }
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 30px;
+      padding: 50px 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 6px;
+      background: linear-gradient(90deg, #0f6e3f 0%, #27ae60 50%, #2ecc71 100%);
+      border-radius: 30px 30px 0 0;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    h2 { font-size: 2.2rem; font-weight: 800; color: #0a4d2e; }
+
+    .btn-back {
+      background: white;
+      color: #6c757d;
+      border: 2px solid #e1e8ed;
+      padding: 11px 28px;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .btn-back:hover { background: #f8f9fa; border-color: #6c757d; color: #495057; }
+
+    /* ── Alert ── */
+    .alert {
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    .alert-error   { background: #fef2f2; color: #dc2626; border: 2px solid #fca5a5; }
+    .alert-success { background: #f0fdf4; color: #16a34a; border: 2px solid #86efac; }
+
+    /* ── Info card ── */
+    .info-card {
+      background: linear-gradient(135deg, #e8f8f0, #d5f4e6);
+      padding: 28px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+      border: 3px solid #27ae60;
+    }
+
+    .info-card h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0a4d2e;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .info-item {
+      background: white;
+      padding: 13px 15px;
+      border-radius: 10px;
+    }
+
+    .info-item strong {
+      display: block;
+      color: #6c757d;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .info-item span { color: #2c3e50; font-weight: 600; font-size: 0.95rem; }
+
+    hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #27ae60, transparent);
+      margin: 18px 0;
+    }
+
+    /* ── Form fields ── */
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #6b7f72;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    label .req { color: #e53935; }
+
+    select,
+    input[type="text"],
+    input[type="number"],
+    input[type="file"],
+    textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e1e8ed;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      background: #fafafa;
+      color: #1a2e22;
+      font-family: inherit;
+      transition: all 0.25s ease;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: #27ae60;
+      box-shadow: 0 0 0 3px rgba(39,174,96,0.12);
+      background: white;
+    }
+
+    textarea { min-height: 90px; resize: vertical; }
+
+    input[type="file"]::file-selector-button {
+      background: linear-gradient(135deg, #0f6e3f, #27ae60);
+      color: white;
+      border: none;
+      padding: 7px 18px;
+      border-radius: 7px;
+      margin-right: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.25s ease;
+    }
+    input[type="file"]::file-selector-button:hover { opacity: 0.9; }
+
+    /* ── Program selection ── */
+    .program-select-wrapper { margin-bottom: 8px; }
+
+    /* ── Program box ── */
+    .program-box {
+      background: linear-gradient(135deg, #e8f8f0, #d5f4e6);
+      padding: 28px;
+      border-radius: 20px;
+      margin-top: 20px;
+      border: 3px solid #27ae60;
+      display: none;
+    }
+
+    .program-box h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0a4d2e;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 640px) { .form-grid-2 { grid-template-columns: 1fr; } }
+
+    button[type="submit"] {
+      width: 100%;
+      background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px rgba(15,110,63,0.4);
+      margin-top: 28px;
+      font-family: inherit;
+    }
+    button[type="submit"]:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(15,110,63,0.6); }
+
+    @media (max-width: 768px) {
+      .container { padding: 36px 22px; }
+      h2 { font-size: 1.8rem; }
+      .header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h2>Apply for Assistance</h2>
+    <a href="{% url 'client_dashboard' %}" class="btn-back">← Back to Dashboard</a>
+  </div>
+
+  {% for message in messages %}
+    <div class="alert {% if 'failed' in message.tags or 'error' in message.tags %}alert-error{% else %}alert-success{% endif %}">
+      {{ message }}
+    </div>
+  {% endfor %}
+
+  <!-- Applicant Info -->
+  <div class="info-card">
+    <h4>📋 Applicant Information</h4>
+
+    <div class="info-grid">
+      <div class="info-item"><strong>Full Name</strong><span>{{ client.full_name }}</span></div>
+      <div class="info-item"><strong>Sex</strong><span>{{ client.sex }}</span></div>
+      <div class="info-item"><strong>Date of Birth</strong><span>{{ client.birth_date }}</span></div>
+      <div class="info-item"><strong>Civil Status</strong><span>{{ client.civil_status }}</span></div>
+      <div class="info-item"><strong>Nationality</strong><span>{{ client.nationality }}</span></div>
+    </div>
+
+    <hr>
+
+    <div class="info-grid">
+      <div class="info-item"><strong>Address</strong><span>{{ client.address }}</span></div>
+      <div class="info-item"><strong>Barangay</strong><span>{{ client.barangay }}</span></div>
+      <div class="info-item"><strong>Municipality</strong><span>{{ client.municipality }}</span></div>
+      <div class="info-item"><strong>Contact</strong><span>{{ client.contact_no }}</span></div>
+      <div class="info-item"><strong>Email</strong><span>{{ client.email|default:"—" }}</span></div>
+    </div>
+
+    <hr>
+
+    <div class="info-grid">
+      <div class="info-item"><strong>Livelihood</strong><span>{{ client.livelihood }}</span></div>
+      <div class="info-item"><strong>Monthly Income</strong><span style="color:#27ae60;">₱{{ client.monthly_income }}</span></div>
+      <div class="info-item"><strong>Household Size</strong><span>{{ client.household_size }}</span></div>
+      <div class="info-item"><strong>PWD</strong><span>{{ client.has_disability }}</span></div>
+      <div class="info-item"><strong>Senior Citizen</strong><span>{{ client.is_senior }}</span></div>
+    </div>
+
+    {% if client.family_members.all %}
+    <hr>
+
+    <h4 style="margin-bottom:14px;">👨‍👩‍👧‍👦 Family Information</h4>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem;min-width:800px;">
+        <thead>
+          <tr>
+            <th rowspan="2" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:9px 8px;border:1px solid rgba(255,255,255,0.15);text-align:left;min-width:120px;">Name</th>
+            <th rowspan="2" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:9px 6px;border:1px solid rgba(255,255,255,0.15);text-align:center;width:48px;">Age</th>
+            <th rowspan="2" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:9px 6px;border:1px solid rgba(255,255,255,0.15);text-align:center;width:55px;">Sex</th>
+            <th colspan="3" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:9px 6px;border:1px solid rgba(255,255,255,0.15);text-align:center;">Civil Status</th>
+            <th rowspan="2" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:9px 6px;border:1px solid rgba(255,255,255,0.15);text-align:center;min-width:90px;">Relationship</th>
+            <th colspan="4" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:9px 6px;border:1px solid rgba(255,255,255,0.15);text-align:center;">Education</th>
+            <th rowspan="2" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:9px 6px;border:1px solid rgba(255,255,255,0.15);text-align:center;min-width:90px;">Occupation</th>
+            <th rowspan="2" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:9px 6px;border:1px solid rgba(255,255,255,0.15);text-align:center;width:80px;">Income</th>
+          </tr>
+          <tr>
+            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:6px 5px;border:1px solid rgba(255,255,255,0.1);text-align:center;font-size:0.75rem;">S</th>
+            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:6px 5px;border:1px solid rgba(255,255,255,0.1);text-align:center;font-size:0.75rem;">M</th>
+            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:6px 5px;border:1px solid rgba(255,255,255,0.1);text-align:center;font-size:0.75rem;">W</th>
+            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:6px 5px;border:1px solid rgba(255,255,255,0.1);text-align:center;font-size:0.75rem;">Elem</th>
+            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:6px 5px;border:1px solid rgba(255,255,255,0.1);text-align:center;font-size:0.75rem;">HS</th>
+            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:6px 5px;border:1px solid rgba(255,255,255,0.1);text-align:center;font-size:0.75rem;">Coll/Voc</th>
+            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:6px 5px;border:1px solid rgba(255,255,255,0.1);text-align:center;font-size:0.75rem;">Illit</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for member in client.family_members.all %}
+          <tr style="background:{% if forloop.counter|divisibleby:2 %}#f5fbf7{% else %}white{% endif %};">
+            <td style="border:1px solid #daeee3;padding:8px 10px;font-weight:600;color:#0d4a2a;">{{ member.name }}</td>
+            <td style="border:1px solid #daeee3;padding:8px 6px;text-align:center;">{{ member.age|default:"—" }}</td>
+            <td style="border:1px solid #daeee3;padding:8px 6px;text-align:center;">{{ member.sex|default:"—" }}</td>
+            <td style="border:1px solid #daeee3;padding:8px 6px;text-align:center;">{% if member.civil_status == 'S' %}<span style="color:#27ae60;font-size:1rem;">✔</span>{% else %}<span style="color:#dee2e6;">—</span>{% endif %}</td>
+            <td style="border:1px solid #daeee3;padding:8px 6px;text-align:center;">{% if member.civil_status == 'M' %}<span style="color:#27ae60;font-size:1rem;">✔</span>{% else %}<span style="color:#dee2e6;">—</span>{% endif %}</td>
+            <td style="border:1px solid #daeee3;padding:8px 6px;text-align:center;">{% if member.civil_status == 'W' %}<span style="color:#27ae60;font-size:1rem;">✔</span>{% else %}<span style="color:#dee2e6;">—</span>{% endif %}</td>
+            <td style="border:1px solid #daeee3;padding:8px 8px;text-align:center;">{{ member.relationship|default:"—" }}</td>
+            <td style="border:1px solid #daeee3;padding:8px 6px;text-align:center;">{% if member.educational_attainment == 'Elem' %}<span style="color:#27ae60;font-size:1rem;">✔</span>{% else %}<span style="color:#dee2e6;">—</span>{% endif %}</td>
+            <td style="border:1px solid #daeee3;padding:8px 6px;text-align:center;">{% if member.educational_attainment == 'HS' %}<span style="color:#27ae60;font-size:1rem;">✔</span>{% else %}<span style="color:#dee2e6;">—</span>{% endif %}</td>
+            <td style="border:1px solid #daeee3;padding:8px 6px;text-align:center;">{% if member.educational_attainment == 'Coll/Voc' %}<span style="color:#27ae60;font-size:1rem;">✔</span>{% else %}<span style="color:#dee2e6;">—</span>{% endif %}</td>
+            <td style="border:1px solid #daeee3;padding:8px 6px;text-align:center;">{% if member.educational_attainment == 'Illit' %}<span style="color:#27ae60;font-size:1rem;">✔</span>{% else %}<span style="color:#dee2e6;">—</span>{% endif %}</td>
+            <td style="border:1px solid #daeee3;padding:8px 8px;text-align:center;">{{ member.occupation|default:"—" }}</td>
+            <td style="border:1px solid #daeee3;padding:8px 8px;text-align:center;">{% if member.income %}₱{{ member.income|floatformat:0 }}{% else %}—{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Program Selection -->
+    <div class="field program-select-wrapper">
+      <label>Select Program <span class="req">*</span></label>
+      <select name="aid_type" id="aidType" required onchange="showFields()">
+        <option value="">Choose a program…</option>
+        <option value="AICS">AICS — Crisis Assistance</option>
+        <option value="SEA">SEA — Self-Employment</option>
+        <option value="REDCARD">Red Card — Emergency</option>
+        <option value="EDUCATIONAL">Educational Assistance</option>
+      </select>
+    </div>
+
+    <!-- ── AICS ── -->
+    <div id="AICS" class="program-box">
+      <h3>🏥 AICS Requirements</h3>
+      <div class="field">
+        <label>Crisis Type</label>
+        <select name="aics_crisis_type">
+          <option value="">Select</option>
+          <option>Medical</option>
+          <option>Death</option>
+          <option>Fire Victim</option>
+          <option>Calamity</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <hr>
+      <div class="form-grid-2">
+        <div class="field"><label>Barangay Certificate</label><input type="file" name="aics_barangay_cert"></div>
+        <div class="field"><label>Medical / Death Certificate</label><input type="file" name="aics_medical_death_cert"></div>
+        <div class="field"><label>Official Receipt</label><input type="file" name="aics_receipt"></div>
+      </div>
+    </div>
+
+    <!-- ── SEA ── -->
+    <div id="SEA" class="program-box">
+      <h3>💼 SEA Requirements</h3>
+      <div class="form-grid-2">
+        <div class="field"><label>Barangay Clearance</label><input type="file" name="sea_barangay_clearance"></div>
+        <div class="field"><label>Cedula</label><input type="file" name="sea_cedula"></div>
+        <div class="field"><label>Project Proposal</label><input type="file" name="sea_project_proposal"></div>
+        <div class="field"><label>Project Picture</label><input type="file" name="sea_project_picture"></div>
+      </div>
+    </div>
+
+    <!-- ── REDCARD ── -->
+    <div id="REDCARD" class="program-box">
+      <h3>🆘 Red Card Requirements</h3>
+      <div class="form-grid-2">
+        <div class="field">
+          <label>Emergency Type</label>
+          <select name="redcard_emergency_type">
+            <option value="">Select</option>
+            <option>Fire</option>
+            <option>Flood</option>
+            <option>Typhoon</option>
+            <option>Other Calamity</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Reason</label>
+          <input type="text" name="redcard_reason" placeholder="Brief reason">
+        </div>
+      </div>
+      <hr>
+      <div class="form-grid-2">
+        <div class="field"><label>Birth Certificate</label><input type="file" name="redcard_birth_cert"></div>
+        <div class="field"><label>Valid ID</label><input type="file" name="redcard_valid_id"></div>
+        <div class="field"><label>Certificate of Indigency</label><input type="file" name="redcard_indigency"></div>
+      </div>
+    </div>
+
+    <!-- ── EDUCATIONAL ── -->
+    <div id="EDUCATIONAL" class="program-box">
+      <h3>🎓 Educational Assistance Requirements</h3>
+      <div class="form-grid-2">
+        <div class="field">
+          <label>School Name</label>
+          <input type="text" name="school_name" placeholder="e.g. Mindoro State University">
+        </div>
+        <div class="field">
+          <label>Course / Grade Level</label>
+          <input type="text" name="course_level" placeholder="e.g. Grade 11 / BS Nursing">
+        </div>
+      </div>
+      <hr>
+      <div class="form-grid-2">
+        <div class="field"><label>Letter of Appeal</label><input type="file" name="edu_letter"></div>
+        <div class="field"><label>Certificate of Indigency</label><input type="file" name="edu_indigency"></div>
+        <div class="field"><label>Grades / Report Card</label><input type="file" name="edu_grades"></div>
+        <div class="field"><label>Certificate of Enrollment</label><input type="file" name="edu_enrollment"></div>
+        <div class="field"><label>Billing Statement</label><input type="file" name="edu_billing"></div>
+        <div class="field"><label>Official Receipt</label><input type="file" name="edu_receipt"></div>
+      </div>
+    </div>
+
+    <button type="submit">Submit Application</button>
+  </form>
+</div>
+
+<script>
+  function showFields() {
+    document.querySelectorAll(".program-box").forEach(b => b.style.display = "none");
+    const val = document.getElementById("aidType").value;
+    if (val) document.getElementById(val).style.display = "block";
+  }
+</script>
+
+</body>
+</html>

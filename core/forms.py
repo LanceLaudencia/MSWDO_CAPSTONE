@@ -8,25 +8,24 @@ class ClientForm(forms.ModelForm):
         model = Client
         fields = ['first_name', 'last_name', 'email', 'contact_no', 'barangay', 'livelihood']
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First name'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last name'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email (optional)'}),
-            'contact_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact number'}),
-            'barangay': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Barangay'}),
-            'livelihood': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Livelihood'}),
+            'first_name':  forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First name'}),
+            'last_name':   forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last name'}),
+            'email':       forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email (optional)'}),
+            'contact_no':  forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact number'}),
+            'barangay':    forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Barangay'}),
+            'livelihood':  forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Livelihood'}),
         }
-
 
 
 class ApplicationForm(forms.ModelForm):
     class Meta:
         model = Application
-        fields = ['aid_type', 'status', 'requested_amount']  # <-- use requested_amount
+        fields = ['aid_type', 'status']
         widgets = {
             'aid_type': forms.Select(attrs={'class': 'form-control'}),
-            'status': forms.Select(attrs={'class': 'form-control'}),
-            'requested_amount': forms.NumberInput(attrs={'class': 'form-control'}),  # <-- updated
+            'status':   forms.Select(attrs={'class': 'form-control'}),
         }
+
 
 class SignupForm(UserCreationForm):
     role = forms.ChoiceField(choices=User.ROLES)
@@ -46,22 +45,21 @@ class DocumentUploadForm(forms.ModelForm):
         fields = ['name', 'file']
 
 
-# FIXED — properly defined OUTSIDE the Meta class
 class AssistanceFilterForm(forms.Form):
     PROGRAM_CHOICES = [
-        ('SEA', 'SEA'),
-        ('AICS', 'AICS'),
-        ('REDCARD', 'RED CARD'),
-        ('EA', 'Educational Assistance (EA)'),
+        ('SEA',         'SEA'),
+        ('AICS',        'AICS'),
+        ('REDCARD',     'RED CARD'),
+        ('EA',          'Educational Assistance (EA)'),
     ]
 
     STATUS_CHOICES = [
-        ('', 'All Status'),
-        ('pending', 'Pending'),
+        ('',         'All Status'),
+        ('pending',  'Pending'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
         ('referral', 'Referral'),
-        ('other', 'Others'),
+        ('other',    'Others'),
     ]
 
     program = forms.ChoiceField(
