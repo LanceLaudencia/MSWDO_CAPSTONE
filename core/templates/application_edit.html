@@ -2,427 +2,803 @@
 {% block page_title %}Edit Application{% endblock %}
 {% block content %}
 
-<<<<<<< HEAD
-<div class="card shadow-sm border-0">
-  <div class="card-body p-4">
-
-    <h4 class="fw-bold text-success mb-4">Edit Assistance Application</h4>
-
-    <form method="POST">
-      {% csrf_token %}
-
-      <!-- ================= CLIENT INFORMATION ================= -->
-      <h6 class="text-muted mb-3">Client Information</h6>
-
-      <div class="row">
-        <div class="col-md-4 mb-3">
-          <label class="form-label">First Name</label>
-          <input type="text" name="first_name"
-                 class="form-control"
-                 value="{{ client.first_name }}" required>
-        </div>
-
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Middle Name</label>
-          <input type="text" name="middle_name"
-                 class="form-control"
-                 value="{{ client.middle_name }}">
-        </div>
-
-        <div class="col-md-4 mb-3">
-          <label class="form-label">Last Name</label>
-          <input type="text" name="last_name"
-                 class="form-control"
-                 value="{{ client.last_name }}" required>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Contact No</label>
-          <input type="text" name="contact_no"
-                 class="form-control"
-                 value="{{ client.contact_no }}">
-        </div>
-
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" name="email"
-                 class="form-control"
-                 value="{{ client.email }}">
-        </div>
-      </div>
-
-      <hr class="my-4">
-
-      <!-- ================= APPLICATION DETAILS ================= -->
-      <h6 class="text-muted mb-3">Assistance Request</h6>
-
-      <div class="mb-3">
-        <label class="form-label">Type of Assistance</label>
-        <select name="aid_type" class="form-select" required>
-          <option value="">-- Select Assistance --</option>
-          <option value="SEA" {% if application.aid_type == "SEA" %}selected{% endif %}>SEA</option>
-          <option value="AICS" {% if application.aid_type == "AICS" %}selected{% endif %}>AICS</option>
-          <option value="REDCARD" {% if application.aid_type == "REDCARD" %}selected{% endif %}>REDCARD</option>
-          <option value="EA" {% if application.aid_type == "EA" %}selected{% endif %}>Educational Assistance</option>
-        </select>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Requested Amount</label>
-        <input type="number"
-               step="0.01"
-               name="requested_amount"
-               class="form-control"
-               value="{{ application.requested_amount }}">
-      </div>
-
-      <div class="mb-4">
-        <label class="form-label">Reason</label>
-        <textarea name="reason"
-                  class="form-control"
-                  rows="4">{{ application.reason }}</textarea>
-      </div>
-
-      <!-- ================= BUTTONS ================= -->
-      <div class="d-flex justify-content-end gap-2">
-        <a href="{% url 'application_detail' application.id %}"
-           class="btn btn-outline-secondary">
-          Cancel
-        </a>
-
-        <button type="submit" class="btn btn-success">
-          💾 Save Changes
-        </button>
-      </div>
-
-    </form>
-
-=======
 <style>
+  :root {
+    --blue: #0038A8;
+    --blue-dark: #002882;
+    --blue-mid: #1a55d4;
+    --blue-light: rgba(0, 56, 168, 0.08);
+    --blue-border: rgba(0, 56, 168, 0.2);
+    --red: #CE1126;
+    --red-dark: #a50d1e;
+    --red-light: rgba(206, 17, 38, 0.08);
+    --yellow: #FCD116;
+    --yellow-dark: #e6a800;
+    --yellow-light: rgba(252, 209, 22, 0.12);
+    --border: #dde3ef;
+    --text-primary: #0f1f4b;
+    --text-secondary: #5a6a8a;
+    --bg: #f5f7fc;
+  }
+
   .edit-wrapper {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    background: var(--bg);
     min-height: 100vh;
-    padding: 60px 20px;
+    padding: 28px 20px 52px;
   }
-  
+
   .edit-container {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
-    background: white;
-    border-radius: 30px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
   }
-  
-  .edit-header {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    padding: 40px;
-    color: white;
-    text-align: center;
-  }
-  
-  .edit-header h1 {
-    font-size: 2.2rem;
-    font-weight: 800;
-    margin: 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  }
-  
-  .edit-header p {
-    margin: 8px 0 0 0;
-    font-size: 1rem;
-    opacity: 0.95;
-  }
-  
-  .edit-body {
-    padding: 45px;
-  }
-  
-  .section-header {
+
+  /* Page header row */
+  .edit-page-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 25px;
-    margin-top: 35px;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 20px;
   }
-  
-  .section-header:first-child {
-    margin-top: 0;
+
+  .edit-page-header .eyebrow {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: var(--text-secondary); margin-bottom: 3px;
   }
-  
-  .section-header::before {
+
+  .edit-page-header h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.3rem; font-weight: 900;
+    color: var(--text-primary);
+  }
+
+  .btn-cancel-top {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: white; color: var(--text-secondary);
+    border: 2px solid var(--border);
+    padding: 9px 18px; border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    text-decoration: none; transition: all 0.2s;
+  }
+  .btn-cancel-top:hover { background: var(--bg); border-color: #b0bace; color: var(--text-primary); }
+
+  /* Card */
+  .edit-card {
+    background: white;
+    border-radius: 14px;
+    padding: 30px 34px;
+    box-shadow: 0 2px 10px rgba(0,40,130,0.06);
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+    position: relative; overflow: hidden;
+  }
+
+  .edit-card::before {
     content: '';
-    width: 5px;
-    height: 35px;
-    background: linear-gradient(180deg, #fa709a 0%, #fee140 100%);
-    border-radius: 3px;
-  }
-  
-  .section-header h2 {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #c2185b;
-    margin: 0;
-  }
-  
-  .form-label {
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 10px;
-    font-size: 0.95rem;
-    display: block;
-  }
-  
-  .form-label::after {
-    content: ' *';
-    color: #e74c3c;
-    display: none;
-  }
-  
-  .form-label.required::after {
-    display: inline;
-  }
-  
-  .form-control, .form-select, textarea {
-    border: 2px solid #e8e8e8;
-    border-radius: 15px;
-    padding: 14px 18px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    background: #fafafa;
-  }
-  
-  .form-control:focus, .form-select:focus, textarea:focus {
-    border-color: #fa709a;
-    box-shadow: 0 0 0 4px rgba(250, 112, 154, 0.1);
-    outline: none;
-    background: white;
-  }
-  
-  textarea.form-control {
-    resize: vertical;
-    min-height: 120px;
-  }
-  
-  .divider {
-    height: 2px;
-    background: linear-gradient(90deg, transparent 0%, #e8e8e8 50%, transparent 100%);
-    margin: 35px 0;
-  }
-  
-  .action-bar {
-    display: flex;
-    gap: 15px;
-    margin-top: 40px;
-    padding-top: 30px;
-    border-top: 3px solid #f5f5f5;
-  }
-  
-  .btn-save {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    color: white;
-    border: none;
-    padding: 16px 45px;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-    box-shadow: 0 6px 25px rgba(250, 112, 154, 0.4);
-  }
-  
-  .btn-save:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 35px rgba(250, 112, 154, 0.6);
-  }
-  
-  .btn-cancel {
-    background: white;
-    color: #6c757d;
-    border: 2px solid #e8e8e8;
-    padding: 16px 45px;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
-  }
-  
-  .btn-cancel:hover {
-    background: #f8f9fa;
-    border-color: #6c757d;
-    color: #495057;
-    transform: translateY(-2px);
-  }
-  
-  .input-icon {
-    position: relative;
-  }
-  
-  .input-icon::before {
-    content: '₱';
     position: absolute;
-    left: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-weight: 700;
-    color: #fa709a;
-    font-size: 1.1rem;
-    z-index: 1;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--blue) 33%, var(--red) 33% 66%, var(--yellow) 66%);
   }
-  
-  .input-icon input {
-    padding-left: 40px;
+
+  /* Section titles */
+  .section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text-primary);
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
   }
-  
-  .info-badge {
-    background: linear-gradient(135deg, #e0f7ff 0%, #fff5e6 100%);
-    border-left: 4px solid #fa709a;
-    padding: 15px 20px;
+  .section-title i { color: var(--blue); }
+
+  .section-hr {
+    height: 1px;
+    background: linear-gradient(90deg, var(--blue-border), transparent);
+    border: none; margin: 22px 0;
+  }
+
+  /* Form controls */
+  .form-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text-secondary); margin-bottom: 6px;
+  }
+
+  .form-control, .form-select {
+    border: 2px solid var(--border);
+    border-radius: 9px; padding: 10px 13px;
+    font-size: 0.88rem;
+    font-family: 'Open Sans', sans-serif;
+    background: #f8f9fc; color: var(--text-primary);
+    transition: all 0.2s;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(0,56,168,0.10);
+    background: white; outline: none;
+  }
+
+  .form-control::placeholder { color: #b0bace; }
+  textarea.form-control { resize: vertical; min-height: 100px; }
+
+  /* ── Sector grid ── */
+  .sector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px; margin-bottom: 14px;
+  }
+
+  .sector-item { position: relative; }
+  .sector-item input[type="checkbox"] { display: none; }
+  .sector-item label {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 13px;
+    border: 2px solid var(--border);
+    border-radius: 9px; background: #f8f9fc;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem; font-weight: 700;
+    color: var(--text-secondary);
+    transition: all 0.2s; user-select: none; line-height: 1.35;
+  }
+
+  .sector-item label .sector-icon {
+    width: 26px; height: 26px; border-radius: 6px;
+    background: var(--blue-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.82rem; flex-shrink: 0; transition: all 0.2s;
+  }
+
+  .sector-item input[type="checkbox"]:checked + label {
+    border-color: var(--blue);
+    background: var(--blue-light);
+    color: var(--blue);
+  }
+
+  .sector-item input[type="checkbox"]:checked + label .sector-icon {
+    background: var(--blue); color: white;
+  }
+
+  .sector-item label:hover {
+    border-color: var(--blue-border);
+    background: var(--blue-light);
+  }
+
+  /* Sector popup */
+  .sector-popup-wrap { position: relative; }
+
+  .sector-popup-btn {
+    display: flex; align-items: center; gap: 6px;
+    width: 100%; padding: 6px 9px;
+    border-radius: 7px; border: 1.5px solid var(--border);
+    background: #f8f9fc;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem; font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer; transition: all 0.2s; text-align: left;
+  }
+
+  .sector-popup-btn:hover, .sector-popup-btn:focus {
+    border-color: var(--blue);
+    background: var(--blue-light);
+    color: var(--blue);
+  }
+
+  .sector-popup-btn i:first-child { color: var(--blue); font-size: 0.8rem; flex-shrink: 0; }
+
+  .sector-popup-list {
+    position: absolute; top: calc(100% + 4px); left: 0;
+    z-index: 9999; background: white;
+    border: 1.5px solid var(--blue-border);
+    border-radius: 10px; padding: 8px 4px;
+    box-shadow: 0 8px 28px rgba(0,40,130,0.14);
+    min-width: 260px; max-height: 260px; overflow-y: auto;
+  }
+
+  .sector-popup-list::-webkit-scrollbar { width: 4px; }
+  .sector-popup-list::-webkit-scrollbar-thumb { background: #c8d4ea; border-radius: 10px; }
+
+  .sp-chk-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 6px 12px; cursor: pointer; border-radius: 6px;
+    transition: background 0.15s;
+    font-size: 0.72rem;
+    font-family: 'Open Sans', sans-serif;
+    color: var(--text-primary); line-height: 1.35;
+  }
+
+  .sp-chk-item:hover { background: var(--blue-light); }
+
+  .sp-chk-item input[type="checkbox"] {
+    display: block !important;
+    width: 14px; height: 14px;
+    accent-color: var(--blue);
+    cursor: pointer; flex-shrink: 0; margin-top: 1px;
+  }
+
+  .sp-chk-item input[type="checkbox"]:checked ~ span {
+    color: var(--blue); font-weight: 600;
+  }
+
+  /* 4Ps box */
+  .fourps-box {
+    background: var(--blue-light);
+    border: 1.5px solid var(--blue-border);
+    border-left: 4px solid var(--blue);
     border-radius: 10px;
-    margin-bottom: 25px;
-    color: #495057;
-    font-size: 0.95rem;
+    padding: 16px 18px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
   }
-  
-  .info-badge strong {
-    color: #c2185b;
+
+  .fourps-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.68rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--blue);
+    display: flex; align-items: center; gap: 6px; white-space: nowrap;
   }
+
+  .toggle-group {
+    display: flex;
+    border: 2px solid var(--blue-border);
+    border-radius: 8px; overflow: hidden;
+  }
+
+  .toggle-group input[type="radio"] { display: none; }
+
+  .toggle-group label {
+    padding: 8px 18px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.68rem; font-weight: 700;
+    cursor: pointer; color: var(--text-secondary);
+    background: #f8f9fc;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    transition: all 0.2s; margin: 0; border: none;
+  }
+
+  .toggle-group input[type="radio"]:checked + label {
+    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    color: white;
+  }
+
+  #fourps-id-field { flex: 1; min-width: 200px; }
+
+  /* Family table */
+  .family-wrapper {
+    overflow-x: auto; border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .family-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 0.8rem; min-width: 960px;
+  }
+
+  .family-table thead tr:first-child th {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+    color: white; padding: 10px 8px; text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    border: 1px solid rgba(255,255,255,0.12); white-space: nowrap;
+  }
+
+  .family-table thead tr:last-child th {
+    background: linear-gradient(135deg, var(--blue-dark) 0%, #001a5c 100%);
+    color: rgba(255,255,255,0.85); padding: 7px 5px; text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem; font-weight: 700;
+    border: 1px solid rgba(255,255,255,0.10);
+  }
+
+  .family-table tbody td {
+    border: 1px solid #eef1f8; padding: 6px 5px; text-align: center;
+  }
+
+  .family-table tbody tr:hover { background: var(--blue-light); }
+
+  .tbl-input {
+    padding: 5px 7px; border: 1.5px solid var(--border);
+    border-radius: 6px; font-size: 0.78rem; width: 100%;
+    background: white; color: var(--text-primary);
+    font-family: 'Open Sans', sans-serif;
+    transition: border-color 0.2s;
+  }
+
+  .tbl-input:focus {
+    outline: none; border-color: var(--blue);
+    box-shadow: 0 0 0 2px rgba(0,56,168,0.08);
+  }
+
+  .tbl-input::placeholder { color: #c0cce0; }
+  .tbl-checkbox { width: 15px; height: 15px; accent-color: var(--blue); cursor: pointer; }
+
+  .table-controls { display: flex; gap: 10px; margin-top: 10px; }
+
+  .tbl-btn {
+    padding: 7px 16px; border-radius: 7px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    border: 1.5px solid; transition: all 0.2s;
+  }
+
+  .tbl-btn-add { background: var(--blue-light); border-color: var(--blue-border); color: var(--blue); }
+  .tbl-btn-add:hover { background: var(--blue); color: white; border-color: var(--blue); }
+  .tbl-btn-remove { background: var(--red-light); border-color: rgba(206,17,38,0.22); color: var(--red); }
+  .tbl-btn-remove:hover { background: var(--red); color: white; border-color: var(--red); }
+
+  /* Assistance card */
+  .assistance-card {
+    background: var(--yellow-light);
+    border: 1.5px solid rgba(252,209,22,0.35);
+    border-left: 4px solid var(--yellow-dark);
+    border-radius: 12px; padding: 22px 24px; margin-top: 4px;
+  }
+
+  .assistance-card .section-title { color: #7a5500; border-bottom-color: rgba(252,209,22,0.3); }
+  .assistance-card .section-title i { color: var(--yellow-dark); }
+
+  /* Action buttons */
+  .btn-save {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+    color: white; border: none;
+    padding: 12px 28px; border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer; transition: all 0.25s;
+    box-shadow: 0 4px 14px rgba(0,56,168,0.28);
+    position: relative; overflow: hidden;
+  }
+
+  .btn-save::before {
+    content: '';
+    position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.4s;
+  }
+
+  .btn-save:hover::before { left: 100%; }
+  .btn-save:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(0,56,168,0.38); color: white; }
+
+  .btn-cancel-action {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: white; color: var(--text-secondary);
+    border: 2px solid var(--border);
+    padding: 12px 24px; border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    text-decoration: none; transition: all 0.2s;
+  }
+
+  .btn-cancel-action:hover { background: var(--bg); border-color: #b0bace; color: var(--text-primary); }
 </style>
 
 <div class="edit-wrapper">
-  <div class="edit-container">
-    
-    <div class="edit-header">
-      <h1>✏️ Edit Application</h1>
-      <p>Update assistance application details</p>
+<div class="edit-container">
+
+  <!-- Page Header -->
+  <div class="edit-page-header">
+    <div>
+      <div class="eyebrow">MSWDO · DSWD Devolved Unit</div>
+      <h2><i class="bi bi-pencil-square me-2" style="color:var(--blue);"></i>Edit Application</h2>
     </div>
-    
-    <div class="edit-body">
-      
-      <div class="info-badge">
-        <strong>📝 Note:</strong> Make sure all required fields are filled out correctly before saving changes.
+    <a href="{% url 'application_detail' application.id %}" class="btn-cancel-top">
+      <i class="bi bi-arrow-left"></i> Back to Details
+    </a>
+  </div>
+
+  <div class="edit-card">
+    <form method="POST">
+      {% csrf_token %}
+
+      <!-- I. Client Information -->
+      <div class="section-title"><i class="bi bi-person-fill"></i> Client Information</div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">First Name *</label>
+          <input type="text" name="first_name" class="form-control" value="{{ client.first_name }}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Middle Name</label>
+          <input type="text" name="middle_name" class="form-control" value="{{ client.middle_name|default:'' }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Last Name *</label>
+          <input type="text" name="last_name" class="form-control" value="{{ client.last_name }}" required>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Sex</label>
+          <select name="sex" class="form-select">
+            <option value="Male"   {% if client.sex == "Male" %}selected{% endif %}>Male</option>
+            <option value="Female" {% if client.sex == "Female" %}selected{% endif %}>Female</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Date of Birth</label>
+          <input type="date" name="birth_date" class="form-control" value="{{ client.birth_date|date:'Y-m-d' }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Civil Status</label>
+          <select name="civil_status" class="form-select">
+            <option value="Single"    {% if client.civil_status == "Single" %}selected{% endif %}>Single</option>
+            <option value="Married"   {% if client.civil_status == "Married" %}selected{% endif %}>Married</option>
+            <option value="Widowed"   {% if client.civil_status == "Widowed" %}selected{% endif %}>Widowed</option>
+            <option value="Separated" {% if client.civil_status == "Separated" %}selected{% endif %}>Separated</option>
+            <option value="Divorced"  {% if client.civil_status == "Divorced" %}selected{% endif %}>Divorced</option>
+            <option value="Annulled"  {% if client.civil_status == "Annulled" %}selected{% endif %}>Annulled</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Nationality</label>
+          <input type="text" name="nationality" class="form-control" value="{{ client.nationality|default:'Filipino' }}">
+        </div>
       </div>
 
-      <form method="POST">
-        {% csrf_token %}
+      <hr class="section-hr">
+      <div class="section-title"><i class="bi bi-geo-alt-fill"></i> Address &amp; Contact</div>
 
-        <!-- CLIENT INFORMATION SECTION -->
-        <div class="section-header">
-          <h2>Client Information</h2>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Complete Address</label>
+          <input type="text" name="address" class="form-control" value="{{ client.address|default:'' }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Barangay</label>
+          <input type="text" name="barangay" class="form-control" value="{{ client.barangay|default:'' }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Municipality</label>
+          <input type="text" name="municipality" class="form-control" value="{{ client.municipality|default:'' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Contact No.</label>
+          <input type="text" name="contact_no" class="form-control" value="{{ client.contact_no|default:'' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" value="{{ client.email|default:'' }}">
+        </div>
+      </div>
+
+      <hr class="section-hr">
+      <div class="section-title"><i class="bi bi-bar-chart-fill"></i> Socio-Economic Profile</div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Livelihood</label>
+          <input type="text" name="livelihood" class="form-control" value="{{ client.livelihood|default:'' }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Monthly Income (₱)</label>
+          <input type="number" name="monthly_income" step="0.01" min="0" class="form-control" value="{{ client.monthly_income|default:0 }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Household Size</label>
+          <input type="number" name="household_size" min="1" class="form-control" value="{{ client.household_size|default:1 }}">
         </div>
 
-        <div class="row g-4">
-          <div class="col-md-4">
-            <label class="form-label required">First Name</label>
-            <input type="text" name="first_name" class="form-control"
-                   value="{{ client.first_name }}" 
-                   placeholder="Enter first name"
-                   required>
-          </div>
-          
-          <div class="col-md-4">
-            <label class="form-label">Middle Name</label>
-            <input type="text" name="middle_name" class="form-control"
-                   value="{{ client.middle_name }}"
-                   placeholder="Enter middle name">
-          </div>
-          
-          <div class="col-md-4">
-            <label class="form-label required">Last Name</label>
-            <input type="text" name="last_name" class="form-control"
-                   value="{{ client.last_name }}"
-                   placeholder="Enter last name"
-                   required>
+        <div class="col-12">
+          <label class="form-label" style="display:block;margin-bottom:8px;">
+            Sector / Socio-Economic Status
+            <span style="color:#9aabca;font-weight:400;text-transform:none;letter-spacing:0;font-size:.65rem;">(select all that apply)</span>
+          </label>
+          <div class="sector-grid">
+            <div class="sector-item"><input type="checkbox" name="sector_WEDC" id="s_WEDC" value="1" {% if 'WEDC' in client.sectors %}checked{% endif %}><label for="s_WEDC"><span class="sector-icon">👩</span>Women in Especially Difficult Circumstances (WEDC)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_SC" id="s_SC" value="1" {% if 'SC' in client.sectors %}checked{% endif %}><label for="s_SC"><span class="sector-icon">👴</span>Senior Citizen (SC)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_PWD" id="s_PWD" value="1" {% if 'PWD' in client.sectors %}checked{% endif %}><label for="s_PWD"><span class="sector-icon">♿</span>Person with Disability (PWD)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_SP" id="s_SP" value="1" {% if 'SP' in client.sectors %}checked{% endif %}><label for="s_SP"><span class="sector-icon">👤</span>Solo Parent (SP)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_IP" id="s_IP" value="1" {% if 'IP' in client.sectors %}checked{% endif %}><label for="s_IP"><span class="sector-icon">🌿</span>Indigenous People (IP)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_OFW" id="s_OFW" value="1" {% if 'OFW' in client.sectors %}checked{% endif %}><label for="s_OFW"><span class="sector-icon">✈️</span>Overseas Filipino Worker (OFW)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_TP" id="s_TP" value="1" {% if 'TP' in client.sectors %}checked{% endif %}><label for="s_TP"><span class="sector-icon">🚫</span>Trafficked Person (TP)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_PDL" id="s_PDL" value="1" {% if 'PDL' in client.sectors %}checked{% endif %}><label for="s_PDL"><span class="sector-icon">🔒</span>Person Deprived of Liberty (PDL)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_PWUD" id="s_PWUD" value="1" {% if 'PWUD' in client.sectors %}checked{% endif %}><label for="s_PWUD"><span class="sector-icon">💊</span>Person Who Uses Drugs (PWUD)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_IFW" id="s_IFW" value="1" {% if 'IFW' in client.sectors %}checked{% endif %}><label for="s_IFW"><span class="sector-icon">🔧</span>Informal Filipino Workers (IFW)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_4PS" id="s_4PS" value="1" {% if '4PS' in client.sectors %}checked{% endif %}><label for="s_4PS"><span class="sector-icon">🏠</span>4Ps Beneficiary (4Ps)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_CNSP" id="s_CNSP" value="1" {% if 'CNSP' in client.sectors %}checked{% endif %}><label for="s_CNSP"><span class="sector-icon">🧒</span>Children in Need of Special Protection (CNSP)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_CAR" id="s_CAR" value="1" {% if 'CAR' in client.sectors %}checked{% endif %}><label for="s_CAR"><span class="sector-icon">⚠️</span>Child at Risk (CAR)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_CICL" id="s_CICL" value="1" {% if 'CICL' in client.sectors %}checked{% endif %}><label for="s_CICL"><span class="sector-icon">⚖️</span>Child in Conflict with the Law (CICL)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_OSCY" id="s_OSCY" value="1" {% if 'OSCY' in client.sectors %}checked{% endif %}><label for="s_OSCY"><span class="sector-icon">📚</span>Out of School Children/Youth (OSCY)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_FR" id="s_FR" value="1" {% if 'FR' in client.sectors %}checked{% endif %}><label for="s_FR"><span class="sector-icon">🕊️</span>Former Rebel (FR)</label></div>
+            <div class="sector-item"><input type="checkbox" name="sector_KASAMBAHAY" id="s_KASAMBAHAY" value="1" {% if 'KASAMBAHAY' in client.sectors %}checked{% endif %}><label for="s_KASAMBAHAY"><span class="sector-icon">🏡</span>Domestic Helper (Kasambahay)</label></div>
+            <div class="sector-item"><input type="checkbox" name="previous_aid" id="s_PREV" value="Yes" {% if client.previous_aid == 'Yes' %}checked{% endif %}><label for="s_PREV"><span class="sector-icon">📋</span>Previous DSWD Aid</label></div>
           </div>
         </div>
+      </div>
 
-        <div class="row g-4 mt-2">
+      <hr class="section-hr">
+      <div class="section-title"><i class="bi bi-patch-check-fill"></i> 4Ps Membership</div>
+
+      <div class="fourps-box">
+        <div class="fourps-label"><i class="bi bi-patch-check-fill"></i> 4Ps Member?</div>
+        <div class="toggle-group">
+          <input type="radio" name="is_4ps" id="4ps-no" value="No" {% if client.is_4ps != "Yes" %}checked{% endif %}>
+          <label for="4ps-no">No</label>
+          <input type="radio" name="is_4ps" id="4ps-yes" value="Yes" {% if client.is_4ps == "Yes" %}checked{% endif %}>
+          <label for="4ps-yes">Yes</label>
+        </div>
+        <div id="fourps-id-field" style="{% if client.is_4ps != 'Yes' %}display:none;{% endif %}flex:1;min-width:200px;">
+          <label class="form-label mb-1">4Ps Household ID No.</label>
+          <input type="text" name="fourps_id" id="fourps_id" class="form-control"
+                 value="{{ client.fourps_id|default:'' }}" placeholder="e.g. 112233445566">
+        </div>
+      </div>
+
+      <hr class="section-hr">
+      <div class="section-title"><i class="bi bi-people-fill"></i> Family Information</div>
+
+      <div class="family-wrapper">
+        <table class="family-table">
+          <thead>
+            <tr>
+              <th rowspan="2" style="min-width:130px;">Name</th>
+              <th rowspan="2" style="width:52px;">Age</th>
+              <th rowspan="2" style="width:60px;">Sex</th>
+              <th rowspan="2" style="min-width:90px;">Civil Status</th>
+              <th rowspan="2" style="min-width:100px;">Relationship</th>
+              <th colspan="4">Educational Attainment</th>
+              <th rowspan="2" style="min-width:100px;">Occupation</th>
+              <th rowspan="2" style="width:80px;">Income</th>
+              <th rowspan="2" style="min-width:160px;">Sector / Status</th>
+            </tr>
+            <tr>
+              <th>Elem</th><th>HS</th><th>Coll/Voc</th><th>Illit</th>
+            </tr>
+          </thead>
+          <tbody id="familyBody">
+            {% for member in family_members %}
+            <tr>
+              <td><input type="text" class="tbl-input" name="family_name_{{ forloop.counter0 }}" value="{{ member.name }}"></td>
+              <td><input type="number" class="tbl-input" name="family_age_{{ forloop.counter0 }}" value="{{ member.age|default:'' }}" min="0" max="120" placeholder="—"></td>
+              <td>
+                <select name="family_sex_{{ forloop.counter0 }}" class="tbl-input">
+                  <option value="">—</option>
+                  <option value="M" {% if member.sex == "M" %}selected{% endif %}>M</option>
+                  <option value="F" {% if member.sex == "F" %}selected{% endif %}>F</option>
+                </select>
+              </td>
+              <td>
+                <select name="family_cs_{{ forloop.counter0 }}" class="tbl-input" style="min-width:90px;">
+                  <option value="">—</option>
+                  <option value="Single"    {% if member.civil_status == "Single" %}selected{% endif %}>Single</option>
+                  <option value="Married"   {% if member.civil_status == "Married" %}selected{% endif %}>Married</option>
+                  <option value="Widowed"   {% if member.civil_status == "Widowed" %}selected{% endif %}>Widowed</option>
+                  <option value="Separated" {% if member.civil_status == "Separated" %}selected{% endif %}>Separated</option>
+                  <option value="Divorced"  {% if member.civil_status == "Divorced" %}selected{% endif %}>Divorced</option>
+                  <option value="Annulled"  {% if member.civil_status == "Annulled" %}selected{% endif %}>Annulled</option>
+                </select>
+              </td>
+              <td><input type="text" class="tbl-input" name="family_rel_{{ forloop.counter0 }}" value="{{ member.relationship|default:'' }}" placeholder="e.g. Spouse"></td>
+              <td><input type="checkbox" class="tbl-checkbox" name="family_edu_elem_{{ forloop.counter0 }}" value="1" {% if member.educational_attainment == "Elem" %}checked{% endif %}></td>
+              <td><input type="checkbox" class="tbl-checkbox" name="family_edu_hs_{{ forloop.counter0 }}" value="1" {% if member.educational_attainment == "HS" %}checked{% endif %}></td>
+              <td><input type="checkbox" class="tbl-checkbox" name="family_edu_coll_{{ forloop.counter0 }}" value="1" {% if member.educational_attainment == "Coll/Voc" %}checked{% endif %}></td>
+              <td><input type="checkbox" class="tbl-checkbox" name="family_edu_illit_{{ forloop.counter0 }}" value="1" {% if member.educational_attainment == "Illit" %}checked{% endif %}></td>
+              <td><input type="text" class="tbl-input" name="family_occ_{{ forloop.counter0 }}" value="{{ member.occupation|default:'' }}" placeholder="Occupation"></td>
+              <td><input type="number" class="tbl-input" name="family_inc_{{ forloop.counter0 }}" value="{{ member.income|default:'' }}" step="0.01" min="0" placeholder="0.00"></td>
+              <td style="min-width:160px;">
+                <div class="sector-popup-wrap" id="sp_wrap_{{ forloop.counter0 }}">
+                  <button type="button" class="sector-popup-btn" onclick="toggleSectorPopup({{ forloop.counter0 }})">
+                    <i class="bi bi-tags-fill"></i>
+                    <span id="sp_label_{{ forloop.counter0 }}">{% if member.sectors %}{{ member.sectors|length }} selected{% else %}Select Sectors{% endif %}</span>
+                    <i class="bi bi-chevron-down" style="font-size:.6rem;margin-left:auto;"></i>
+                  </button>
+                  <div class="sector-popup-list" id="sp_list_{{ forloop.counter0 }}" style="display:none;">
+                    {% for sv, sl in sector_choices %}
+                    <label class="sp-chk-item">
+                      <input type="checkbox"
+                             name="family_sector_{{ forloop.parentloop.counter0 }}_{{ sv }}"
+                             value="1"
+                             {% if sv in member.sectors %}checked{% endif %}
+                             onchange="updateSectorLabel({{ forloop.parentloop.counter0 }})">
+                      <span>{{ sl }}</span>
+                    </label>
+                    {% endfor %}
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-controls">
+        <button type="button" class="tbl-btn tbl-btn-add" onclick="addFamilyRow()">
+          <i class="bi bi-plus-circle-fill"></i> Add Row
+        </button>
+        <button type="button" class="tbl-btn tbl-btn-remove" onclick="removeLastRow()">
+          <i class="bi bi-dash-circle-fill"></i> Remove Last
+        </button>
+      </div>
+
+      <hr class="section-hr">
+
+      <!-- Assistance Request -->
+      <div class="assistance-card">
+        <div class="section-title"><i class="bi bi-clipboard2-check-fill"></i> Assistance Request</div>
+
+        <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label">Contact Number</label>
-            <input type="text" name="contact_no" class="form-control"
-                   value="{{ client.contact_no }}"
-                   placeholder="09XX-XXX-XXXX">
-          </div>
-          
-          <div class="col-md-6">
-            <label class="form-label">Email Address</label>
-            <input type="email" name="email" class="form-control"
-                   value="{{ client.email }}"
-                   placeholder="email@example.com">
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- ASSISTANCE REQUEST SECTION -->
-        <div class="section-header">
-          <h2>Assistance Request</h2>
-        </div>
-
-        <div class="row g-4">
-          <div class="col-md-12">
-            <label class="form-label required">Type of Assistance</label>
+            <label class="form-label">Type of Assistance *</label>
             <select name="aid_type" class="form-select" required>
-              <option value="">Select assistance type...</option>
-              <option value="SEA" {% if application.aid_type == "SEA" %}selected{% endif %}>
-                SEA - Self-Employment Assistance
-              </option>
-              <option value="AICS" {% if application.aid_type == "AICS" %}selected{% endif %}>
-                AICS - Assistance to Individuals in Crisis Situation
-              </option>
-              <option value="REDCARD" {% if application.aid_type == "REDCARD" %}selected{% endif %}>
-                REDCARD - Emergency Assistance
-              </option>
-              <option value="EA" {% if application.aid_type == "EA" %}selected{% endif %}>
-                Educational Assistance
-              </option>
+              <option value="">Select…</option>
+              <option value="AICS"        {% if application.aid_type == "AICS" %}selected{% endif %}>AICS — Crisis Assistance</option>
+              <option value="SEA"         {% if application.aid_type == "SEA" %}selected{% endif %}>SEA — Self-Employment</option>
+              <option value="REDCARD"     {% if application.aid_type == "REDCARD" %}selected{% endif %}>Red Card — Emergency</option>
+              <option value="EDUCATIONAL" {% if application.aid_type == "EDUCATIONAL" %}selected{% endif %}>Educational Assistance</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Approved Amount (₱)</label>
+            <input type="number" step="0.01" name="approved_amount" class="form-control"
+                   value="{{ application.approved_amount|default:'' }}" placeholder="0.00">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Eligibility Result</label>
+            <select name="eligibility_result" class="form-select">
+              <option value=""             {% if not application.eligibility_result %}selected{% endif %}>Not evaluated</option>
+              <option value="Eligible"     {% if application.eligibility_result == "Eligible" %}selected{% endif %}>Eligible</option>
+              <option value="Not Eligible" {% if application.eligibility_result == "Not Eligible" %}selected{% endif %}>Not Eligible</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+              <option value="PENDING"    {% if application.status == "PENDING" %}selected{% endif %}>Pending</option>
+              <option value="ASSESSMENT" {% if application.status == "ASSESSMENT" %}selected{% endif %}>Under Assessment</option>
+              <option value="APPROVAL"   {% if application.status == "APPROVAL" %}selected{% endif %}>For Approval</option>
+              <option value="RELEASE"    {% if application.status == "RELEASE" %}selected{% endif %}>For Release</option>
+              <option value="RELEASED"   {% if application.status == "RELEASED" %}selected{% endif %}>Released</option>
+              <option value="REJECTED"   {% if application.status == "REJECTED" %}selected{% endif %}>Rejected</option>
             </select>
           </div>
         </div>
+      </div>
 
-        <div class="row g-4 mt-2">
-          <div class="col-md-12">
-            <label class="form-label">Requested Amount</label>
-            <div class="input-icon">
-              <input type="number" step="0.01" name="requested_amount"
-                     class="form-control"
-                     value="{{ application.requested_amount }}"
-                     placeholder="0.00">
-            </div>
-          </div>
-        </div>
+      <!-- Action buttons -->
+      <div class="d-flex gap-3 mt-4">
+        <button type="submit" class="btn-save">
+          <i class="bi bi-floppy-fill"></i> Save Changes
+        </button>
+        <a href="{% url 'application_detail' application.id %}" class="btn-cancel-action">
+          <i class="bi bi-x-circle"></i> Cancel
+        </a>
+      </div>
 
-        <div class="row g-4 mt-2">
-          <div class="col-md-12">
-            <label class="form-label">Reason for Assistance</label>
-            <textarea name="reason" class="form-control" 
-                      placeholder="Provide a detailed reason for requesting assistance...">{{ application.reason }}</textarea>
-          </div>
-        </div>
-
-        <!-- ACTION BUTTONS -->
-        <div class="action-bar">
-          <button type="submit" class="btn-save">
-            💾 Save Changes
-          </button>
-
-          <a href="{% url 'application_detail' client.id %}" class="btn-cancel">
-            ✖ Cancel
-          </a>
-        </div>
-
-      </form>
-
-    </div>
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
+    </form>
   </div>
+
 </div>
+</div>
+
+<script>
+  // 4Ps toggle
+  document.querySelectorAll('input[name="is_4ps"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const field = document.getElementById('fourps-id-field');
+      const input = document.getElementById('fourps_id');
+      if (radio.value === 'Yes') { field.style.display = 'flex'; input.required = true; }
+      else { field.style.display = 'none'; input.required = false; input.value = ''; }
+    });
+  });
+
+  // Sector popup toggle
+  function toggleSectorPopup(idx) {
+    const list = document.getElementById('sp_list_' + idx);
+    const isOpen = list.style.display !== 'none';
+    // close all open popups first
+    document.querySelectorAll('.sector-popup-list').forEach(l => l.style.display = 'none');
+    if (!isOpen) list.style.display = 'block';
+  }
+
+  // Update sector popup label count
+  function updateSectorLabel(idx) {
+    const list = document.getElementById('sp_list_' + idx);
+    const checked = list.querySelectorAll('input[type="checkbox"]:checked').length;
+    const label = document.getElementById('sp_label_' + idx);
+    label.textContent = checked > 0 ? checked + ' selected' : 'Select Sectors';
+  }
+
+  // Close popups on outside click
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.sector-popup-wrap')) {
+      document.querySelectorAll('.sector-popup-list').forEach(l => l.style.display = 'none');
+    }
+  });
+
+  // Sector choices for new rows (mirrors Django context)
+  const SECTOR_CHOICES = [
+    ['WEDC','Women in Especially Difficult Circumstances (WEDC)'],
+    ['SC','Senior Citizen (SC)'],
+    ['PWD','Person with Disability (PWD)'],
+    ['SP','Solo Parent (SP)'],
+    ['IP','Indigenous People (IP)'],
+    ['OFW','Overseas Filipino Worker (OFW)'],
+    ['TP','Trafficked Person (TP)'],
+    ['PDL','Person Deprived of Liberty (PDL)'],
+    ['PWUD','Person Who Uses Drugs (PWUD)'],
+    ['IFW','Informal Filipino Workers (IFW)'],
+    ['4PS','4Ps Beneficiary (4Ps)'],
+    ['CNSP','Children in Need of Special Protection (CNSP)'],
+    ['CAR','Child at Risk (CAR)'],
+    ['CICL','Child in Conflict with the Law (CICL)'],
+    ['OSCY','Out of School Children/Youth (OSCY)'],
+    ['FR','Former Rebel (FR)'],
+    ['KASAMBAHAY','Domestic Helper (Kasambahay)'],
+  ];
+
+  function sectorPopupHTML(i) {
+    const opts = SECTOR_CHOICES.map(([sv, sl]) => `
+      <label class="sp-chk-item">
+        <input type="checkbox" name="family_sector_${i}_${sv}" value="1"
+               onchange="updateSectorLabel(${i})">
+        <span>${sl}</span>
+      </label>`).join('');
+    return `
+      <div class="sector-popup-wrap" id="sp_wrap_${i}">
+        <button type="button" class="sector-popup-btn" onclick="toggleSectorPopup(${i})">
+          <i class="bi bi-tags-fill"></i>
+          <span id="sp_label_${i}">Select Sectors</span>
+          <i class="bi bi-chevron-down" style="font-size:.6rem;margin-left:auto;"></i>
+        </button>
+        <div class="sector-popup-list" id="sp_list_${i}" style="display:none;">${opts}</div>
+      </div>`;
+  }
+
+  // Family table
+  let familyRowCount = {{ family_members|length }};
+
+  function addFamilyRow() {
+    const i = familyRowCount++;
+    const tbody = document.getElementById('familyBody');
+    const tr = document.createElement('tr');
+    const td = 'border:1px solid #eef1f8;padding:6px 5px;text-align:center;';
+    tr.innerHTML = `
+      <td style="${td}"><input type="text" class="tbl-input" name="family_name_${i}" placeholder="Full name"></td>
+      <td style="${td}"><input type="number" class="tbl-input" name="family_age_${i}" min="0" max="120" placeholder="—" style="min-width:46px;"></td>
+      <td style="${td}">
+        <select name="family_sex_${i}" class="tbl-input" style="min-width:50px;">
+          <option value="">—</option><option value="M">M</option><option value="F">F</option>
+        </select>
+      </td>
+      <td style="${td}">
+        <select name="family_cs_${i}" class="tbl-input" style="min-width:90px;">
+          <option value="">—</option>
+          <option value="Single">Single</option><option value="Married">Married</option>
+          <option value="Widowed">Widowed</option><option value="Separated">Separated</option>
+          <option value="Divorced">Divorced</option><option value="Annulled">Annulled</option>
+        </select>
+      </td>
+      <td style="${td}"><input type="text" class="tbl-input" name="family_rel_${i}" placeholder="e.g. Spouse"></td>
+      <td style="${td}"><input type="checkbox" class="tbl-checkbox" name="family_edu_elem_${i}" value="1"></td>
+      <td style="${td}"><input type="checkbox" class="tbl-checkbox" name="family_edu_hs_${i}" value="1"></td>
+      <td style="${td}"><input type="checkbox" class="tbl-checkbox" name="family_edu_coll_${i}" value="1"></td>
+      <td style="${td}"><input type="checkbox" class="tbl-checkbox" name="family_edu_illit_${i}" value="1"></td>
+      <td style="${td}"><input type="text" class="tbl-input" name="family_occ_${i}" placeholder="Occupation"></td>
+      <td style="${td}"><input type="number" class="tbl-input" name="family_inc_${i}" step="0.01" min="0" placeholder="0.00" style="min-width:68px;"></td>
+      <td style="${td};min-width:160px;">${sectorPopupHTML(i)}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  function removeLastRow() {
+    const tbody = document.getElementById('familyBody');
+    if (tbody.rows.length > 0) { tbody.deleteRow(tbody.rows.length - 1); familyRowCount--; }
+  }
+</script>
 
 {% endblock %}

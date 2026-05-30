@@ -178,13 +178,13 @@ EMAIL_HOST_USER = 'jefflaud19@gmail.com'
 EMAIL_HOST_PASSWORD = 'uixs nxil lybq mqio'  # move to env variable
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+
 # ======================
 # SMS
 # ======================
 
-IPROG_API_KEY = "b53c74cad05f3a91aeec5f5d007fc40838c9dd4c"
-IPROG_URL = "https://www.iprogsms.com/api/v1/sms_messages"
-
+PHILSMS_API_TOKEN = "2052|E0nWs3IxaqRsOeQeP904ExTLnhcIxkntuQS8KvJT271a4066"
+PHILSMS_SENDER_ID = "PhilSMS"
 
 
 

@@ -1,318 +1,447 @@
 {% extends "base.html" %}
 {% load static %}
-{% block page_title %}
-  <i class="bi bi-folder-check"></i>
-  Assistance Programs
-{% endblock %}
 
+{% block page_icon %}folder-check{% endblock %}
+{% block page_title %}Assistance Programs{% endblock %}
 {% block breadcrumb %}Assistance Programs{% endblock %}
 
 {% block page_actions %}
-  <div class="d-flex gap-2">
-    <a href="{% url 'add_client' %}" class="btn btn-success shadow-sm d-flex align-items-center gap-2">
-      <i class="bi bi-person-plus"></i> New Client
-    </a>
-  \
-
-    <a href="?export=csv&program={{ program }}" class="btn btn-dark shadow-sm d-flex align-items-center gap-2">
-      <i class="bi bi-download"></i> Export CSV
-    </a>
-  </div>
+<div class="d-flex gap-2">
+  <a href="{% url 'add_client' %}" class="btn-page-action btn-action-primary">
+    <i class="bi bi-person-plus"></i> New Client
+  </a>
+  <a href="?export=csv&program={{ program }}" class="btn-page-action btn-action-dark">
+    <i class="bi bi-download"></i> Export CSV
+  </a>
+</div>
 {% endblock %}
 
 {% block content %}
 
 <style>
-  .program-badge {
-    font-size: 0.85rem;
-    padding: 8px 16px;
-    border-radius: 12px;
+  :root {
+    --blue: #0038A8;
+    --blue-dark: #002882;
+    --blue-light: rgba(0, 56, 168, 0.08);
+    --blue-border: rgba(0, 56, 168, 0.18);
+    --red: #CE1126;
+    --red-dark: #a50d1e;
+    --red-light: rgba(206, 17, 38, 0.07);
+    --yellow: #FCD116;
+    --yellow-light: rgba(252, 209, 22, 0.10);
+    --border: #dde3ef;
+    --text-primary: #0f1f4b;
+    --text-secondary: #5a6a8a;
+    --bg: #f5f7fc;
+  }
+
+  /* Page action buttons (in header) */
+  .btn-page-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 0.5px;
-    display: inline-block;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-  .badge-sea { 
-    background: linear-gradient(135deg, #1E8449 0%, #27AE60 100%); 
-    color: white; 
-  }
-  .badge-aics { 
-    background: linear-gradient(135deg, #2E86C1 0%, #3498DB 100%); 
-    color: white; 
-  }
-  .badge-redcard { 
-    background: linear-gradient(135deg, #C0392B 0%, #E74C3C 100%); 
-    color: white; 
-  }
-  .badge-ea { 
-    background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%); 
-    color: white; 
-  }
-
-  .program-description {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 16px 20px;
-    border-radius: 12px;
-    border-left: 4px solid;
-    margin-top: 16px;
-    margin-bottom: 24px;
-  }
-
-  .program-description.sea { border-left-color: #1E8449; }
-  .program-description.aics { border-left-color: #2E86C1; }
-  .program-description.redcard { border-left-color: #C0392B; }
-  .program-description.ea { border-left-color: #8E44AD; }
-
-  .program-description p {
-    margin: 0;
-    color: #495057;
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  .filter-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    margin-bottom: 24px;
-  }
-
-  .filter-card label {
-    font-weight: 600;
-    color: #0d3821;
-    font-size: 13px;
-    margin-bottom: 8px;
-    display: block;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
   }
 
-  .form-select, .form-control {
-    border-radius: 10px;
-    border: 2px solid #e9ecef;
-    padding: 10px 14px;
-    transition: all 0.3s ease;
-    font-size: 14px;
+  .btn-page-action:hover { transform: translateY(-1px); text-decoration: none; }
+
+  .btn-action-primary {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    color: white;
+    box-shadow: 0 3px 12px rgba(206,17,38,0.25);
   }
 
-  .form-select:focus, .form-control:focus {
-    border-color: #145433;
-    box-shadow: 0 0 0 3px rgba(20, 84, 51, 0.1);
+  .btn-action-primary:hover { box-shadow: 0 5px 18px rgba(206,17,38,0.35); color: white; }
+
+  .btn-action-dark {
+    background: white;
+    color: var(--text-primary);
+    border: 1.5px solid var(--border);
   }
 
-  .table-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 0;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  .btn-action-dark:hover { background: var(--bg); border-color: #b0bace; color: var(--text-primary); }
+
+  /* ===== PROGRAM HEADER STRIP ===== */
+  .program-header-strip {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: white;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 10px rgba(0,40,130,0.05);
+    position: relative;
     overflow: hidden;
   }
 
-  .table {
+  .program-header-strip::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+  }
+
+  .program-header-strip.sea::before   { background: var(--blue); }
+  .program-header-strip.aics::before  { background: var(--blue); }
+  .program-header-strip.redcard::before { background: var(--red); }
+  .program-header-strip.ea::before    { background: var(--yellow); }
+
+  /* Program badges */
+  .program-badge {
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 6px 16px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+  }
+
+  .badge-sea     { background: var(--blue-light); color: var(--blue); border: 1.5px solid var(--blue-border); }
+  .badge-aics    { background: var(--blue-light); color: var(--blue); border: 1.5px solid var(--blue-border); }
+  .badge-redcard { background: var(--red-light); color: var(--red); border: 1.5px solid rgba(206,17,38,0.2); }
+  .badge-ea      { background: var(--yellow-light); color: #7a5500; border: 1.5px solid rgba(252,209,22,0.4); }
+
+  .program-desc-text {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
     margin: 0;
   }
 
-  .table thead {
-    background: linear-gradient(135deg, #0d3821 0%, #145433 100%);
-    color: #fff;
+  .program-desc-text strong { color: var(--text-primary); }
+
+  /* ===== FILTER CARD ===== */
+  .filter-card {
+    background: white;
+    border-radius: 14px;
+    padding: 22px 24px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px rgba(0,40,130,0.05);
+    margin-bottom: 18px;
   }
 
-  .table thead th {
-    font-weight: 600;
+  .filter-card .filter-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--text-secondary);
     text-transform: uppercase;
-    font-size: 12px;
-    letter-spacing: 0.5px;
-    padding: 16px 12px;
-    border: none;
+    letter-spacing: 1px;
+    margin-bottom: 7px;
+    display: block;
   }
 
-  .table tbody td {
-    padding: 16px 12px;
-    vertical-align: middle;
-    border-bottom: 1px solid #f1f3f5;
-  }
-
-  .table-hover tbody tr {
+  .form-select, .form-control {
+    border: 2px solid var(--border);
+    border-radius: 9px;
+    padding: 10px 13px;
+    font-size: 0.86rem;
+    font-family: 'Open Sans', sans-serif;
+    color: var(--text-primary);
+    background: #f8f9fc;
     transition: all 0.2s ease;
   }
 
-  .table-hover tbody tr:hover {
-    background-color: #f8f9fa;
-    transform: scale(1.01);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  .form-select:focus, .form-control:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(0,56,168,0.10);
+    background: white;
+    outline: none;
   }
 
-  .action-btn {
+  .btn-filter {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px !important;
-    font-size: 13px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    font-weight: 500;
+    gap: 7px;
+    padding: 10px 20px;
+    border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
   }
 
-  .action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  .btn-filter-primary {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+    color: white;
+    box-shadow: 0 3px 10px rgba(0,56,168,0.2);
   }
 
-  .btn-outline-primary:hover {
-    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
-    border-color: #145433;
+  .btn-filter-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 16px rgba(0,56,168,0.3);
+    color: white;
   }
 
-  .btn-outline-danger:hover {
-    background: linear-gradient(135deg, #C0392B 0%, #E74C3C 100%);
-    border-color: #C0392B;
+  .btn-filter-outline {
+    background: white;
+    color: var(--text-secondary);
+    border: 1.5px solid var(--border);
   }
 
-  .btn-outline-info:hover {
-    background: linear-gradient(135deg, #2E86C1 0%, #3498DB 100%);
-    border-color: #2E86C1;
+  .btn-filter-outline:hover {
+    background: var(--bg);
+    border-color: #b0bace;
+    color: var(--text-primary);
+    text-decoration: none;
+    transform: translateY(-1px);
   }
 
-  .status-badge {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
+  /* ===== TABLE CARD ===== */
+  .table-card {
+    background: white;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px rgba(0,40,130,0.05);
+    overflow: hidden;
+    margin-bottom: 18px;
   }
 
+  .table { margin: 0; }
+
+  .table thead {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+  }
+
+  .table thead th {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.62rem;
+    letter-spacing: 1px;
+    padding: 14px 14px;
+    border: none;
+    color: white;
+    white-space: nowrap;
+  }
+
+  .table tbody td {
+    padding: 14px 14px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f0f3f9;
+    font-size: 0.86rem;
+  }
+
+  .table tbody tr:last-child td { border-bottom: none; }
+
+  .table-hover tbody tr { transition: background 0.15s ease; }
+  .table-hover tbody tr:hover { background: var(--blue-light); }
+
+  /* Client name cell */
   .client-name {
-    font-weight: 600;
-    color: #0d3821;
-    font-size: 14px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 0.88rem;
     margin-bottom: 2px;
   }
 
-  .client-email {
-    font-size: 12px;
-    color: #6c757d;
-  }
-
-  .pagination {
-    margin-top: 24px;
-  }
-
-  .page-link {
-    border-radius: 8px;
-    margin: 0 4px;
-    border: 2px solid #e9ecef;
-    color: #145433;
-    font-weight: 600;
-    padding: 8px 14px;
-    transition: all 0.3s ease;
-  }
-
-  .page-link:hover {
-    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
-    border-color: #145433;
-    color: white;
-    transform: translateY(-2px);
-  }
-
-  .page-item.active .page-link {
-    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
-    border-color: #145433;
-    box-shadow: 0 4px 12px rgba(20, 84, 51, 0.3);
-  }
-
-  .page-item.disabled .page-link {
-    background: #f8f9fa;
-    border-color: #e9ecef;
-  }
-
-  .empty-state {
-    padding: 60px 20px;
-    text-align: center;
-  }
-
-  .empty-state i {
-    font-size: 64px;
-    color: #dee2e6;
-    margin-bottom: 16px;
-  }
-
-  .empty-state p {
-    color: #6c757d;
-    font-size: 16px;
-    margin: 0;
-  }
-
-  .btn-filter-group .btn {
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
-    border: none;
-  }
-
-  .btn-primary:hover {
-    background: linear-gradient(135deg, #0d3821 0%, #145433 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(20, 84, 51, 0.3);
-  }
-
-  .btn-outline-secondary {
-    border: 2px solid #6c757d;
-    color: #6c757d;
-    font-weight: 600;
-  }
-
-  .btn-outline-secondary:hover {
-    background: #6c757d;
-    border-color: #6c757d;
-    color: white;
-    transform: translateY(-2px);
+  .client-sub {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
   }
 
   .row-number {
-    font-weight: 600;
-    color: #6c757d;
-    font-size: 13px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    color: #b0bace;
+    font-size: 0.8rem;
   }
 
-  @media (max-width: 768px) {
-    .filter-card {
-      padding: 16px;
-    }
+  /* Date cell */
+  .date-main { font-size: 0.84rem; color: var(--text-primary); font-weight: 600; }
+  .date-sub  { font-size: 0.72rem; color: var(--text-secondary); }
 
-    .table-responsive {
-      border-radius: 0;
-    }
+  /* ===== STATUS BADGES ===== */
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 
-    .action-btn {
-      padding: 4px 8px !important;
-      font-size: 12px;
-    }
+  .status-pill::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .pill-approved { background: rgba(0,56,168,0.08); color: var(--blue); border: 1px solid var(--blue-border); }
+  .pill-approved::before { background: var(--blue); }
+
+  .pill-rejected { background: var(--red-light); color: var(--red); border: 1px solid rgba(206,17,38,0.2); }
+  .pill-rejected::before { background: var(--red); }
+
+  .pill-pending  { background: var(--yellow-light); color: #8a6000; border: 1px solid rgba(252,209,22,0.35); }
+  .pill-pending::before { background: #e6b800; }
+
+  .pill-referral { background: var(--blue-light); color: var(--blue); border: 1px solid var(--blue-border); }
+  .pill-referral::before { background: var(--blue); }
+
+  .pill-default  { background: #f0f2f7; color: #8592b0; border: 1px solid var(--border); }
+  .pill-default::before { background: #b0bace; }
+
+  /* ===== ACTION BUTTONS ===== */
+  .tbl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 7px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1.5px solid;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .tbl-btn:hover { transform: translateY(-1px); text-decoration: none; }
+
+  .tbl-btn-view {
+    color: var(--blue);
+    border-color: var(--blue-border);
+  }
+
+  .tbl-btn-view:hover {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+    box-shadow: 0 3px 10px rgba(0,56,168,0.2);
+  }
+
+  .tbl-btn-doc {
+    color: var(--text-secondary);
+    border-color: var(--border);
+  }
+
+  .tbl-btn-doc:hover {
+    background: var(--bg);
+    border-color: #b0bace;
+    color: var(--text-primary);
+  }
+
+  .tbl-btn-delete {
+    color: var(--red);
+    border-color: rgba(206,17,38,0.25);
+  }
+
+  .tbl-btn-delete:hover {
+    background: var(--red);
+    color: white;
+    border-color: var(--red);
+    box-shadow: 0 3px 10px rgba(206,17,38,0.2);
+  }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+
+  .empty-state i {
+    font-size: 3.5rem;
+    color: #c8d4ea;
+    display: block;
+    margin-bottom: 14px;
+  }
+
+  .empty-state p {
+    font-size: 0.9rem;
+    margin: 0 0 6px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .empty-state small { color: var(--text-secondary); font-size: 0.8rem; }
+
+  /* ===== PAGINATION ===== */
+  .pagination { margin-top: 18px; }
+
+  .page-link {
+    border-radius: 8px;
+    margin: 0 3px;
+    border: 1.5px solid var(--border);
+    color: var(--blue);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 8px 14px;
+    transition: all 0.2s ease;
+    background: white;
+  }
+
+  .page-link:hover {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0,56,168,0.2);
+  }
+
+  .page-item.active .page-link {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+    border-color: var(--blue-dark);
+    color: white;
+    box-shadow: 0 3px 10px rgba(0,56,168,0.3);
+  }
+
+  .page-item.disabled .page-link {
+    background: #f8f9fc;
+    border-color: var(--border);
+    color: #b0bace;
   }
 </style>
 
-<!-- Program Header -->
-<div class="d-flex align-items-center gap-3 mb-3">
+<!-- Program Header Strip -->
+<div class="program-header-strip
+  {% if program == 'SEA' %}sea
+  {% elif program == 'AICS' %}aics
+  {% elif program == 'REDCARD' %}redcard
+  {% elif program == 'EA' %}ea
+  {% endif %}">
+
   <span class="program-badge
     {% if program == 'SEA' %}badge-sea
     {% elif program == 'AICS' %}badge-aics
     {% elif program == 'REDCARD' %}badge-redcard
     {% elif program == 'EA' %}badge-ea
     {% endif %}">{{ program }}</span>
-</div>
 
-<div class="program-description 
-  {% if program == 'SEA' %}sea
-  {% elif program == 'AICS' %}aics
-  {% elif program == 'REDCARD' %}redcard
-  {% elif program == 'EA' %}ea
-  {% endif %}">
-  <p>
+  <p class="program-desc-text">
     {% if program == 'SEA' %}
       <strong>Sustainable Livelihood Enterprise Assistance:</strong> Supporting small entrepreneurs with resources and opportunities for sustainable business growth.
     {% elif program == 'AICS' %}
@@ -329,36 +458,39 @@
 <div class="filter-card">
   <form method="get" class="row g-3">
     <div class="col-lg-3 col-md-6">
-      <label>Program Type</label>
+      <label class="filter-label">Program Type</label>
       <select name="program" class="form-select" onchange="this.form.submit()">
-        <option value="SEA" {% if program == 'SEA' %}selected{% endif %}>SEA</option>
-        <option value="AICS" {% if program == 'AICS' %}selected{% endif %}>AICS</option>
+        <option value="SEA"     {% if program == 'SEA' %}selected{% endif %}>SEA</option>
+        <option value="AICS"    {% if program == 'AICS' %}selected{% endif %}>AICS</option>
         <option value="REDCARD" {% if program == 'REDCARD' %}selected{% endif %}>RED CARD</option>
-        <option value="EA" {% if program == 'EA' %}selected{% endif %}>Educational Assistance (EA)</option>
+        <option value="EA"      {% if program == 'EA' %}selected{% endif %}>Educational Assistance (EA)</option>
       </select>
     </div>
 
     <div class="col-lg-3 col-md-6">
-      <label>Search Applicant</label>
-      <input type="text" name="q" value="{{ request.GET.q }}" 
+      <label class="filter-label">Search Applicant</label>
+      <input type="text" name="q" value="{{ request.GET.q }}"
              class="form-control" placeholder="Name or email...">
     </div>
 
     <div class="col-lg-3 col-md-6">
-      <label>Application Status</label>
+      <label class="filter-label">Application Status</label>
       <select name="status" class="form-select">
         <option value="">All Status</option>
-        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
-        <option value="approved" {% if request.GET.status == 'approved' %}selected{% endif %}>Approved</option>
-        <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+        <option value="PENDING"    {% if request.GET.status == 'PENDING' %}selected{% endif %}>Pending</option>
+        <option value="ASSESSMENT" {% if request.GET.status == 'ASSESSMENT' %}selected{% endif %}>Under Assessment</option>
+        <option value="APPROVAL"   {% if request.GET.status == 'APPROVAL' %}selected{% endif %}>For Approval</option>
+        <option value="RELEASE"    {% if request.GET.status == 'RELEASE' %}selected{% endif %}>For Release</option>
+        <option value="RELEASED"   {% if request.GET.status == 'RELEASED' %}selected{% endif %}>Released</option>
+        <option value="REJECTED"   {% if request.GET.status == 'REJECTED' %}selected{% endif %}>Rejected</option>
       </select>
     </div>
 
-    <div class="col-lg-3 col-md-12 d-flex align-items-end gap-2 btn-filter-group">
-      <button type="submit" class="btn btn-primary flex-grow-1">
-        <i class="bi bi-filter"></i> Apply Filters
+    <div class="col-lg-3 col-md-12 d-flex align-items-end gap-2">
+      <button type="submit" class="btn-filter btn-filter-primary flex-grow-1">
+        <i class="bi bi-funnel-fill"></i> Apply Filters
       </button>
-      <a href="?view=pending&program={{ program }}" class="btn btn-outline-secondary flex-grow-1">
+      <a href="?view=pending&program={{ program }}" class="btn-filter btn-filter-outline flex-grow-1">
         <i class="bi bi-clock-history"></i> Pending
       </a>
     </div>
@@ -371,14 +503,14 @@
     <table class="table table-hover align-middle mb-0">
       <thead>
         <tr>
-          <th style="width:50px;">#</th>
-          <th>Applicant</th>
-          <th>Barangay</th>
-          <th>Livelihood</th>
-          <th>Documents</th>
-          <th>Date Applied</th>
-          <th>Status</th>
-          <th style="width:180px;">Actions</th>
+          <th style="width:46px;">#</th>
+          <th style="min-width:160px;">Applicant</th>
+          <th style="min-width:110px;">Barangay</th>
+          <th style="min-width:130px;">Livelihood</th>
+          <th style="min-width:110px;">Documents</th>
+          <th style="min-width:110px;">Date Applied</th>
+          <th style="min-width:110px;">Status</th>
+          <th style="min-width:110px;">Actions</th>
         </tr>
       </thead>
 
@@ -386,44 +518,56 @@
         {% for app in applications %}
         <tr>
           <td class="row-number">{{ forloop.counter0|add:applications.start_index }}</td>
+
           <td>
             <div class="client-name">{{ app.client.first_name }} {{ app.client.last_name }}</div>
-            <div class="client-email">{{ app.client.email }}</div>
+            <div class="client-sub">{{ app.client.email }}</div>
           </td>
-          <td>{{ app.client.barangay|default:"—" }}</td>
-          <td>{{ app.client.livelihood|default:"—" }}</td>
+
+          <td style="color:var(--text-secondary); font-size:0.84rem;">{{ app.client.barangay|default:"—" }}</td>
+          <td style="color:var(--text-secondary); font-size:0.84rem;">{{ app.client.livelihood|default:"—" }}</td>
+
           <td>
             {% for doc in app.documents.all %}
-              <a href="{% url 'document_download' doc.id %}" class="btn btn-sm btn-outline-info mb-1 action-btn">
+              <a href="{% url 'document_download' doc.id %}" class="tbl-btn tbl-btn-doc mb-1">
                 <i class="bi bi-file-earmark-text"></i> View
               </a>
             {% empty %}
-              <span class="text-muted small">No documents</span>
+              <span style="color:#b0bace; font-size:0.75rem; font-style:italic;">None</span>
             {% endfor %}
           </td>
+
           <td>
-            <div style="font-size: 14px; color: #495057;">{{ app.created_at|date:"M d, Y" }}</div>
-            <div style="font-size: 12px; color: #6c757d;">{{ app.created_at|date:"h:i A" }}</div>
+            <div class="date-main">{{ app.created_at|date:"M d, Y" }}</div>
+            <div class="date-sub">{{ app.created_at|date:"h:i A" }}</div>
           </td>
+
           <td>
-            {% if app.status == 'approved' %}
-              <span class="badge bg-success status-badge">Approved</span>
-            {% elif app.status == 'rejected' %}
-              <span class="badge bg-danger status-badge">Rejected</span>
-            {% elif app.status == 'referral' %}
-              <span class="badge bg-primary status-badge">Referral</span>
+            {% if app.status == 'RELEASED' %}
+              <span class="status-pill pill-approved">Released</span>
+            {% elif app.status == 'REJECTED' %}
+              <span class="status-pill pill-rejected">Rejected</span>
+            {% elif app.status == 'RELEASE' %}
+              <span class="status-pill pill-referral">For Release</span>
+            {% elif app.status == 'APPROVAL' %}
+              <span class="status-pill pill-referral">For Approval</span>
+            {% elif app.status == 'ASSESSMENT' %}
+              <span class="status-pill pill-default">Assessment</span>
+            {% elif app.status == 'PENDING' %}
+              <span class="status-pill pill-pending">Pending</span>
             {% else %}
-              <span class="badge bg-warning text-dark status-badge">{{ app.status|capfirst }}</span>
+              <span class="status-pill pill-default">{{ app.status|capfirst }}</span>
             {% endif %}
           </td>
+
           <td>
-            <div class="d-flex gap-1">
-              <a href="{% url 'application_detail' app.id %}" class="btn btn-sm btn-outline-primary action-btn" title="View Details">
-                <i class="bi bi-eye"></i>
+            <div class="d-flex gap-1 flex-wrap">
+              <a href="{% url 'application_detail' app.id %}" class="tbl-btn tbl-btn-view" title="View Details">
+                <i class="bi bi-eye"></i> View
               </a>
               <form method="post" action="{% url 'application_delete' app.id %}" style="display:inline;">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-outline-danger action-btn" title="Delete Application"
+                <button type="submit" class="tbl-btn tbl-btn-delete" title="Delete"
                         onclick="return confirm('Are you sure you want to delete this application?');">
                   <i class="bi bi-trash"></i>
                 </button>
@@ -436,8 +580,8 @@
           <td colspan="8">
             <div class="empty-state">
               <i class="bi bi-inbox"></i>
-              <p>No applications found for {{ program }}.</p>
-              <p class="text-muted small mt-2">Try adjusting your filters or add a new client to get started.</p>
+              <p>No applications found for {{ program }}</p>
+              <small>Try adjusting your filters or add a new client to get started.</small>
             </div>
           </td>
         </tr>
@@ -452,23 +596,33 @@
 <nav>
   <ul class="pagination justify-content-center">
     {% if applications.has_previous %}
-      <li class="page-item"><a class="page-link" href="?page={{ applications.previous_page_number }}&program={{ program }}">&laquo; Prev</a></li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ applications.previous_page_number }}&program={{ program }}">
+          <i class="bi bi-chevron-left"></i> Prev
+        </a>
+      </li>
     {% else %}
-      <li class="page-item disabled"><span class="page-link">&laquo; Prev</span></li>
+      <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i> Prev</span></li>
     {% endif %}
 
     {% for num in applications.paginator.page_range %}
       {% if applications.number == num %}
         <li class="page-item active"><span class="page-link">{{ num }}</span></li>
       {% elif num > applications.number|add:-3 and num < applications.number|add:3 %}
-        <li class="page-item"><a class="page-link" href="?page={{ num }}&program={{ program }}">{{ num }}</a></li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ num }}&program={{ program }}">{{ num }}</a>
+        </li>
       {% endif %}
     {% endfor %}
 
     {% if applications.has_next %}
-      <li class="page-item"><a class="page-link" href="?page={{ applications.next_page_number }}&program={{ program }}">Next &raquo;</a></li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ applications.next_page_number }}&program={{ program }}">
+          Next <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
     {% else %}
-      <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+      <li class="page-item disabled"><span class="page-link">Next <i class="bi bi-chevron-right"></i></span></li>
     {% endif %}
   </ul>
 </nav>

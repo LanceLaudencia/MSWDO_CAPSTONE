@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Access Code</title>
+    <title>Access Code - DSWD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -9,11 +10,22 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --dswd-red: #CE1126;
+            --dswd-blue: #0038A8;
+            --dswd-yellow: #FCD116;
+            --dswd-red-dark: #a50d1e;
+            --dswd-blue-dark: #002882;
+            --dswd-red-light: rgba(206, 17, 38, 0.08);
+            --dswd-blue-light: rgba(0, 56, 168, 0.08);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #0f6e3f 0%, #2ecc71 100%);
+            font-family: 'Open Sans', sans-serif;
+            background: #f0f2f5;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
@@ -21,200 +33,520 @@
             overflow: hidden;
         }
 
+        /* Background decorative elements */
         body::before {
             content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: pulse 15s ease-in-out infinite;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--dswd-blue) 0%, var(--dswd-blue) 33%, var(--dswd-red) 33%, var(--dswd-red) 66%, var(--dswd-yellow) 66%, var(--dswd-yellow) 100%);
+            z-index: 100;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.1) rotate(180deg); }
+        .bg-decoration {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-circle-1 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,56,168,0.06) 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+        }
+
+        .bg-circle-2 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(206,17,38,0.05) 0%, transparent 70%);
+            bottom: -150px;
+            right: -150px;
+        }
+
+        .bg-pattern {
+            position: absolute;
+            inset: 0;
+            background-image:
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(0,56,168,0.015) 40px,
+                    rgba(0,56,168,0.015) 41px
+                );
+        }
+
+        /* Header Bar */
+        .header-bar {
+            position: fixed;
+            top: 5px;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 10px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            z-index: 50;
+        }
+
+        .header-logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-seal {
+            width: 48px;
+            height: 48px;
+            background: var(--dswd-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,56,168,0.3);
+        }
+
+        .header-text h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--dswd-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+        }
+
+        .header-text p {
+            font-size: 0.65rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .header-divider {
+            width: 1px;
+            height: 36px;
+            background: #e0e0e0;
+        }
+
+        .header-badge {
+            background: var(--dswd-red);
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Card */
+        .main-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 480px;
+            margin-top: 80px;
         }
 
         .otp-card {
             background: white;
-            border-radius: 30px;
-            padding: 60px 50px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-            position: relative;
-            z-index: 1;
+            border-radius: 16px;
+            box-shadow:
+                0 4px 6px rgba(0,0,0,0.04),
+                0 20px 50px rgba(0,56,168,0.10),
+                0 0 0 1px rgba(0,56,168,0.06);
+            overflow: hidden;
         }
 
-        .otp-card::before {
+        /* Card Header */
+        .card-header {
+            background: linear-gradient(135deg, var(--dswd-blue) 0%, var(--dswd-blue-dark) 100%);
+            padding: 36px 40px 32px;
+            text-align: center;
+            position: relative;
+        }
+
+        .card-header::after {
             content: '';
             position: absolute;
-            top: 0;
+            bottom: 0;
             left: 0;
-            width: 100%;
-            height: 6px;
-            background: linear-gradient(90deg, #0f6e3f 0%, #27ae60 50%, #2ecc71 100%);
-            border-radius: 30px 30px 0 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--dswd-yellow) 0%, var(--dswd-yellow) 50%, var(--dswd-red) 50%, var(--dswd-red) 100%);
         }
 
-        .lock-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+        .shield-icon {
+            width: 72px;
+            height: 72px;
+            background: rgba(255,255,255,0.12);
+            border: 2px solid rgba(255,255,255,0.25);
             border-radius: 50%;
-            margin: 0 auto 30px;
+            margin: 0 auto 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
-            box-shadow: 0 8px 25px rgba(15, 110, 63, 0.3);
-        }
-
-        h2 {
             font-size: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-header h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
             font-weight: 800;
-            color: #0a4d2e;
-            margin-bottom: 15px;
-        }
-
-        .subtitle {
-            color: #6c757d;
-            margin-bottom: 40px;
-            font-size: 1rem;
-        }
-
-        .error {
-            background: linear-gradient(135deg, #fee140 0%, #fa709a 100%);
             color: white;
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+
+        .card-header .subtitle {
+            color: rgba(255,255,255,0.72);
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
+
+        /* Card Body */
+        .card-body {
+            padding: 36px 40px 40px;
+        }
+
+        /* Info strip */
+        .info-strip {
+            background: var(--dswd-blue-light);
+            border: 1px solid rgba(0,56,168,0.15);
+            border-left: 4px solid var(--dswd-blue);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .info-strip .info-icon {
+            color: var(--dswd-blue);
+            font-size: 1rem;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        .info-strip p {
+            font-size: 0.8rem;
+            color: #2c4a8a;
+            line-height: 1.4;
+        }
+
+        /* Error */
+        .error {
+            background: rgba(206,17,38,0.06);
+            border: 1px solid rgba(206,17,38,0.2);
+            border-left: 4px solid var(--dswd-red);
+            color: var(--dswd-red-dark);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* OTP Input */
+        .otp-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+            display: block;
         }
 
         .otp-container {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 35px;
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
         .otp-box {
-            width: 55px;
-            height: 65px;
-            font-size: 28px;
-            font-weight: 700;
+            width: 58px;
+            height: 64px;
+            font-size: 26px;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
             text-align: center;
-            border: 3px solid #e1e8ed;
-            border-radius: 12px;
-            background: #fafafa;
-            transition: all 0.3s ease;
-            color: #0a4d2e;
+            border: 2px solid #dde3ef;
+            border-radius: 10px;
+            background: #f8f9fc;
+            transition: all 0.2s ease;
+            color: var(--dswd-blue);
+            -webkit-text-security: disc;
         }
 
         .otp-box:focus {
-            border-color: #27ae60;
-            box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.15);
+            border-color: var(--dswd-blue);
+            box-shadow: 0 0 0 3px rgba(0, 56, 168, 0.12);
             outline: none;
             background: white;
-            transform: scale(1.05);
+            transform: translateY(-2px);
         }
 
-        button[type="submit"] {
+        .otp-box.filled {
+            border-color: var(--dswd-blue);
+            background: var(--dswd-blue-light);
+        }
+
+        .otp-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .otp-dot {
+            width: 58px;
+            height: 4px;
+            border-radius: 2px;
+            background: #e8eaf0;
+            transition: all 0.2s;
+        }
+
+        .otp-dot.active {
+            background: var(--dswd-blue);
+        }
+
+        /* Submit Button */
+        .btn-verify {
             width: 100%;
-            background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+            background: linear-gradient(135deg, var(--dswd-red) 0%, var(--dswd-red-dark) 100%);
             color: white;
             border: none;
             padding: 16px;
-            border-radius: 12px;
-            font-size: 1.1rem;
+            border-radius: 10px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 20px rgba(15, 110, 63, 0.4);
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(206, 17, 38, 0.35);
+            position: relative;
+            overflow: hidden;
         }
 
-        button[type="submit"]:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(15, 110, 63, 0.6);
+        .btn-verify::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.4s;
         }
 
-        button[type="submit"]:active {
+        .btn-verify:hover::before {
+            left: 100%;
+        }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(206, 17, 38, 0.45);
+        }
+
+        .btn-verify:active {
             transform: translateY(0);
         }
 
-        @media (max-width: 480px) {
-            .otp-card {
-                padding: 40px 30px;
-            }
+        /* Footer */
+        .card-footer {
+            background: #f8f9fc;
+            border-top: 1px solid #eef0f6;
+            padding: 14px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
 
-            h2 {
-                font-size: 1.6rem;
-            }
+        .card-footer .secure-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            color: #888;
+        }
 
-            .otp-box {
-                width: 45px;
-                height: 55px;
-                font-size: 24px;
-            }
+        .card-footer .dot-sep {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: #ccc;
+        }
 
-            .otp-container {
-                gap: 8px;
-            }
+        /* Bottom branding */
+        .bottom-brand {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .bottom-brand p {
+            font-size: 0.72rem;
+            color: #999;
+        }
+
+        .bottom-brand strong {
+            color: var(--dswd-blue);
+        }
+
+        .flag-strip {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .flag-block {
+            width: 24px;
+            height: 6px;
+            border-radius: 1px;
+        }
+
+        @media (max-width: 520px) {
+            .header-bar { padding: 8px 16px; }
+            .card-header { padding: 28px 24px 24px; }
+            .card-body { padding: 28px 24px 32px; }
+            .card-footer { padding: 14px 24px; }
+            .otp-box { width: 44px; height: 54px; font-size: 22px; }
+            .otp-dot { width: 44px; }
+            .otp-container { gap: 7px; }
+            .otp-dots { gap: 7px; }
+            .card-header h2 { font-size: 1.25rem; }
         }
     </style>
 </head>
 <body>
 
-<div class="otp-card">
-    <div class="lock-icon">
-        🔒
+<div class="bg-decoration">
+    <div class="bg-circle-1"></div>
+    <div class="bg-circle-2"></div>
+    <div class="bg-pattern"></div>
+</div>
+
+<!-- Top Header -->
+<div class="header-bar">
+    <div class="header-logo-area">
+        <div class="header-seal">🛡️</div>
+        <div class="header-text">
+            <h1>Department of Social Welfare and Development</h1>
+            <p>Republic of the Philippines</p>
+        </div>
     </div>
+    <div class="header-divider"></div>
+    <span class="header-badge">Secure Portal</span>
+</div>
 
-    <h2>Enter Access Code</h2>
-    <p class="subtitle">Please enter the 6-digit code to continue</p>
+<!-- Main Content -->
+<div class="main-wrapper">
+    <div class="otp-card">
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="error">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-
-    <form method="POST" id="otp-form">
-        {% csrf_token %}
-
-        <div class="otp-container">
-            <input type="password" maxlength="1" class="otp-box" required>
-            <input type="password" maxlength="1" class="otp-box" required>
-            <input type="password" maxlength="1" class="otp-box" required>
-            <input type="password" maxlength="1" class="otp-box" required>
-            <input type="password" maxlength="1" class="otp-box" required>
-            <input type="password" maxlength="1" class="otp-box" required>
+        <!-- Card Header -->
+        <div class="card-header">
+            <div class="shield-icon">🔐</div>
+            <h2>Access Verification</h2>
+            <p class="subtitle">Enter the 6-digit code to proceed</p>
         </div>
 
-        <!-- Hidden full access code -->
-        <input type="hidden" name="access_code" id="access_code">
+        <!-- Card Body -->
+        <div class="card-body">
 
-        <button type="submit">Verify Code</button>
-    </form>
+            <div class="info-strip">
+                <span class="info-icon">ℹ️</span>
+                <p>A 6-digit access code has been sent to your registered device. This code is valid for a limited time only.</p>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="error">⚠️ {{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" id="otp-form">
+                {% csrf_token %}
+
+                <span class="otp-label">Enter Access Code</span>
+
+                <div class="otp-container">
+                    <input type="password" maxlength="1" class="otp-box" required autocomplete="off">
+                    <input type="password" maxlength="1" class="otp-box" required autocomplete="off">
+                    <input type="password" maxlength="1" class="otp-box" required autocomplete="off">
+                    <input type="password" maxlength="1" class="otp-box" required autocomplete="off">
+                    <input type="password" maxlength="1" class="otp-box" required autocomplete="off">
+                    <input type="password" maxlength="1" class="otp-box" required autocomplete="off">
+                </div>
+
+                <div class="otp-dots">
+                    <div class="otp-dot" id="dot-0"></div>
+                    <div class="otp-dot" id="dot-1"></div>
+                    <div class="otp-dot" id="dot-2"></div>
+                    <div class="otp-dot" id="dot-3"></div>
+                    <div class="otp-dot" id="dot-4"></div>
+                    <div class="otp-dot" id="dot-5"></div>
+                </div>
+
+                <input type="hidden" name="access_code" id="access_code">
+
+                <button type="submit" class="btn-verify">✓ &nbsp;Verify Access Code</button>
+            </form>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="card-footer">
+            <span class="secure-badge">🔒 SSL Secured</span>
+            <div class="dot-sep"></div>
+            <span class="secure-badge">Official Government System</span>
+            <div class="dot-sep"></div>
+            <span class="secure-badge">DSWD © 2025</span>
+        </div>
+    </div>
+
+    <!-- Bottom Branding -->
+    <div class="bottom-brand">
+        <p>Authorized Personnel Only · <strong>DSWD Information Systems</strong></p>
+        <div class="flag-strip">
+            <div class="flag-block" style="background:#0038A8;"></div>
+            <div class="flag-block" style="background:#CE1126;"></div>
+            <div class="flag-block" style="background:#FCD116; width:10px;"></div>
+        </div>
+    </div>
 </div>
 
 <script>
     const inputs = document.querySelectorAll(".otp-box");
     const hiddenInput = document.getElementById("access_code");
+    const dots = document.querySelectorAll(".otp-dot");
 
     inputs.forEach((input, index) => {
         input.addEventListener("input", (e) => {
-            if (e.target.value.length === 1 && index < inputs.length - 1) {
+            const val = e.target.value;
+            if (val.length === 1 && index < inputs.length - 1) {
                 inputs[index + 1].focus();
             }
-            updateHiddenInput();
+            updateUI();
         });
 
         input.addEventListener("keydown", (e) => {
@@ -223,29 +555,32 @@
             }
         });
 
-        // Auto-submit when all 6 digits are entered
-        input.addEventListener("input", () => {
-            let allFilled = true;
-            inputs.forEach(inp => {
-                if (!inp.value) allFilled = false;
+        input.addEventListener("paste", (e) => {
+            e.preventDefault();
+            const pasted = (e.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "").slice(0, 6);
+            pasted.split("").forEach((char, i) => {
+                if (inputs[i]) inputs[i].value = char;
             });
-            if (allFilled) {
-                updateHiddenInput();
-                // Optional: Auto-submit after short delay
-                // setTimeout(() => document.getElementById("otp-form").submit(), 300);
-            }
+            if (inputs[pasted.length - 1]) inputs[pasted.length - 1].focus();
+            updateUI();
         });
     });
 
-    function updateHiddenInput() {
+    function updateUI() {
         let code = "";
-        inputs.forEach(input => {
+        inputs.forEach((input, i) => {
             code += input.value;
+            if (input.value) {
+                input.classList.add("filled");
+                dots[i].classList.add("active");
+            } else {
+                input.classList.remove("filled");
+                dots[i].classList.remove("active");
+            }
         });
         hiddenInput.value = code;
     }
 
-    // Focus first input on load
     inputs[0].focus();
 </script>
 

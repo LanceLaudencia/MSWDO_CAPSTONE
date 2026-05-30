@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block page_icon %}file-earmark-text-fill{% endblock %}
+{% block page_title %}Report Detail{% endblock %}
+{% block breadcrumb %}Report Detail{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --blue:#0038A8;--blue-dark:#002882;--blue-light:rgba(0,56,168,0.08);--blue-border:rgba(0,56,168,0.18);
+    --red:#CE1126;--red-light:rgba(206,17,38,0.07);
+    --yellow:#FCD116;--border:#e0e6f0;--text-primary:#0f1f4b;--text-secondary:#5a6a8a;
+  }
+  .detail-outer { max-width: 900px; margin: 0 auto; }
+  .detail-card  { background:white; border-radius:14px; padding:28px 32px; border:1px solid var(--border); box-shadow:0 2px 10px rgba(0,40,130,0.05); margin-bottom:20px; }
+  .sec-title    { font-family:'Montserrat',sans-serif; font-size:.82rem; font-weight:800; color:var(--text-primary); text-transform:uppercase; letter-spacing:.8px; margin-bottom:18px; padding-bottom:10px; border-bottom:2px solid var(--border); display:flex; align-items:center; gap:9px; }
+  .sec-title i  { color:var(--blue); }
+  .info-label   { font-family:'Montserrat',sans-serif; font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-secondary); margin-bottom:4px; }
+  .info-value   { font-size:.95rem; font-weight:600; color:var(--text-primary); margin:0; }
+  .content-box  { background:#f8f9fc; border:1px solid var(--border); border-radius:10px; padding:18px 20px; font-size:.9rem; line-height:1.7; color:var(--text-primary); white-space:pre-wrap; }
+  .status-pill  { display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; }
+  .status-pill.PENDING  { background:rgba(252,209,22,.2); color:#8a6000; }
+  .status-pill.APPROVED { background:rgba(39,174,96,.12); color:#1a7a45; }
+  .status-pill.DECLINED { background:var(--red-light); color:var(--red); }
+  .rt-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:7px; font-family:'Montserrat',sans-serif; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+  .rt-badge.spdr  { background:rgba(0,56,168,.1); color:var(--blue); }
+  .rt-badge.lcpc  { background:rgba(39,174,96,.12); color:#1a7a45; }
+  .rt-badge.lcat  { background:var(--red-light); color:var(--red); }
+  .rt-badge.other { background:#f0f3fb; color:#4a5a8a; }
+  .published-badge { display:inline-flex; align-items:center; gap:5px; background:var(--blue-light); color:var(--blue); font-family:'Montserrat',sans-serif; font-size:.68rem; font-weight:700; padding:5px 12px; border-radius:20px; text-transform:uppercase; margin-left:8px; }
+  .action-card  { background:white; border-radius:14px; padding:24px 32px; border:1px solid var(--border); box-shadow:0 2px 10px rgba(0,40,130,0.05); }
+  .form-label   { font-family:'Montserrat',sans-serif; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--text-secondary); margin-bottom:7px; display:block; }
+  .form-control { border:2px solid var(--border); border-radius:9px; padding:10px 14px; font-size:.9rem; width:100%; font-family:'Open Sans',sans-serif; }
+  .form-control:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(0,56,168,.1); outline:none; }
+  textarea.form-control { min-height:90px; resize:vertical; }
+  .btn-approve { background:linear-gradient(135deg,#27ae60,#1e8449); color:white; border:none; padding:11px 24px; border-radius:9px; font-family:'Montserrat',sans-serif; font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.8px; cursor:pointer; transition:all .2s; }
+  .btn-approve:hover { opacity:.9; transform:translateY(-1px); }
+  .btn-decline { background:linear-gradient(135deg,var(--red),#a50d1e); color:white; border:none; padding:11px 24px; border-radius:9px; font-family:'Montserrat',sans-serif; font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.8px; cursor:pointer; transition:all .2s; }
+  .btn-decline:hover { opacity:.9; transform:translateY(-1px); }
+  .btn-back { display:inline-flex; align-items:center; gap:7px; padding:10px 20px; border-radius:9px; font-family:'Montserrat',sans-serif; font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; background:white; color:var(--text-secondary); border:2px solid var(--border); text-decoration:none; transition:all .2s; margin-bottom:18px; }
+  .btn-back:hover { background:#f5f7fc; color:var(--text-primary); }
+  .admin-note-box { background:var(--blue-light); border:1.5px solid var(--blue-border); border-left:4px solid var(--blue); border-radius:9px; padding:14px 16px; font-size:.88rem; color:var(--text-primary); }
+  .admin-note-box.declined { background:var(--red-light); border-color:rgba(206,17,38,.25); border-left-color:var(--red); }
+  .publish-check { display:flex; align-items:center; gap:10px; padding:12px 16px; background:#f8f9fc; border:1.5px solid var(--border); border-radius:9px; cursor:pointer; margin-bottom:12px; }
+  .publish-check input { width:16px; height:16px; accent-color:var(--blue); cursor:pointer; flex-shrink:0; }
+  .publish-check label { font-family:'Montserrat',sans-serif; font-size:.78rem; font-weight:700; color:var(--text-primary); cursor:pointer; margin:0; }
+  .action-divider { border:none; border-top:1px dashed var(--border); margin:20px 0; }
+</style>
+
+<div class="detail-outer">
+
+  <a href="{% url 'reports_dashboard' %}" class="btn-back">
+    <i class="bi bi-arrow-left"></i> Back to Reports
+  </a>
+
+  <!-- Report Info -->
+  <div class="detail-card">
+    <div class="sec-title"><i class="bi bi-file-earmark-text-fill"></i> Report Information</div>
+
+    <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+      <span class="status-pill {{ report.status }}">
+        {% if report.status == 'PENDING' %}<i class="bi bi-hourglass-split"></i>
+        {% elif report.status == 'APPROVED' %}<i class="bi bi-check-circle-fill"></i>
+        {% else %}<i class="bi bi-x-circle-fill"></i>{% endif %}
+        {{ report.get_status_display }}
+      </span>
+
+      {% with rt=report.report_type %}
+                    {% if 'SPDR' in rt %}<span class="rt-badge spdr"><i class="bi bi-shield-fill-check"></i> SPDR</span>
+            {% elif 'LCPC' in rt %}<span class="rt-badge lcpc"><i class="bi bi-people-fill"></i> LCPC</span>
+            {% elif 'LCAT' in rt %}<span class="rt-badge lcat"><i class="bi bi-gender-female"></i> LCAT VAWC</span>
+            {% elif 'Disability' in rt %}<span class="rt-badge pwd"><i class="bi bi-person-wheelchair"></i> PWD</span>
+            {% elif 'OSCA' in rt or 'Senior Citizen Affairs' in rt %}<span class="rt-badge osca"><i class="bi bi-person-heart"></i> OSCA</span>
+            {% elif 'CICL' in rt %}<span class="rt-badge cicl"><i class="bi bi-shield-exclamation"></i> CICL/CAR</span>
+            {% elif 'CNSP' in rt %}<span class="rt-badge cnsp"><i class="bi bi-emoji-neutral-fill"></i> CNSP</span>
+            {% elif 'Migrant' in rt %}<span class="rt-badge migrant"><i class="bi bi-airplane-fill"></i> MIGRANT</span>
+            {% elif 'Indigenous' in rt %}<span class="rt-badge ip"><i class="bi bi-globe-asia-australia"></i> IP</span>
+            {% elif 'Former Rebel' in rt %}<span class="rt-badge fr"><i class="bi bi-flag-fill"></i> FR</span>
+            {% elif 'PWUD' in rt or 'Drugs' in rt %}<span class="rt-badge pwud"><i class="bi bi-capsule-pill"></i> PWUD</span>
+            {% else %}<span class="rt-badge other"><i class="bi bi-file-earmark-plus-fill"></i> Others</span>
+            {% endif %}
+      {% endwith %}
+
+   
+    <div class="row g-4">
+      <div class="col-12">
+        <div class="info-label">Title</div>
+        <p class="info-value" style="font-size:1.1rem;">{{ report.title }}</p>
+      </div>
+      <div class="col-12">
+        <div class="info-label">Report Type</div>
+        <p class="info-value" style="font-size:.88rem;">{{ report.report_type|default:"General" }}</p>
+      </div>
+      <div class="col-md-4">
+        <div class="info-label">Submitted By</div>
+        <p class="info-value">{{ report.submitted_by.get_full_name|default:report.submitted_by.username }}</p>
+        <small style="color:#9aabca;">{{ report.submitted_by.email }}</small>
+      </div>
+      <div class="col-md-4">
+        <div class="info-label">Date Submitted</div>
+        <p class="info-value">{{ report.created_at|date:"M d, Y" }}</p>
+        <small style="color:#9aabca;">{{ report.created_at|time:"g:i A" }}</small>
+      </div>
+      {% if report.reviewed_by %}
+      <div class="col-md-4">
+        <div class="info-label">Reviewed By</div>
+        <p class="info-value">{{ report.reviewed_by.get_full_name|default:report.reviewed_by.username }}</p>
+        <small style="color:#9aabca;">{{ report.reviewed_at|date:"M d, Y g:i A" }}</small>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Report Content -->
+  <div class="detail-card">
+    <div class="sec-title"><i class="bi bi-text-paragraph"></i> Report Content</div>
+    <div class="content-box">{{ report.content }}</div>
+  </div>
+
+  <!-- Attachment -->
+  {% if report.attachment %}
+  <div class="detail-card">
+    <div class="sec-title"><i class="bi bi-paperclip"></i> Attachment</div>
+    <a href="{{ report.attachment.url }}" target="_blank"
+       style="display:inline-flex;align-items:center;gap:8px;color:var(--blue);font-weight:600;text-decoration:none;font-size:.9rem;background:var(--blue-light);border:1.5px solid var(--blue-border);padding:10px 18px;border-radius:9px;">
+      <i class="bi bi-file-earmark-arrow-down-fill"></i> Download Attachment
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- Admin Note (if already reviewed) -->
+  {% if report.admin_note %}
+  <div class="detail-card">
+    <div class="sec-title"><i class="bi bi-chat-square-text-fill"></i> Admin Note</div>
+    <div class="admin-note-box {% if report.status == 'DECLINED' %}declined{% endif %}">
+      {{ report.admin_note }}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Action Panel (only if PENDING) -->
+  {% if report.status == 'PENDING' %}
+  <div class="action-card">
+    <div class="sec-title"><i class="bi bi-shield-check"></i> Review Actions</div>
+
+    <div class="row g-4">
+      <!-- Approve -->
+      <div class="col-md-6">
+        <p style="font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:800;color:#1a7a45;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;">
+          <i class="bi bi-check-circle-fill"></i> Approve
+        </p>
+        <form method="POST" action="{% url 'report_approve' report.pk %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Admin Note <span style="color:#9aabca;font-weight:400;text-transform:none;">(optional)</span></label>
+            <textarea name="admin_note" class="form-control" placeholder="Leave a note for the submitter..."></textarea>
+          </div>
+         <br>
+         <br>
+         <br>
+          <button type="submit" class="btn-approve" onclick="return confirm('Approve this report?')">
+            <i class="bi bi-check-circle-fill"></i> Approve Report
+          </button>
+        </form>
+      </div>
+
+      <div class="col-md-6">
+        <p style="font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;">
+          <i class="bi bi-x-circle-fill"></i> Decline
+        </p>
+        <form method="POST" action="{% url 'report_decline' report.pk %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Reason for Declining <span style="color:#9aabca;font-weight:400;text-transform:none;">(optional)</span></label>
+            <textarea name="admin_note" class="form-control" placeholder="Explain why this report is being declined..."></textarea>
+          </div>
+          <div style="height:52px; margin-bottom:12px;"></div>
+          <button type="submit" class="btn-decline" onclick="return confirm('Decline this report?')">
+            <i class="bi bi-x-circle-fill"></i> Decline Report
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block page_icon %}file-earmark-text-fill{% endblock %}
+{% block page_title %}Report Detail{% endblock %}
+{% block breadcrumb %}My Reports{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --blue:#0038A8;--blue-dark:#002882;--blue-light:rgba(0,56,168,0.08);--blue-border:rgba(0,56,168,0.18);
+    --red:#CE1126;--red-dark:#a50d1e;--red-light:rgba(206,17,38,0.07);
+    --yellow:#FCD116;--border:#e0e6f0;--text-primary:#0f1f4b;--text-secondary:#5a6a8a;
+  }
+  .detail-outer { max-width: 860px; margin: 0 auto; }
+
+  /* Decision banner — shown prominently at top */
+  .decision-banner {
+    border-radius: 14px; padding: 22px 28px; margin-bottom: 22px;
+    display: flex; align-items: flex-start; gap: 18px;
+  }
+  .decision-banner.approved {
+    background: linear-gradient(135deg, rgba(39,174,96,.12), rgba(39,174,96,.06));
+    border: 1.5px solid rgba(39,174,96,.3);
+    border-left: 5px solid #27ae60;
+  }
+  .decision-banner.declined {
+    background: linear-gradient(135deg, rgba(206,17,38,.09), rgba(206,17,38,.04));
+    border: 1.5px solid rgba(206,17,38,.25);
+    border-left: 5px solid var(--red);
+  }
+  .decision-banner.pending {
+    background: linear-gradient(135deg, rgba(252,209,22,.12), rgba(252,209,22,.06));
+    border: 1.5px solid rgba(252,209,22,.35);
+    border-left: 5px solid #f0a500;
+  }
+  .decision-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; flex-shrink: 0;
+  }
+  .decision-icon.approved { background: rgba(39,174,96,.15); color: #1a7a45; }
+  .decision-icon.declined { background: var(--red-light); color: var(--red); }
+  .decision-icon.pending  { background: rgba(252,209,22,.2); color: #8a6000; }
+  .decision-title {
+    font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .decision-title.approved { color: #1a7a45; }
+  .decision-title.declined { color: var(--red); }
+  .decision-title.pending  { color: #8a6000; }
+  .decision-meta { font-size: .82rem; color: var(--text-secondary); margin-bottom: 0; }
+  .decision-note {
+    margin-top: 10px; padding: 10px 14px; border-radius: 9px;
+    font-size: .88rem; color: var(--text-primary); font-style: italic;
+  }
+  .decision-note.approved { background: rgba(39,174,96,.1); border-left: 3px solid #27ae60; }
+  .decision-note.declined { background: var(--red-light); border-left: 3px solid var(--red); }
+
+  /* Published notice */
+  .published-notice {
+    background: var(--blue-light); border: 1.5px solid var(--blue-border);
+    border-left: 5px solid var(--blue);
+    border-radius: 12px; padding: 14px 20px; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 12px;
+    font-family: 'Montserrat', sans-serif; font-size: .82rem; font-weight: 700; color: var(--blue-dark);
+  }
+  .published-notice i { font-size: 1.2rem; }
+
+  .detail-card { background:white; border-radius:14px; padding:26px 30px; border:1px solid var(--border); box-shadow:0 2px 10px rgba(0,40,130,0.05); margin-bottom:18px; }
+  .sec-title   { font-family:'Montserrat',sans-serif; font-size:.82rem; font-weight:800; color:var(--text-primary); text-transform:uppercase; letter-spacing:.8px; margin-bottom:18px; padding-bottom:10px; border-bottom:2px solid var(--border); display:flex; align-items:center; gap:9px; }
+  .sec-title i { color:var(--blue); }
+  .info-label  { font-family:'Montserrat',sans-serif; font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-secondary); margin-bottom:4px; }
+  .info-value  { font-size:.95rem; font-weight:600; color:var(--text-primary); margin:0; }
+  .content-box { background:#f8f9fc; border:1px solid var(--border); border-radius:10px; padding:18px 20px; font-size:.9rem; line-height:1.7; color:var(--text-primary); white-space:pre-wrap; }
+
+  .rt-badge { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:7px; font-family:'Montserrat',sans-serif; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+  .rt-badge.spdr  { background:rgba(0,56,168,.1); color:var(--blue); }
+  .rt-badge.lcpc  { background:rgba(39,174,96,.12); color:#1a7a45; }
+  .rt-badge.lcat  { background:var(--red-light); color:var(--red); }
+  .rt-badge.other { background:#f0f3fb; color:#4a5a8a; }
+
+  .btn-back { display:inline-flex; align-items:center; gap:7px; padding:10px 20px; border-radius:9px; font-family:'Montserrat',sans-serif; font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; background:white; color:var(--text-secondary); border:2px solid var(--border); text-decoration:none; transition:all .2s; margin-bottom:18px; }
+  .btn-back:hover { background:#f5f7fc; color:var(--text-primary); }
+  .btn-submit-new { display:inline-flex; align-items:center; gap:7px; padding:10px 22px; border-radius:9px; font-family:'Montserrat',sans-serif; font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.8px; background:linear-gradient(135deg,var(--blue),var(--blue-dark)); color:white; border:none; text-decoration:none; transition:all .2s; }
+  .btn-submit-new:hover { opacity:.9; transform:translateY(-1px); color:white; }
+</style>
+
+<div class="detail-outer">
+
+  <a href="{% url 'my_reports' %}" class="btn-back">
+    <i class="bi bi-arrow-left"></i> Back to My Reports
+  </a>
+
+  <!-- ── Decision Banner ── -->
+  {% if report.status == 'APPROVED' %}
+  <div class="decision-banner approved">
+    <div class="decision-icon approved"><i class="bi bi-check-circle-fill"></i></div>
+    <div style="flex:1;">
+      <div class="decision-title approved">Your report has been approved!</div>
+      <p class="decision-meta">
+        Reviewed by <strong>{{ report.reviewed_by.get_full_name|default:report.reviewed_by.username }}</strong>
+        on {{ report.reviewed_at|date:"F d, Y" }} at {{ report.reviewed_at|time:"g:i A" }}
+      </p>
+      {% if report.admin_note %}
+        <div class="decision-note approved">
+          <i class="bi bi-chat-quote-fill" style="color:#27ae60;"></i>
+          &nbsp;{{ report.admin_note }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% elif report.status == 'DECLINED' %}
+  <div class="decision-banner declined">
+    <div class="decision-icon declined"><i class="bi bi-x-circle-fill"></i></div>
+    <div style="flex:1;">
+      <div class="decision-title declined">Your report has been declined.</div>
+      <p class="decision-meta">
+        Reviewed by <strong>{{ report.reviewed_by.get_full_name|default:report.reviewed_by.username }}</strong>
+        on {{ report.reviewed_at|date:"F d, Y" }} at {{ report.reviewed_at|time:"g:i A" }}
+      </p>
+      {% if report.admin_note %}
+        <div class="decision-note declined">
+          <i class="bi bi-chat-quote-fill" style="color:var(--red);"></i>
+          &nbsp;<strong>Reason:</strong> {{ report.admin_note }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% else %}
+  <div class="decision-banner pending">
+    <div class="decision-icon pending"><i class="bi bi-hourglass-split"></i></div>
+    <div>
+      <div class="decision-title pending">Awaiting admin review</div>
+      <p class="decision-meta">Your report has been submitted and is pending review. You will receive an email once a decision has been made.</p>
+    </div>
+  </div>
+  {% endif %}
+
+
+
+  <!-- ── Report Info ── -->
+  <div class="detail-card">
+    <div class="sec-title"><i class="bi bi-file-earmark-text-fill"></i> Report Information</div>
+    <div class="row g-4">
+      <div class="col-12">
+        <div class="info-label">Title</div>
+        <p class="info-value" style="font-size:1.05rem;">{{ report.title }}</p>
+      </div>
+      <div class="col-md-6">
+        <div class="info-label">Report Type</div>
+        {% with rt=report.report_type %}
+                      {% if 'SPDR' in rt %}<span class="rt-badge spdr"><i class="bi bi-shield-fill-check"></i> SPDR</span>
+            {% elif 'LCPC' in rt %}<span class="rt-badge lcpc"><i class="bi bi-people-fill"></i> LCPC</span>
+            {% elif 'LCAT' in rt %}<span class="rt-badge lcat"><i class="bi bi-gender-female"></i> LCAT VAWC</span>
+            {% elif 'Disability' in rt %}<span class="rt-badge pwd"><i class="bi bi-person-wheelchair"></i> PWD</span>
+            {% elif 'OSCA' in rt or 'Senior Citizen Affairs' in rt %}<span class="rt-badge osca"><i class="bi bi-person-heart"></i> OSCA</span>
+            {% elif 'CICL' in rt %}<span class="rt-badge cicl"><i class="bi bi-shield-exclamation"></i> CICL/CAR</span>
+            {% elif 'CNSP' in rt %}<span class="rt-badge cnsp"><i class="bi bi-emoji-neutral-fill"></i> CNSP</span>
+            {% elif 'Migrant' in rt %}<span class="rt-badge migrant"><i class="bi bi-airplane-fill"></i> MIGRANT</span>
+            {% elif 'Indigenous' in rt %}<span class="rt-badge ip"><i class="bi bi-globe-asia-australia"></i> IP</span>
+            {% elif 'Former Rebel' in rt %}<span class="rt-badge fr"><i class="bi bi-flag-fill"></i> FR</span>
+            {% elif 'PWUD' in rt or 'Drugs' in rt %}<span class="rt-badge pwud"><i class="bi bi-capsule-pill"></i> PWUD</span>
+            {% else %}<span class="rt-badge other"><i class="bi bi-file-earmark-plus-fill"></i> Others</span>
+            {% endif %}
+        {% endwith %}
+        <p class="info-value mt-1" style="font-size:.8rem;color:var(--text-secondary);">{{ report.report_type|default:"General" }}</p>
+      </div>
+      <div class="col-md-6">
+        <div class="info-label">Date Submitted</div>
+        <p class="info-value">{{ report.created_at|date:"F d, Y" }}</p>
+        <small style="color:#9aabca;">{{ report.created_at|time:"g:i A" }}</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Report Content ── -->
+  <div class="detail-card">
+    <div class="sec-title"><i class="bi bi-text-paragraph"></i> Report Content</div>
+    <div class="content-box">{{ report.content }}</div>
+  </div>
+
+  <!-- ── Attachment ── -->
+  {% if report.attachment %}
+  <div class="detail-card">
+    <div class="sec-title"><i class="bi bi-paperclip"></i> Attachment</div>
+    <a href="{{ report.attachment.url }}" target="_blank"
+       style="display:inline-flex;align-items:center;gap:8px;color:var(--blue);font-weight:600;text-decoration:none;font-size:.9rem;background:var(--blue-light);border:1.5px solid var(--blue-border);padding:10px 18px;border-radius:9px;">
+      <i class="bi bi-file-earmark-arrow-down-fill"></i> Download Attachment
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- ── CTA for declined reports ── -->
+  {% if report.status == 'DECLINED' %}
+  <div style="background:white;border-radius:14px;padding:22px 28px;border:1px solid var(--border);box-shadow:0 2px 10px rgba(0,40,130,0.05);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+    <div>
+      <div style="font-family:'Montserrat',sans-serif;font-weight:800;color:var(--text-primary);margin-bottom:4px;">Would you like to submit a revised report?</div>
+      <div style="font-size:.82rem;color:var(--text-secondary);">Review the admin's feedback above and submit an updated version.</div>
+    </div>
+    <a href="{% url 'report_submit' %}" class="btn-submit-new">
+      <i class="bi bi-arrow-repeat"></i> Submit Revised Report
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

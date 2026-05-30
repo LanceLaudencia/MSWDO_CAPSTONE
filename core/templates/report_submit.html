@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block page_icon %}file-earmark-text-fill{% endblock %}
+{% block page_title %}Submit Report{% endblock %}
+{% block breadcrumb %}Submit Report{% endblock %}
+
+{% block content %}
+<style>
+  .submit-outer { max-width: 860px; margin: 0 auto; }
+  .submit-card  { background:white; border-radius:14px; padding:32px 36px; border:1px solid #e0e6f0; box-shadow:0 2px 10px rgba(0,40,130,0.05); }
+  .submit-title { font-family:'Montserrat',sans-serif; font-size:1rem; font-weight:800; color:#0f1f4b; text-transform:uppercase; letter-spacing:.8px; margin-bottom:24px; padding-bottom:12px; border-bottom:2px solid #e0e6f0; display:flex; align-items:center; gap:10px; }
+  .submit-title i { color:#0038A8; }
+  .form-label { font-family:'Montserrat',sans-serif; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:#5a6a8a; margin-bottom:7px; display:block; }
+  .form-control, .form-select { border:2px solid #e0e6f0; border-radius:9px; padding:10px 14px; font-size:.9rem; transition:border-color .2s; width:100%; font-family:'Open Sans',sans-serif; color:#0f1f4b; background:#f8f9fc; }
+  .form-control:focus, .form-select:focus { border-color:#0038A8; box-shadow:0 0 0 3px rgba(0,56,168,.1); outline:none; background:white; }
+  textarea.form-control { min-height:160px; resize:vertical; }
+
+  /* ── Report type radio cards ── */
+  .report-type-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:4px; }
+  .rt-card { position:relative; }
+  .rt-card input[type="radio"] { display:none; }
+  .rt-card label {
+    display:flex; align-items:flex-start; gap:11px;
+    padding:12px 14px; border-radius:10px;
+    border:2px solid #e0e6f0; background:#f8f9fc;
+    cursor:pointer; transition:all .2s;
+  }
+  .rt-card label:hover { border-color:#0038A8; background:rgba(0,56,168,.05); }
+  .rt-card input[type="radio"]:checked + label {
+    border-color:#0038A8; background:rgba(0,56,168,.08);
+    box-shadow:0 0 0 3px rgba(0,56,168,.1);
+  }
+  .rt-icon {
+    width:34px; height:34px; border-radius:8px; flex-shrink:0;
+    background:rgba(0,56,168,.1); color:#0038A8;
+    display:flex; align-items:center; justify-content:center; font-size:1rem;
+    transition:all .2s; margin-top:1px;
+  }
+  .rt-card input[type="radio"]:checked + label .rt-icon { background:#0038A8; color:white; }
+  .rt-text-title { font-family:'Montserrat',sans-serif; font-size:.7rem; font-weight:800; color:#0f1f4b; line-height:1.35; }
+  .rt-text-abbr  { font-family:'Montserrat',sans-serif; font-size:.6rem; font-weight:700; color:#0038A8; text-transform:uppercase; letter-spacing:.5px; margin-top:3px; }
+  .rt-card input[type="radio"]:checked + label .rt-text-abbr { color:#0038A8; }
+  /* Full-width card */
+  .rt-card.full { grid-column:1 / -1; }
+  .rt-card.full label { align-items:center; }
+
+  /* Per-type icon colors */
+  .rt-icon.lcpc   { background:rgba(39,174,96,.12); color:#1a7a45; }
+  .rt-card input[type="radio"]:checked + label .rt-icon.lcpc   { background:#1a7a45; color:white; }
+  .rt-icon.lcat   { background:rgba(206,17,38,.08); color:#CE1126; }
+  .rt-card input[type="radio"]:checked + label .rt-icon.lcat   { background:#CE1126; color:white; }
+  .rt-icon.pwd    { background:rgba(100,60,180,.10); color:#4a2db0; }
+  .rt-card input[type="radio"]:checked + label .rt-icon.pwd    { background:#4a2db0; color:white; }
+  .rt-icon.osca   { background:rgba(240,165,0,.12); color:#8a6000; }
+  .rt-card input[type="radio"]:checked + label .rt-icon.osca   { background:#f0a500; color:white; }
+  .rt-icon.cicl   { background:rgba(230,100,0,.10); color:#8a3a00; }
+  .rt-card input[type="radio"]:checked + label .rt-icon.cicl   { background:#e66400; color:white; }
+  .rt-icon.cnsp   { background:rgba(0,150,136,.10); color:#006b60; }
+  .rt-card input[type="radio"]:checked + label .rt-icon.cnsp   { background:#009688; color:white; }
+  .rt-icon.migrant{ background:rgba(21,101,192,.10); color:#0d5aa7; }
+  .rt-card input[type="radio"]:checked + label .rt-icon.migrant{ background:#1565c0; color:white; }
+  .rt-icon.ip     { background:rgba(46,125,50,.10); color:#1b5e20; }
+  .rt-card input[type="radio"]:checked + label .rt-icon.ip     { background:#2e7d32; color:white; }
+  .rt-icon.fr     { background:rgba(183,28,28,.10); color:#7f0000; }
+  .rt-card input[type="radio"]:checked + label .rt-icon.fr     { background:#b71c1c; color:white; }
+  .rt-icon.pwud   { background:rgba(74,0,130,.10); color:#320061; }
+  .rt-card input[type="radio"]:checked + label .rt-icon.pwud   { background:#4a0082; color:white; }
+  .rt-icon.other  { background:#f0f3fb; color:#4a5a8a; }
+  .rt-card input[type="radio"]:checked + label .rt-icon.other  { background:#4a5a8a; color:white; }
+
+  .btn-submit { background:linear-gradient(135deg,#0038A8,#002882); color:white; border:none; padding:12px 32px; border-radius:9px; font-family:'Montserrat',sans-serif; font-size:.82rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; transition:all .2s; cursor:pointer; }
+  .btn-submit:hover { opacity:.9; transform:translateY(-1px); color:white; }
+  .alert-success-custom { background:rgba(0,56,168,.07); border:1.5px solid rgba(0,56,168,.2); border-left:4px solid #0038A8; border-radius:9px; padding:12px 16px; font-family:'Montserrat',sans-serif; font-size:.78rem; font-weight:700; color:#002882; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+  .alert-error-custom   { background:rgba(206,17,38,.07); border:1.5px solid rgba(206,17,38,.2); border-left:4px solid #CE1126; border-radius:9px; padding:12px 16px; font-family:'Montserrat',sans-serif; font-size:.78rem; font-weight:700; color:#a50d1e; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+  .char-counter { font-size:.72rem; color:#9aabca; text-align:right; margin-top:4px; }
+  .section-note { font-size:.78rem; color:#9aabca; margin-top:6px; font-style:italic; }
+</style>
+
+<div class="submit-outer">
+  {% for message in messages %}
+    <div class="{% if 'error' in message.tags %}alert-error-custom{% else %}alert-success-custom{% endif %}">
+      <i class="bi bi-{% if 'error' in message.tags %}exclamation-circle-fill{% else %}check-circle-fill{% endif %}"></i>
+      {{ message }}
+    </div>
+  {% endfor %}
+
+  <div class="submit-card">
+    <div class="submit-title"><i class="bi bi-file-earmark-text-fill"></i> Submit a Report</div>
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Report Type -->
+      <div class="mb-4">
+        <label class="form-label">Report Type <span style="color:#CE1126;">*</span></label>
+        <div class="report-type-grid">
+
+          <div class="rt-card">
+            <input type="radio" name="report_type" id="rt_spdr" value="Social Protection & Development Report (SPDR)" required>
+            <label for="rt_spdr"><div class="rt-icon"><i class="bi bi-shield-fill-check"></i></div><div><div class="rt-text-title">Social Protection &amp; Development Report</div><div class="rt-text-abbr">SPDR</div></div></label>
+          </div>
+
+          <div class="rt-card">
+            <input type="radio" name="report_type" id="rt_lcpc" value="Local Council for the Protection of Children (LCPC) Report">
+            <label for="rt_lcpc"><div class="rt-icon lcpc"><i class="bi bi-people-fill"></i></div><div><div class="rt-text-title">Local Council for the Protection of Children Report</div><div class="rt-text-abbr">LCPC</div></div></label>
+          </div>
+
+          <div class="rt-card">
+            <input type="radio" name="report_type" id="rt_lcat" value="Local Council Against Trafficking & Violence Against Women & their Children (LCAT VAWC) Report">
+            <label for="rt_lcat"><div class="rt-icon lcat"><i class="bi bi-gender-female"></i></div><div><div class="rt-text-title">Local Council Against Trafficking &amp; VAWC Report</div><div class="rt-text-abbr">LCAT VAWC</div></div></label>
+          </div>
+
+          <div class="rt-card">
+            <input type="radio" name="report_type" id="rt_pwd" value="Persons with Disability Report (PWD)">
+            <label for="rt_pwd"><div class="rt-icon pwd"><i class="bi bi-person-wheelchair"></i></div><div><div class="rt-text-title">Persons with Disability Report</div><div class="rt-text-abbr">PWD</div></div></label>
+          </div>
+
+          <div class="rt-card">
+            <input type="radio" name="report_type" id="rt_osca" value="Report of the Office of Senior Citizen Affairs (OSCA)">
+            <label for="rt_osca"><div class="rt-icon osca"><i class="bi bi-person-heart"></i></div><div><div class="rt-text-title">Office of Senior Citizen Affairs Report</div><div class="rt-text-abbr">OSCA</div></div></label>
+          </div>
+
+          <div class="rt-card">
+            <input type="radio" name="report_type" id="rt_cicl" value="CICL / CAR Report">
+            <label for="rt_cicl"><div class="rt-icon cicl"><i class="bi bi-shield-exclamation"></i></div><div><div class="rt-text-title">CICL / Child at Risk Report</div><div class="rt-text-abbr">CICL / CAR</div></div></label>
+          </div>
+
+          <div class="rt-card">
+            <input type="radio" name="report_type" id="rt_cnsp" value="CNSP Report">
+            <label for="rt_cnsp"><div class="rt-icon cnsp"><i class="bi bi-emoji-neutral-fill"></i></div><div><div class="rt-text-title">Children in Need of Special Protection Report</div><div class="rt-text-abbr">CNSP</div></div></label>
+          </div>
+
+          <div class="rt-card">
+            <input type="radio" name="report_type" id="rt_migrant" value="Migrant Workers Report">
+            <label for="rt_migrant"><div class="rt-icon migrant"><i class="bi bi-airplane-fill"></i></div><div><div class="rt-text-title">Migrant Workers Report</div><div class="rt-text-abbr">MIGRANT</div></div></label>
+          </div>
+
+          <div class="rt-card">
+            <input type="radio" name="report_type" id="rt_ip" value="Indigenous People Progress Updates (IP)">
+            <label for="rt_ip"><div class="rt-icon ip"><i class="bi bi-globe-asia-australia"></i></div><div><div class="rt-text-title">Indigenous People Progress Updates</div><div class="rt-text-abbr">IP</div></div></label>
+          </div>
+
+          <div class="rt-card">
+            <input type="radio" name="report_type" id="rt_fr" value="Report on Former Rebels (FR)">
+            <label for="rt_fr"><div class="rt-icon fr"><i class="bi bi-flag-fill"></i></div><div><div class="rt-text-title">Report on Former Rebels</div><div class="rt-text-abbr">FR</div></div></label>
+          </div>
+
+          <div class="rt-card">
+            <input type="radio" name="report_type" id="rt_pwud" value="Persons Who Use Drugs Report (PWUD)">
+            <label for="rt_pwud"><div class="rt-icon pwud"><i class="bi bi-capsule-pill"></i></div><div><div class="rt-text-title">Persons Who Use Drugs Report</div><div class="rt-text-abbr">PWUD</div></div></label>
+          </div>
+
+          <div class="rt-card full">
+            <input type="radio" name="report_type" id="rt_other" value="Other Reports">
+            <label for="rt_other"><div class="rt-icon other"><i class="bi bi-file-earmark-plus-fill"></i></div><div><div class="rt-text-title">Other Reports</div><div class="rt-text-abbr">Others</div></div></label>
+          </div>
+
+        </div>
+        <p class="section-note">Select the category that best describes your report.</p>
+      </div>
+
+      <!-- Report Title -->
+      <div class="mb-4">
+        <label class="form-label" for="reportTitle">Report Title <span style="color:#CE1126;">*</span></label>
+        <input type="text" name="title" id="reportTitle" class="form-control" placeholder="e.g. Q1 2026 SPDR Accomplishment Report" maxlength="255" required>
+      </div>
+
+      <!-- Report Content -->
+      <div class="mb-4">
+        <label class="form-label" for="reportContent">Report Content / Summary <span style="color:#CE1126;">*</span></label>
+        <textarea name="content" id="reportContent" class="form-control" placeholder="Write the full content or summary of your report here..." required></textarea>
+        <div class="char-counter"><span id="charCount">0</span> characters</div>
+      </div>
+
+      <!-- Attachment -->
+      <div class="mb-4">
+        <label class="form-label" for="reportFile">
+          Attachment <span style="color:#9aabca;font-weight:400;text-transform:none;letter-spacing:0;">(optional — PDF, Word, Excel, Image)</span>
+        </label>
+        <input type="file" name="attachment" id="reportFile" class="form-control" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
+      </div>
+
+      <div class="d-flex gap-3 align-items-center flex-wrap">
+        <button type="submit" class="btn-submit"><i class="bi bi-send-fill"></i>&nbsp; Submit Report</button>
+        <span style="font-size:.78rem;color:#9aabca;">The admin will be notified by email upon submission.</span>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const ta = document.getElementById('reportContent');
+  const cc = document.getElementById('charCount');
+  if (ta && cc) ta.addEventListener('input', () => cc.textContent = ta.value.length);
+</script>
+{% endblock %}

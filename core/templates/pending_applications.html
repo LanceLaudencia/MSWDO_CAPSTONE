@@ -10,11 +10,11 @@
 {% block page_actions %}
   <div class="d-flex align-items-center gap-3">
     <div class="stats-badge">
-      <i class="bi bi-inbox"></i>
-      <span class="fw-bold">{{ applications.paginator.count }}</span> Total
+      <i class="bi bi-inbox-fill"></i>
+      <span class="fw-bold">{{ applications.paginator.count }}</span>&nbsp;Total
     </div>
-    <a href="{% url 'add_client' %}" class="btn btn-success btn-sm fw-semibold">
-      <i class="bi bi-plus-circle me-1"></i> New Application
+    <a href="{% url 'add_client' %}" class="btn-new-app">
+      <i class="bi bi-plus-circle-fill"></i> New Application
     </a>
   </div>
 {% endblock %}
@@ -22,199 +22,395 @@
 {% block content %}
 
 <style>
-  .stats-badge {
-    background: linear-gradient(135deg, #f4c542 0%, #f0a500 100%);
-    color: #000;
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 12px rgba(244, 197, 66, 0.3);
+  :root {
+    --blue: #0038A8; --blue-dark: #002882;
+    --blue-light: rgba(0,56,168,0.08); --blue-border: rgba(0,56,168,0.18);
+    --red: #CE1126; --red-dark: #a50d1e; --red-light: rgba(206,17,38,0.07);
+    --yellow: #FCD116; --yellow-dark: #e6a800;
+    --yellow-light: rgba(252,209,22,0.12);
+    --border: #dde3ef; --text-primary: #0f1f4b; --text-secondary: #5a6a8a;
+    --bg: #f5f7fc;
   }
-  .stats-badge i { font-size: 18px; }
 
+  /* Stats badge in page_actions */
+  .stats-badge {
+    background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow-dark) 100%);
+    color: #4a2e00;
+    padding: 9px 18px; border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 7px;
+    box-shadow: 0 4px 12px rgba(252,209,22,0.30);
+    border: 1.5px solid rgba(230,168,0,0.35);
+  }
+
+  .stats-badge i { font-size: 1rem; }
+
+  .btn-new-app {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    color: white; border: none;
+    padding: 9px 20px; border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(206,17,38,0.26);
+    transition: all 0.25s;
+    position: relative; overflow: hidden;
+  }
+
+  .btn-new-app::before {
+    content: ''; position: absolute; top:0; left:-100%; width:100%; height:100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.4s;
+  }
+
+  .btn-new-app:hover::before { left: 100%; }
+  .btn-new-app:hover { transform: translateY(-2px); box-shadow: 0 7px 18px rgba(206,17,38,0.36); color: white; text-decoration: none; }
+
+  /* ── Filter card ── */
   .filter-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 18px 22px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    background: white; border-radius: 13px;
+    padding: 16px 20px; margin-bottom: 18px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,40,130,0.05);
   }
-  .filter-card input,
-  .filter-card select {
-    border: 2px solid #e1e8ed;
-    border-radius: 10px;
-    padding: 9px 14px;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s;
+
+  .filter-card .form-control,
+  .filter-card .form-select {
+    border: 2px solid var(--border); border-radius: 9px;
+    padding: 9px 13px; font-size: 0.86rem;
+    font-family: 'Open Sans', sans-serif;
+    background: #f8f9fc; color: var(--text-primary);
+    transition: all 0.2s;
   }
-  .filter-card input:focus,
-  .filter-card select:focus {
-    border-color: #27ae60;
-    box-shadow: 0 0 0 3px rgba(39,174,96,0.1);
+
+  .filter-card .form-control:focus,
+  .filter-card .form-select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(0,56,168,0.10);
+    background: white; outline: none;
   }
-  .filter-card input  { flex: 1; min-width: 200px; }
-  .filter-card select { min-width: 150px; }
+
+  .filter-card .form-control::placeholder { color: #b0bace; }
 
   .btn-filter {
-    background: linear-gradient(135deg, #145433 0%, #27ae60 100%);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 9px 20px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    color: white; border: none;
+    padding: 9px 20px; border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(0,56,168,0.22);
   }
+
   .btn-filter:hover { opacity: 0.9; transform: translateY(-1px); }
 
   .btn-reset {
-    background: #f8f9fa;
-    color: #6c757d;
-    border: 2px solid #e1e8ed;
-    border-radius: 10px;
-    padding: 9px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; color: var(--text-secondary);
+    border: 2px solid var(--border);
+    padding: 9px 16px; border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    text-decoration: none; transition: all 0.2s;
   }
-  .btn-reset:hover { background: #e9ecef; color: #495057; }
 
+  .btn-reset:hover { background: var(--bg); border-color: #b0bace; color: var(--text-primary); }
+
+  /* ── Table card ── */
   .table-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 0;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    background: white; border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px rgba(0,40,130,0.05);
     overflow: hidden;
   }
 
   .table { margin: 0; width: 100%; }
 
   .table thead {
-    background: linear-gradient(135deg, #0d3821 0%, #145433 100%);
-    color: #fff;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
   }
 
   .table thead th {
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 12px;
-    letter-spacing: 0.5px;
-    padding: 18px 16px;
-    border: none;
-    white-space: nowrap;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: rgba(255,255,255,0.92);
+    padding: 14px 16px; border: none; white-space: nowrap;
   }
 
   .table tbody td {
-    padding: 16px;
-    vertical-align: middle;
-    border-bottom: 1px solid #f1f3f5;
+    padding: 13px 16px; vertical-align: middle;
+    border-bottom: 1px solid #f0f3f9;
+    font-size: 0.86rem; color: var(--text-primary);
   }
 
-  .table-hover tbody tr { transition: all 0.25s ease; }
-  .table-hover tbody tr:hover {
-    background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
-    transform: scale(1.003);
-    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  .table tbody tr:last-child td { border-bottom: none; }
+  .table tbody tr { transition: background 0.15s; }
+  .table tbody tr:hover { background: var(--blue-light); }
+
+  .row-num { font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 700; color: #9aabca; }
+
+  /* Applicant cell */
+  .applicant-name { font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+  .applicant-sub  { font-size: 0.72rem; color: var(--text-secondary); }
+
+  /* Program badges */
+  .prog-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem; font-weight: 800;
+    padding: 4px 12px; border-radius: 5px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    border: 1.5px solid;
   }
 
-  .row-number { font-weight: 700; color: #6c757d; font-size: 14px; }
+  .prog-aics     { background: var(--blue-light); color: var(--blue); border-color: var(--blue-border); }
+  .prog-sea      { background: var(--blue-light); color: var(--blue); border-color: var(--blue-border); }
+  .prog-redcard  { background: var(--red-light); color: var(--red); border-color: rgba(206,17,38,0.22); }
+  .prog-edu      { background: var(--yellow-light); color: #7a5500; border-color: rgba(252,209,22,0.4); }
+  .prog-default  { background: #f0f2f7; color: #8592b0; border-color: var(--border); }
 
-  .status-badge {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
-  .status-pending    { background: linear-gradient(135deg, #f4c542, #f0a500); color: #000; }
-  .status-assessment { background: linear-gradient(135deg, #17a2b8, #138496); color: #fff; }
-  .status-approval   { background: linear-gradient(135deg, #6f42c1, #5a32a3); color: #fff; }
-  .status-release    { background: linear-gradient(135deg, #fd7e14, #e06c00); color: #fff; }
-  .status-released   { background: linear-gradient(135deg, #28a745, #20c997); color: #fff; }
-  .status-rejected   { background: linear-gradient(135deg, #dc3545, #c82333); color: #fff; }
+  /* Date cell */
+  .date-main { font-size: 0.82rem; color: var(--text-secondary); font-weight: 600; }
+  .date-sub  { font-size: 0.7rem; color: #9aabca; margin-top: 2px; }
 
-  .status-pending::before {
-    content: '';
-    width: 7px; height: 7px;
-    background: #000;
-    border-radius: 50%;
-    animation: blink 2s ease-in-out infinite;
-  }
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.3; }
+  /* Status pills */
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem; font-weight: 700;
+    padding: 5px 11px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    border: 1px solid; white-space: nowrap;
   }
 
-  .action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 7px 13px;
-    border-radius: 9px;
-    font-size: 13px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.25s ease;
-    border: 2px solid;
-  }
-  .btn-view   { border-color: #3a86ff; color: #3a86ff; background: rgba(58,134,255,0.05); }
-  .btn-view:hover {
-    background: linear-gradient(135deg, #3a86ff, #2667cc);
-    color: #fff; transform: translateY(-2px);
-    box-shadow: 0 5px 14px rgba(58,134,255,0.3);
-  }
-  .btn-delete { border-color: #dc3545; color: #dc3545; background: rgba(220,53,69,0.05); }
-  .btn-delete:hover {
-    background: linear-gradient(135deg, #dc3545, #c82333);
-    color: #fff; transform: translateY(-2px);
-    box-shadow: 0 5px 14px rgba(220,53,69,0.3);
+  .status-pill .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .sp-pending    { background: var(--yellow-light); color: #8a6000; border-color: rgba(252,209,22,0.35); }
+  .sp-pending .dot   { background: #e6b800; animation: blink 2s ease-in-out infinite; }
+  .sp-assessment { background: rgba(23,162,184,0.10); color: #0a6775; border-color: rgba(23,162,184,0.28); }
+  .sp-assessment .dot { background: #17a2b8; }
+  .sp-approval   { background: rgba(111,66,193,0.10); color: #4a1d99; border-color: rgba(111,66,193,0.28); }
+  .sp-approval .dot   { background: #6f42c1; }
+  .sp-release    { background: rgba(253,126,20,0.10); color: #8a3e00; border-color: rgba(253,126,20,0.28); }
+  .sp-release .dot    { background: #fd7e14; }
+  .sp-released   { background: rgba(39,174,96,0.10); color: #1a7a45; border-color: rgba(39,174,96,0.28); }
+  .sp-released .dot   { background: #27ae60; }
+  .sp-rejected   { background: var(--red-light); color: var(--red); border-color: rgba(206,17,38,0.22); }
+  .sp-rejected .dot   { background: var(--red); }
+
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+  /* Action buttons */
+  .action-group { display: flex; align-items: center; gap: 6px; }
+
+  .btn-view {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 13px; border-radius: 7px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    background: var(--blue-light); color: var(--blue);
+    border: 1.5px solid var(--blue-border);
+    text-decoration: none; transition: all 0.2s;
   }
 
+  .btn-view:hover { background: var(--blue); color: white; border-color: var(--blue); text-decoration: none; transform: translateY(-1px); }
+
+  .btn-del {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 11px; border-radius: 7px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem; font-weight: 700;
+    background: var(--red-light); color: var(--red);
+    border: 1.5px solid rgba(206,17,38,0.22);
+    cursor: pointer; transition: all 0.2s; outline: none;
+  }
+
+  .btn-del:hover { background: var(--red); color: white; border-color: var(--red); transform: translateY(-1px); }
+
+  /* Pagination */
   .pagination-wrapper {
-    padding: 18px 22px;
-    border-top: 1px solid #f1f3f5;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
+    padding: 16px 20px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px;
   }
-  .pagination-info { font-size: 13px; color: #6c757d; }
+
+  .pagination-info {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem; font-weight: 700;
+    color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .pagination { margin: 0; }
+
   .pagination .page-link {
-    border-radius: 8px !important;
-    margin: 0 2px;
-    border: 2px solid #e1e8ed;
-    color: #145433;
-    font-weight: 600;
-    font-size: 13px;
-    transition: all 0.2s;
+    border-radius: 8px !important; margin: 0 2px;
+    border: 2px solid var(--border);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--blue); transition: all 0.2s;
+    padding: 6px 12px;
   }
-  .pagination .page-link:hover             { background: #145433; color: #fff; border-color: #145433; }
-  .pagination .page-item.active .page-link { background: linear-gradient(135deg, #145433, #27ae60); border-color: #145433; color: #fff; }
+
+  .pagination .page-link:hover { background: var(--blue); color: white; border-color: var(--blue); }
+
+  .pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    border-color: var(--blue); color: white;
+    box-shadow: 0 3px 10px rgba(0,56,168,0.28);
+  }
+
   .pagination .page-item.disabled .page-link { opacity: 0.4; }
 
+  /* Empty state */
+  .empty-state { text-align: center; padding: 64px 20px; }
+
+  .empty-icon {
+    width: 72px; height: 72px;
+    background: var(--blue-light); border: 2px solid var(--blue-border);
+    border-radius: 50%; margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; color: var(--blue);
+  }
+
+  .empty-state h5 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95rem; font-weight: 800;
+    color: var(--text-primary); margin-bottom: 8px;
+  }
+
+  .empty-state p { font-size: 0.84rem; color: var(--text-secondary); margin: 0; }
+  .empty-state a { color: var(--blue); font-weight: 700; text-decoration: none; }
+  .empty-state a:hover { color: var(--red); text-decoration: underline; }
+
+  /* ── Delete modal ── */
+  .modal-backdrop-custom {
+    position: fixed; inset: 0; z-index: 1040;
+    background: rgba(0,28,80,0.50); backdrop-filter: blur(2px);
+    display: none; align-items: center; justify-content: center;
+  }
+
+  .modal-backdrop-custom.show { display: flex; }
+
+  .modal-box {
+    background: white; border-radius: 16px;
+    padding: 32px 32px 28px; max-width: 420px; width: 90%;
+    box-shadow: 0 24px 64px rgba(0,28,80,0.28);
+    position: relative; overflow: hidden;
+    animation: modalIn 0.25s ease-out;
+  }
+
+  @keyframes modalIn {
+    from { opacity:0; transform:scale(0.92) translateY(12px); }
+    to   { opacity:1; transform:scale(1) translateY(0); }
+  }
+
+  .modal-box::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--blue) 33%, var(--red) 33% 66%, var(--yellow) 66%);
+  }
+
+  .modal-icon {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--red-light); border: 2px solid rgba(206,17,38,0.22);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: var(--red); margin: 0 auto 18px;
+  }
+
+  .modal-box h5 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem; font-weight: 900;
+    color: var(--text-primary); text-align: center; margin-bottom: 10px;
+  }
+
+  .modal-box p {
+    font-size: 0.84rem; color: var(--text-secondary);
+    text-align: center; line-height: 1.6; margin-bottom: 24px;
+  }
+
+  .modal-box p strong { color: var(--text-primary); }
+
+  .modal-actions { display: flex; gap: 10px; }
+
+  .modal-btn-cancel {
+    flex: 1; padding: 11px; border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    background: white; color: var(--text-secondary);
+    border: 2px solid var(--border); cursor: pointer; transition: all 0.2s;
+  }
+
+  .modal-btn-cancel:hover { background: var(--bg); border-color: #b0bace; color: var(--text-primary); }
+
+  .modal-btn-confirm {
+    flex: 1; padding: 11px; border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    color: white; border: none; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(206,17,38,0.28);
+    transition: all 0.25s; position: relative; overflow: hidden;
+  }
+
+  .modal-btn-confirm::before {
+    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.4s;
+  }
+
+  .modal-btn-confirm:hover::before { left: 100%; }
+  .modal-btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 7px 18px rgba(206,17,38,0.38); }
+
   @media (max-width: 768px) {
-    .filter-card input,
-    .filter-card select { width: 100%; }
+    .filter-card .form-control,
+    .filter-card .form-select { width: 100%; }
   }
 </style>
+
+<!-- ── Filter Form ── -->
+<div class="filter-card">
+  <form method="get" class="d-flex flex-wrap align-items-end gap-2">
+    <input type="text" name="q" value="{{ search }}"
+           class="form-control form-control-sm"
+           placeholder="🔍  Search by name or email…"
+           style="max-width:230px;">
+
+    <select name="aid_type" class="form-select form-select-sm" style="max-width:200px;">
+      <option value="">All Programs</option>
+      <option value="AICS"        {% if program == 'AICS' %}selected{% endif %}>AICS</option>
+      <option value="SEA"         {% if program == 'SEA' %}selected{% endif %}>SEA</option>
+      <option value="REDCARD"     {% if program == 'REDCARD' %}selected{% endif %}>Red Card</option>
+      <option value="EDUCATIONAL" {% if program == 'EDUCATIONAL' %}selected{% endif %}>Educational Assistance</option>
+    </select>
+
+    <select name="status" class="form-select form-select-sm" style="max-width:200px;">
+      <option value=""           {% if not status_filter %}selected{% endif %}>Pending (default)</option>
+      <option value="PENDING"    {% if status_filter == 'PENDING' %}selected{% endif %}>Pending</option>
+      <option value="ASSESSMENT" {% if status_filter == 'ASSESSMENT' %}selected{% endif %}>Under Assessment</option>
+      <option value="APPROVAL"   {% if status_filter == 'APPROVAL' %}selected{% endif %}>For Approval</option>
+      <option value="RELEASE"    {% if status_filter == 'RELEASE' %}selected{% endif %}>For Release</option>
+      <option value="RELEASED"   {% if status_filter == 'RELEASED' %}selected{% endif %}>Released</option>
+      <option value="REJECTED"   {% if status_filter == 'REJECTED' %}selected{% endif %}>Rejected</option>
+    </select>
+
+    <button type="submit" class="btn-filter">
+      <i class="bi bi-funnel-fill"></i> Filter
+    </button>
+    <a href="{% url 'pending_applications' %}" class="btn-reset">
+      <i class="bi bi-x-circle"></i> Reset
+    </a>
+  </form>
+</div>
 
 <!-- ── Main Table ── -->
 <div class="table-card">
@@ -222,88 +418,96 @@
     <table class="table table-hover align-middle mb-0">
       <thead>
         <tr>
-          <th style="width:50px;">#</th>
+          <th style="width:44px;">#</th>
           <th>Applicant</th>
           <th>Barangay</th>
           <th>Program</th>
           <th>Date Submitted</th>
           <th>Status</th>
-          <th>Actions</th>
+          <th style="text-align:center;">Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for app in applications %}
         <tr>
-          <td class="row-number">{{ forloop.counter }}</td>
+          <td><span class="row-num">{{ forloop.counter }}</span></td>
 
           <td>
-            <div class="fw-semibold" style="color:#0d3821;">{{ app.client.full_name }}</div>
-            <small class="text-muted">{{ app.client.contact_no|default:"No contact" }}</small>
+            <div class="applicant-name">{{ app.client.full_name }}</div>
+            <div class="applicant-sub">{{ app.client.contact_no|default:"No contact" }}</div>
           </td>
 
-          <td>{{ app.client.barangay|default:"—" }}</td>
-
-          <td>
-            <span class="badge rounded-pill
-              {% if app.aid_type == 'AICS' %}bg-info text-dark
-              {% elif app.aid_type == 'SEA' %}bg-success
-              {% elif app.aid_type == 'REDCARD' %}bg-danger
-              {% elif app.aid_type == 'EDUCATIONAL' %}bg-warning text-dark
-              {% else %}bg-secondary{% endif %}"
-              style="padding:6px 14px; font-size:12px; font-weight:700;">
-              {{ app.get_aid_type_display }}
-            </span>
+          <td style="font-size:0.84rem; color:var(--text-secondary);">
+            {{ app.client.barangay|default:"—" }}
           </td>
 
           <td>
-            <span style="font-size:14px; color:#495057; font-weight:500;">{{ app.created_at|date:"M d, Y" }}</span><br>
-            <small class="text-muted">{{ app.created_at|date:"h:i A" }}</small>
-          </td>
-
-          <td>
-            {% if app.status == 'PENDING' %}
-              <span class="status-badge status-pending">Pending</span>
-            {% elif app.status == 'ASSESSMENT' %}
-              <span class="status-badge status-assessment"><i class="bi bi-search"></i> Assessment</span>
-            {% elif app.status == 'APPROVAL' %}
-              <span class="status-badge status-approval"><i class="bi bi-check2-circle"></i> For Approval</span>
-            {% elif app.status == 'RELEASE' %}
-              <span class="status-badge status-release"><i class="bi bi-cash-coin"></i> For Release</span>
-            {% elif app.status == 'RELEASED' %}
-              <span class="status-badge status-released"><i class="bi bi-patch-check-fill"></i> Released</span>
-            {% elif app.status == 'REJECTED' %}
-              <span class="status-badge status-rejected"><i class="bi bi-x-circle-fill"></i> Rejected</span>
+            {% if app.aid_type == 'AICS' %}
+              <span class="prog-badge prog-aics"><i class="bi bi-heart-pulse-fill"></i> AICS</span>
+            {% elif app.aid_type == 'SEA' %}
+              <span class="prog-badge prog-sea"><i class="bi bi-briefcase-fill"></i> SEA</span>
+            {% elif app.aid_type == 'REDCARD' %}
+              <span class="prog-badge prog-redcard"><i class="bi bi-exclamation-triangle-fill"></i> Red Card</span>
+            {% elif app.aid_type == 'EDUCATIONAL' %}
+              <span class="prog-badge prog-edu"><i class="bi bi-mortarboard-fill"></i> Educational</span>
             {% else %}
-              <span class="status-badge" style="background:#e9ecef;color:#495057;">{{ app.status }}</span>
+              <span class="prog-badge prog-default">{{ app.get_aid_type_display }}</span>
             {% endif %}
           </td>
 
           <td>
-            <div class="d-flex gap-2">
-              <a href="{% url 'application_detail' app.id %}" class="action-btn btn-view">
-                <i class="bi bi-eye"></i> View
+            <div class="date-main">{{ app.created_at|date:"M d, Y" }}</div>
+            <div class="date-sub">{{ app.created_at|date:"h:i A" }}</div>
+          </td>
+
+          <td>
+            {% if app.status == 'PENDING' %}
+              <span class="status-pill sp-pending"><span class="dot"></span> Pending</span>
+            {% elif app.status == 'ASSESSMENT' %}
+              <span class="status-pill sp-assessment"><span class="dot"></span> Assessment</span>
+            {% elif app.status == 'APPROVAL' %}
+              <span class="status-pill sp-approval"><span class="dot"></span> For Approval</span>
+            {% elif app.status == 'RELEASE' %}
+              <span class="status-pill sp-release"><span class="dot"></span> For Release</span>
+            {% elif app.status == 'RELEASED' %}
+              <span class="status-pill sp-released"><span class="dot"></span> Released</span>
+            {% elif app.status == 'REJECTED' %}
+              <span class="status-pill sp-rejected"><span class="dot"></span> Rejected</span>
+            {% else %}
+              <span class="status-pill" style="background:#f0f2f7;color:#8592b0;border-color:var(--border);">
+                <span class="dot" style="background:#b0bace;"></span> {{ app.status }}
+              </span>
+            {% endif %}
+          </td>
+
+          <td>
+            <div class="action-group" style="justify-content:center;">
+              <a href="{% url 'application_detail' app.id %}" class="btn-view">
+                <i class="bi bi-eye-fill"></i> View
               </a>
-              <a href="{% url 'application_delete' app.id %}"
-                 onclick="return confirm('Delete this application?');"
-                 class="action-btn btn-delete">
-                <i class="bi bi-trash"></i>
-              </a>
+              <button type="button" class="btn-del"
+                      onclick="openDeleteModal('{% url 'application_delete' app.id %}', '{{ app.client.full_name|escapejs }}')"
+                      title="Delete application">
+                <i class="bi bi-trash3-fill"></i>
+              </button>
             </div>
           </td>
         </tr>
 
         {% empty %}
         <tr>
-          <td colspan="7" class="text-center py-5">
-            <i class="bi bi-check-circle fs-1 text-success d-block mb-3"></i>
-            <h5 class="text-muted fw-semibold">No Applications Found</h5>
-            <p class="text-muted mb-0">
-              {% if request.GET.q or request.GET.aid_type or request.GET.status %}
-                No results match your filters. <a href="{% url 'pending_applications' %}">Clear filters</a>
-              {% else %}
-                All applications have been processed.
-              {% endif %}
-            </p>
+          <td colspan="7">
+            <div class="empty-state">
+              <div class="empty-icon"><i class="bi bi-inbox"></i></div>
+              <h5>No Applications Found</h5>
+              <p>
+                {% if request.GET.q or request.GET.aid_type or request.GET.status %}
+                  No results match your filters. <a href="{% url 'pending_applications' %}">Clear filters</a>
+                {% else %}
+                  All applications have been processed.
+                {% endif %}
+              </p>
+            </div>
           </td>
         </tr>
         {% endfor %}
@@ -311,6 +515,7 @@
     </table>
   </div>
 
+  <!-- Pagination -->
   {% if applications.paginator.num_pages > 1 %}
   <div class="pagination-wrapper">
     <span class="pagination-info">
@@ -351,7 +556,46 @@
     </nav>
   </div>
   {% endif %}
-
 </div>
+
+<!-- ── Delete Confirmation Modal ── -->
+<div class="modal-backdrop-custom" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-icon"><i class="bi bi-trash3-fill"></i></div>
+    <h5>Delete Application?</h5>
+    <p>You are about to delete the application for <strong id="modal-client-name">—</strong>. This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn-cancel" onclick="closeDeleteModal()">
+        <i class="bi bi-x-circle"></i> Cancel
+      </button>
+      <form id="deleteForm" method="POST" style="flex:1;display:flex;">
+        {% csrf_token %}
+        <button type="submit" class="modal-btn-confirm" style="width:100%;">
+          <i class="bi bi-trash3-fill"></i> Yes, Delete
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openDeleteModal(url, clientName) {
+    document.getElementById('modal-client-name').textContent = clientName;
+    document.getElementById('deleteForm').action = url;
+    document.getElementById('deleteModal').classList.add('show');
+  }
+
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+  }
+
+  document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDeleteModal();
+  });
+</script>
 
 {% endblock %}

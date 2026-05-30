@@ -1,1072 +1,725 @@
 {% extends "base.html" %}
+{% block page_icon %}person-lines-fill{% endblock %}
 {% block page_title %}Client Details{% endblock %}
+{% block breadcrumb %}Client Details{% endblock %}
+
 {% block content %}
 
 <style>
-  .detail-wrapper {
-<<<<<<< HEAD
-    background: linear-gradient(135deg, #e8f8f0 0%, #d5f4e6 100%);
-=======
-    background: linear-gradient(135deg, #e0f7ff 0%, #f0f4ff 100%);
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-    min-height: 100vh;
-    padding: 40px 20px;
+  :root {
+    --blue: #0038A8; --blue-dark: #002882;
+    --blue-light: rgba(0,56,168,0.08); --blue-border: rgba(0,56,168,0.18);
+    --red: #CE1126; --red-dark: #a50d1e; --red-light: rgba(206,17,38,0.07);
+    --yellow: #FCD116; --yellow-light: rgba(252,209,22,0.10);
+    --border: #dde3ef; --text-primary: #0f1f4b; --text-secondary: #5a6a8a; --bg: #f5f7fc;
   }
-  
-  .detail-container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  .profile-card {
-<<<<<<< HEAD
-    background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-    border-radius: 15px;
-    padding: 40px;
-    color: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    margin-bottom: 30px;
-  }
-  
-  .client-name {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-=======
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 25px;
-    padding: 40px;
-    color: white;
-    box-shadow: 0 15px 50px rgba(102, 126, 234, 0.4);
-    margin-bottom: 30px;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .profile-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    animation: pulse 15s ease-in-out infinite;
-  }
-  
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-  }
-  
-  .profile-header {
-    position: relative;
-    z-index: 1;
-  }
-  
-  .client-name {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 8px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-  }
-  
-  .client-id {
-    font-size: 1rem;
-    opacity: 0.9;
-    margin-bottom: 20px;
-  }
-  
-  .status-badge-large {
-    display: inline-block;
-    padding: 12px 30px;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-  }
-  
-  .info-card {
-    background: white;
-<<<<<<< HEAD
-    border-radius: 15px;
-    padding: 30px;
-    margin-bottom: 25px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e9ecef;
-  }
-  
-  .info-card:hover {
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
-  }
-  
-  .card-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #0a4d2e;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e9ecef;
-=======
-    border-radius: 20px;
-    padding: 30px;
-    margin-bottom: 25px;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
-    border: none;
-    transition: all 0.3s ease;
-  }
-  
-  .info-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
-  }
-  
-  .card-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #1e3c72;
-    margin-bottom: 25px;
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-<<<<<<< HEAD
+  .detail-outer { max-width: 1160px; margin: 0 auto; }
+  .profile-card { background:linear-gradient(135deg,var(--blue) 0%,var(--blue-dark) 100%); border-radius:16px; padding:32px 36px; color:white; margin-bottom:20px; position:relative; overflow:hidden; box-shadow:0 4px 20px rgba(0,40,130,0.18); }
+  .profile-card::before { content:''; position:absolute; inset:0; background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(255,255,255,0.02) 40px,rgba(255,255,255,0.02) 41px); }
+  .profile-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--yellow) 0%,var(--yellow) 40%,rgba(252,209,22,0.2) 100%); }
+  .profile-inner { position:relative; z-index:1; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:20px; }
+  .profile-left { display:flex; align-items:center; gap:18px; }
+  .profile-avatar { width:72px; height:72px; background:rgba(255,255,255,0.12); border:2px solid rgba(255,255,255,0.22); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; flex-shrink:0; }
+  .profile-eyebrow { font-family:'Montserrat',sans-serif; font-size:.6rem; font-weight:700; color:var(--yellow); text-transform:uppercase; letter-spacing:2px; margin-bottom:4px; }
+  .client-name { font-family:'Montserrat',sans-serif; font-size:1.55rem; font-weight:800; color:white; margin:0 0 6px; line-height:1.2; }
+  .client-id { font-size:.8rem; color:rgba(255,255,255,0.6); margin:0; }
+  .status-badge-large { display:inline-flex; align-items:center; gap:7px; padding:10px 22px; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; border:2px solid rgba(255,255,255,0.25); }
+  .status-badge-large.released { background:rgba(39,174,96,0.25); color:#7effc0; border-color:rgba(39,174,96,0.4); }
+  .status-badge-large.rejected { background:rgba(206,17,38,0.25); color:#ffaaaa; border-color:rgba(206,17,38,0.4); }
+  .status-badge-large.pending  { background:rgba(252,209,22,0.2); color:#ffe97a; border-color:rgba(252,209,22,0.4); }
+  .status-badge-large.default  { background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.75); }
+  .info-card { background:white; border-radius:14px; padding:26px 28px; margin-bottom:18px; border:1px solid var(--border); box-shadow:0 2px 10px rgba(0,40,130,0.05); }
+  .card-title { font-family:'Montserrat',sans-serif; font-size:.82rem; font-weight:800; color:var(--text-primary); text-transform:uppercase; letter-spacing:.8px; margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid var(--border); display:flex; align-items:center; gap:9px; }
+  .card-title i { color:var(--blue); }
+  .info-label { font-family:'Montserrat',sans-serif; font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-secondary); margin-bottom:5px; }
+  .info-value { font-size:.95rem; font-weight:600; color:var(--text-primary); margin:0; }
+  .info-value.money { font-family:'Montserrat',sans-serif; color:var(--blue); font-size:1.3rem; font-weight:800; }
+  .fourps-badge { display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,var(--blue),var(--blue-dark)); color:white; font-family:'Montserrat',sans-serif; font-size:.65rem; font-weight:700; padding:5px 12px; border-radius:4px; text-transform:uppercase; letter-spacing:.5px; }
+  .info-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:20px; font-family:'Montserrat',sans-serif; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+  .pill-yes  { background:var(--blue-light); color:var(--blue); border:1px solid var(--blue-border); }
+  .pill-no   { background:#f0f2f7; color:#8592b0; border:1px solid var(--border); }
+  .pill-warn { background:var(--yellow-light); color:#8a6000; border:1px solid rgba(252,209,22,0.35); }
+  .family-table { width:100%; border-collapse:collapse; font-size:.8rem; background:white; border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+  .family-table thead th { background:linear-gradient(135deg,var(--blue),var(--blue-dark)); color:white; text-align:center; padding:10px 8px; font-family:'Montserrat',sans-serif; font-weight:700; font-size:.62rem; text-transform:uppercase; letter-spacing:.5px; border:1px solid rgba(255,255,255,0.12); white-space:nowrap; }
+  .family-table tbody tr:nth-child(even) { background:#f8f9fc; }
+  .family-table tbody tr:hover { background:var(--blue-light); }
+  .family-table td { border:1px solid var(--border); padding:10px 12px; text-align:center; color:var(--text-primary); font-size:.82rem; }
+  .family-table td:first-child { text-align:left; font-weight:600; }
+  .check-yes { color:var(--blue); } .check-no { color:#d0d8ea; }
+  .stepper-wrapper { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; padding:16px 0 8px; }
+  .stepper-item { display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0; }
+  .stepper-icon { width:46px; height:46px; border-radius:50%; background:#edf0f7; color:#b0bace; display:flex; align-items:center; justify-content:center; font-size:1.1rem; transition:all .3s; border:3px solid #e0e6f0; }
+  .stepper-label { font-family:'Montserrat',sans-serif; font-size:.62rem; font-weight:700; color:#b0bace; text-transform:uppercase; letter-spacing:.5px; text-align:center; white-space:nowrap; }
+  .stepper-line { flex:1; height:3px; background:#e0e6f0; min-width:30px; margin-bottom:26px; border-radius:2px; }
+  .stepper-item.active .stepper-icon { background:linear-gradient(135deg,var(--blue),var(--blue-dark)); color:white; border-color:var(--blue); box-shadow:0 0 0 4px rgba(0,56,168,0.15); }
+  .stepper-item.active .stepper-label { color:var(--blue); }
+  .stepper-item.completed .stepper-icon { background:var(--blue); color:white; border-color:var(--blue-dark); }
+  .stepper-item.completed .stepper-label { color:var(--blue); }
+  .stepper-line.completed { background:var(--blue); }
+  .stepper-item.rejected .stepper-icon { background:var(--red); color:white; border-color:var(--red-dark); }
+  .stepper-item.rejected .stepper-label { color:var(--red); }
+  .stepper-line.rejected { background:var(--red); }
+  .program-detail-item { background:var(--bg); padding:14px 18px; border-radius:10px; margin-bottom:12px; border-left:4px solid var(--blue); display:flex; flex-direction:column; gap:4px; }
+  .program-detail-item strong { font-family:'Montserrat',sans-serif; font-size:.62rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; }
+  .program-detail-item span { font-size:.9rem; font-weight:600; color:var(--text-primary); }
+  .document-list { list-style:none; padding:0; margin:0; }
+  .document-list li { background:var(--bg); padding:13px 18px; border-radius:10px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); }
+  .document-list li:hover { background:var(--blue-light); border-color:var(--blue-border); }
+  .doc-name { font-weight:600; color:var(--text-primary); font-size:.88rem; display:flex; align-items:center; gap:8px; }
+  .doc-name i { color:var(--blue); }
+  .document-list a { color:var(--blue); font-family:'Montserrat',sans-serif; font-weight:700; font-size:.72rem; text-decoration:none; display:flex; align-items:center; gap:6px; text-transform:uppercase; letter-spacing:.5px; border:1.5px solid var(--blue-border); padding:5px 12px; border-radius:6px; transition:all .2s; }
+  .document-list a:hover { background:var(--blue); color:white; border-color:var(--blue); }
+  .action-buttons { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-top:8px; padding:24px 28px; background:white; border-radius:14px; border:1px solid var(--border); }
+  .btn-action { display:inline-flex; align-items:center; gap:7px; padding:11px 22px; border-radius:9px; font-family:'Montserrat',sans-serif; font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; border:2px solid; cursor:pointer; transition:all .2s; text-decoration:none; }
+  .btn-action:hover { transform:translateY(-1px); text-decoration:none; }
+  .btn-back    { background:white; color:var(--text-secondary); border-color:var(--border); }
+  .btn-back:hover { background:var(--bg); border-color:#b0bace; color:var(--text-primary); }
+  .btn-print   { background:var(--blue-light); color:var(--blue); border-color:var(--blue-border); }
+  .btn-print:hover { background:var(--blue); color:white; }
+  .btn-edit    { background:var(--yellow-light); color:#8a6000; border-color:rgba(252,209,22,0.4); }
+  .btn-edit:hover { background:var(--yellow); color:#3a2a00; }
+  .btn-approve { background:rgba(0,56,168,0.08); color:var(--blue); border-color:var(--blue-border); }
+  .btn-approve:hover { background:var(--blue); color:white; }
+  .btn-reject  { background:var(--red-light); color:var(--red); border-color:rgba(206,17,38,0.25); }
+  .btn-reject:hover { background:var(--red); color:white; }
+  .btn-completed      { background:rgba(39,174,96,0.08); color:#1a7a45; border-color:rgba(39,174,96,0.25); cursor:default; }
+  .btn-rejected-state { background:var(--red-light); color:var(--red); border-color:rgba(206,17,38,0.2); cursor:default; }
+  .empty-state { text-align:center; padding:32px; color:var(--text-secondary); font-size:.85rem; font-style:italic; }
 
-  .card-title i {
-    color: #27ae60;
-=======
-  
-  .card-title::before {
-    content: '';
-    width: 5px;
-    height: 30px;
-    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-    border-radius: 3px;
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
+  /* Release amount input */
+  .release-form-group {
+    display: flex; flex-direction: column; gap: 6px;
   }
-  
-  .info-label {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #6c757d;
-    margin-bottom: 5px;
-    font-weight: 600;
+  .release-form-group label {
+    font-family: 'Montserrat', sans-serif; font-size: .65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .8px; color: var(--text-secondary);
   }
-  
-  .info-value {
-    font-size: 1.1rem;
-    color: #212529;
-    font-weight: 600;
-    margin-bottom: 0;
+  .release-input-wrap {
+    display: flex; align-items: center; gap: 0;
+    border: 2px solid var(--blue-border); border-radius: 9px; overflow: hidden;
+    transition: border-color .2s;
   }
-  
-<<<<<<< HEAD
-=======
-  .highlight-amount {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px;
-    border-radius: 15px;
-    text-align: center;
-  }
-  
-  .amount-label {
-    font-size: 0.85rem;
-    opacity: 0.9;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-  }
-  
-  .amount-value {
-    font-size: 2.2rem;
-    font-weight: 700;
-  }
-  
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-  .action-buttons {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-top: 30px;
-  }
-  
-  .btn-modern {
-<<<<<<< HEAD
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    border: none;
-    transition: all 0.2s ease;
-    font-size: 0.95rem;
-    text-decoration: none;
-    display: inline-block;
-  }
-  
-  .btn-modern:hover {
-    opacity: 0.9;
-    text-decoration: none;
-  }
-  
-  .btn-back   { background: white; color: #6c757d; border: 2px solid #e1e8ed; }
-  .btn-back:hover { background: #f8f9fa; color: #495057; border-color: #6c757d; }
-  .btn-print  { background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%); color: white; }
-  .btn-edit   { background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); color: white; }
-  .btn-approve{ background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
-  .btn-reject { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white; }
-=======
-    padding: 15px 35px;
-    border-radius: 50px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border: none;
-    transition: all 0.3s ease;
-    font-size: 0.95rem;
-  }
-  
-  .btn-modern:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-  }
-  
-  .btn-back {
-    background: white;
-    color: #6c757d;
-    border: 2px solid #e1e8ed;
-  }
-  
-  .btn-back:hover {
-    background: #f8f9fa;
-    color: #495057;
-    border-color: #6c757d;
-  }
-  
-  .btn-print {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    color: white;
-  }
-  
-  .btn-edit {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    color: white;
-  }
-  
-  .btn-approve {
-    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
-    color: white;
-  }
-  
-  .btn-reject {
-    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
-    color: white;
-  }
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-  
-  .badge-pill {
-    padding: 8px 20px;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-  
-<<<<<<< HEAD
-  .program-detail-item {
-    background: #f8f9fa;
-    padding: 15px 20px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    border-left: 4px solid #27ae60;
-  }
-  
-  .program-detail-item strong {
-    color: #0a4d2e;
-    display: block;
-    margin-bottom: 5px;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  /* ── 4Ps badge ── */
-  .fourps-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-    color: white;
-    font-size: 0.82rem;
-    font-weight: 700;
-    padding: 5px 14px;
-    border-radius: 20px;
-  }
-
-  /* ── Family table ── */
-  .family-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.88rem;
-  }
-
-  .family-table thead th {
-    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
-    color: #fff;
-    text-align: center;
-    padding: 10px 8px;
-    font-weight: 600;
-    border: 1px solid rgba(255,255,255,0.2);
+  .release-input-wrap:focus-within { border-color: var(--blue); }
+  .release-input-prefix {
+    background: var(--blue-light); color: var(--blue);
+    font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: .85rem;
+    padding: 10px 14px; border-right: 2px solid var(--blue-border);
     white-space: nowrap;
   }
-
-  .family-table tbody tr:nth-child(even) { background: #f5faf7; }
-  .family-table tbody tr:hover           { background: #e8f5ed; }
-
-  .family-table td {
-    border: 1px solid #d5e8dc;
-    padding: 10px 12px;
-    text-align: center;
-    color: #212529;
+  .release-input-wrap input {
+    border: none; outline: none; padding: 10px 14px;
+    font-family: 'Montserrat', sans-serif; font-size: .88rem; font-weight: 600;
+    color: var(--text-primary); background: white; width: 160px;
   }
+  .release-input-wrap input::placeholder { color: #b0bace; font-weight: 400; }
 
-  .family-table td:first-child { text-align: left; font-weight: 600; }
+  /* Score bar */
+  .score-bar-track { background:#e9ecef; border-radius:20px; height:13px; overflow:hidden; }
+  .score-bar-fill  { height:100%; border-radius:20px; transition:width .8s ease; }
+  .score-green  { background:linear-gradient(90deg,#27ae60,#2ecc71); }
+  .score-yellow { background:linear-gradient(90deg,#f0a500,#fcd116); }
+  .score-red    { background:linear-gradient(90deg,var(--red),#e74c3c); }
 
-  .check-yes { color: #27ae60; font-size: 1.1rem; }
-  .check-no  { color: #dee2e6; font-size: 1.1rem; }
+  /* Print sheet */
+  #print-sheet {
+    display:none; font-family:Arial,Helvetica,sans-serif; font-size:10pt;
+    color:#000; width:185mm; margin:0 auto; background:#fff;
+  }
+  #print-sheet .gis-header { display:flex; align-items:center; justify-content:center; gap:14pt; margin-bottom:10pt; position:relative; }
+  #print-sheet .gis-logo { width:48pt; height:48pt; border:1pt solid #999; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20pt; flex-shrink:0; }
+  #print-sheet .gis-title { font-size:13pt; font-weight:bold; text-align:center; letter-spacing:1px; }
+  #print-sheet .gis-refbox { position:absolute; right:0; top:0; border:1pt solid #000; width:60pt; height:20pt; }
+  #print-sheet .gis-sec { font-weight:bold; font-size:9.5pt; margin:8pt 0 4pt; text-transform:uppercase; }
+  #print-sheet .gis-sec span { margin-right:6pt; }
+  #print-sheet .gis-row { width:100%; border-collapse:collapse; margin-bottom:3pt; }
+  #print-sheet .gis-row td { padding:1pt 0; font-size:9.5pt; vertical-align:bottom; white-space:nowrap; }
+  #print-sheet .gis-row .lbl { font-weight:normal; padding-right:2pt; }
+  #print-sheet .gis-row .val { border-bottom:1pt solid #000; min-width:80pt; padding:0 3pt; font-weight:normal; }
+  #print-sheet .gis-row .val.wide  { min-width:130pt; }
+  #print-sheet .gis-row .val.xwide { min-width:190pt; }
+  #print-sheet .gis-row .val.short { min-width:45pt; }
+  #print-sheet .gis-fam { width:100%; border-collapse:collapse; font-size:8.5pt; margin-bottom:4pt; }
+  #print-sheet .gis-fam th { border:1pt solid #000; padding:2pt 3pt; text-align:center; font-size:8pt; font-weight:bold; background:#fff; }
+  #print-sheet .gis-fam td { border:1pt solid #000; padding:0; text-align:center; height:16pt; }
+  #print-sheet .gis-fam td.left { text-align:left; padding-left:3pt; }
+  #print-sheet .gis-blank { border-bottom:1pt solid #000; height:14pt; margin-bottom:3pt; width:100%; }
+  #print-sheet .gis-divider { border:none; border-top:2pt dashed #000; margin:8pt 0; width:100%; }
+  #print-sheet .gis-cert-title { text-align:center; font-weight:bold; font-size:11pt; letter-spacing:1px; margin-bottom:6pt; }
+  #print-sheet .gis-cert-body { font-size:9.5pt; line-height:1.8; }
+  #print-sheet .gis-sigs { width:100%; border-collapse:collapse; margin-top:16pt; font-size:9.5pt; }
+  #print-sheet .gis-sigs td { vertical-align:bottom; padding:0 4pt; }
+  #print-sheet .gis-sig-name { font-weight:bold; font-size:10pt; margin-top:18pt; display:block; }
+  #print-sheet .gis-sig-title { font-size:8.5pt; display:block; }
 
-  /* ── Workflow Stepper ── */
-  .stepper-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    padding: 20px 0 10px;
-  }
-
-  .stepper-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
-  .stepper-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: #e9ecef;
-    color: #adb5bd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-    border: 3px solid #e9ecef;
-  }
-
-  .stepper-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #adb5bd;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .stepper-line {
-    flex: 1;
-    height: 3px;
-    background: #e9ecef;
-    min-width: 30px;
-    margin-bottom: 26px;
-    transition: background 0.3s ease;
-  }
-
-  .stepper-item.active .stepper-icon {
-    background: linear-gradient(135deg, #0f6e3f, #27ae60);
-    color: #fff;
-    border-color: #27ae60;
-    box-shadow: 0 0 0 4px rgba(39,174,96,0.2);
-  }
-  .stepper-item.active .stepper-label  { color: #0f6e3f; }
-
-  .stepper-item.completed .stepper-icon {
-    background: #27ae60;
-    color: #fff;
-    border-color: #27ae60;
-  }
-  .stepper-item.completed .stepper-label { color: #27ae60; }
-  .stepper-line.completed               { background: #27ae60; }
-
-  .stepper-item.rejected .stepper-icon {
-    background: #dc3545;
-    color: #fff;
-    border-color: #dc3545;
-  }
-  .stepper-item.rejected .stepper-label { color: #dc3545; }
-  .stepper-line.rejected                { background: #dc3545; }
-
-  @media (max-width: 576px) {
-    .stepper-line    { min-width: 16px; }
-    .stepper-label   { font-size: 0.65rem; }
-    .stepper-icon    { width: 38px; height: 38px; font-size: 1rem; }
-  }
-
-  /* ── Documents ── */
-  .document-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .document-list li {
-    background: #f8f9fa;
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid #e9ecef;
-  }
-  
-  .document-list li:hover { background: #e9ecef; }
-  
-  .document-list a {
-    color: #27ae60;
-    font-weight: 600;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .document-list a:hover { color: #0f6e3f; }
-  
-  .empty-state {
-    text-align: center;
-    padding: 40px;
-    color: #6c757d;
-    font-style: italic;
-  }
-  
   @media print {
-    .detail-wrapper { background: white; padding: 0; }
-    .action-buttons, .btn-modern { display: none !important; }
-    .info-card { box-shadow: none !important; border: 1px solid #dee2e6 !important; page-break-inside: avoid; }
-    .profile-card { background: #0f6e3f !important; box-shadow: none !important; }
+    @page { size:A4 portrait; margin:12mm 14mm; }
+    body * { visibility:hidden; }
+    #print-sheet, #print-sheet * { visibility:visible; }
+    #print-sheet { display:block !important; position:fixed; top:0; left:0; width:182mm; }
   }
 </style>
 
-<div class="detail-wrapper">
-  <div class="detail-container">
-    
-    <!-- ── Profile Header ── -->
-    <div class="profile-card">
-      <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+<!-- ═══════════════════════ SCREEN VIEW ═══════════════════════ -->
+<div class="detail-outer" id="screen-view">
+
+  <!-- Profile Header -->
+  <div class="profile-card">
+    <div class="profile-inner">
+      <div class="profile-left">
+        <div class="profile-avatar">👤</div>
         <div>
-          <h1 class="client-name">
-            {{ client.first_name }}
-            {% if client.middle_name %}{{ client.middle_name }}{% endif %}
-            {{ client.last_name }}
-          </h1>
-          <p class="client-id">Beneficiary ID: #{{ client.id }}</p>
+          <div class="profile-eyebrow">MSWDO Beneficiary Record</div>
+          <h1 class="client-name">{{ client.first_name }} {% if client.middle_name %}{{ client.middle_name }}{% endif %} {{ client.last_name }}</h1>
+          <p class="client-id">Beneficiary ID: #{{ client.id }} &nbsp;·&nbsp; {{ application.get_aid_type_display }}</p>
         </div>
-        <span class="status-badge-large
-          {% if application.status == 'APPROVED' or application.status == 'RELEASED' %}bg-success
-          {% elif application.status == 'REJECTED' %}bg-danger
-          {% elif application.status == 'PENDING' %}bg-warning text-dark
-          {% else %}bg-secondary{% endif %}">
-          {{ application.get_status_display }}
-        </span>
       </div>
+      <span class="status-badge-large {% if application.status == 'RELEASED' %}released{% elif application.status == 'REJECTED' %}rejected{% elif application.status == 'PENDING' %}pending{% else %}default{% endif %}">
+        <i class="bi bi-{% if application.status == 'RELEASED' %}check-circle-fill{% elif application.status == 'REJECTED' %}x-circle-fill{% elif application.status == 'PENDING' %}hourglass-split{% else %}circle{% endif %}"></i>
+        {{ application.get_status_display }}
+      </span>
     </div>
+  </div>
 
-    <!-- ── Personal Information ── -->
-    <div class="info-card">
-      <h2 class="card-title"><i class="bi bi-person-fill"></i> Personal Information</h2>
-      <div class="row g-4">
-        <div class="col-md-3">
-          <div class="info-label">Sex</div>
-          <p class="info-value">{{ client.sex|default:"—" }}</p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Date of Birth</div>
-          <p class="info-value">{{ client.birth_date|date:"M d, Y"|default:"—" }}</p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Civil Status</div>
-          <p class="info-value">{{ client.civil_status|default:"—" }}</p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Nationality</div>
-          <p class="info-value">{{ client.nationality|default:"—" }}</p>
-=======
-  .reason-box {
-    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-    border-left: 5px solid #667eea;
-    padding: 20px;
-    border-radius: 12px;
-    font-style: italic;
-    color: #495057;
-    line-height: 1.6;
-  }
-  
-  @media print {
-    .detail-wrapper {
-      background: white;
-      padding: 0;
-    }
-    .action-buttons,
-    .btn-modern {
-      display: none !important;
-    }
-    .info-card {
-      box-shadow: none !important;
-      border: 1px solid #dee2e6 !important;
-      page-break-inside: avoid;
-    }
-    .profile-card {
-      background: #667eea !important;
-      box-shadow: none !important;
-    }
-  }
-</style>
+  <!-- Personal Information -->
+  <div class="info-card">
+    <h2 class="card-title"><i class="bi bi-person-fill"></i> Personal Information</h2>
+    <div class="row g-4">
+      <div class="col-md-3"><div class="info-label">Sex</div><p class="info-value">{{ client.sex|default:"—" }}</p></div>
+      <div class="col-md-3"><div class="info-label">Date of Birth</div><p class="info-value">{{ client.birth_date|date:"M d, Y"|default:"—" }}</p></div>
+      <div class="col-md-3"><div class="info-label">Civil Status</div><p class="info-value">{{ client.civil_status|default:"—" }}</p></div>
+      <div class="col-md-3"><div class="info-label">Nationality</div><p class="info-value">{{ client.nationality|default:"—" }}</p></div>
+    </div>
+  </div>
 
-<div class="detail-wrapper">
-  <div class="detail-container">
-    
-    <!-- Profile Header Card -->
-    <div class="profile-card">
-      <div class="profile-header">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-          <div>
-            <h1 class="client-name">
-              {{ client.first_name }}
-              {% if client.middle_name %}{{ client.middle_name }}{% endif %}
-              {{ client.last_name }}
-            </h1>
-            <p class="client-id">Beneficiary ID: #{{ client.id }}</p>
-          </div>
-          <span class="status-badge-large
-            {% if application.status == 'approved' %}bg-success
-            {% elif application.status == 'rejected' %}bg-danger
-            {% elif application.status == 'pending' %}bg-warning text-dark
-            {% else %}bg-secondary{% endif %}">
-            {{ application.status|title }}
+  <!-- Address & Contact -->
+  <div class="info-card">
+    <h2 class="card-title"><i class="bi bi-geo-alt-fill"></i> Address &amp; Contact</h2>
+    <div class="row g-4">
+      <div class="col-md-6"><div class="info-label">Complete Address</div><p class="info-value">{{ client.address|default:"—" }}</p></div>
+      <div class="col-md-3"><div class="info-label">Barangay</div><p class="info-value">{{ client.barangay|default:"—" }}</p></div>
+      <div class="col-md-3"><div class="info-label">Municipality</div><p class="info-value">{{ client.municipality|default:"—" }}</p></div>
+      <div class="col-md-6"><div class="info-label">Contact Number</div><p class="info-value">{{ client.contact_no|default:"—" }}</p></div>
+      <div class="col-md-6"><div class="info-label">Email Address</div><p class="info-value text-break">{{ client.email|default:"—" }}</p></div>
+    </div>
+  </div>
+
+  <!-- Socio-Economic Profile -->
+  <div class="info-card">
+    <h2 class="card-title"><i class="bi bi-bar-chart-fill"></i> Socio-Economic Profile</h2>
+    <div class="row g-4">
+      <div class="col-md-4"><div class="info-label">Livelihood</div><p class="info-value">{{ client.livelihood|default:"—" }}</p></div>
+      <div class="col-md-4"><div class="info-label">Monthly Household Income</div><p class="info-value money">₱{{ client.monthly_income|floatformat:2|default:"0.00" }}</p></div>
+      <div class="col-md-4"><div class="info-label">Household Size</div><p class="info-value">{{ client.household_size|default:"—" }} member(s)</p></div>
+      <div class="col-md-4"><div class="info-label">Previous DSWD Aid</div><p class="mb-0"><span class="info-pill {% if client.previous_aid == 'Yes' %}pill-yes{% else %}pill-no{% endif %}">{{ client.previous_aid|default:"No" }}</span></p></div>
+      <div class="col-md-4">
+        <div class="info-label">4Ps Member</div>
+        <p class="mb-0">
+          {% if client.is_4ps == 'Yes' %}
+            <span class="fourps-badge"><i class="bi bi-patch-check-fill"></i> 4Ps</span>
+            {% if client.fourps_id %}<small class="d-block mt-1" style="color:var(--text-secondary);font-size:.72rem;">ID: {{ client.fourps_id }}</small>{% endif %}
+          {% else %}<span class="info-pill pill-no">No</span>{% endif %}
+        </p>
+      </div>
+      {% if client.sectors %}
+      <div class="col-12">
+        <div class="info-label" style="margin-bottom:8px;">Sector / Socio-Economic Status</div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;">
+          {% for sector in client.sectors %}
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:20px;background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border);font-family:'Montserrat',sans-serif;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">
+            <i class="bi bi-tag-fill" style="font-size:.6rem;"></i>{{ sector }}
           </span>
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
+          {% endfor %}
         </div>
       </div>
+      {% endif %}
     </div>
+  </div>
 
-<<<<<<< HEAD
-    <!-- ── Address & Contact ── -->
-    <div class="info-card">
-      <h2 class="card-title"><i class="bi bi-geo-alt-fill"></i> Address & Contact</h2>
-      <div class="row g-4">
-        <div class="col-md-6">
-          <div class="info-label">Address</div>
-          <p class="info-value">{{ client.address|default:"—" }}</p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Barangay</div>
-          <p class="info-value">{{ client.barangay|default:"—" }}</p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Municipality</div>
-          <p class="info-value">{{ client.municipality|default:"—" }}</p>
-        </div>
-        <div class="col-md-6">
-          <div class="info-label">Contact Number</div>
-          <p class="info-value">{{ client.contact_no|default:"—" }}</p>
-        </div>
-        <div class="col-md-6">
-          <div class="info-label">Email Address</div>
-          <p class="info-value text-break">{{ client.email|default:"—" }}</p>
-=======
-    <!-- Personal Information -->
-    <div class="info-card">
-      <h2 class="card-title">Personal Information</h2>
-      <div class="row g-4">
-        <div class="col-md-3">
-          <div class="info-label">Sex</div>
-          <p class="info-value">{{ client.sex|default:"—" }}</p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Date of Birth</div>
-          <p class="info-value">{{ client.birth_date|date:"M d, Y"|default:"—" }}</p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Civil Status</div>
-          <p class="info-value">{{ client.civil_status|default:"—" }}</p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Nationality</div>
-          <p class="info-value">{{ client.nationality|default:"—" }}</p>
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-        </div>
-      </div>
+  <!-- Family Information -->
+  {% if family_members %}
+  <div class="info-card">
+    <h2 class="card-title"><i class="bi bi-people-fill"></i> Beneficiary's Family Information</h2>
+    <div class="table-responsive">
+      <table class="family-table">
+        <thead>
+          <tr>
+            <th rowspan="2">Name</th><th rowspan="2">Age</th><th rowspan="2">Sex</th>
+            <th rowspan="2">Civil Status</th><th rowspan="2">Relationship</th>
+            <th colspan="4">Educational Attainment</th>
+            <th rowspan="2">Occupation</th><th rowspan="2">Income</th>
+            <th rowspan="2">Sector</th>
+          </tr>
+          <tr><th>Elem.</th><th>HS</th><th>Coll./Voc.</th><th>Illit.</th></tr>
+        </thead>
+        <tbody>
+          {% for member in family_members %}
+          <tr>
+            <td>{{ member.name }}</td><td>{{ member.age|default:"—" }}</td><td>{{ member.sex|default:"—" }}</td>
+            <td>{{ member.civil_status|default:"—" }}</td>
+            <td>{{ member.relationship|default:"—" }}</td>
+            <td>{% if member.educational_attainment == 'Elem' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
+            <td>{% if member.educational_attainment == 'HS' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
+            <td>{% if member.educational_attainment == 'Coll/Voc' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
+            <td>{% if member.educational_attainment == 'Illit' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
+            <td>{{ member.occupation|default:"—" }}</td>
+            <td>{% if member.income %}₱{{ member.income|floatformat:2 }}{% else %}—{% endif %}</td>
+            <td style="min-width:120px;">
+              {% if member.sectors %}
+                <div style="display:flex;flex-wrap:wrap;gap:3px;">
+                  {% for s in member.sectors %}
+                  <span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:8px;background:var(--blue-light);color:var(--blue);font-family:'Montserrat',sans-serif;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;">{{ s }}</span>
+                  {% endfor %}
+                </div>
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </div>
+  {% endif %}
 
-<<<<<<< HEAD
-    <!-- ── Socio-Economic Profile ── -->
-    <div class="info-card">
-      <h2 class="card-title"><i class="bi bi-bar-chart-fill"></i> Socio-Economic Profile</h2>
-=======
-    <!-- Address & Contact -->
-    <div class="info-card">
-      <h2 class="card-title">Address & Contact</h2>
-      <div class="row g-4">
-        <div class="col-md-6">
-          <div class="info-label">Address</div>
-          <p class="info-value">{{ client.address|default:"—" }}</p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Barangay</div>
-          <p class="info-value">{{ client.barangay|default:"—" }}</p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Municipality</div>
-          <p class="info-value">{{ client.municipality|default:"—" }}</p>
-        </div>
-        <div class="col-md-6">
-          <div class="info-label">Contact Number</div>
-          <p class="info-value">{{ client.contact_no|default:"—" }}</p>
-        </div>
-        <div class="col-md-6">
-          <div class="info-label">Email Address</div>
-          <p class="info-value text-break">{{ client.email|default:"—" }}</p>
-        </div>
-      </div>
+  <!-- Application Progress -->
+  <div class="info-card">
+    <h2 class="card-title"><i class="bi bi-arrow-right-circle-fill"></i> Application Progress</h2>
+    <div class="stepper-wrapper">
+      {% with s=application.status %}
+      <div class="stepper-item {% if s == 'PENDING' %}active{% elif s != 'PENDING' %}completed{% endif %}"><div class="stepper-icon"><i class="bi bi-hourglass-split"></i></div><div class="stepper-label">Pending</div></div>
+      <div class="stepper-line {% if s == 'ASSESSMENT' or s == 'APPROVAL' or s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}"></div>
+      <div class="stepper-item {% if s == 'ASSESSMENT' %}active{% elif s == 'APPROVAL' or s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}"><div class="stepper-icon"><i class="bi bi-search"></i></div><div class="stepper-label">Assessment</div></div>
+      <div class="stepper-line {% if s == 'APPROVAL' or s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}"></div>
+      <div class="stepper-item {% if s == 'APPROVAL' %}active{% elif s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}"><div class="stepper-icon"><i class="bi bi-check2-circle"></i></div><div class="stepper-label">For Approval</div></div>
+      <div class="stepper-line {% if s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}"></div>
+      <div class="stepper-item {% if s == 'RELEASE' %}active{% elif s == 'RELEASED' %}completed{% endif %}"><div class="stepper-icon"><i class="bi bi-cash-coin"></i></div><div class="stepper-label">For Release</div></div>
+      <div class="stepper-line {% if s == 'RELEASED' %}completed{% endif %}"></div>
+      <div class="stepper-item {% if s == 'RELEASED' %}completed{% endif %}"><div class="stepper-icon"><i class="bi bi-patch-check-fill"></i></div><div class="stepper-label">Released</div></div>
+      {% if s == 'REJECTED' %}
+      <div class="stepper-line rejected"></div>
+      <div class="stepper-item rejected"><div class="stepper-icon"><i class="bi bi-x-circle-fill"></i></div><div class="stepper-label">Rejected</div></div>
+      {% endif %}
+      {% endwith %}
     </div>
+  </div>
 
-    <!-- Socio-Economic Profile -->
-    <div class="info-card">
-      <h2 class="card-title">Socio-Economic Profile</h2>
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="info-label">Livelihood</div>
-          <p class="info-value">{{ client.livelihood|default:"—" }}</p>
-        </div>
-        <div class="col-md-4">
-          <div class="info-label">Monthly Income</div>
-<<<<<<< HEAD
-          <p class="info-value" style="color:#27ae60; font-size:1.5rem;">
-            ₱{{ client.monthly_income|floatformat:2|default:"0.00" }}
-          </p>
-        </div>
-        <div class="col-md-4">
-          <div class="info-label">Household Size</div>
-          <p class="info-value">{{ client.household_size|default:"—" }}</p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Previous Aid</div>
-          <p class="info-value">{{ client.previous_aid|default:"—" }}</p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Person with Disability</div>
-          <p class="mb-0">
-            <span class="badge badge-pill {% if client.has_disability == 'Yes' %}bg-info{% else %}bg-secondary{% endif %}">
-              {{ client.has_disability|default:"No" }}
-=======
-          <p class="info-value" style="color: #667eea; font-size: 1.5rem;">
-            ₱{{ client.monthly_income|floatformat:2|default:"0.00" }}
-          </p>
-        </div>
-        <div class="col-md-4">
-          <div class="info-label">Household Size</div>
-          <p class="info-value">{{ client.household_size|default:"—" }}</p>
-        </div>
-        <div class="col-md-4">
-          <div class="info-label">Previous Aid</div>
-          <p class="info-value">{{ client.previous_aid|default:"—" }}</p>
-        </div>
-        <div class="col-md-4">
-          <div class="info-label">Person with Disability</div>
-          <p class="mb-0">
-            <span class="badge badge-pill {{ client.has_disability|yesno:"bg-info,bg-secondary,bg-secondary" }}">
-              {{ client.has_disability|yesno:"Yes,No,—" }}
+  <!-- Assistance Request Details -->
+  <div class="info-card">
+    <h2 class="card-title"><i class="bi bi-clipboard2-check-fill"></i> Assistance Request Details</h2>
+    <div class="row g-4">
+      <div class="col-md-4"><div class="info-label">Aid Type</div><p class="info-value">{{ application.get_aid_type_display }}</p></div>
+      <div class="col-md-4"><div class="info-label">Date Submitted</div><p class="info-value">{{ application.created_at|date:"M d, Y" }}</p></div>
+      <div class="col-md-4"><div class="info-label">Last Updated</div><p class="info-value">{{ application.updated_at|date:"M d, Y" }}</p></div>
+      {% if application.assessed_by %}<div class="col-md-4"><div class="info-label">Assessed By</div><p class="info-value">{{ application.assessed_by.get_full_name|default:application.assessed_by.username }}</p></div>{% endif %}
+      {% if application.approved_by %}<div class="col-md-4"><div class="info-label">Approved By</div><p class="info-value">{{ application.approved_by.get_full_name|default:application.approved_by.username }}</p></div>{% endif %}
+      {% if application.released_at %}<div class="col-md-4"><div class="info-label">Date Released</div><p class="info-value">{{ application.released_at|date:"M d, Y" }}</p></div>{% endif %}
+      {% if application.approved_amount %}
+      <div class="col-md-4"><div class="info-label">Approved Amount</div><p class="info-value money">₱{{ application.approved_amount|floatformat:2 }}</p></div>
+      {% endif %}
+      {% if application.released_amount %}
+      <div class="col-md-4"><div class="info-label">Released Amount</div><p class="info-value money" style="color:#1a7a45;">₱{{ application.released_amount|floatformat:2 }}</p></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ML Eligibility Assessment -->
+  <div class="info-card" style="border-left:5px solid {% if application.eligibility_result == 'Eligible' %}#27ae60{% elif application.eligibility_result == 'Not Eligible' %}var(--red){% else %}#f0a500{% endif %};">
+    <h2 class="card-title">
+      <i class="bi bi-cpu-fill" style="color:{% if application.eligibility_result == 'Eligible' %}#27ae60{% elif application.eligibility_result == 'Not Eligible' %}var(--red){% else %}#f0a500{% endif %};"></i>
+      ML Eligibility Assessment
+    </h2>
+    <div class="row g-4 align-items-start">
+      <div class="col-md-3">
+        <div class="info-label">Result</div>
+        <div style="margin-top:6px;">
+          {% if application.eligibility_result == 'Eligible' %}
+            <span style="display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:9px;background:rgba(39,174,96,0.12);color:#1a7a45;border:2px solid rgba(39,174,96,0.3);font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;">
+              <i class="bi bi-check-circle-fill"></i> Eligible
             </span>
-          </p>
-        </div>
-        <div class="col-md-4">
-          <div class="info-label">Senior Citizen</div>
-          <p class="mb-0">
-            <span class="badge badge-pill {{ client.is_senior|yesno:"bg-warning text-dark,bg-secondary,bg-secondary" }}">
-              {{ client.is_senior|yesno:"Yes,No,—" }}
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
+          {% elif application.eligibility_result == 'Not Eligible' %}
+            <span style="display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:9px;background:var(--red-light);color:var(--red);border:2px solid rgba(206,17,38,0.3);font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;">
+              <i class="bi bi-x-circle-fill"></i> Not Eligible
             </span>
-          </p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">Senior Citizen</div>
-          <p class="mb-0">
-            <span class="badge badge-pill {% if client.is_senior == 'Yes' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
-              {{ client.is_senior|default:"No" }}
+          {% else %}
+            <span style="display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:9px;background:rgba(240,165,0,0.12);color:#8a6000;border:2px solid rgba(240,165,0,0.35);font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;">
+              <i class="bi bi-hourglass-split"></i> Pending
             </span>
-          </p>
-        </div>
-        <div class="col-md-3">
-          <div class="info-label">4Ps Member</div>
-          <p class="mb-0">
-            {% if client.is_4ps == 'Yes' %}
-              <span class="fourps-badge">
-                <i class="bi bi-patch-check-fill"></i> 4Ps Beneficiary
-              </span>
-              {% if client.fourps_id %}
-                <small class="d-block text-muted mt-1">ID: {{ client.fourps_id }}</small>
-              {% endif %}
-            {% else %}
-              <span class="badge badge-pill bg-secondary">No</span>
-            {% endif %}
-          </p>
+          {% endif %}
         </div>
       </div>
-    </div>
-
-<<<<<<< HEAD
-    <!-- ── Beneficiary's Family Information ── -->
-    {% if family_members %}
-    <div class="info-card">
-      <h2 class="card-title"><i class="bi bi-people-fill"></i> Beneficiary's Family Information</h2>
-      <div class="table-responsive">
-        <table class="family-table">
-          <thead>
-            <tr>
-              <th rowspan="2">Name</th>
-              <th rowspan="2">Age</th>
-              <th rowspan="2">Sex</th>
-              <th colspan="3">Civil Status</th>
-              <th rowspan="2">Relationship</th>
-              <th colspan="4">Educational Attainment</th>
-              <th rowspan="2">Occupation</th>
-              <th rowspan="2">Income</th>
-            </tr>
-            <tr>
-              <th>S</th><th>M</th><th>W</th>
-              <th>Elem.</th><th>HS</th><th>Coll./Voc.</th><th>Illit.</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for member in family_members %}
-            <tr>
-              <td>{{ member.name }}</td>
-              <td>{{ member.age|default:"—" }}</td>
-              <td>{{ member.sex|default:"—" }}</td>
-              <td>{% if member.civil_status == 'S' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
-              <td>{% if member.civil_status == 'M' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
-              <td>{% if member.civil_status == 'W' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
-              <td>{{ member.relationship|default:"—" }}</td>
-              <td>{% if member.educational_attainment == 'Elem' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
-              <td>{% if member.educational_attainment == 'HS' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
-              <td>{% if member.educational_attainment == 'Coll/Voc' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
-              <td>{% if member.educational_attainment == 'Illit' %}<span class="check-yes">✔</span>{% else %}<span class="check-no">—</span>{% endif %}</td>
-              <td>{{ member.occupation|default:"—" }}</td>
-              <td>{% if member.income %}₱{{ member.income|floatformat:2 }}{% else %}—{% endif %}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    {% endif %}
-
-    <!-- ── Workflow Status Stepper ── -->
-    <div class="info-card">
-      <h2 class="card-title"><i class="bi bi-arrow-right-circle-fill"></i> Application Progress</h2>
-      <div class="stepper-wrapper">
-        {% with s=application.status %}
-        <div class="stepper-item {% if s == 'PENDING' %}active{% elif s != 'PENDING' %}completed{% endif %}">
-          <div class="stepper-icon"><i class="bi bi-hourglass-split"></i></div>
-          <div class="stepper-label">Pending</div>
+      <div class="col-md-5">
+        <div class="info-label">Eligibility Score</div>
+        {% with score=application.eligibility_score|default:0 %}
+        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
+          <div class="score-bar-track" style="flex:1;">
+            <div class="score-bar-fill {% if score >= 60 %}score-green{% elif score >= 40 %}score-yellow{% else %}score-red{% endif %}"
+                 style="width:{{ score }}%;"></div>
+          </div>
+          <span style="font-family:'Montserrat',sans-serif;font-size:1.1rem;font-weight:800;min-width:56px;text-align:right;color:{% if score >= 60 %}#1a7a45{% elif score >= 40 %}#8a6000{% else %}var(--red){% endif %};">
+            {{ score }}<span style="font-size:.7rem;font-weight:600;">/100</span>
+          </span>
         </div>
-        <div class="stepper-line {% if s == 'ASSESSMENT' or s == 'APPROVAL' or s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}"></div>
-        <div class="stepper-item {% if s == 'ASSESSMENT' %}active{% elif s == 'APPROVAL' or s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}">
-          <div class="stepper-icon"><i class="bi bi-search"></i></div>
-          <div class="stepper-label">Assessment</div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;">
+          <span style="font-size:.63rem;color:#9aabca;">0 — Not Eligible</span>
+          <span style="font-size:.63rem;color:#9aabca;font-weight:700;">Min. passing: 40</span>
+          <span style="font-size:.63rem;color:#9aabca;">100 — Highly Eligible</span>
         </div>
-        <div class="stepper-line {% if s == 'APPROVAL' or s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}"></div>
-        <div class="stepper-item {% if s == 'APPROVAL' %}active{% elif s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}">
-          <div class="stepper-icon"><i class="bi bi-check2-circle"></i></div>
-          <div class="stepper-label">For Approval</div>
-        </div>
-        <div class="stepper-line {% if s == 'RELEASE' or s == 'RELEASED' %}completed{% endif %}"></div>
-        <div class="stepper-item {% if s == 'RELEASE' %}active{% elif s == 'RELEASED' %}completed{% endif %}">
-          <div class="stepper-icon"><i class="bi bi-cash-coin"></i></div>
-          <div class="stepper-label">For Release</div>
-        </div>
-        <div class="stepper-line {% if s == 'RELEASED' %}completed{% endif %}"></div>
-        <div class="stepper-item {% if s == 'RELEASED' %}completed{% endif %}">
-          <div class="stepper-icon"><i class="bi bi-patch-check-fill"></i></div>
-          <div class="stepper-label">Released</div>
-        </div>
-        {% if s == 'REJECTED' %}
-        <div class="stepper-line rejected"></div>
-        <div class="stepper-item rejected">
-          <div class="stepper-icon"><i class="bi bi-x-circle-fill"></i></div>
-          <div class="stepper-label">Rejected</div>
-        </div>
-        {% endif %}
         {% endwith %}
       </div>
-    </div>
-
-    <!-- ── Assistance Request ── -->
-    <div class="info-card">
-      <h2 class="card-title"><i class="bi bi-clipboard2-check-fill"></i> Assistance Request Details</h2>
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="info-label">Aid Type</div>
-          <p class="info-value">{{ application.get_aid_type_display }}</p>
-        </div>
-        <div class="col-md-4">
-=======
-    <!-- Assistance Request -->
-    <div class="info-card">
-      <h2 class="card-title">Assistance Request Details</h2>
-      
-      <div class="row g-4 mb-4">
-        <div class="col-md-4">
-          <div class="info-label">Aid Type</div>
-          <p class="info-value">{{ application.aid_type }}</p>
-        </div>
-        <div class="col-md-4">
-          <div class="highlight-amount">
-            <div class="amount-label">Requested Amount</div>
-            <div class="amount-value">₱{{ application.requested_amount|floatformat:2 }}</div>
+      <div class="col-md-4">
+        <div class="info-label">Score Guide</div>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-top:8px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:.78rem;">
+            <div style="width:28px;height:10px;border-radius:5px;background:linear-gradient(90deg,#27ae60,#2ecc71);flex-shrink:0;"></div>
+            <span style="font-weight:700;color:#1a7a45;">60–100</span>
+            <span style="color:var(--text-secondary);">Highly Eligible</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:.78rem;">
+            <div style="width:28px;height:10px;border-radius:5px;background:linear-gradient(90deg,#f0a500,#fcd116);flex-shrink:0;"></div>
+            <span style="font-weight:700;color:#8a6000;">40–59</span>
+            <span style="color:var(--text-secondary);">Marginally Eligible</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:.78rem;">
+            <div style="width:28px;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--red),#e74c3c);flex-shrink:0;"></div>
+            <span style="font-weight:700;color:var(--red);">0–39</span>
+            <span style="color:var(--text-secondary);">Not Eligible</span>
           </div>
         </div>
-        <div class="col-md-4">
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-          <div class="info-label">Eligibility Result</div>
-          <p class="mb-0">
-            <span class="badge badge-pill
-              {% if application.eligibility_result == 'Eligible' %}bg-success
-              {% elif application.eligibility_result == 'Not Eligible' %}bg-danger
-<<<<<<< HEAD
-              {% else %}bg-secondary{% endif %}"
-              style="font-size:1.1rem; padding:10px 25px;">
-=======
-              {% else %}bg-secondary{% endif %}" style="font-size: 1.1rem; padding: 10px 25px;">
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-              {{ application.eligibility_result|default:"Not yet evaluated" }}
-            </span>
-          </p>
-        </div>
-<<<<<<< HEAD
-        <div class="col-md-4">
-          <div class="info-label">Approved Amount</div>
-          <p class="info-value" style="color:#27ae60; font-size:1.4rem;">
-            {% if application.approved_amount %}
-              ₱{{ application.approved_amount|floatformat:2 }}
-            {% else %}
-              <span style="color:#adb5bd; font-size:1rem;">Not yet approved</span>
-            {% endif %}
-          </p>
-=======
       </div>
-
-      <div>
-        <div class="info-label">Reason for Assistance</div>
-        <div class="reason-box">
-          {{ application.reason }}
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
+      {% if application.eligibility_reason %}
+      <div class="col-12">
+        <div class="info-label" style="margin-bottom:8px;">System Assessment &amp; Reasoning</div>
+        <div style="background:{% if application.eligibility_result == 'Not Eligible' %}rgba(206,17,38,0.05){% elif application.eligibility_result == 'Eligible' %}rgba(39,174,96,0.06){% else %}rgba(240,165,0,0.08){% endif %};border-left:4px solid {% if application.eligibility_result == 'Not Eligible' %}var(--red){% elif application.eligibility_result == 'Eligible' %}#27ae60{% else %}#f0a500{% endif %};border-radius:0 10px 10px 0;padding:16px 20px;font-size:.88rem;line-height:1.8;color:var(--text-primary);">
+          {{ application.eligibility_reason }}
         </div>
-        <div class="col-md-4">
-          <div class="info-label">Date Submitted</div>
-          <p class="info-value">{{ application.created_at|date:"M d, Y" }}</p>
-        </div>
-        <div class="col-md-4">
-          <div class="info-label">Last Updated</div>
-          <p class="info-value">{{ application.updated_at|date:"M d, Y" }}</p>
-        </div>
-        {% if application.assessed_by %}
-        <div class="col-md-4">
-          <div class="info-label">Assessed By</div>
-          <p class="info-value">{{ application.assessed_by.get_full_name|default:application.assessed_by.username }}</p>
-        </div>
-        {% endif %}
-        {% if application.approved_by %}
-        <div class="col-md-4">
-          <div class="info-label">Approved By</div>
-          <p class="info-value">{{ application.approved_by.get_full_name|default:application.approved_by.username }}</p>
-        </div>
-        {% endif %}
-        {% if application.released_at %}
-        <div class="col-md-4">
-          <div class="info-label">Date Released</div>
-          <p class="info-value">{{ application.released_at|date:"M d, Y" }}</p>
-        </div>
-        {% endif %}
       </div>
-    </div>
-
-<<<<<<< HEAD
-    <!-- ── Program-Specific Details ── -->
-    <div class="info-card">
-      <h2 class="card-title"><i class="bi bi-folder2-open"></i> Program-Specific Details</h2>
-
-      {% if aics %}
-        <div class="program-detail-item">
-          <strong>Crisis Type</strong>
-          <span>{{ aics.crisis_type }}</span>
-        </div>
-      {% elif redcard %}
-        <div class="program-detail-item">
-          <strong>Emergency Type</strong>
-          <span>{{ redcard.emergency_type }}</span>
-        </div>
-        <div class="program-detail-item">
-          <strong>Reason</strong>
-          <span>{{ redcard.reason|default:"—" }}</span>
-        </div>
-        <div class="program-detail-item">
-          <strong>Times Availed</strong>
-          <span>{{ redcard.usage_count }}</span>
-        </div>
-      {% elif edu %}
-        <div class="program-detail-item">
-          <strong>School Name</strong>
-          <span>{{ edu.school_name }}</span>
-        </div>
-        <div class="program-detail-item">
-          <strong>Course / Grade Level</strong>
-          <span>{{ edu.course_or_grade }}</span>
-        </div>
-      {% elif sea %}
-        <div class="empty-state">
-          <p>SEA application — documents attached below.</p>
-        </div>
-      {% else %}
-        <div class="empty-state">
-          <p>No program-specific details available.</p>
-        </div>
       {% endif %}
     </div>
+  </div>
 
-    <!-- ── Uploaded Documents ── -->
-    <div class="info-card">
-      <h2 class="card-title"><i class="bi bi-paperclip"></i> Uploaded Documents</h2>
-      {% if documents %}
-        <ul class="document-list">
-          {% for doc in documents %}
-            <li>
-              <span style="font-weight:600; color:#2c3e50;">{{ doc.name }}</span>
-              <a href="{{ doc.file.url }}" target="_blank">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                  <path d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
-                  <path d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
-                </svg>
-                View Document
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <div class="empty-state">
-          <p>No documents uploaded.</p>
-        </div>
-      {% endif %}
-    </div>
+  <!-- Program-Specific Details -->
+  <div class="info-card">
+    <h2 class="card-title"><i class="bi bi-folder2-open"></i> Program-Specific Details</h2>
+    {% if aics %}<div class="program-detail-item"><strong>Crisis Type</strong><span>{{ aics.crisis_type }}</span></div>
+    {% elif redcard %}
+      <div class="program-detail-item"><strong>Emergency Type</strong><span>{{ redcard.emergency_type }}</span></div>
+      <div class="program-detail-item"><strong>Reason</strong><span>{{ redcard.reason|default:"—" }}</span></div>
+      <div class="program-detail-item"><strong>Times Availed</strong><span>{{ redcard.usage_count }}</span></div>
+    {% elif edu %}
+      <div class="program-detail-item"><strong>School Name</strong><span>{{ edu.school_name }}</span></div>
+      <div class="program-detail-item"><strong>Course / Grade Level</strong><span>{{ edu.course_or_grade }}</span></div>
+    {% elif sea %}<div class="empty-state">SEA application — documents attached below.</div>
+    {% else %}<div class="empty-state">No program-specific details available.</div>{% endif %}
+  </div>
 
-    <!-- ── Action Buttons ── -->
-    <div class="action-buttons">
-      <a href="{% url 'pending_applications' %}" class="btn-modern btn-back">← Back to List</a>
+  <!-- Uploaded Documents -->
+  <div class="info-card">
+    <h2 class="card-title"><i class="bi bi-paperclip"></i> Uploaded Documents</h2>
+    {% if documents %}
+      <ul class="document-list">
+        {% for doc in documents %}
+        <li>
+          <span class="doc-name"><i class="bi bi-file-earmark-text"></i>{{ doc.name }}</span>
+          <a href="{{ doc.file.url }}" target="_blank"><i class="bi bi-box-arrow-up-right"></i> View</a>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}<div class="empty-state">No documents uploaded.</div>{% endif %}
+  </div>
 
-      <button class="btn-modern btn-print" onclick="window.print()">🖨️ Print Details</button>
+  <!-- ===================== ACTION BUTTONS ===================== -->
+  <div class="action-buttons">
 
-      <a href="{% url 'application_edit' application.id %}" class="btn-modern btn-edit">✏️ Edit</a>
+    <!-- Always visible -->
+    <a href="{% url 'pending_applications' %}" class="btn-action btn-back">
+      <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+    <button class="btn-action btn-print" onclick="printForm()">
+      <i class="bi bi-printer-fill"></i> Print
+    </button>
+    <a href="{% url 'application_edit' application.id %}" class="btn-action btn-edit">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </a>
 
-      {% if application.status == 'PENDING' %}
-        <a href="{% url 'application_advance' application.id %}"
-           class="btn-modern btn-approve"
-           onclick="return confirm('Move this application to Assessment?')">
-          🔍 Start Assessment
-        </a>
-=======
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-      <a href="{% url 'pending_applications' %}" class="btn-modern btn-back">
-        ← Back to List
+    {% if application.status == 'PENDING' %}
+      <!-- Simple GET links for stages that don't need an amount -->
+      <a href="{% url 'application_advance' application.id %}"
+         class="btn-action btn-approve"
+         onclick="return confirm('Move to Assessment?')">
+        <i class="bi bi-search"></i> Start Assessment
       </a>
-      
-      <button class="btn-modern btn-print" onclick="window.print()">
-        🖨️ Print Details
-      </button>
-
-      <a href="{% url 'application_edit' application.id %}" class="btn-modern btn-edit">
-        ✏️ Edit Application
+      <a href="{% url 'application_reject' application.id %}"
+         class="btn-action btn-reject"
+         onclick="return confirm('Reject this application?')">
+        <i class="bi bi-x-circle"></i> Reject
       </a>
 
-      {% if application.status == 'pending' %}
-        <a href="{% url 'application_approve' application.id %}"
-           class="btn-modern btn-approve"
-           onclick="return confirm('Are you sure you want to APPROVE this application?')">
-          ✅ Approve
-        </a>
+    {% elif application.status == 'ASSESSMENT' %}
+      <a href="{% url 'application_advance' application.id %}"
+         class="btn-action btn-approve"
+         onclick="return confirm('Submit for approval?')">
+        <i class="bi bi-check2-circle"></i> Submit for Approval
+      </a>
+      <a href="{% url 'application_reject' application.id %}"
+         class="btn-action btn-reject"
+         onclick="return confirm('Reject?')">
+        <i class="bi bi-x-circle"></i> Reject
+      </a>
 
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-        <a href="{% url 'application_reject' application.id %}"
-           class="btn-modern btn-reject"
-           onclick="return confirm('Are you sure you want to REJECT this application?')">
-          ❌ Reject
-        </a>
-<<<<<<< HEAD
+    {% elif application.status == 'APPROVAL' %}
+      <a href="{% url 'application_advance' application.id %}"
+         class="btn-action btn-approve"
+         onclick="return confirm('Approve for Release?')">
+        <i class="bi bi-cash-coin"></i> Approve for Release
+      </a>
+      <a href="{% url 'application_reject' application.id %}"
+         class="btn-action btn-reject"
+         onclick="return confirm('Reject?')">
+        <i class="bi bi-x-circle"></i> Reject
+      </a>
 
-      {% elif application.status == 'ASSESSMENT' %}
-        <a href="{% url 'application_advance' application.id %}"
-           class="btn-modern btn-approve"
-           onclick="return confirm('Submit this application for approval?')">
-          ✅ Submit for Approval
-        </a>
-        <a href="{% url 'application_reject' application.id %}"
-           class="btn-modern btn-reject"
-           onclick="return confirm('Are you sure you want to REJECT this application?')">
-          ❌ Reject
-        </a>
+    {% elif application.status == 'RELEASE' %}
+      <!-- ✅ POST form — captures released_amount before advancing to RELEASED -->
+      <form method="POST"
+            action="{% url 'application_advance' application.id %}"
+            style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;"
+            onsubmit="return confirm('Mark this application as Released?')">
+        {% csrf_token %}
+        <div class="release-form-group">
+          <label for="release-amount-input">
+            <i class="bi bi-cash-coin" style="color:var(--blue);"></i>
+            Released Amount (₱) <span style="color:var(--red);">*</span>
+          </label>
+          <div class="release-input-wrap">
+            <span class="release-input-prefix">₱</span>
+            <input
+              type="number"
+              id="release-amount-input"
+              name="approved_amount"
+              placeholder="0.00"
+              step="0.01"
+              min="1"
+              required
+              value="{{ application.approved_amount|default:'' }}"
+            >
+          </div>
+        </div>
+        <button type="submit" class="btn-action btn-approve" style="border:2px solid var(--blue-border);">
+          <i class="bi bi-patch-check-fill"></i> Mark as Released
+        </button>
+      </form>
 
-      {% elif application.status == 'APPROVAL' %}
-        <a href="{% url 'application_advance' application.id %}"
-           class="btn-modern btn-approve"
-           onclick="return confirm('Approve and move to For Release?')">
-          💰 Approve for Release
-        </a>
-        <a href="{% url 'application_reject' application.id %}"
-           class="btn-modern btn-reject"
-           onclick="return confirm('Are you sure you want to REJECT this application?')">
-          ❌ Reject
-        </a>
+    {% elif application.status == 'RELEASED' %}
+      <span class="btn-action btn-completed">
+        <i class="bi bi-check-circle-fill"></i> Completed
+      </span>
 
-      {% elif application.status == 'RELEASE' %}
-        <a href="{% url 'application_advance' application.id %}"
-           class="btn-modern btn-approve"
-           onclick="return confirm('Mark this application as Released?')">
-          🏦 Mark as Released
-        </a>
-
-      {% elif application.status == 'RELEASED' %}
-        <span class="btn-modern" style="background:#e8f5ed; color:#27ae60; border:2px solid #27ae60; cursor:default;">
-          ✅ Completed
-        </span>
-
-      {% elif application.status == 'REJECTED' %}
-        <span class="btn-modern" style="background:#fdecea; color:#dc3545; border:2px solid #dc3545; cursor:default;">
-          ❌ Rejected
-        </span>
-=======
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-      {% endif %}
-    </div>
+    {% elif application.status == 'REJECTED' %}
+      <span class="btn-action btn-rejected-state">
+        <i class="bi bi-x-circle-fill"></i> Rejected
+      </span>
+    {% endif %}
 
   </div>
-</div>
+
+</div><!-- end screen-view -->
+
+
+<!-- ═══════════════════════ PRINT SHEET ═══════════════════════ -->
+<div id="print-sheet">
+  <div class="gis-header">
+    <div class="gis-logo">🏛</div>
+    <div class="gis-title">GENERAL INTAKE SHEET</div>
+    <div class="gis-refbox"></div>
+  </div>
+
+  <div class="gis-sec"><span>I.</span> CLIENT'S IDENTIFYING INFORMATION</div>
+  <table class="gis-row">
+    <tr>
+      <td class="lbl">Name:</td>
+      <td class="val wide">{{ client.last_name }}, {{ client.first_name }} {% if client.middle_name %}{{ client.middle_name }}{% endif %}</td>
+      <td class="lbl" style="padding-left:8pt;">Age:</td>
+      <td class="val short">{% if client.birth_date %}<span data-dob="{{ client.birth_date|date:'Y-m-d' }}" class="calc-age"></span>{% endif %}</td>
+      <td class="lbl" style="padding-left:6pt;">Sex:</td>
+      <td class="val short">{{ client.sex|default:"" }}</td>
+      <td class="lbl" style="padding-left:6pt;">Civil Status:</td>
+      <td class="val">{{ client.civil_status|default:"" }}</td>
+    </tr>
+  </table>
+  <table class="gis-row">
+    <tr>
+      <td class="lbl">Date of Birth:</td>
+      <td class="val">{{ client.birth_date|date:"m/d/Y"|default:"" }}</td>
+      <td class="lbl" style="padding-left:8pt;">Place of Birth:</td>
+      <td class="val wide">{{ client.municipality|default:"" }}</td>
+      <td class="lbl" style="padding-left:6pt;">Religion:</td>
+      <td class="val">{{ client.nationality|default:"" }}</td>
+    </tr>
+  </table>
+  <table class="gis-row">
+    <tr>
+      <td class="lbl">Educational Attainment:</td>
+      <td class="val wide">&nbsp;</td>
+      <td class="lbl" style="padding-left:8pt;">Occupation:</td>
+      <td class="val">{{ client.livelihood|default:"" }}</td>
+      <td class="lbl" style="padding-left:6pt;">Income:</td>
+      <td class="val">&#8369;{{ client.monthly_income|floatformat:2|default:"" }}</td>
+    </tr>
+  </table>
+  <table class="gis-row">
+    <tr>
+      <td class="lbl">Address:</td>
+      <td class="val xwide">{{ client.address|default:"" }}, Brgy. {{ client.barangay|default:"" }}, {{ client.municipality|default:"" }}</td>
+    </tr>
+  </table>
+
+  <table class="gis-row" style="margin-top:3pt;">
+    <tr>
+      <td style="padding:2pt 4pt;font-size:8.5pt;width:25%;"><span style="display:inline-block;width:9pt;height:9pt;border:1pt solid #000;text-align:center;line-height:9pt;font-size:7pt;margin-right:3pt;">{% if client.has_disability == 'Yes' %}&#10004;{% endif %}</span>PWD</td>
+      <td style="padding:2pt 4pt;font-size:8.5pt;width:25%;"><span style="display:inline-block;width:9pt;height:9pt;border:1pt solid #000;text-align:center;line-height:9pt;font-size:7pt;margin-right:3pt;">{% if client.is_senior == 'Yes' %}&#10004;{% endif %}</span>Senior Citizen</td>
+      <td style="padding:2pt 4pt;font-size:8.5pt;width:25%;"><span style="display:inline-block;width:9pt;height:9pt;border:1pt solid #000;text-align:center;line-height:9pt;font-size:7pt;margin-right:3pt;">{% if client.previous_aid == 'Yes' %}&#10004;{% endif %}</span>Previous DSWD Aid</td>
+      <td style="padding:2pt 4pt;font-size:8.5pt;width:25%;"><span style="display:inline-block;width:9pt;height:9pt;border:1pt solid #000;text-align:center;line-height:9pt;font-size:7pt;margin-right:3pt;">{% if client.is_solo_parent == 'Yes' %}&#10004;{% endif %}</span>Solo Parent</td>
+    </tr>
+    <tr>
+      <td style="padding:2pt 4pt;font-size:8.5pt;"><span style="display:inline-block;width:9pt;height:9pt;border:1pt solid #000;text-align:center;line-height:9pt;font-size:7pt;margin-right:3pt;">{% if client.is_indigenous == 'Yes' %}&#10004;{% endif %}</span>Indigenous People (IP)</td>
+      <td colspan="2" style="padding:2pt 4pt;font-size:8.5pt;"><span style="display:inline-block;width:9pt;height:9pt;border:1pt solid #000;text-align:center;line-height:9pt;font-size:7pt;margin-right:3pt;">{% if client.is_4ps == 'Yes' %}&#10004;{% endif %}</span>4Ps Member{% if client.is_4ps == 'Yes' and client.fourps_id %}&nbsp;<span style="font-size:6pt;">ID: {{ client.fourps_id }}</span>{% endif %}</td>
+      <td></td>
+    </tr>
+  </table>
+
+  <div class="gis-sec" style="margin-top:6pt;"><span>II.</span> BENEFICIARY'S IDENTIFYING INFORMATION</div>
+  <table class="gis-row">
+    <tr>
+      <td class="lbl">Name:</td>
+      <td class="val wide">{{ client.last_name }}, {{ client.first_name }} {% if client.middle_name %}{{ client.middle_name }}{% endif %}</td>
+      <td class="lbl" style="padding-left:8pt;">Age:</td>
+      <td class="val short"><span data-dob="{{ client.birth_date|date:'Y-m-d' }}" class="calc-age"></span></td>
+      <td class="lbl" style="padding-left:6pt;">Sex:</td>
+      <td class="val short">{{ client.sex|default:"" }}</td>
+      <td class="lbl" style="padding-left:6pt;">Date of Birth:</td>
+      <td class="val">{{ client.birth_date|date:"m/d/Y"|default:"" }}</td>
+    </tr>
+  </table>
+
+  <div class="gis-sec" style="margin-top:6pt;"><span>III.</span> BENEFICIARY'S FAMILY INFORMATION</div>
+  <table class="gis-fam">
+    <thead>
+      <tr>
+        <th rowspan="2" style="width:20%;text-align:left;padding-left:4pt;">Name</th>
+        <th rowspan="2" style="width:5%;">Age</th>
+        <th rowspan="2" style="width:5%;">Sex</th>
+        <th style="width:10%;">Civil Status</th>
+        <th rowspan="2" style="width:13%;">Relationship<br>to the Client</th>
+        <th colspan="4">Educational Attainment</th>
+        <th rowspan="2" style="width:12%;">Occupation</th>
+        <th rowspan="2" style="width:10%;">Income</th>
+      </tr>
+      <tr><th style="width:5%;">Elem.</th><th style="width:4%;">HS</th><th style="width:6%;">Coll./<br>Voc.</th><th style="width:4%;">Illit.</th></tr>
+    </thead>
+    <tbody>
+      {% for member in family_members %}
+      <tr>
+        <td class="left">{{ member.name }}</td>
+        <td>{{ member.age|default:"" }}</td>
+        <td>{{ member.sex|default:"" }}</td>
+        <td style="font-size:7.5pt;">{{ member.civil_status|default:"" }}</td>
+        <td>{{ member.relationship|default:"" }}</td>
+        <td>{% if member.educational_attainment == 'Elem' %}&#10004;{% endif %}</td>
+        <td>{% if member.educational_attainment == 'HS' %}&#10004;{% endif %}</td>
+        <td>{% if member.educational_attainment == 'Coll/Voc' %}&#10004;{% endif %}</td>
+        <td>{% if member.educational_attainment == 'Illit' %}&#10004;{% endif %}</td>
+        <td>{{ member.occupation|default:"" }}</td>
+        <td>{% if member.income %}&#8369;{{ member.income|floatformat:0 }}{% endif %}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="11" style="height:16pt;"></td></tr>
+      {% endfor %}
+      {% for i in "12345"|make_list %}{% if forloop.counter > family_members|length %}<tr><td colspan="11" style="height:16pt;"></td></tr>{% endif %}{% endfor %}
+    </tbody>
+  </table>
+
+  <div class="gis-sec" style="margin-top:6pt;"><span>IV.</span> ASSESSMENT</div>
+  <div class="gis-blank"></div>
+  <div class="gis-blank"></div>
+  <div class="gis-blank"></div>
+
+  <div class="gis-sec" style="margin-top:6pt;"><span>V.</span> RECOMMENDED SERVICES AND ASSISTANCE</div>
+  <table class="gis-row">
+    <tr>
+      <td class="lbl">I respectfully recommend Financial Assistance to be given to</td>
+      <td class="val xwide">{{ client.first_name }} {{ client.last_name }}</td>
+      <td class="lbl">.</td>
+    </tr>
+  </table>
+
+  <hr class="gis-divider">
+
+  <div class="gis-cert-title">CERTIFICATE OF ELIGIBILITY</div>
+  <div class="gis-cert-body">
+    <table class="gis-row">
+      <tr>
+        <td class="lbl">This is to certify that:</td>
+        <td class="val wide">{{ client.first_name }} {{ client.last_name }}</td>
+        <td class="lbl" style="padding-left:8pt;">residing at</td>
+        <td class="val wide">{{ client.address|default:"" }}, {{ client.barangay|default:"" }}</td>
+      </tr>
+    </table>
+    <div style="margin:2pt 0;">eligible for assistance after interview and assessment has been conducted by the undersigned.</div>
+    <table class="gis-row">
+      <tr>
+        <td class="lbl">Client is recommended for financial assistance in the amount of</td>
+        <td class="val wide">{% if application.released_amount %}&#8369;{{ application.released_amount|floatformat:2 }}{% elif application.approved_amount %}&#8369;{{ application.approved_amount|floatformat:2 }}{% endif %}</td>
+        <td class="lbl" style="padding-left:6pt;">(Php</td>
+        <td class="val short">{% if application.released_amount %}{{ application.released_amount|floatformat:2 }}{% elif application.approved_amount %}{{ application.approved_amount|floatformat:2 }}{% endif %}</td>
+        <td class="lbl">) for</td>
+      </tr>
+    </table>
+    <table class="gis-row" style="margin-top:2pt;">
+      <tr><td class="val wide">{{ application.get_aid_type_display }}</td><td class="lbl">.</td></tr>
+    </table>
+  </div>
+
+  <table class="gis-sigs">
+    <tr>
+      <td style="width:45%;vertical-align:bottom;">
+        <div style="margin-top:6pt;">Prepared by:</div>
+        <span class="gis-sig-name">NEMECIA A. ESCAL</span>
+        <span class="gis-sig-title">Admin. Aide-IV</span>
+      </td>
+      <td style="width:10%;"></td>
+      <td style="width:45%;text-align:center;vertical-align:bottom;">
+        <div>Reviewed and Approved by:</div>
+        <br><br><br>
+        <span class="gis-sig-name">SHARON ROSE D. YLAGAN</span>
+        <span class="gis-sig-title">MSWDO</span>
+      </td>
+    </tr>
+  </table>
+</div><!-- end print-sheet -->
+
+<script>
+  function calcAge(dobStr) {
+    if (!dobStr) return '';
+    var dob   = new Date(dobStr);
+    var today = new Date();
+    var age   = today.getFullYear() - dob.getFullYear();
+    var m     = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+    return age;
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.calc-age').forEach(function (el) {
+      el.textContent = calcAge(el.getAttribute('data-dob'));
+    });
+  });
+
+  function printForm() {
+    document.getElementById('screen-view').style.display = 'none';
+    document.getElementById('print-sheet').style.display = 'block';
+    window.print();
+    document.getElementById('print-sheet').style.display = 'none';
+    document.getElementById('screen-view').style.display = 'block';
+  }
+</script>
 
 {% endblock %}

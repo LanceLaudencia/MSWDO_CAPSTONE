@@ -1,33 +1,47 @@
 import requests
 from django.conf import settings
 
-def send_sms(phone_number, message):
-    # Convert PH number 09XXXXXXXXX → 639XXXXXXXXX
-    if phone_number.startswith("09"):
-        phone_number = "63" + phone_number[1:]
+
+def send_sms(phone, message):
+    # format number
+    if phone.startswith("09"):
+        phone = "63" + phone[1:]
+
+    url = "https://dashboard.philsms.com/api/v3/sms/send"  # ✅ NEW URL
 
     payload = {
-        "api_token": settings.IPROG_API_KEY,
-        "phone_number": phone_number,
+        "recipient": phone,
+        "sender_id": getattr(settings, "PHILSMS_SENDER_ID", ""),
+        "type": "plain",
         "message": message,
     }
 
-    print("===== SMS DEBUG =====")
-    print("Sending SMS to:", phone_number)
-    print("Message:", message)
-    print("Payload:", payload)
-    print("=====================")
+    headers = {
+        "Authorization": f"Bearer {settings.PHILSMS_API_TOKEN}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",  # ✅ IMPORTANT (from docs)
+    }
 
     try:
-        response = requests.post(settings.IPROG_URL, data=payload, timeout=10)
-        print("Status Code:", response.status_code)
-        print("Response Text:", response.text)
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
 
-        try:
-            return response.json()
-        except ValueError:
-            return {"error": "Non-JSON response", "content": response.text}
+        print("===== SMS DEBUG (PhilSMS NEW API) =====")
+        print("URL:", url)
+        print("Number:", phone)
+        print("Status:", response.status_code)
+        print("Response:", response.text)
+        print("=======================================")
 
-    except Exception as e:
-        print("SMS ERROR:", e)
-        return {"error": str(e)}
+        response.raise_for_status()
+
+        return {
+            "success": True,
+            "data": response.json()
+        }
+
+    except requests.exceptions.RequestException as e:
+        print("SMS ERROR:", str(e))
+        return {
+            "success": False,
+            "error": str(e)
+        }

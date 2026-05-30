@@ -1,258 +1,391 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Client Login</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Login | MSWDO</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root {
+      --blue: #0038A8;
+      --blue-dark: #002882;
+      --blue-light: rgba(0, 56, 168, 0.08);
+      --blue-border: rgba(0, 56, 168, 0.2);
+      --red: #CE1126;
+      --red-dark: #a50d1e;
+      --yellow: #FCD116;
+      --border: #dde3ef;
+      --text-primary: #0f1f4b;
+      --text-secondary: #5a6a8a;
     }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    }
-
-    .login-page {
-      background: linear-gradient(135deg, #0f6e3f 0%, #2ecc71 100%);
+      font-family: 'Open Sans', sans-serif;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 24px;
       position: relative;
       overflow: hidden;
+      background: linear-gradient(135deg, #0d2878 0%, #0038A8 50%, #001a60 100%);
     }
 
-    .login-page::before {
+    /* Decorative blobs */
+    body::before {
       content: '';
       position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      animation: pulse 15s ease-in-out infinite;
+      top: -30%; right: -20%;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(252,209,22,0.10), transparent 65%);
+      animation: pulse-bg 12s ease-in-out infinite;
     }
 
-    @keyframes pulse {
-      0%, 100% { transform: scale(1) rotate(0deg); }
-      50% { transform: scale(1.1) rotate(180deg); }
+    body::after {
+      content: '';
+      position: absolute;
+      bottom: -25%; left: -15%;
+      width: 580px; height: 580px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(206,17,38,0.10), transparent 65%);
+      animation: pulse-bg 9s ease-in-out infinite reverse;
     }
 
+    @keyframes pulse-bg {
+      0%,100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+
+    /* Tricolor top bar */
+    .tricolor-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 4px; z-index: 200;
+      display: flex;
+    }
+    .tricolor-bar span { flex: 1; }
+    .tc-blue   { background: var(--blue); }
+    .tc-red    { background: var(--red); }
+    .tc-yellow { background: var(--yellow); }
+
+    /* Card */
     .login-container {
       width: 100%;
-      max-width: 450px;
+      max-width: 440px;
       position: relative;
-      z-index: 1;
+      z-index: 10;
+      animation: fadeInUp 0.7s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .login-card {
       background: white;
-      border-radius: 30px;
-      padding: 50px 40px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      border-radius: 18px;
+      padding: 44px 40px 40px;
+      box-shadow: 0 24px 64px rgba(0, 28, 80, 0.40);
       position: relative;
       overflow: hidden;
     }
 
+    /* Top stripe */
     .login-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 6px;
-      background: linear-gradient(90deg, #0f6e3f 0%, #27ae60 50%, #2ecc71 100%);
+      top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--blue) 33%, var(--red) 33% 66%, var(--yellow) 66%);
+    }
+
+    /* Bottom stripe */
+    .flag-strip {
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--blue) 33%, var(--red) 33% 66%, var(--yellow) 66%);
+    }
+
+    /* Header */
+    .card-header-block { text-align: center; margin-bottom: 28px; }
+
+    .login-emblem {
+      width: 68px; height: 68px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      box-shadow: 0 8px 24px rgba(0,56,168,0.28);
+      position: relative; overflow: hidden;
+    }
+
+    .login-emblem::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--yellow), var(--red));
+    }
+
+    .card-eyebrow {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.6rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 2px;
+      color: var(--text-secondary); margin-bottom: 6px;
     }
 
     .login-card h2 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: #0a4d2e;
-      margin-bottom: 10px;
-      text-align: center;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.5rem; font-weight: 900;
+      color: var(--text-primary); margin-bottom: 6px;
     }
 
-    .login-card > p {
-      color: #6c757d;
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 1rem;
+    .card-header-block p {
+      font-size: 0.82rem;
+      color: var(--text-secondary); line-height: 1.5;
     }
 
+    /* Alert */
     .alert {
-      background: linear-gradient(135deg, #fee140 0%, #fa709a 100%);
-      color: white;
-      padding: 15px 20px;
-      border-radius: 12px;
-      margin-bottom: 25px;
-      font-weight: 600;
-      text-align: center;
-      box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);
+      background: rgba(206,17,38,0.07);
+      border: 1.5px solid rgba(206,17,38,0.25);
+      border-left: 4px solid var(--red);
+      color: var(--red-dark);
+      padding: 11px 15px;
+      border-radius: 9px;
+      margin-bottom: 20px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.75rem; font-weight: 700;
+      display: flex; align-items: center; gap: 8px;
     }
 
-    .form-group {
-      margin-bottom: 25px;
-    }
+    /* Form */
+    .form-group { margin-bottom: 20px; }
 
     .form-group label {
       display: block;
-      font-weight: 600;
-      color: #2c3e50;
-      margin-bottom: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.62rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      color: var(--text-secondary); margin-bottom: 7px;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-icon {
+      position: absolute;
+      left: 13px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
       font-size: 0.95rem;
+      pointer-events: none;
+      transition: color 0.2s;
     }
 
     .form-control {
       width: 100%;
-      padding: 14px 18px;
-      border: 2px solid #e1e8ed;
-      border-radius: 12px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      background: #fafafa;
+      padding: 12px 14px 12px 38px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-family: 'Open Sans', sans-serif;
+      color: var(--text-primary);
+      background: #f8f9fc;
+      transition: all 0.2s ease;
     }
 
     .form-control:focus {
       outline: none;
-      border-color: #27ae60;
-      box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.1);
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(0,56,168,0.10);
       background: white;
     }
 
+    .input-wrap:focus-within .input-icon { color: var(--blue); }
+
+    .form-control::placeholder { color: #b0bace; }
+
+    /* Password toggle */
+    .pwd-toggle {
+      position: absolute;
+      right: 13px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: none; border: none; outline: none;
+      transition: color 0.2s;
+    }
+    .pwd-toggle:hover { color: var(--blue); }
+
+    /* Buttons */
     .btn-login {
       width: 100%;
-      background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
+      background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
       color: white;
       border: none;
-      padding: 16px;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      padding: 14px;
+      border-radius: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 1.5px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 5px 20px rgba(15, 110, 63, 0.4);
-      margin-bottom: 15px;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 16px rgba(206,17,38,0.30);
+      margin-bottom: 12px;
+      position: relative; overflow: hidden;
     }
 
-    .btn-login:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 30px rgba(15, 110, 63, 0.6);
+    .btn-login::before {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: left 0.4s;
     }
+
+    .btn-login:hover::before { left: 100%; }
+    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(206,17,38,0.40); }
 
     .btn-return {
-      display: block;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
       width: 100%;
-      background: white;
-      color: #6c757d;
-      border: 2px solid #e1e8ed;
-      padding: 14px;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      text-align: center;
+      background: white; color: var(--text-secondary);
+      border: 2px solid var(--border);
+      padding: 13px;
+      border-radius: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.8px;
       text-decoration: none;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
 
     .btn-return:hover {
-      background: #f8f9fa;
-      border-color: #6c757d;
-      color: #495057;
-      text-decoration: none;
+      background: #f5f7fc;
+      border-color: #b0bace;
+      color: var(--text-primary);
     }
 
+    /* Footer */
     .login-footer {
-      margin-top: 30px;
-      padding-top: 25px;
-      border-top: 2px solid #f0f0f0;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
       text-align: center;
-      color: #6c757d;
-      font-size: 0.95rem;
+      color: var(--text-secondary);
+      font-size: 0.82rem;
     }
 
     .login-footer a {
-      color: #27ae60;
+      color: var(--blue);
+      font-family: 'Montserrat', sans-serif;
       font-weight: 700;
       text-decoration: none;
-      transition: all 0.3s ease;
+      transition: color 0.2s;
     }
 
-    .login-footer a:hover {
-      color: #0f6e3f;
-      text-decoration: underline;
-    }
+    .login-footer a:hover { color: var(--red); text-decoration: underline; }
 
-    /* Logo/Icon at top (optional) */
-    .login-icon {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-      border-radius: 50%;
-      margin: 0 auto 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.5rem;
-      box-shadow: 0 8px 25px rgba(15, 110, 63, 0.3);
+    .gov-seal {
+      margin-top: 14px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.56rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--text-secondary); opacity: 0.65;
+      text-align: center;
     }
 
     @media (max-width: 480px) {
-      .login-card {
-        padding: 40px 30px;
-      }
-
-      .login-card h2 {
-        font-size: 2rem;
-      }
+      .login-card { padding: 36px 24px 32px; }
+      .login-card h2 { font-size: 1.3rem; }
     }
   </style>
 </head>
-<body class="login-page">
+<body>
+
+<div class="tricolor-bar">
+  <span class="tc-blue"></span>
+  <span class="tc-red"></span>
+  <span class="tc-yellow"></span>
+</div>
 
 <div class="login-container">
   <div class="login-card">
-    
-    <!-- Optional Icon/Logo -->
-    <div class="login-icon">
-      👤
+
+    <div class="card-header-block">
+      <div class="login-emblem">👤</div>
+      <div class="card-eyebrow">MSWDO · DSWD Devolved Unit</div>
+      <h2>Client Login</h2>
+      <p>Access your application status and submit welfare assistance requests.</p>
     </div>
 
-    <h2>Client Login</h2>
-    <p>Access your application status and submit requests.</p>
-
     {% for message in messages %}
-      <div class="alert">{{ message }}</div>
+      <div class="alert">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        {{ message }}
+      </div>
     {% endfor %}
 
     <form method="POST">
       {% csrf_token %}
-      
+
       <div class="form-group">
         <label>Email Address</label>
-        <input type="email" name="email" required class="form-control" placeholder="your.email@example.com">
+        <div class="input-wrap">
+          <i class="bi bi-envelope-fill input-icon"></i>
+          <input type="email" name="email" required class="form-control" placeholder="your.email@example.com">
+        </div>
       </div>
 
       <div class="form-group">
         <label>Password</label>
-        <input type="password" name="password" required class="form-control" placeholder="Enter your password">
+        <div class="input-wrap">
+          <i class="bi bi-lock-fill input-icon"></i>
+          <input type="password" name="password" id="pwdField" required class="form-control" placeholder="Enter your password" style="padding-right:42px;">
+          <button type="button" class="pwd-toggle" id="pwdToggle" tabindex="-1">
+            <i class="bi bi-eye-fill" id="pwdEyeIcon"></i>
+          </button>
+        </div>
       </div>
 
-      <button type="submit" class="btn-login">Login</button>
+      <button type="submit" class="btn-login">
+        <i class="bi bi-box-arrow-in-right"></i>&nbsp; Sign In
+      </button>
 
-      <a href="{% url 'landing' %}" class="btn-return">← Return to Home</a>
+      <a href="{% url 'landing' %}" class="btn-return">
+        <i class="bi bi-arrow-left"></i> Return to Home
+      </a>
     </form>
 
     <div class="login-footer">
-      Don't have an account?
-      <a href="{% url 'client_register' %}">Register here</a>
+      Don't have an account? <a href="{% url 'client_register' %}">Register here</a>
     </div>
+
+    <div class="gov-seal">Republic of the Philippines · Official Government Portal</div>
+
+    <div class="flag-strip"></div>
   </div>
 </div>
+
+<script>
+  const pwdField   = document.getElementById('pwdField');
+  const pwdToggle  = document.getElementById('pwdToggle');
+  const pwdEyeIcon = document.getElementById('pwdEyeIcon');
+
+  pwdToggle.addEventListener('click', function() {
+    const show = pwdField.type === 'password';
+    pwdField.type = show ? 'text' : 'password';
+    pwdEyeIcon.className = show ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill';
+  });
+</script>
 
 </body>
 </html>

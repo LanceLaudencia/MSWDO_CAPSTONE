@@ -2,6 +2,9 @@ from django.urls import path
 from . import views
 from .views import test_api
 from .views import dashboard_data
+from .views import client_verify 
+
+from .import views
 
 urlpatterns = [
     path('', views.landing, name='landing'),
@@ -62,7 +65,6 @@ path('application/<int:pk>/release/', views.release_application, name='release_a
 path('staff/<int:staff_id>/reset_password/', views.reset_staff_password, name='reset_staff_password'),
 path('staff/<int:staff_id>/edit_role/', views.edit_staff_role, name='edit_staff_role'),
  path('staff/<int:staff_id>/activity_logs/', views.staff_activity_logs, name='staff_activity_logs'),
-<<<<<<< HEAD
 
 #client
 path('client-login/', views.client_login, name='client_login'),
@@ -77,9 +79,22 @@ path('notifications/read/<int:pk>/', views.mark_notification_read, name='mark_no
 
  path('notifications/json/', views.get_notifications_json, name='notifications_json'),
 path('application/<int:pk>/advance/', views.application_advance, name='application_advance'),
-    
-=======
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
+
+ # Staff
+path('reports/submit/',           views.report_submit,     name='report_submit'),
+path('reports/my/',               views.my_reports,        name='my_reports'),
+path('reports/my/<int:pk>/',      views.my_report_detail,  name='my_report_detail'),
+
+# Admin
+path('reports/',                  views.reports_dashboard, name='reports_dashboard'),
+path('reports/<int:pk>/',         views.report_detail,     name='report_detail'),
+path('reports/<int:pk>/approve/', views.report_approve,    name='report_approve'),
+path('reports/<int:pk>/decline/', views.report_decline,    name='report_decline'),
+path('client/verify/', client_verify, name='client_verify'),
+path('reports/generate/', views.generate_report, name='generate_report'),
+
+path('reports/generate/', views.generate_report, name='generate_report'),
+    path('program-prediction/', views.program_rate_prediction, name='program_rate_prediction'),
 ]
 
 

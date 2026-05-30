@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block page_icon %}file-earmark-text-fill{% endblock %}
+{% block page_title %}My Reports{% endblock %}
+{% block breadcrumb %}My Reports{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --blue:#0038A8;--blue-dark:#002882;--blue-light:rgba(0,56,168,0.08);--blue-border:rgba(0,56,168,0.18);
+    --red:#CE1126;--red-light:rgba(206,17,38,0.07);
+    --yellow:#FCD116;--border:#e0e6f0;--text-primary:#0f1f4b;--text-secondary:#5a6a8a;
+  }
+
+  .stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+  .stat-card { background:white; border-radius:13px; padding:20px 22px; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,40,130,0.05); display:flex; align-items:center; gap:14px; }
+  .stat-icon { width:46px; height:46px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+  .stat-icon.total    { background:var(--blue-light); color:var(--blue); }
+  .stat-icon.pending  { background:rgba(252,209,22,.15); color:#8a6000; }
+  .stat-icon.approved { background:rgba(39,174,96,.12); color:#1a7a45; }
+  .stat-icon.declined { background:var(--red-light); color:var(--red); }
+  .stat-num { font-family:'Montserrat',sans-serif; font-size:1.6rem; font-weight:800; color:var(--text-primary); line-height:1; }
+  .stat-lbl { font-family:'Montserrat',sans-serif; font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-secondary); margin-top:3px; }
+
+  .top-bar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+
+  .filter-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:white; border-radius:12px; padding:12px 18px; border:1px solid var(--border); }
+  .filter-label { font-family:'Montserrat',sans-serif; font-size:.7rem; font-weight:700; color:#9aabca; text-transform:uppercase; letter-spacing:.8px; }
+  .filter-btn { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; border:1.5px solid; cursor:pointer; text-decoration:none; transition:all .2s; white-space:nowrap; }
+  .filter-btn.all      { background:var(--blue-light); color:var(--blue); border-color:var(--blue-border); }
+  .filter-btn.pending  { background:rgba(252,209,22,.12); color:#8a6000; border-color:rgba(252,209,22,.4); }
+  .filter-btn.approved { background:rgba(39,174,96,.1); color:#1a7a45; border-color:rgba(39,174,96,.3); }
+  .filter-btn.declined { background:var(--red-light); color:var(--red); border-color:rgba(206,17,38,.25); }
+  .filter-btn:hover { transform:translateY(-1px); }
+  .filter-btn.all.active      { background:var(--blue); color:white; border-color:var(--blue); }
+  .filter-btn.pending.active  { background:#f0a500; color:white; border-color:#f0a500; }
+  .filter-btn.approved.active { background:#27ae60; color:white; border-color:#27ae60; }
+  .filter-btn.declined.active { background:var(--red); color:white; border-color:var(--red); }
+
+  .btn-new { display:inline-flex; align-items:center; gap:7px; padding:10px 22px; border-radius:9px; font-family:'Montserrat',sans-serif; font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.8px; background:linear-gradient(135deg,var(--blue),var(--blue-dark)); color:white; border:none; text-decoration:none; transition:all .2s; }
+  .btn-new:hover { opacity:.9; transform:translateY(-1px); color:white; }
+
+  .table-card { background:white; border-radius:14px; border:1px solid var(--border); box-shadow:0 2px 10px rgba(0,40,130,0.05); overflow:hidden; }
+  table.reports-tbl { width:100%; border-collapse:collapse; font-size:.87rem; }
+  table.reports-tbl thead th { background:#f8f9fc; font-family:'Montserrat',sans-serif; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--text-secondary); padding:12px 18px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  table.reports-tbl tbody tr { border-bottom:1px solid #f0f3f9; transition:background .15s; }
+  table.reports-tbl tbody tr:hover { background:#f5f7fc; }
+  table.reports-tbl tbody tr:last-child { border-bottom:none; }
+  table.reports-tbl td { padding:14px 18px; vertical-align:middle; }
+
+  .rt-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:6px; font-family:'Montserrat',sans-serif; font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; }
+  .rt-badge.spdr  { background:rgba(0,56,168,.1); color:var(--blue); }
+  .rt-badge.lcpc  { background:rgba(39,174,96,.12); color:#1a7a45; }
+  .rt-badge.lcat  { background:var(--red-light); color:var(--red); }
+  .rt-badge.other { background:#f0f3fb; color:#4a5a8a; }
+
+  .status-pill { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:20px; font-family:'Montserrat',sans-serif; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+  .status-pill.PENDING  { background:rgba(252,209,22,.15); color:#8a6000; }
+  .status-pill.APPROVED { background:rgba(39,174,96,.12); color:#1a7a45; }
+  .status-pill.DECLINED { background:var(--red-light); color:var(--red); }
+
+  /* Notification dot for new decisions */
+  .new-decision-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--red); margin-left:6px; animation: pulse-dot 1.5s infinite; vertical-align:middle; }
+  @keyframes pulse-dot { 0%,100%{transform:scale(1);opacity:1;} 50%{transform:scale(1.4);opacity:.7;} }
+
+  .btn-view { display:inline-flex; align-items:center; gap:5px; padding:6px 14px; border-radius:7px; font-family:'Montserrat',sans-serif; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; background:var(--blue-light); color:var(--blue); border:1.5px solid var(--blue-border); text-decoration:none; transition:all .2s; }
+  .btn-view:hover { background:var(--blue); color:white; border-color:var(--blue); }
+
+  .empty-state { text-align:center; padding:52px; color:var(--text-secondary); }
+  .empty-state i { font-size:2.8rem; display:block; margin-bottom:12px; color:#c8d4ea; }
+  .empty-state p { font-size:.9rem; margin:0 0 16px; }
+
+  @media(max-width:768px) { .stat-row { grid-template-columns:1fr 1fr; } }
+</style>
+
+<!-- Stat Cards -->
+<div class="stat-row">
+  <div class="stat-card">
+    <div class="stat-icon total"><i class="bi bi-file-earmark-text-fill"></i></div>
+    <div><div class="stat-num">{{ counts.total }}</div><div class="stat-lbl">Total Submitted</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon pending"><i class="bi bi-hourglass-split"></i></div>
+    <div><div class="stat-num">{{ counts.pending }}</div><div class="stat-lbl">Pending</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon approved"><i class="bi bi-check-circle-fill"></i></div>
+    <div><div class="stat-num">{{ counts.approved }}</div><div class="stat-lbl">Approved</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon declined"><i class="bi bi-x-circle-fill"></i></div>
+    <div><div class="stat-num">{{ counts.declined }}</div><div class="stat-lbl">Declined</div></div>
+  </div>
+</div>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="filter-bar">
+    <span class="filter-label">Filter:</span>
+    <a href="{% url 'my_reports' %}"                class="filter-btn all      {% if not status_filter %}active{% endif %}">All</a>
+    <a href="{% url 'my_reports' %}?status=PENDING" class="filter-btn pending  {% if status_filter == 'PENDING' %}active{% endif %}"><i class="bi bi-hourglass-split"></i> Pending</a>
+    <a href="{% url 'my_reports' %}?status=APPROVED"class="filter-btn approved {% if status_filter == 'APPROVED' %}active{% endif %}"><i class="bi bi-check-circle-fill"></i> Approved</a>
+    <a href="{% url 'my_reports' %}?status=DECLINED"class="filter-btn declined {% if status_filter == 'DECLINED' %}active{% endif %}"><i class="bi bi-x-circle-fill"></i> Declined</a>
+  </div>
+  <a href="{% url 'report_submit' %}" class="btn-new">
+    <i class="bi bi-plus-circle-fill"></i> Submit New Report
+  </a>
+</div>
+
+<!-- Table -->
+<div class="table-card">
+  {% if reports %}
+  <div class="table-responsive">
+    <table class="reports-tbl">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Type</th>
+          <th>Date Submitted</th>
+          <th>Status</th>
+          <th>Admin Decision</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for report in reports %}
+        <tr>
+          <td style="color:#9aabca;font-size:.8rem;">{{ forloop.counter }}</td>
+       
+          <td>
+            {% with rt=report.report_type %}
+              {% if 'SPDR' in rt %}<span class="rt-badge spdr"><i class="bi bi-shield-fill-check"></i> SPDR</span>
+              {% elif 'LCPC' in rt %}<span class="rt-badge lcpc"><i class="bi bi-people-fill"></i> LCPC</span>
+              {% elif 'LCAT' in rt %}<span class="rt-badge lcat"><i class="bi bi-gender-female"></i> LCAT VAWC</span>
+              {% elif 'Disability' in rt %}<span class="rt-badge pwd"><i class="bi bi-person-wheelchair"></i> PWD</span>
+              {% elif 'OSCA' in rt or 'Senior Citizen Affairs' in rt %}<span class="rt-badge osca"><i class="bi bi-person-heart"></i> OSCA</span>
+              {% elif 'CICL' in rt %}<span class="rt-badge cicl"><i class="bi bi-shield-exclamation"></i> CICL/CAR</span>
+              {% elif 'CNSP' in rt %}<span class="rt-badge cnsp"><i class="bi bi-emoji-neutral-fill"></i> CNSP</span>
+              {% elif 'Migrant' in rt %}<span class="rt-badge migrant"><i class="bi bi-airplane-fill"></i> MIGRANT</span>
+              {% elif 'Indigenous' in rt %}<span class="rt-badge ip"><i class="bi bi-globe-asia-australia"></i> IP</span>
+              {% elif 'Former Rebel' in rt %}<span class="rt-badge fr"><i class="bi bi-flag-fill"></i> FR</span>
+              {% elif 'PWUD' in rt or 'Drugs' in rt %}<span class="rt-badge pwud"><i class="bi bi-capsule-pill"></i> PWUD</span>
+              {% else %}<span class="rt-badge other"><i class="bi bi-file-earmark-plus-fill"></i> Others</span>
+              {% endif %}
+            {% endwith %}
+          </td>
+          <td style="font-size:.82rem;color:#5a6a8a;">
+            {{ report.created_at|date:"M d, Y" }}<br>
+            <span style="font-size:.72rem;color:#9aabca;">{{ report.created_at|time:"g:i A" }}</span>
+          </td>
+          <td>
+            <span class="status-pill {{ report.status }}">
+              {% if report.status == 'PENDING' %}<i class="bi bi-hourglass-split"></i>
+              {% elif report.status == 'APPROVED' %}<i class="bi bi-check-circle-fill"></i>
+              {% else %}<i class="bi bi-x-circle-fill"></i>{% endif %}
+              {{ report.get_status_display }}
+            </span>
+          </td>
+          <td>
+            {% if report.status == 'PENDING' %}
+              <span style="font-size:.8rem;color:#9aabca;font-style:italic;">Awaiting review…</span>
+            {% elif report.status == 'APPROVED' %}
+              <div style="font-size:.82rem;font-weight:600;color:#1a7a45;">
+                <i class="bi bi-check-circle-fill"></i> Approved
+              </div>
+              {% if report.reviewed_by %}
+                <div style="font-size:.72rem;color:#9aabca;">by {{ report.reviewed_by.get_full_name|default:report.reviewed_by.username }}</div>
+                <div style="font-size:.72rem;color:#9aabca;">{{ report.reviewed_at|date:"M d, Y" }}</div>
+              {% endif %}
+            {% elif report.status == 'DECLINED' %}
+              <div style="font-size:.82rem;font-weight:600;color:var(--red);">
+                <i class="bi bi-x-circle-fill"></i> Declined
+                <span class="new-decision-dot"></span>
+              </div>
+              {% if report.reviewed_by %}
+                <div style="font-size:.72rem;color:#9aabca;">by {{ report.reviewed_by.get_full_name|default:report.reviewed_by.username }}</div>
+                <div style="font-size:.72rem;color:#9aabca;">{{ report.reviewed_at|date:"M d, Y" }}</div>
+              {% endif %}
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'my_report_detail' report.pk %}" class="btn-view">
+              <i class="bi bi-eye-fill"></i> View
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-file-earmark-x"></i>
+    <p>You haven't submitted any reports yet{% if status_filter %} with this status{% endif %}.</p>
+    <a href="{% url 'report_submit' %}" class="btn-new">
+      <i class="bi bi-plus-circle-fill"></i> Submit Your First Report
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

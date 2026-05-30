@@ -1,0 +1,518 @@
+{% extends "base.html" %}
+{% block page_icon %}bar-chart-fill{% endblock %}
+{% block page_title %}Reports Dashboard{% endblock %}
+{% block breadcrumb %}Reports{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --blue: #0038A8; --blue-dark: #002882;
+    --blue-light: rgba(0,56,168,0.08); --blue-border: rgba(0,56,168,0.18);
+    --red: #CE1126; --red-dark: #a50d1e; --red-light: rgba(206,17,38,0.07);
+    --yellow: #FCD116; --yellow-dark: #e6a800;
+    --yellow-light: rgba(252,209,22,0.12);
+    --border: #dde3ef; --text-primary: #0f1f4b; --text-secondary: #5a6a8a;
+    --bg: #f5f7fc;
+  }
+
+  /* ── Stat cards ── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-bottom: 22px;
+  }
+
+  .stat-card {
+    background: white; border-radius: 13px;
+    padding: 18px 20px; border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,40,130,0.05);
+    display: flex; align-items: center; gap: 14px;
+    position: relative; overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,40,130,0.10); }
+
+  .stat-card::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 0; right: 0; height: 3px;
+  }
+
+  .stat-card.sc-blue::after   { background: linear-gradient(90deg, var(--blue), #1a55d4); }
+  .stat-card.sc-yellow::after { background: linear-gradient(90deg, var(--yellow), var(--yellow-dark)); }
+  .stat-card.sc-green::after  { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+  .stat-card.sc-red::after    { background: linear-gradient(90deg, var(--red), #e84060); }
+
+  .stat-icon {
+    width: 46px; height: 46px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+
+  .stat-icon.total    { background: var(--blue-light); color: var(--blue); border: 1.5px solid var(--blue-border); }
+  .stat-icon.pending  { background: var(--yellow-light); color: #8a6000; border: 1.5px solid rgba(252,209,22,0.35); }
+  .stat-icon.approved { background: rgba(39,174,96,0.10); color: #1a7a45; border: 1.5px solid rgba(39,174,96,0.28); }
+  .stat-icon.declined { background: var(--red-light); color: var(--red); border: 1.5px solid rgba(206,17,38,0.22); }
+
+  .stat-num { font-family: 'Montserrat', sans-serif; font-size: 1.7rem; font-weight: 900; color: var(--text-primary); line-height: 1; }
+  .stat-lbl { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-top: 3px; }
+
+  /* ── Filter bar ── */
+  .filter-bar {
+    background: white; border-radius: 12px;
+    padding: 12px 18px; border: 1px solid var(--border);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem; font-weight: 700;
+    color: #9aabca; text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap;
+  }
+
+  .filter-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 15px; border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    border: 1.5px solid; cursor: pointer;
+    text-decoration: none; transition: all 0.2s; white-space: nowrap;
+  }
+
+  .filter-btn:hover { transform: translateY(-1px); text-decoration: none; }
+  .filter-btn.all      { background: var(--blue-light); color: var(--blue); border-color: var(--blue-border); }
+  .filter-btn.pending  { background: var(--yellow-light); color: #8a6000; border-color: rgba(252,209,22,0.4); }
+  .filter-btn.approved { background: rgba(39,174,96,0.10); color: #1a7a45; border-color: rgba(39,174,96,0.3); }
+  .filter-btn.declined { background: var(--red-light); color: var(--red); border-color: rgba(206,17,38,0.25); }
+
+  .filter-btn.all.active      { background: var(--blue); color: white; border-color: var(--blue); }
+  .filter-btn.pending.active  { background: #e6a800; color: white; border-color: #e6a800; }
+  .filter-btn.approved.active { background: #27ae60; color: white; border-color: #27ae60; }
+  .filter-btn.declined.active { background: var(--red); color: white; border-color: var(--red); }
+
+  /* ── Table card ── */
+  .table-card {
+    background: white; border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px rgba(0,40,130,0.05);
+    overflow: hidden;
+  }
+
+  .table-card-header {
+    padding: 16px 22px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+
+  .table-card-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.82rem; font-weight: 800;
+    color: var(--text-primary);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .table-card-title i { color: var(--blue); }
+
+  /* ── Reports table ── */
+  table.reports-tbl { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+
+  table.reports-tbl thead {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+  }
+
+  table.reports-tbl thead th {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: rgba(255,255,255,0.9);
+    padding: 13px 18px; border: none; white-space: nowrap;
+  }
+
+  table.reports-tbl tbody tr {
+    border-bottom: 1px solid #f0f3f9; transition: background 0.15s;
+  }
+
+  table.reports-tbl tbody tr:hover { background: var(--blue-light); }
+  table.reports-tbl tbody tr:last-child { border-bottom: none; }
+  table.reports-tbl td { padding: 13px 18px; vertical-align: middle; color: var(--text-primary); }
+
+  /* Row number */
+  .row-num { font-size: 0.75rem; color: #9aabca; font-family: 'Montserrat', sans-serif; font-weight: 700; }
+
+  /* Title cell */
+  .report-title-main { font-weight: 700; color: var(--text-primary); font-size: 0.86rem; margin-bottom: 2px; }
+  .report-title-sub  { font-size: 0.72rem; color: var(--text-secondary); }
+
+  /* Type badges */
+  .rt-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 6px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+    border: 1.5px solid;
+  }
+
+  .rt-badge.spdr    { background: var(--blue-light); color: var(--blue); border-color: var(--blue-border); }
+  .rt-badge.lcpc    { background: rgba(39,174,96,0.10); color: #1a7a45; border-color: rgba(39,174,96,0.25); }
+  .rt-badge.lcat    { background: var(--red-light); color: var(--red); border-color: rgba(206,17,38,0.2); }
+  .rt-badge.pwd     { background: rgba(100,60,180,0.10); color: #4a2db0; border-color: rgba(100,60,180,0.2); }
+  .rt-badge.osca    { background: var(--yellow-light); color: #8a6000; border-color: rgba(252,209,22,0.4); }
+  .rt-badge.cicl    { background: rgba(230,100,0,0.10); color: #8a3a00; border-color: rgba(230,100,0,0.2); }
+  .rt-badge.cnsp    { background: rgba(0,150,136,0.10); color: #006b60; border-color: rgba(0,150,136,0.2); }
+  .rt-badge.migrant { background: rgba(21,101,192,0.10); color: #0d5aa7; border-color: rgba(21,101,192,0.2); }
+  .rt-badge.ip      { background: rgba(46,125,50,0.10); color: #1b5e20; border-color: rgba(46,125,50,0.2); }
+  .rt-badge.fr      { background: rgba(183,28,28,0.10); color: #7f0000; border-color: rgba(183,28,28,0.2); }
+  .rt-badge.pwud    { background: rgba(74,0,130,0.10); color: #320061; border-color: rgba(74,0,130,0.2); }
+  .rt-badge.other   { background: #f0f3fb; color: #4a5a8a; border-color: #d0d8f0; }
+
+  /* Submitter */
+  .submitter-name { font-weight: 700; font-size: 0.86rem; color: var(--text-primary); }
+  .submitter-role { font-size: 0.72rem; color: #9aabca; margin-top: 2px; }
+
+  /* Date */
+  .date-main { font-size: 0.82rem; color: var(--text-secondary); font-weight: 600; }
+  .date-sub  { font-size: 0.7rem; color: #9aabca; margin-top: 2px; }
+
+  /* Status pills */
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    border: 1px solid;
+  }
+
+  .status-pill .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .status-pill.PENDING  { background: var(--yellow-light); color: #8a6000; border-color: rgba(252,209,22,0.35); }
+  .status-pill.PENDING .dot  { background: #e6b800; animation: blink 2s ease-in-out infinite; }
+  .status-pill.APPROVED { background: rgba(39,174,96,0.10); color: #1a7a45; border-color: rgba(39,174,96,0.28); }
+  .status-pill.APPROVED .dot { background: #27ae60; }
+  .status-pill.DECLINED { background: var(--red-light); color: var(--red); border-color: rgba(206,17,38,0.22); }
+  .status-pill.DECLINED .dot { background: var(--red); }
+
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+  /* Action buttons */
+  .action-group { display: flex; align-items: center; gap: 6px; }
+
+  .btn-view {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 14px; border-radius: 7px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    background: var(--blue-light); color: var(--blue);
+    border: 1.5px solid var(--blue-border);
+    text-decoration: none; transition: all 0.2s;
+  }
+
+  .btn-view:hover { background: var(--blue); color: white; border-color: var(--blue); text-decoration: none; }
+
+  .btn-delete {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 7px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    background: var(--red-light); color: var(--red);
+    border: 1.5px solid rgba(206,17,38,0.22);
+    cursor: pointer; transition: all 0.2s;
+    outline: none;
+  }
+
+  .btn-delete:hover { background: var(--red); color: white; border-color: var(--red); }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 64px 20px; color: var(--text-secondary); }
+
+  .empty-icon {
+    width: 72px; height: 72px;
+    background: var(--blue-light); border: 2px solid var(--blue-border);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; color: var(--blue);
+  }
+
+  .empty-state h5 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95rem; font-weight: 800;
+    color: var(--text-primary); margin-bottom: 6px;
+  }
+
+  .empty-state p { font-size: 0.84rem; margin: 0; }
+
+  /* Delete confirmation modal */
+  .modal-backdrop-custom {
+    position: fixed; inset: 0; z-index: 1040;
+    background: rgba(0,28,80,0.50); backdrop-filter: blur(2px);
+    display: none; align-items: center; justify-content: center;
+  }
+
+  .modal-backdrop-custom.show { display: flex; }
+
+  .modal-box {
+    background: white; border-radius: 16px;
+    padding: 32px 32px 28px;
+    max-width: 420px; width: 90%;
+    box-shadow: 0 24px 64px rgba(0,28,80,0.28);
+    position: relative; overflow: hidden;
+    animation: modalIn 0.25s ease-out;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-box::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--blue) 33%, var(--red) 33% 66%, var(--yellow) 66%);
+  }
+
+  .modal-icon {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--red-light);
+    border: 2px solid rgba(206,17,38,0.22);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: var(--red);
+    margin: 0 auto 18px;
+  }
+
+  .modal-box h5 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem; font-weight: 900;
+    color: var(--text-primary); text-align: center; margin-bottom: 10px;
+  }
+
+  .modal-box p {
+    font-size: 0.84rem; color: var(--text-secondary);
+    text-align: center; line-height: 1.6; margin-bottom: 24px;
+  }
+
+  .modal-box p strong { color: var(--text-primary); }
+
+  .modal-actions { display: flex; gap: 10px; }
+
+  .modal-btn-cancel {
+    flex: 1; padding: 11px; border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    background: white; color: var(--text-secondary);
+    border: 2px solid var(--border); cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .modal-btn-cancel:hover { background: var(--bg); border-color: #b0bace; color: var(--text-primary); }
+
+  .modal-btn-confirm {
+    flex: 1; padding: 11px; border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    color: white; border: none; cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 4px 12px rgba(206,17,38,0.28);
+    position: relative; overflow: hidden;
+  }
+
+  .modal-btn-confirm::before {
+    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.4s;
+  }
+
+  .modal-btn-confirm:hover::before { left: 100%; }
+  .modal-btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 7px 18px rgba(206,17,38,0.38); }
+
+  @media (max-width: 768px) {
+    .stat-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+
+<!-- Stat Cards -->
+<div class="stat-row">
+  <div class="stat-card sc-blue">
+    <div class="stat-icon total"><i class="bi bi-file-earmark-text-fill"></i></div>
+    <div><div class="stat-num">{{ counts.total }}</div><div class="stat-lbl">Total Reports</div></div>
+  </div>
+  <div class="stat-card sc-yellow">
+    <div class="stat-icon pending"><i class="bi bi-hourglass-split"></i></div>
+    <div><div class="stat-num">{{ counts.pending }}</div><div class="stat-lbl">Pending</div></div>
+  </div>
+  <div class="stat-card sc-green">
+    <div class="stat-icon approved"><i class="bi bi-check-circle-fill"></i></div>
+    <div><div class="stat-num">{{ counts.approved }}</div><div class="stat-lbl">Approved</div></div>
+  </div>
+  <div class="stat-card sc-red">
+    <div class="stat-icon declined"><i class="bi bi-x-circle-fill"></i></div>
+    <div><div class="stat-num">{{ counts.declined }}</div><div class="stat-lbl">Declined</div></div>
+  </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <span class="filter-label"><i class="bi bi-funnel-fill"></i> Filter:</span>
+  <a href="{% url 'reports_dashboard' %}"                 class="filter-btn all      {% if not status_filter %}active{% endif %}"><i class="bi bi-grid-fill"></i> All</a>
+  <a href="{% url 'reports_dashboard' %}?status=PENDING"  class="filter-btn pending  {% if status_filter == 'PENDING' %}active{% endif %}"><i class="bi bi-hourglass-split"></i> Pending</a>
+  <a href="{% url 'reports_dashboard' %}?status=APPROVED" class="filter-btn approved {% if status_filter == 'APPROVED' %}active{% endif %}"><i class="bi bi-check-circle-fill"></i> Approved</a>
+  <a href="{% url 'reports_dashboard' %}?status=DECLINED" class="filter-btn declined {% if status_filter == 'DECLINED' %}active{% endif %}"><i class="bi bi-x-circle-fill"></i> Declined</a>
+</div>
+
+<!-- Reports Table -->
+<div class="table-card">
+  <div class="table-card-header">
+    <div class="table-card-title">
+      <i class="bi bi-table"></i> Submitted Reports
+      {% if status_filter %}
+        <span style="font-family:'Open Sans',sans-serif;font-weight:400;font-size:0.78rem;color:var(--text-secondary);">
+          — filtered by <strong>{{ status_filter|title }}</strong>
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if reports %}
+  <div class="table-responsive">
+    <table class="reports-tbl">
+      <thead>
+        <tr>
+          <th style="width:40px;">#</th>
+          <th>Type</th>
+          <th>Title / Reference</th>
+          <th>Submitted By</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th style="text-align:center;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for report in reports %}
+        <tr>
+          <td><span class="row-num">{{ forloop.counter }}</span></td>
+
+          <!-- Type badge -->
+          <td>
+            {% with rt=report.report_type %}
+              {% if 'SPDR' in rt %}<span class="rt-badge spdr"><i class="bi bi-shield-fill-check"></i> SPDR</span>
+              {% elif 'LCPC' in rt %}<span class="rt-badge lcpc"><i class="bi bi-people-fill"></i> LCPC</span>
+              {% elif 'LCAT' in rt %}<span class="rt-badge lcat"><i class="bi bi-gender-female"></i> LCAT VAWC</span>
+              {% elif 'Disability' in rt %}<span class="rt-badge pwd"><i class="bi bi-person-wheelchair"></i> PWD</span>
+              {% elif 'OSCA' in rt or 'Senior Citizen Affairs' in rt %}<span class="rt-badge osca"><i class="bi bi-person-heart"></i> OSCA</span>
+              {% elif 'CICL' in rt %}<span class="rt-badge cicl"><i class="bi bi-shield-exclamation"></i> CICL/CAR</span>
+              {% elif 'CNSP' in rt %}<span class="rt-badge cnsp"><i class="bi bi-emoji-neutral-fill"></i> CNSP</span>
+              {% elif 'Migrant' in rt %}<span class="rt-badge migrant"><i class="bi bi-airplane-fill"></i> MIGRANT</span>
+              {% elif 'Indigenous' in rt %}<span class="rt-badge ip"><i class="bi bi-globe-asia-australia"></i> IP</span>
+              {% elif 'Former Rebel' in rt %}<span class="rt-badge fr"><i class="bi bi-flag-fill"></i> FR</span>
+              {% elif 'PWUD' in rt or 'Drugs' in rt %}<span class="rt-badge pwud"><i class="bi bi-capsule-pill"></i> PWUD</span>
+              {% else %}<span class="rt-badge other"><i class="bi bi-file-earmark-plus-fill"></i> Others</span>
+              {% endif %}
+            {% endwith %}
+          </td>
+
+          <!-- Title -->
+          <td>
+            <div class="report-title-main">{{ report.report_type }}</div>
+            {% if report.reference_no %}
+              <div class="report-title-sub">Ref: {{ report.reference_no }}</div>
+            {% endif %}
+          </td>
+
+          <!-- Submitted by -->
+          <td>
+            <div class="submitter-name">{{ report.submitted_by.get_full_name|default:report.submitted_by.username }}</div>
+            <div class="submitter-role">{{ report.submitted_by.role|title }}</div>
+          </td>
+
+          <!-- Date -->
+          <td>
+            <div class="date-main">{{ report.created_at|date:"M d, Y" }}</div>
+            <div class="date-sub">{{ report.created_at|time:"g:i A" }}</div>
+          </td>
+
+          <!-- Status -->
+          <td>
+            <span class="status-pill {{ report.status }}">
+              <span class="dot"></span>
+              {{ report.get_status_display }}
+            </span>
+          </td>
+
+          <!-- Actions -->
+          <td>
+            <div class="action-group" style="justify-content:center;">
+              <a href="{% url 'report_detail' report.pk %}" class="btn-view">
+                <i class="bi bi-eye-fill"></i> View
+              </a>
+              <button type="button" class="btn-delete"
+                      onclick="openDeleteModal({{ report.pk }}, '{{ report.report_type|escapejs }}')"
+                      title="Delete report">
+                <i class="bi bi-trash3-fill"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon"><i class="bi bi-file-earmark-x"></i></div>
+    <h5>No Reports Found</h5>
+    <p>No reports{% if status_filter %} with status "{{ status_filter }}"{% endif %} at the moment.</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ── Delete Confirmation Modal ── -->
+<div class="modal-backdrop-custom" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-icon"><i class="bi bi-trash3-fill"></i></div>
+    <h5>Delete Report?</h5>
+    <p>You are about to delete the report: <strong id="modal-report-type">—</strong>. This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn-cancel" onclick="closeDeleteModal()">
+        <i class="bi bi-x-circle"></i> Cancel
+      </button>
+      <form id="deleteForm" method="POST" style="flex:1;display:flex;">
+        {% csrf_token %}
+        <input type="hidden" name="_method" value="DELETE">
+        <button type="submit" class="modal-btn-confirm" style="width:100%;">
+          <i class="bi bi-trash3-fill"></i> Yes, Delete
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openDeleteModal(pk, reportType) {
+    document.getElementById('modal-report-type').textContent = reportType;
+    document.getElementById('deleteForm').action = `/reports/${pk}/delete/`;
+    document.getElementById('deleteModal').classList.add('show');
+  }
+
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+  }
+
+  // Close on backdrop click
+  document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDeleteModal();
+  });
+</script>
+
+{% endblock %}

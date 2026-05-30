@@ -1,444 +1,371 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Client Registration</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Registration | MSWDO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <style>
+    :root {
+      --blue:#0038A8;--blue-dark:#002882;--blue-light:rgba(0,56,168,0.08);--blue-border:rgba(0,56,168,0.2);
+      --red:#CE1126;--red-dark:#a50d1e;--red-light:rgba(206,17,38,0.08);
+      --yellow:#FCD116;--border:#dde3ef;--text-primary:#0f1f4b;--text-secondary:#5a6a8a;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Open Sans',sans-serif;background:linear-gradient(135deg,#0d2878 0%,#0038A8 50%,#001a60 100%);min-height:100vh;padding:52px 20px;position:relative;overflow-x:hidden;}
+    body::before{content:'';position:fixed;top:-30%;right:-20%;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(252,209,22,0.09),transparent 65%);animation:pulse-bg 12s ease-in-out infinite;pointer-events:none;}
+    body::after{content:'';position:fixed;bottom:-25%;left:-15%;width:580px;height:580px;border-radius:50%;background:radial-gradient(circle,rgba(206,17,38,0.09),transparent 65%);animation:pulse-bg 9s ease-in-out infinite reverse;pointer-events:none;}
+    @keyframes pulse-bg{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.15);opacity:1}}
+    .tricolor-bar{position:fixed;top:0;left:0;right:0;height:4px;z-index:200;display:flex;}
+    .tricolor-bar span{flex:1;}.tc-blue{background:var(--blue)}.tc-red{background:var(--red)}.tc-yellow{background:var(--yellow)}
+    .form-container{max-width:960px;margin:0 auto;background:white;border-radius:18px;padding:46px 44px 44px;box-shadow:0 24px 64px rgba(0,28,80,0.38);position:relative;z-index:1;animation:fadeInUp 0.7s ease-out;}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+    .form-container::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--blue) 33%,var(--red) 33% 66%,var(--yellow) 66%);border-radius:18px 18px 0 0;}
+    .flag-strip{position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue) 33%,var(--red) 33% 66%,var(--yellow) 66%);border-radius:0 0 18px 18px;}
+    .card-header{text-align:center;margin-bottom:32px;}
+    .reg-emblem{width:68px;height:68px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;box-shadow:0 8px 24px rgba(0,56,168,0.28);position:relative;overflow:hidden;}
+    .reg-emblem::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--yellow),var(--red));}
+    .card-eyebrow{font-family:'Montserrat',sans-serif;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text-secondary);margin-bottom:6px;}
+    .card-header h2{font-family:'Montserrat',sans-serif;font-size:1.5rem;font-weight:900;color:var(--text-primary);margin-bottom:6px;}
+    .card-header p{font-size:.82rem;color:var(--text-secondary);}
+    .section-divider{display:flex;align-items:center;gap:12px;margin:30px 0 20px;}
+    .section-num{width:30px;height:30px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:900;color:white;flex-shrink:0;}
+    .section-divider h3{font-family:'Montserrat',sans-serif;font-size:.82rem;font-weight:800;color:var(--text-primary);text-transform:uppercase;letter-spacing:.8px;}
+    .section-line{flex:1;height:1px;background:linear-gradient(90deg,var(--blue-border),transparent);}
+    .alert{padding:12px 16px;border-radius:9px;margin-bottom:18px;font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;display:flex;align-items:center;gap:8px;}
+    .alert-error{background:var(--red-light);border:1.5px solid rgba(206,17,38,0.25);border-left:4px solid var(--red);color:var(--red-dark);}
+    .alert-success{background:var(--blue-light);border:1.5px solid var(--blue-border);border-left:4px solid var(--blue);color:var(--blue-dark);}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px;}
+    .field{display:flex;flex-direction:column;gap:6px;}
+    .field label{font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-secondary);}
+    .field label .req{color:var(--red);}
+    input[type="text"],input[type="email"],input[type="password"],input[type="number"],input[type="date"],select{width:100%;padding:11px 13px;border:2px solid var(--border);border-radius:9px;font-size:.88rem;font-family:'Open Sans',sans-serif;background:#f8f9fc;color:var(--text-primary);transition:all .2s;}
+    input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,56,168,0.10);background:white;}
+    input::placeholder{color:#b0bace;}
+    .fourps-box{background:linear-gradient(135deg,rgba(0,56,168,0.05),rgba(0,56,168,0.08));border:1.5px solid var(--blue-border);border-left:4px solid var(--blue);border-radius:10px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+    .fourps-label{font-family:'Montserrat',sans-serif;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--blue-dark);white-space:nowrap;display:flex;align-items:center;gap:6px;}
+    .toggle-group{display:flex;border:2px solid var(--blue-border);border-radius:8px;overflow:hidden;}
+    .toggle-group input[type="radio"]{display:none;}
+    .toggle-group label{padding:9px 20px;font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;color:var(--text-secondary);background:#f8f9fc;text-transform:uppercase;letter-spacing:.5px;transition:all .2s;margin:0;border:none;}
+    .toggle-group input[type="radio"]:checked + label{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;}
+    #fourps-id-field{flex:1;min-width:200px;display:none;}
+    button[type="submit"]{width:100%;background:linear-gradient(135deg,var(--red),var(--red-dark));color:white;border:none;padding:15px;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;cursor:pointer;transition:all .25s;box-shadow:0 4px 16px rgba(206,17,38,0.30);margin-top:28px;position:relative;overflow:hidden;}
+    button[type="submit"]::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left .4s;}
+    button[type="submit"]:hover::before{left:100%;}
+    button[type="submit"]:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(206,17,38,0.40);}
+    .login-link{margin-top:22px;padding-top:18px;border-top:1px solid var(--border);text-align:center;color:var(--text-secondary);font-size:.82rem;}
+    .login-link a{color:var(--blue);font-family:'Montserrat',sans-serif;font-weight:700;text-decoration:none;}
+    .login-link a:hover{color:var(--red);}
+    .gov-seal{margin-top:14px;font-family:'Montserrat',sans-serif;font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary);opacity:.65;text-align:center;}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f6e3f 0%, #2ecc71 100%);
-            min-height: 100vh;
-            padding: 60px 20px;
-            position: relative;
-            overflow-x: hidden;
-        }
+    /* Email verification banner */
+    .verify-banner{background:#eef5ff;border:1.5px solid rgba(0,56,168,0.22);border-left:4px solid var(--blue);border-radius:12px;padding:24px 26px;margin-bottom:24px;text-align:center;}
+    .verify-banner .vb-icon{font-size:2.2rem;margin-bottom:10px;}
+    .verify-banner .vb-title{font-family:'Montserrat',sans-serif;font-weight:900;font-size:.9rem;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
+    .verify-banner .vb-sub{font-size:.82rem;color:var(--text-secondary);margin-bottom:14px;line-height:1.6;}
+    .verify-banner .vb-spam{display:inline-flex;align-items:center;gap:8px;background:rgba(0,56,168,0.07);border-radius:8px;padding:10px 16px;font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;color:var(--blue-dark);}
+    .verify-banner .vb-spam i{font-size:1rem;color:var(--blue);}
 
-        body::before {
-            content: '';
-            position: absolute;
-            top: -50%; right: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: pulse 15s ease-in-out infinite;
-        }
+    /* ── Sector grid ── */
+    .sector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-bottom:14px;}
+    .sector-item{position:relative;}
+    .sector-item input[type="checkbox"]{display:none;}
+    .sector-item label{display:flex;align-items:center;gap:9px;padding:9px 13px;border:2px solid var(--border);border-radius:9px;background:#f8f9fc;cursor:pointer;font-family:'Montserrat',sans-serif;font-size:.68rem;font-weight:700;color:var(--text-secondary);transition:all .2s;user-select:none;line-height:1.3;}
+    .sector-item label .sector-icon{width:26px;height:26px;border-radius:6px;background:rgba(0,56,168,0.08);display:flex;align-items:center;justify-content:center;font-size:.82rem;flex-shrink:0;transition:all .2s;}
+    .sector-item input[type="checkbox"]:checked + label{border-color:var(--blue);background:var(--blue-light);color:var(--blue);}
+    .sector-item input[type="checkbox"]:checked + label .sector-icon{background:var(--blue);color:white;}
+    .sector-item label:hover{border-color:var(--blue-border);background:var(--blue-light);}
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50%       { transform: scale(1.1) rotate(180deg); }
-        }
+    /* ── Family table ── */
+    .table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+    #familyTable{width:100%;border-collapse:collapse;font-size:.78rem;}
+    #familyTable thead th{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;padding:9px 6px;border:1px solid rgba(255,255,255,0.12);font-family:'Montserrat',sans-serif;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;text-align:center;}
+    #familyTable thead tr:last-child th{background:linear-gradient(135deg,var(--blue-dark),#001a5c);font-size:.58rem;}
+    #familyTable tbody td{border:1px solid #eef1f8;padding:4px 4px;text-align:center;vertical-align:middle;}
+    #familyTable tbody tr:hover{background:var(--blue-light);}
+    .tbl-input{padding:5px 6px;border:1.5px solid var(--border);border-radius:6px;font-size:.76rem;font-family:'Open Sans',sans-serif;width:100%;background:white;color:var(--text-primary);transition:border-color .2s;}
+    .tbl-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,56,168,0.08);}
+    .tbl-checkbox{width:14px;height:14px;accent-color:var(--blue);cursor:pointer;}
+    .tbl-buttons{display:flex;gap:10px;margin-top:12px;}
+    .tbl-btn{padding:7px 16px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1.5px solid;transition:all .2s;}
+    .tbl-btn-add{background:var(--blue-light);border-color:var(--blue-border);color:var(--blue);}
+    .tbl-btn-add:hover{background:var(--blue);color:white;border-color:var(--blue);}
+    .tbl-btn-remove{background:var(--red-light);border-color:rgba(206,17,38,0.25);color:var(--red);}
+    .tbl-btn-remove:hover{background:var(--red);color:white;border-color:var(--red);}
 
-        .form-container {
-            max-width: 820px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 30px;
-            padding: 50px 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 1;
-        }
+    /* ── Sector popup ── */
+    .sector-popup-wrap{position:relative;}
+    .sector-popup-btn{display:flex;align-items:center;gap:6px;width:100%;padding:5px 8px;border-radius:6px;border:1.5px solid var(--border);background:#f8f9fc;font-family:'Montserrat',sans-serif;font-size:.65rem;font-weight:700;color:var(--text-secondary);cursor:pointer;transition:all .2s;text-align:left;}
+    .sector-popup-btn:hover{border-color:var(--blue);background:var(--blue-light);color:var(--blue);}
+    .sector-popup-btn i:first-child{color:var(--blue);font-size:.78rem;flex-shrink:0;}
+    .sector-popup-list{position:absolute;top:calc(100% + 4px);left:0;z-index:9999;background:white;border:1.5px solid var(--blue-border);border-radius:10px;padding:8px 4px;box-shadow:0 8px 28px rgba(0,40,130,0.14);min-width:260px;max-height:260px;overflow-y:auto;}
+    .sector-popup-list::-webkit-scrollbar{width:4px;}
+    .sector-popup-list::-webkit-scrollbar-thumb{background:#c8d4ea;border-radius:10px;}
+    .sp-chk-item{display:flex;align-items:flex-start;gap:8px;padding:6px 12px;cursor:pointer;border-radius:6px;transition:background .15s;font-size:.72rem;font-family:'Open Sans',sans-serif;color:var(--text-primary);line-height:1.35;}
+    .sp-chk-item:hover{background:var(--blue-light);}
+    .sp-chk-item input[type="checkbox"]{display:block !important;width:14px;height:14px;accent-color:var(--blue);cursor:pointer;flex-shrink:0;margin-top:1px;}
+    .sp-chk-item input[type="checkbox"]:checked ~ span{color:var(--blue);font-weight:600;}
 
-        .form-container::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 6px;
-            background: linear-gradient(90deg, #0f6e3f 0%, #27ae60 50%, #2ecc71 100%);
-            border-radius: 30px 30px 0 0;
-        }
-
-        .icon-header {
-            width: 80px; height: 80px;
-            background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-            border-radius: 50%;
-            margin: 0 auto 24px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem;
-            box-shadow: 0 8px 25px rgba(15,110,63,0.3);
-        }
-
-        h2 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #0a4d2e;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #6c757d;
-            margin-bottom: 36px;
-            font-size: 0.95rem;
-        }
-
-        h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #0a4d2e;
-            margin: 32px 0 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #27ae60;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        h3::before {
-            content: '';
-            width: 5px; height: 28px;
-            background: linear-gradient(180deg, #0f6e3f, #27ae60);
-            border-radius: 3px;
-            flex-shrink: 0;
-        }
-
-        .alert {
-            padding: 14px 18px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            text-align: center;
-        }
-        .alert-error   { background: #fef2f2; color: #dc2626; border: 2px solid #fca5a5; }
-        .alert-success { background: #f0fdf4; color: #16a34a; border: 2px solid #86efac; }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 18px;
-            margin-bottom: 18px;
-        }
-
-        .field { display: flex; flex-direction: column; gap: 6px; }
-
-        label {
-            display: block;
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: #6b7f72;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        label .req { color: #e53935; }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        input[type="number"],
-        input[type="date"],
-        select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e1e8ed;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            background: #fafafa;
-            transition: all 0.25s ease;
-            color: #1a2e22;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #27ae60;
-            box-shadow: 0 0 0 3px rgba(39,174,96,0.12);
-            background: white;
-        }
-
-        button[type="submit"] {
-            width: 100%;
-            background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 1.05rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 20px rgba(15,110,63,0.4);
-            margin-top: 28px;
-        }
-
-        button[type="submit"]:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(15,110,63,0.6);
-        }
-
-        .login-link {
-            margin-top: 28px;
-            padding-top: 22px;
-            border-top: 2px solid #f0f0f0;
-            text-align: center;
-            color: #495057;
-            font-size: 0.95rem;
-        }
-
-        .login-link a {
-            color: #27ae60;
-            font-weight: 700;
-            text-decoration: none;
-            margin-left: 4px;
-        }
-
-        .login-link a:hover { color: #0f6e3f; text-decoration: underline; }
-
-        @media (max-width: 640px) {
-            .form-container { padding: 36px 22px; }
-            h2 { font-size: 1.7rem; }
-            .form-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+    @media(max-width:640px){.form-container{padding:36px 20px 32px;}.card-header h2{font-size:1.3rem;}.form-grid{grid-template-columns:1fr;}.fourps-box{flex-direction:column;align-items:flex-start;}.sector-grid{grid-template-columns:1fr 1fr;}}
+  </style>
 </head>
 <body>
+<div class="tricolor-bar"><span class="tc-blue"></span><span class="tc-red"></span><span class="tc-yellow"></span></div>
 
 <div class="form-container">
+  <div class="card-header">
+    <div class="reg-emblem">📝</div>
+    <div class="card-eyebrow">MSWDO · DSWD Devolved Unit</div>
+    <h2>Client Registration</h2>
+    <p>Register to access MSWDO social welfare services</p>
+  </div>
 
-  <div class="icon-header">📝</div>
-  <h2>Client Registration</h2>
-  <p class="subtitle">Register to access MSWDO social welfare services</p>
-
+  <!-- ✅ Django messages (errors, warnings) -->
   {% for message in messages %}
     <div class="alert {% if 'failed' in message.tags or 'error' in message.tags %}alert-error{% else %}alert-success{% endif %}">
+      <i class="bi bi-{% if 'failed' in message.tags or 'error' in message.tags %}exclamation-circle-fill{% else %}check-circle-fill{% endif %}"></i>
       {{ message }}
     </div>
   {% endfor %}
+
+  <!-- ✅ Email verification banner (shows after successful registration) -->
+  {% if show_verify_banner %}
+  <div class="verify-banner">
+    <div class="vb-icon">📧</div>
+    <div class="vb-title">Check Your Email to Verify Your Account</div>
+    <div class="vb-sub">
+      We sent a verification link to your email address.<br>
+      Click the link in the email to activate your account before logging in.
+    </div>
+    <div class="vb-spam">
+      <i class="bi bi-envelope-exclamation-fill"></i>
+      Didn't receive it? Check your <span style="margin:0 4px;text-decoration:underline;">Spam / Junk</span> folder.
+    </div>
+  </div>
+  {% endif %}
 
   <form method="POST">
     {% csrf_token %}
 
     <!-- I. Personal Information -->
-    <h3>I. Personal Information</h3>
-
+    <div class="section-divider"><div class="section-num">I</div><h3>Personal Information</h3><div class="section-line"></div></div>
     <div class="form-grid">
-      <div class="field">
-        <label>First Name <span class="req">*</span></label>
-        <input type="text" name="first_name" required placeholder="e.g. Juan">
-      </div>
-      <div class="field">
-        <label>Middle Name</label>
-        <input type="text" name="middle_name" placeholder="e.g. Dela">
-      </div>
-      <div class="field">
-        <label>Last Name <span class="req">*</span></label>
-        <input type="text" name="last_name" required placeholder="e.g. Cruz">
-      </div>
+      <div class="field"><label>First Name <span class="req">*</span></label><input type="text" name="first_name" required placeholder="e.g. Juan"></div>
+      <div class="field"><label>Middle Name</label><input type="text" name="middle_name" placeholder="e.g. Dela"></div>
+      <div class="field"><label>Last Name <span class="req">*</span></label><input type="text" name="last_name" required placeholder="e.g. Cruz"></div>
     </div>
-
     <div class="form-grid">
-      <div class="field">
-        <label>Sex <span class="req">*</span></label>
-        <select name="sex" required>
-          <option value="">Select</option>
-          <option>Male</option>
-          <option>Female</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Date of Birth <span class="req">*</span></label>
-        <input type="date" name="birth_date" required>
-      </div>
-      <div class="field">
-        <label>Civil Status <span class="req">*</span></label>
+      <div class="field"><label>Sex <span class="req">*</span></label><select name="sex" required><option value="">Select</option><option>Male</option><option>Female</option></select></div>
+      <div class="field"><label>Date of Birth <span class="req">*</span></label><input type="date" name="birth_date" required></div>
+      <div class="field"><label>Civil Status <span class="req">*</span></label>
         <select name="civil_status" required>
-          <option value="">Select</option>
-          <option>Single</option>
-          <option>Married</option>
-          <option>Widowed</option>
-          <option>Separated</option>
+          <option value="">Select</option><option>Single</option><option>Married</option>
+          <option>Widowed</option><option>Separated</option><option>Divorced</option><option>Annulled</option>
         </select>
       </div>
     </div>
-
-    <div class="form-grid">
-      <div class="field">
-        <label>Nationality</label>
-        <input type="text" name="nationality" value="Filipino">
-      </div>
-    </div>
+    <div class="form-grid"><div class="field"><label>Nationality</label><input type="text" name="nationality" value="Filipino"></div></div>
 
     <!-- II. Address & Contact -->
-    <h3>II. Address & Contact Information</h3>
-
+    <div class="section-divider"><div class="section-num">II</div><h3>Address &amp; Contact Information</h3><div class="section-line"></div></div>
+    <div class="form-grid"><div class="field" style="grid-column:1/-1;"><label>Complete Address <span class="req">*</span></label><input type="text" name="address" required placeholder="House No., Street, Sitio"></div></div>
     <div class="form-grid">
-      <div class="field" style="grid-column: 1 / -1;">
-        <label>Complete Address <span class="req">*</span></label>
-        <input type="text" name="address" required placeholder="House No., Street, Sitio">
-      </div>
+      <div class="field"><label>Barangay <span class="req">*</span></label><input type="text" name="barangay" required placeholder="e.g. Barangay San Jose"></div>
+      <div class="field"><label>Municipality <span class="req">*</span></label><input type="text" name="municipality" required placeholder="e.g. Calapan City"></div>
     </div>
-
     <div class="form-grid">
-      <div class="field">
-        <label>Barangay <span class="req">*</span></label>
-        <input type="text" name="barangay" required placeholder="e.g. Barangay San Jose">
-      </div>
-      <div class="field">
-        <label>Municipality <span class="req">*</span></label>
-        <input type="text" name="municipality" required placeholder="e.g. Calapan City">
-      </div>
-    </div>
-
-    <div class="form-grid">
-      <div class="field">
-        <label>Contact Number <span class="req">*</span></label>
-        <input type="text" name="contact_no" required placeholder="09XX-XXX-XXXX">
-      </div>
-      <div class="field">
-        <label>Email Address</label>
-        <input type="email" name="email" placeholder="optional">
-      </div>
+      <div class="field"><label>Contact Number <span class="req">*</span></label><input type="text" name="contact_no" required placeholder="09XX-XXX-XXXX"></div>
+      <div class="field"><label>Email Address</label><input type="email" name="email" placeholder="optional"></div>
     </div>
 
     <!-- III. Socio-Economic Profile -->
-    <h3>III. Socio-Economic Profile</h3>
-
+    <div class="section-divider"><div class="section-num">III</div><h3>Socio-Economic Profile</h3><div class="section-line"></div></div>
     <div class="form-grid">
-      <div class="field">
-        <label>Primary Livelihood <span class="req">*</span></label>
-        <input type="text" name="livelihood" required placeholder="e.g. Farmer, Vendor">
+      <div class="field"><label>Primary Livelihood <span class="req">*</span></label><input type="text" name="livelihood" required placeholder="e.g. Farmer, Vendor"></div>
+      <div class="field"><label>Monthly Income (₱) <span class="req">*</span></label><input type="number" name="monthly_income" step="0.01" min="0" required placeholder="0.00"></div>
+      <div class="field"><label>Household Size <span class="req">*</span></label><input type="number" name="household_size" min="1" required placeholder="e.g. 5"></div>
+    </div>
+
+    <label style="font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-secondary);margin-bottom:8px;display:block;">
+      Sector / Socio-Economic Status <span style="color:#9aabca;font-weight:400;text-transform:none;letter-spacing:0;font-size:.65rem;">(select all that apply)</span>
+    </label>
+    <div class="sector-grid">
+      <div class="sector-item"><input type="checkbox" name="sector_WEDC" id="s_WEDC" value="1"><label for="s_WEDC"><span class="sector-icon">👩</span>Women in Especially Difficult Circumstances (WEDC)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_SC" id="s_SC" value="1"><label for="s_SC"><span class="sector-icon">👴</span>Senior Citizen (SC)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_PWD" id="s_PWD" value="1"><label for="s_PWD"><span class="sector-icon">♿</span>Person with Disability (PWD)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_SP" id="s_SP" value="1"><label for="s_SP"><span class="sector-icon">👤</span>Solo Parent (SP)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_IP" id="s_IP" value="1"><label for="s_IP"><span class="sector-icon">🌿</span>Indigenous People (IP)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_OFW" id="s_OFW" value="1"><label for="s_OFW"><span class="sector-icon">✈️</span>Overseas Filipino Worker (OFW)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_TP" id="s_TP" value="1"><label for="s_TP"><span class="sector-icon">🚫</span>Trafficked Person (TP)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_PDL" id="s_PDL" value="1"><label for="s_PDL"><span class="sector-icon">🔒</span>Person Deprived of Liberty (PDL)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_PWUD" id="s_PWUD" value="1"><label for="s_PWUD"><span class="sector-icon">💊</span>Person Who Uses Drugs (PWUD)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_IFW" id="s_IFW" value="1"><label for="s_IFW"><span class="sector-icon">🔧</span>Informal Filipino Workers (IFW)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_4PS" id="s_4PS" value="1"><label for="s_4PS"><span class="sector-icon">🏠</span>4Ps Beneficiary (4Ps)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_CNSP" id="s_CNSP" value="1"><label for="s_CNSP"><span class="sector-icon">🧒</span>Children in Need of Special Protection (CNSP)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_CAR" id="s_CAR" value="1"><label for="s_CAR"><span class="sector-icon">⚠️</span>Child at Risk (CAR)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_CICL" id="s_CICL" value="1"><label for="s_CICL"><span class="sector-icon">⚖️</span>Child in Conflict with the Law (CICL)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_OSCY" id="s_OSCY" value="1"><label for="s_OSCY"><span class="sector-icon">📚</span>Out of School Children/Youth (OSCY)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_FR" id="s_FR" value="1"><label for="s_FR"><span class="sector-icon">🕊️</span>Former Rebel (FR)</label></div>
+      <div class="sector-item"><input type="checkbox" name="sector_KASAMBAHAY" id="s_KASAMBAHAY" value="1"><label for="s_KASAMBAHAY"><span class="sector-icon">🏡</span>Domestic Helper (Kasambahay)</label></div>
+      <div class="sector-item"><input type="checkbox" name="previous_aid" id="s_PREV" value="Yes"><label for="s_PREV"><span class="sector-icon">📋</span>Previous DSWD Aid</label></div>
+    </div>
+
+    <!-- IV. 4Ps Membership -->
+    <div class="section-divider"><div class="section-num">IV</div><h3>4Ps Membership</h3><div class="section-line"></div></div>
+    <div class="fourps-box">
+      <div class="fourps-label"><i class="bi bi-patch-check-fill"></i> 4Ps Member?</div>
+      <div class="toggle-group">
+        <input type="radio" name="is_4ps" id="4ps-no" value="No" checked>
+        <label for="4ps-no">No</label>
+        <input type="radio" name="is_4ps" id="4ps-yes" value="Yes">
+        <label for="4ps-yes">Yes</label>
       </div>
-      <div class="field">
-        <label>Monthly Income (₱) <span class="req">*</span></label>
-        <input type="number" name="monthly_income" step="0.01" min="0" required placeholder="0.00">
-      </div>
-      <div class="field">
-        <label>Household Size <span class="req">*</span></label>
-        <input type="number" name="household_size" min="1" required placeholder="e.g. 5">
+      <div class="field" id="fourps-id-field">
+        <label>4Ps Household ID No.</label>
+        <input type="text" name="fourps_id" id="fourps_id" placeholder="e.g. 112233445566">
       </div>
     </div>
 
-    <div class="form-grid">
-      <div class="field">
-        <label>Person with Disability</label>
-        <select name="has_disability">
-          <option value="No">No</option>
-          <option value="Yes">Yes</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Senior Citizen</label>
-        <select name="is_senior">
-          <option value="No">No</option>
-          <option value="Yes">Yes</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Previous DSWD Assistance</label>
-        <select name="previous_aid">
-          <option value="No">No</option>
-          <option value="Yes">Yes</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- IV. Family Information -->
-    <h3>IV. Beneficiary's Family Information</h3>
-
-    <div style="overflow-x:auto;">
-      <table id="familyTable" style="width:100%; border-collapse:collapse; font-size:0.82rem; min-width:860px;">
+    <!-- V. Family Information -->
+    <div class="section-divider"><div class="section-num">V</div><h3>Beneficiary's Family Information</h3><div class="section-line"></div></div>
+    <div class="table-wrap">
+      <table id="familyTable">
         <thead>
           <tr>
-            <th rowspan="2" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:10px 8px;border:1px solid rgba(255,255,255,0.15);white-space:nowrap;min-width:120px;">Name</th>
-            <th rowspan="2" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:10px 6px;border:1px solid rgba(255,255,255,0.15);width:52px;">Age</th>
-            <th rowspan="2" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:10px 6px;border:1px solid rgba(255,255,255,0.15);width:65px;">Sex</th>
-            <th colspan="3" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:10px 6px;border:1px solid rgba(255,255,255,0.15);text-align:center;">Civil Status</th>
-            <th rowspan="2" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:10px 6px;border:1px solid rgba(255,255,255,0.15);min-width:100px;">Relationship</th>
-            <th colspan="4" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:10px 6px;border:1px solid rgba(255,255,255,0.15);text-align:center;">Educational Attainment</th>
-            <th rowspan="2" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:10px 6px;border:1px solid rgba(255,255,255,0.15);min-width:100px;">Occupation</th>
-            <th rowspan="2" style="background:linear-gradient(135deg,#0d4a2a,#14693d);color:#fff;padding:10px 6px;border:1px solid rgba(255,255,255,0.15);width:85px;">Income</th>
+            <th rowspan="2" style="min-width:130px;">Name</th>
+            <th rowspan="2" style="min-width:58px;">Age</th>
+            <th rowspan="2" style="min-width:62px;">Sex</th>
+            <th rowspan="2" style="min-width:100px;">Civil Status</th>
+            <th rowspan="2" style="min-width:100px;">Relationship</th>
+            <th colspan="4">Educational Attainment</th>
+            <th rowspan="2" style="min-width:100px;">Occupation</th>
+            <th rowspan="2" style="min-width:76px;">Income</th>
+            <th rowspan="2" style="min-width:170px;">Sector / Status</th>
           </tr>
-          <tr>
-            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:7px 5px;border:1px solid rgba(255,255,255,0.1);font-size:0.75rem;text-align:center;">S</th>
-            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:7px 5px;border:1px solid rgba(255,255,255,0.1);font-size:0.75rem;text-align:center;">M</th>
-            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:7px 5px;border:1px solid rgba(255,255,255,0.1);font-size:0.75rem;text-align:center;">W</th>
-            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:7px 5px;border:1px solid rgba(255,255,255,0.1);font-size:0.75rem;text-align:center;">Elem</th>
-            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:7px 5px;border:1px solid rgba(255,255,255,0.1);font-size:0.75rem;text-align:center;">HS</th>
-            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:7px 5px;border:1px solid rgba(255,255,255,0.1);font-size:0.75rem;text-align:center;">Coll/Voc</th>
-            <th style="background:#1a5e3a;color:rgba(255,255,255,0.85);padding:7px 5px;border:1px solid rgba(255,255,255,0.1);font-size:0.75rem;text-align:center;">Illit</th>
-          </tr>
+          <tr><th>Elem</th><th>HS</th><th>Coll/Voc</th><th>Illit</th></tr>
         </thead>
         <tbody id="familyBody"></tbody>
       </table>
     </div>
-
-    <div style="display:flex;gap:10px;margin-top:12px;">
-      <button type="button" onclick="addFamilyRow()"
-        style="padding:8px 16px;border-radius:9px;font-size:0.85rem;font-weight:600;border:2px solid #27ae60;background:#f0fdf4;color:#0d4a2a;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
-        ＋ Add Row
-      </button>
-      <button type="button" onclick="removeLastRow()"
-        style="padding:8px 16px;border-radius:9px;font-size:0.85rem;font-weight:600;border:2px solid #fca5a5;background:#fef2f2;color:#dc2626;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
-        － Remove Last
-      </button>
+    <div class="tbl-buttons">
+      <button type="button" class="tbl-btn tbl-btn-add" onclick="addFamilyRow()"><i class="bi bi-plus-circle-fill"></i> Add Row</button>
+      <button type="button" class="tbl-btn tbl-btn-remove" onclick="removeLastRow()"><i class="bi bi-dash-circle-fill"></i> Remove Last</button>
     </div>
 
-    <script>
-      let familyRowCount = 0;
-
-      function addFamilyRow() {
-        const i = familyRowCount++;
-        const tbody = document.getElementById('familyBody');
-        const tr = document.createElement('tr');
-        tr.style.cssText = 'border-bottom:1px solid #daeee3;';
-        const tdStyle = 'border:1px solid #daeee3;padding:5px 4px;text-align:center;';
-        const inputStyle = 'padding:7px 8px;border:2px solid #e1e8ed;border-radius:8px;font-size:0.82rem;width:100%;';
-        tr.innerHTML = `
-          <td style="${tdStyle}"><input type="text" name="family_name_${i}" placeholder="Full name" style="${inputStyle}"></td>
-          <td style="${tdStyle}"><input type="number" name="family_age_${i}" min="0" max="120" placeholder="—" style="${inputStyle}min-width:48px;"></td>
-          <td style="${tdStyle}">
-            <select name="family_sex_${i}" style="${inputStyle}">
-              <option value="">—</option>
-              <option value="M">M</option>
-              <option value="F">F</option>
-            </select>
-          </td>
-          <td style="${tdStyle}"><input type="checkbox" name="family_cs_s_${i}" value="1" style="width:16px;height:16px;accent-color:#27ae60;cursor:pointer;"></td>
-          <td style="${tdStyle}"><input type="checkbox" name="family_cs_m_${i}" value="1" style="width:16px;height:16px;accent-color:#27ae60;cursor:pointer;"></td>
-          <td style="${tdStyle}"><input type="checkbox" name="family_cs_w_${i}" value="1" style="width:16px;height:16px;accent-color:#27ae60;cursor:pointer;"></td>
-          <td style="${tdStyle}"><input type="text" name="family_rel_${i}" placeholder="e.g. Spouse" style="${inputStyle}"></td>
-          <td style="${tdStyle}"><input type="checkbox" name="family_edu_elem_${i}" value="1" style="width:16px;height:16px;accent-color:#27ae60;cursor:pointer;"></td>
-          <td style="${tdStyle}"><input type="checkbox" name="family_edu_hs_${i}" value="1" style="width:16px;height:16px;accent-color:#27ae60;cursor:pointer;"></td>
-          <td style="${tdStyle}"><input type="checkbox" name="family_edu_coll_${i}" value="1" style="width:16px;height:16px;accent-color:#27ae60;cursor:pointer;"></td>
-          <td style="${tdStyle}"><input type="checkbox" name="family_edu_illit_${i}" value="1" style="width:16px;height:16px;accent-color:#27ae60;cursor:pointer;"></td>
-          <td style="${tdStyle}"><input type="text" name="family_occ_${i}" placeholder="Occupation" style="${inputStyle}"></td>
-          <td style="${tdStyle}"><input type="number" name="family_inc_${i}" step="0.01" min="0" placeholder="0.00" style="${inputStyle}min-width:70px;"></td>
-        `;
-        tbody.appendChild(tr);
-      }
-
-      function removeLastRow() {
-        const tbody = document.getElementById('familyBody');
-        if (tbody.rows.length > 0) { tbody.deleteRow(tbody.rows.length - 1); familyRowCount--; }
-      }
-
-      // Start with 2 blank rows
-      addFamilyRow(); addFamilyRow();
-    </script>
-
-    <!-- V. Account Security -->
-    <h3>IV. Account Security</h3>
-
+    <!-- VI. Account Security -->
+    <div class="section-divider"><div class="section-num">VI</div><h3>Account Security</h3><div class="section-line"></div></div>
     <div class="form-grid">
-      <div class="field">
-        <label>Password <span class="req">*</span></label>
-        <input type="password" name="password" required placeholder="Create a password">
-      </div>
-      <div class="field">
-        <label>Confirm Password <span class="req">*</span></label>
-        <input type="password" name="confirm_password" required placeholder="Repeat password">
-      </div>
+      <div class="field"><label>Password <span class="req">*</span></label><input type="password" name="password" required placeholder="Create a password"></div>
+      <div class="field"><label>Confirm Password <span class="req">*</span></label><input type="password" name="confirm_password" required placeholder="Repeat password"></div>
     </div>
 
-    <button type="submit">Register Account</button>
+    <button type="submit"><i class="bi bi-person-check-fill"></i>&nbsp; Register Account</button>
   </form>
 
   <p class="login-link">Already registered? <a href="{% url 'client_login' %}">Login here</a></p>
-
+  <div class="gov-seal">Republic of the Philippines · Official Government Portal</div>
+  <div class="flag-strip"></div>
 </div>
 
+<script>
+  // 4Ps toggle
+  document.querySelectorAll('input[name="is_4ps"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const f = document.getElementById('fourps-id-field');
+      const i = document.getElementById('fourps_id');
+      if (r.value === 'Yes') { f.style.display='flex'; i.required=true; }
+      else { f.style.display='none'; i.required=false; i.value=''; }
+    });
+  });
+
+  // Sector popup for family table
+  const SECTORS = [
+    ['WEDC','Women in Especially Difficult Circumstances (WEDC)'],
+    ['SC','Senior Citizen (SC)'],['PWD','Person with Disability (PWD)'],
+    ['SP','Solo Parent (SP)'],['IP','Indigenous People (IP)'],
+    ['OFW','Overseas Filipino Worker (OFW)'],['TP','Trafficked Person (TP)'],
+    ['PDL','Person Deprived of Liberty (PDL)'],['PWUD','Person Who Uses Drugs (PWUD)'],
+    ['IFW','Informal Filipino Workers (IFW)'],['4PS','4Ps Beneficiary (4Ps)'],
+    ['CNSP','Children in Need of Special Protection (CNSP)'],
+    ['CAR','Child at Risk (CAR)'],['CICL','Child in Conflict with the Law (CICL)'],
+    ['OSCY','Out of School Children/Youth (OSCY)'],['FR','Former Rebel (FR)'],
+    ['KASAMBAHAY','Domestic Helper (Kasambahay)'],
+  ];
+
+  function sectorPopupHTML(i) {
+    const items = SECTORS.map(([val, label]) =>
+      `<label class="sp-chk-item"><input type="checkbox" name="family_sector_${i}_${val}" value="1" onchange="updateSectorLabel(${i})"><span>${label}</span></label>`
+    ).join('');
+    return `<div class="sector-popup-wrap" id="sp_wrap_${i}">
+      <button type="button" class="sector-popup-btn" onclick="toggleSectorPopup(${i})">
+        <i class="bi bi-tags-fill"></i><span id="sp_label_${i}">Select Sectors</span>
+        <i class="bi bi-chevron-down" style="font-size:.55rem;margin-left:auto;"></i>
+      </button>
+      <div class="sector-popup-list" id="sp_list_${i}" style="display:none;">${items}</div>
+    </div>`;
+  }
+
+  function updateSectorLabel(i) {
+    const wrap = document.getElementById('sp_wrap_' + i);
+    const checked = wrap ? wrap.querySelectorAll('input[type=checkbox]:checked') : [];
+    const lbl = document.getElementById('sp_label_' + i);
+    if (lbl) lbl.textContent = checked.length === 0 ? 'Select Sectors' : checked.length + ' selected';
+  }
+
+  function toggleSectorPopup(i) {
+    const list = document.getElementById('sp_list_' + i);
+    document.querySelectorAll('.sector-popup-list').forEach(el => {
+      if (el.id !== 'sp_list_' + i) el.style.display = 'none';
+    });
+    if (list) list.style.display = list.style.display === 'none' ? 'block' : 'none';
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.sector-popup-wrap'))
+      document.querySelectorAll('.sector-popup-list').forEach(el => el.style.display = 'none');
+  });
+
+  // Family table
+  let familyRowCount = 0;
+  function addFamilyRow() {
+    const i = familyRowCount++;
+    const tbody = document.getElementById('familyBody');
+    const tr = document.createElement('tr');
+    const td = 'border:1px solid #eef1f8;padding:4px;text-align:center;vertical-align:middle;';
+    tr.innerHTML = `
+      <td style="${td}min-width:130px;"><input type="text" class="tbl-input" name="family_name_${i}" placeholder="Full name" style="min-width:110px;"></td>
+      <td style="${td}min-width:58px;"><input type="number" class="tbl-input" name="family_age_${i}" min="0" max="120" placeholder="Age" style="width:54px;text-align:center;"></td>
+      <td style="${td}min-width:62px;">
+        <select name="family_sex_${i}" class="tbl-input" style="min-width:58px;">
+          <option value="">—</option><option value="Male">Male</option><option value="Female">Female</option>
+        </select>
+      </td>
+      <td style="${td}min-width:100px;">
+        <select name="family_cs_${i}" class="tbl-input" style="min-width:95px;">
+          <option value="">—</option><option value="Single">Single</option><option value="Married">Married</option>
+          <option value="Widowed">Widowed</option><option value="Separated">Separated</option>
+          <option value="Divorced">Divorced</option><option value="Annulled">Annulled</option>
+        </select>
+      </td>
+      <td style="${td}min-width:100px;"><input type="text" class="tbl-input" name="family_rel_${i}" placeholder="e.g. Spouse" style="min-width:90px;"></td>
+      <td style="${td}"><input type="checkbox" class="tbl-checkbox" name="family_edu_elem_${i}" value="1"></td>
+      <td style="${td}"><input type="checkbox" class="tbl-checkbox" name="family_edu_hs_${i}" value="1"></td>
+      <td style="${td}"><input type="checkbox" class="tbl-checkbox" name="family_edu_coll_${i}" value="1"></td>
+      <td style="${td}"><input type="checkbox" class="tbl-checkbox" name="family_edu_illit_${i}" value="1"></td>
+      <td style="${td}min-width:100px;"><input type="text" class="tbl-input" name="family_occ_${i}" placeholder="Occupation" style="min-width:90px;"></td>
+      <td style="${td}min-width:76px;"><input type="number" class="tbl-input" name="family_inc_${i}" step="0.01" min="0" placeholder="0.00" style="width:72px;text-align:center;"></td>
+      <td style="${td}min-width:170px;">${sectorPopupHTML(i)}</td>`;
+    tbody.appendChild(tr);
+  }
+
+  function removeLastRow() {
+    const tbody = document.getElementById('familyBody');
+    if (tbody.rows.length > 0) { tbody.deleteRow(tbody.rows.length - 1); familyRowCount--; }
+  }
+
+  addFamilyRow(); addFamilyRow();
+</script>
 </body>
 </html>

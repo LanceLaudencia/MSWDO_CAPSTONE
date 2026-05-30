@@ -3,94 +3,530 @@
 <head>
   <meta charset="UTF-8">
   <title>Select Account – MSWDO</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      display: flex;
-      height: 100vh;
-      background: #f7f9f8;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --blue: #0038A8;
+      --blue-dark: #002882;
+      --blue-light: rgba(0, 56, 168, 0.08);
+      --red: #CE1126;
+      --red-dark: #a50d1e;
+      --yellow: #FCD116;
     }
-    .left, .right {
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #f0f2f7;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Top tricolor bar */
+    .top-bar {
+      height: 5px;
+      background: linear-gradient(90deg, var(--blue) 0%, var(--blue) 33%, var(--red) 33%, var(--red) 66%, var(--yellow) 66%, var(--yellow) 100%);
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+    }
+
+    /* Header */
+    .site-header {
+      position: fixed;
+      top: 5px; left: 0; right: 0;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      padding: 10px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 90;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-seal {
+      width: 46px; height: 46px;
+      background: var(--blue);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 2px 8px rgba(0,56,168,0.3);
+      flex-shrink: 0;
+    }
+
+    .header-titles h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      line-height: 1.2;
+    }
+
+    .header-titles p {
+      font-size: 0.62rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-secure {
+      background: var(--red);
+      color: white;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Main Layout */
+    .main {
+      display: flex;
+      min-height: 100vh;
+      padding-top: 67px; /* header offset */
+    }
+
+    /* Left Panel */
+    .left-panel {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 40px;
+      padding: 60px 48px;
+      background: white;
+      position: relative;
     }
-    .right {
-      background: #024b3c;
-      color: white;
-      text-align: center;
+
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 10%; bottom: 10%;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, #e0e4ef, transparent);
     }
-    h1 {
-      color: #024b3c;
-      margin-bottom: 20px;
+
+    .left-inner {
+      width: 100%;
+      max-width: 420px;
     }
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 25px 40px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      text-align: center;
-      margin: 20px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    .section-eyebrow {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 8px;
     }
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+
+    .section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #1a2540;
+      margin-bottom: 6px;
+      line-height: 1.2;
     }
-    .card img {
-      width: 80px;
-      margin-bottom: 15px;
+
+    .section-sub {
+      font-size: 0.85rem;
+      color: #6b7a99;
+      margin-bottom: 36px;
     }
-    button {
-      background: #024b3c;
-      color: #fff;
-      border: none;
-      padding: 10px 25px;
-      border-radius: 6px;
+
+    /* Account Cards */
+    .account-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .account-card {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: white;
+      border: 2px solid #e4e9f5;
+      border-radius: 14px;
+      padding: 20px 24px;
       cursor: pointer;
-      font-weight: 500;
-      transition: background 0.3s ease;
+      transition: all 0.25s ease;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
     }
-    button:hover {
-      background: #01392e;
+
+    .account-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 0;
+      background: linear-gradient(180deg, var(--blue) 0%, var(--blue-dark) 100%);
+      transition: width 0.25s ease;
+      border-radius: 0 4px 4px 0;
     }
-    .return {
-      margin-top: 20px;
+
+    .account-card:hover {
+      border-color: var(--blue);
+      box-shadow: 0 4px 20px rgba(0, 56, 168, 0.12);
+      transform: translateX(4px);
+    }
+
+    .account-card:hover::before {
+      width: 4px;
+    }
+
+    .account-card:hover .card-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .account-card:hover .card-icon-wrap {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .account-card:hover .card-icon-wrap span {
+      filter: brightness(0) invert(1);
+    }
+
+    .card-icon-wrap {
+      width: 56px; height: 56px;
+      background: var(--blue-light);
+      border: 2px solid rgba(0,56,168,0.15);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.25s;
+    }
+
+    .card-icon-wrap span {
+      font-size: 1.6rem;
+      transition: filter 0.25s;
+    }
+
+    .card-info {
+      flex: 1;
+    }
+
+    .card-info h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a2540;
+      margin-bottom: 3px;
+    }
+
+    .card-info p {
+      font-size: 0.78rem;
+      color: #8592b0;
+    }
+
+    .card-arrow {
+      color: var(--blue);
+      font-size: 1.2rem;
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: all 0.25s;
+    }
+
+    /* Return Button */
+    .btn-return {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: 2px solid #d0d7ea;
       background: transparent;
-      border: 2px solid #024b3c;
-      color: #024b3c;
-      font-weight: 600;
+      color: #5a6a8a;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-    .return:hover {
-      background: #024b3c;
+
+    .btn-return:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: var(--blue-light);
+    }
+
+    /* Right Panel */
+    .right-panel {
+      width: 42%;
+      background: linear-gradient(160deg, var(--blue) 0%, var(--blue-dark) 60%, #001a5e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .right-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(255,255,255,0.02) 40px,
+          rgba(255,255,255,0.02) 41px
+        );
+    }
+
+    .right-blob-1 {
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(252, 209, 22, 0.12) 0%, transparent 70%);
+      top: -100px; right: -100px;
+    }
+
+    .right-blob-2 {
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(206, 17, 38, 0.15) 0%, transparent 70%);
+      bottom: -80px; left: -60px;
+    }
+
+    .right-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 340px;
+      text-align: center;
+    }
+
+    .right-emblem {
+      width: 90px; height: 90px;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      margin: 0 auto 28px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .right-eyebrow {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--yellow);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .right-inner h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
       color: white;
+      line-height: 1.25;
+      margin-bottom: 16px;
+    }
+
+    .right-inner p {
+      font-size: 0.87rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: flex;
+      gap: 0;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .stat-item {
+      flex: 1;
+      padding: 16px 12px;
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .stat-item:last-child { border-right: none; }
+
+    .stat-item .stat-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--yellow);
+      display: block;
+    }
+
+    .stat-item .stat-label {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.55);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Flag footer on right */
+    .flag-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .flag-seg {
+      height: 5px;
+      border-radius: 2px;
+    }
+
+    .right-footer-text {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 800px) {
+      .main { flex-direction: column; }
+      .right-panel { width: 100%; padding: 48px 32px; }
+      .left-panel { padding: 48px 24px; }
+      .left-panel::after { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="left">
-    <h1>Select Account</h1>
-    <div class="card">
-      <img src="https://cdn-icons-png.flaticon.com/512/456/456212.png" alt="Admin">
-      <h3>Admin</h3>
-      <button onclick="window.location.href='{% url 'login' %}'">Continue as Admin</button>
+
+<div class="top-bar"></div>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="header-left">
+    <div class="header-seal">🛡️</div>
+    <div class="header-titles">
+      <h1>Municipal Social Welfare and Development Office</h1>
+      <p>Republic of the Philippines · DSWD Devolved Unit</p>
     </div>
-    <div class="card">
-      <img src="https://cdn-icons-png.flaticon.com/512/1077/1077012.png" alt="Staff">
-      <h3>Staff</h3>
-      <button onclick="window.location.href='{% url 'login' %}'">Continue as Staff</button>
+  </div>
+  <div class="header-right">
+    <span class="badge-secure">Official Portal</span>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- Left: Account Selection -->
+  <div class="left-panel">
+    <div class="left-inner">
+
+      <p class="section-eyebrow">Portal Access</p>
+      <h2 class="section-title">Select Account Type</h2>
+      <p class="section-sub">Choose how you will access the MSWDO system to continue.</p>
+
+      <div class="account-cards">
+
+        <a class="account-card" onclick="window.location.href='{% url 'login' %}'" href="#">
+          <div class="card-icon-wrap">
+            <span>👤</span>
+          </div>
+          <div class="card-info">
+            <h3>Administrator</h3>
+            <p>Full system access &amp; management</p>
+          </div>
+          <span class="card-arrow">→</span>
+        </a>
+
+        <a class="account-card" onclick="window.location.href='{% url 'login' %}'" href="#">
+          <div class="card-icon-wrap">
+            <span>🧑‍💼</span>
+          </div>
+          <div class="card-info">
+            <h3>Staff</h3>
+            <p>Case management &amp; beneficiary records</p>
+          </div>
+          <span class="card-arrow">→</span>
+        </a>
+
+      </div>
+
+      <button class="btn-return" onclick="window.history.back()">
+        ← Return to Previous Page
+      </button>
+
     </div>
-    <button class="return" onclick="window.history.back()">← Return</button>
   </div>
 
-  <div class="right">
-    <h2>Reach Assistance Program</h2>
-    <p>Use your Venus card around the world with no hidden fees. Hold, transfer, and spend money securely with MSWDO.</p>
+  <!-- Right: Branding Panel -->
+  <div class="right-panel">
+    <div class="right-blob-1"></div>
+    <div class="right-blob-2"></div>
+    <div class="right-inner">
+
+      <div class="right-emblem">🤝</div>
+
+      <p class="right-eyebrow">MSWDO · DSWD</p>
+      <h2>Reach Assistance Program</h2>
+      <p>Empowering communities through responsive social welfare services. Manage beneficiary records, assistance programs, and community interventions securely.</p>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-num">4T+</span>
+          <span class="stat-label">Beneficiaries</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">100%</span>
+          <span class="stat-label">Secure</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">24/7</span>
+          <span class="stat-label">Access</span>
+        </div>
+      </div>
+
+      <div class="flag-row" style="justify-content:center;">
+        <div class="flag-seg" style="width:28px; background:#0038A8;"></div>
+        <div class="flag-seg" style="width:28px; background:#CE1126;"></div>
+        <div class="flag-seg" style="width:14px; background:#FCD116;"></div>
+      </div>
+      <p class="right-footer-text">Republic of the Philippines · Official Government System</p>
+
+    </div>
   </div>
+
+</div>
+
 </body>
 </html>

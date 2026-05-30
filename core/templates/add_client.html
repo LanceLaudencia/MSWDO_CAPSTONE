@@ -1,1084 +1,497 @@
 {% extends "base.html" %}
+{% block page_icon %}person-plus{% endblock %}
 {% block page_title %}New Beneficiary{% endblock %}
+{% block breadcrumb %}New Beneficiary{% endblock %}
+
 {% block content %}
-
 <style>
-  .intake-wrapper {
-<<<<<<< HEAD
-    background: linear-gradient(135deg, #0f6e3f 0%, #2ecc71 100%);
-=======
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-    min-height: 100vh;
-    padding: 60px 20px;
+  :root {
+    --blue:#0038A8;--blue-dark:#002882;--blue-light:rgba(0,56,168,0.08);--blue-border:rgba(0,56,168,0.18);
+    --red:#CE1126;--red-dark:#a50d1e;--red-light:rgba(206,17,38,0.07);
+    --yellow:#FCD116;--yellow-light:rgba(252,209,22,0.10);
+    --border:#dde3ef;--text-primary:#0f1f4b;--text-secondary:#5a6a8a;--bg-section:#f5f7fc;
   }
-  
-  .form-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 30px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-  }
-  
-  .form-header {
-<<<<<<< HEAD
-    background: linear-gradient(135deg, #0a4d2e 0%, #0f6e3f 100%);
-=======
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-    padding: 50px 40px;
-    color: white;
-    text-align: center;
-  }
-  
-  .form-header h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  }
-  
-  .form-header p {
-    font-size: 1.1rem;
-    opacity: 0.9;
-    margin: 0;
-  }
-  
-  .form-body {
-    padding: 50px;
-  }
-  
-  .section-divider {
-    display: flex;
-    align-items: center;
-    margin: 40px 0 30px 0;
-    gap: 15px;
-  }
-  
-  .section-divider::before {
-    content: '';
-    width: 6px;
-    height: 40px;
-<<<<<<< HEAD
-    background: linear-gradient(180deg, #0f6e3f 0%, #27ae60 100%);
-=======
-    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-    border-radius: 3px;
-  }
-  
-  .section-divider h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-<<<<<<< HEAD
-    color: #0a4d2e;
-=======
-    color: #1e3c72;
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-    margin: 0;
-    flex-grow: 1;
-  }
-  
-  .section-divider .section-number {
-<<<<<<< HEAD
-    background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-=======
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-  }
-  
-  .form-label {
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 8px;
-    font-size: 0.95rem;
-  }
-  
-  .form-control, .form-select {
-    border: 2px solid #e1e8ed;
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-  }
-  
-  .form-control:focus, .form-select:focus {
-<<<<<<< HEAD
-    border-color: #27ae60;
-    box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.1);
-=======
-    border-color: #667eea;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-    outline: none;
-  }
-  
-  .program-section {
-<<<<<<< HEAD
-    background: linear-gradient(135deg, #e8f8f0 0%, #d5f4e6 100%);
-    padding: 30px;
-    border-radius: 20px;
-    margin-top: 30px;
-    border: 3px solid #27ae60;
-  }
-  
-  .program-section h3 {
-    color: #0a4d2e;
-=======
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    padding: 30px;
-    border-radius: 20px;
-    margin-top: 30px;
-    border: 3px solid #667eea;
-  }
-  
-  .program-section h3 {
-    color: #1e3c72;
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-    font-weight: 700;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .program-section h3::before {
-    content: '✦';
-    font-size: 1.5rem;
-<<<<<<< HEAD
-    color: #27ae60;
-  }
-  
-  .program-section h5 {
-    color: #0a4d2e;
-    font-weight: 700;
-    margin-top: 30px;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #27ae60;
-  }
-  
-  .alert-info {
-    background: linear-gradient(135deg, #e8f8f0 0%, #d5f4e6 100%);
-    border: 2px solid #27ae60;
-    border-radius: 15px;
-    padding: 20px;
-    color: #0a4d2e;
-  }
-  
-  .alert-warning {
-    background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
-    border: 2px solid #ff9800;
-    border-radius: 15px;
-    padding: 20px;
-    color: #6d4c00;
-  }
-  
-  .form-check-input:checked {
-    background-color: #27ae60;
-    border-color: #27ae60;
-  }
-  
-  .btn-submit {
-    background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-=======
-    color: #667eea;
-  }
-  
-  .alert-info {
-    background: linear-gradient(135deg, #e0f7ff 0%, #d0e8ff 100%);
-    border: 2px solid #4facfe;
-    border-radius: 15px;
-    padding: 20px;
-    color: #1e3c72;
-  }
-  
-  .form-check-input:checked {
-    background-color: #667eea;
-    border-color: #667eea;
-  }
-  
-  .btn-submit {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-    color: white;
-    border: none;
-    padding: 15px 40px;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-<<<<<<< HEAD
-    box-shadow: 0 5px 20px rgba(15, 110, 63, 0.4);
-=======
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-  }
-  
-  .btn-submit:hover {
-    transform: translateY(-3px);
-<<<<<<< HEAD
-    box-shadow: 0 8px 30px rgba(15, 110, 63, 0.6);
-=======
-    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-  }
-  
-  .btn-cancel {
-    background: white;
-    color: #6c757d;
-    border: 2px solid #e1e8ed;
-    padding: 15px 40px;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-<<<<<<< HEAD
-    text-decoration: none;
-    display: inline-block;
-=======
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-  }
-  
-  .btn-cancel:hover {
-    background: #f8f9fa;
-    border-color: #6c757d;
-    color: #495057;
-<<<<<<< HEAD
-    text-decoration: none;
-=======
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-  }
-  
-  .file-input-wrapper {
-    position: relative;
-  }
-  
-  .file-input-wrapper input[type="file"] {
-    cursor: pointer;
-  }
-  
-  .file-input-wrapper input[type="file"]::file-selector-button {
-<<<<<<< HEAD
-    background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-=======
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-    color: white;
-    border: none;
-    padding: 8px 20px;
-    border-radius: 8px;
-    margin-right: 15px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-  }
-  
-  .file-input-wrapper input[type="file"]::file-selector-button:hover {
-    transform: scale(1.05);
-  }
-  
-  .declaration-box {
-    background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
-    border: 2px solid #ff9800;
-    border-radius: 15px;
-    padding: 20px;
-    margin-top: 30px;
-  }
-  
-  .form-check-label {
-    font-weight: 500;
-    color: #2c3e50;
-  }
-<<<<<<< HEAD
+  .intake-outer{max-width:1160px;margin:0 auto;}
+  .form-card{background:white;border-radius:16px;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,40,130,0.07);overflow:hidden;margin-bottom:24px;}
+  .form-card-header{background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:28px 36px;color:white;position:relative;overflow:hidden;}
+  .form-card-header::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(255,255,255,0.02) 40px,rgba(255,255,255,0.02) 41px);}
+  .form-card-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--yellow) 0%,var(--yellow) 40%,rgba(252,209,22,0.3) 100%);}
+  .header-inner{position:relative;z-index:1;display:flex;align-items:center;gap:18px;}
+  .header-emblem{width:60px;height:60px;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;}
+  .header-text-block .eyebrow{font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;}
+  .header-text-block h1{font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:800;color:white;margin:0 0 4px;line-height:1.2;}
+  .header-text-block p{font-size:.82rem;color:rgba(255,255,255,0.65);margin:0;}
+  .form-body{padding:36px 36px 40px;}
+  .section-divider{display:flex;align-items:center;gap:14px;margin:36px 0 24px;padding-bottom:14px;border-bottom:2px solid var(--border);}
+  .section-divider:first-child{margin-top:0;}
+  .section-num{width:34px;height:34px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:.8rem;font-weight:800;flex-shrink:0;box-shadow:0 3px 10px rgba(0,56,168,0.25);}
+  .section-divider h2{font-family:'Montserrat',sans-serif;font-size:.98rem;font-weight:800;color:var(--text-primary);margin:0;flex:1;text-transform:uppercase;letter-spacing:.5px;}
+  .section-tag{font-family:'Montserrat',sans-serif;font-size:.6rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px;background:var(--blue-light);border:1px solid var(--blue-border);padding:3px 10px;border-radius:4px;}
+  .form-label{font-family:'Montserrat',sans-serif;font-weight:700;color:var(--text-secondary);font-size:.68rem;text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;display:block;}
+  .form-label .req{color:var(--red);margin-left:2px;}
+  .form-control,.form-select{border:2px solid var(--border);border-radius:10px;padding:11px 14px;font-size:.88rem;font-family:'Open Sans',sans-serif;color:var(--text-primary);background:#f8f9fc;transition:all .2s;}
+  .form-control:focus,.form-select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,56,168,0.10);background:white;outline:none;}
+  .form-control::placeholder{color:#b0bace;}
+  .form-control[type="file"]{padding:8px 12px;cursor:pointer;}
+  .form-control[type="file"]::file-selector-button{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;border:none;padding:6px 14px;border-radius:6px;margin-right:12px;cursor:pointer;font-family:'Montserrat',sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;transition:all .2s;}
+  .form-control[type="file"]::file-selector-button:hover{opacity:.85;}
+  .form-check-input:checked{background-color:var(--blue);border-color:var(--blue);}
 
-  /* ================= FAMILY TABLE ================= */
-  .family-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.88rem;
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-  }
+  /* ── Sector checkbox grid ── */
+  .sector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:4px;}
+  .sector-item{position:relative;}
+  .sector-item input[type="checkbox"]{display:none;}
+  .sector-item label{display:flex;align-items:center;gap:9px;padding:9px 13px;border:2px solid var(--border);border-radius:9px;background:#f8f9fc;cursor:pointer;font-family:'Montserrat',sans-serif;font-size:.68rem;font-weight:700;color:var(--text-secondary);transition:all .2s;user-select:none;line-height:1.3;}
+  .sector-item label .sector-icon{width:28px;height:28px;border-radius:7px;background:rgba(0,56,168,0.08);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;transition:all .2s;}
+  .sector-item input[type="checkbox"]:checked + label{border-color:var(--blue);background:var(--blue-light);color:var(--blue);}
+  .sector-item input[type="checkbox"]:checked + label .sector-icon{background:var(--blue);color:white;}
+  .sector-item label:hover{border-color:var(--blue-border);background:var(--blue-light);}
 
-  .family-table thead tr th {
-    background: linear-gradient(135deg, #145433 0%, #1a6944 100%);
-    color: #fff;
-    text-align: center;
-    padding: 10px 8px;
-    font-weight: 600;
-    border: 1px solid rgba(255,255,255,0.2);
-    white-space: nowrap;
-  }
+  /* ── 4Ps inline ── */
+  .fourps-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;font-family:'Montserrat',sans-serif;font-size:.65rem;font-weight:700;padding:4px 12px;border-radius:4px;margin-top:8px;opacity:0;transition:opacity .3s;text-transform:uppercase;letter-spacing:.5px;}
+  .fourps-badge.visible{opacity:1;}
 
-  .family-table tbody tr:nth-child(even) {
-    background: #f5faf7;
-  }
+  /* ── Program section ── */
+  .program-section{background:var(--bg-section);border:1.5px solid var(--border);border-left:4px solid var(--blue);border-radius:12px;padding:28px 28px 24px;margin-top:24px;}
+  .program-section h3{font-family:'Montserrat',sans-serif;font-size:.95rem;font-weight:800;color:var(--blue);margin:0 0 22px;display:flex;align-items:center;gap:10px;text-transform:uppercase;letter-spacing:.4px;}
+  .program-section h5{font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin:24px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+  .alert-info{background:var(--blue-light);border:1px solid var(--blue-border);border-left:4px solid var(--blue);border-radius:10px;padding:16px 18px;color:var(--blue-dark);font-size:.83rem;line-height:1.6;}
+  .alert-warning{background:var(--yellow-light);border:1px solid rgba(252,209,22,0.35);border-left:4px solid #e6b800;border-radius:10px;padding:16px 18px;color:#7a5500;font-size:.83rem;line-height:1.6;}
+  .declaration-box{background:var(--red-light);border:1px solid rgba(206,17,38,0.18);border-left:4px solid var(--red);border-radius:10px;padding:18px 20px;margin-top:28px;}
+  .declaration-box .form-check-label{font-size:.85rem;color:var(--text-primary);line-height:1.5;}
 
-  .family-table tbody tr:hover {
-    background: #e8f5ed;
-  }
+  /* ── Family table ── */
+  .family-table{width:100%;border-collapse:collapse;font-size:.78rem;background:white;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,40,130,0.07);border:1px solid var(--border);}
+  .family-table thead tr th{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;text-align:center;padding:9px 6px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.5px;border:1px solid rgba(255,255,255,0.15);white-space:nowrap;}
+  .family-table tbody tr:nth-child(even){background:#f8f9fc;}
+  .family-table tbody tr:hover{background:var(--blue-light);}
+  .family-table td{border:1px solid var(--border);padding:4px 5px;text-align:center;vertical-align:middle;}
+  .family-table td input[type="text"],.family-table td input[type="number"]{border:none;border-radius:5px;padding:5px 5px;width:100%;font-size:.78rem;background:transparent;text-align:center;outline:none;transition:background .2s;font-family:'Open Sans',sans-serif;}
+  .family-table td input[type="text"]:focus,.family-table td input[type="number"]:focus{background:white;box-shadow:0 0 0 2px rgba(0,56,168,0.2);border-radius:5px;}
+  .family-table td input[type="checkbox"]{width:14px;height:14px;accent-color:var(--blue);cursor:pointer;}
+  .family-table td select{border:none;border-radius:5px;padding:5px 3px;width:100%;font-size:.78rem;background:transparent;text-align:center;outline:none;font-family:inherit;cursor:pointer;}
+  .family-table td select:focus{background:white;box-shadow:0 0 0 2px rgba(0,56,168,0.2);}
 
-  .family-table td {
-    border: 1px solid #d5e8dc;
-    padding: 4px 5px;
-    text-align: center;
-    vertical-align: middle;
-  }
+  .btn-add-row{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;border:none;padding:8px 18px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 3px 10px rgba(0,56,168,0.2);}
+  .btn-add-row:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(0,56,168,0.3);}
+  .btn-remove-row{background:white;color:var(--red);border:1.5px solid rgba(206,17,38,0.3);padding:8px 18px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;}
+  .btn-remove-row:hover{background:var(--red);border-color:var(--red);color:white;}
 
-  .family-table td input[type="text"],
-  .family-table td input[type="number"] {
-    border: none;
-    border-radius: 6px;
-    padding: 5px 6px;
-    width: 100%;
-    font-size: 0.85rem;
-    background: transparent;
-    text-align: center;
-    outline: none;
-    transition: background 0.2s;
-  }
+  .form-actions{display:flex;gap:14px;justify-content:center;margin-top:36px;flex-wrap:wrap;}
+  .btn-submit{background:linear-gradient(135deg,var(--red),var(--red-dark));color:white;border:none;padding:14px 40px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.88rem;text-transform:uppercase;letter-spacing:1.5px;cursor:pointer;transition:all .25s;box-shadow:0 4px 16px rgba(206,17,38,0.3);position:relative;overflow:hidden;}
+  .btn-submit::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left .4s;}
+  .btn-submit:hover::before{left:100%;}
+  .btn-submit:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(206,17,38,0.4);}
+  .btn-cancel{background:white;color:var(--text-secondary);border:2px solid var(--border);padding:14px 36px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.82rem;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+  .btn-cancel:hover{background:var(--bg-section);border-color:#b0bace;color:var(--text-primary);text-decoration:none;}
 
-  .family-table td input[type="text"]:focus,
-  .family-table td input[type="number"]:focus {
-    background: #fff;
-    box-shadow: 0 0 0 2px rgba(39,174,96,0.25);
-  }
 
-  .family-table td input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    accent-color: #27ae60;
-    cursor: pointer;
+  /* ── Family sector multi-checkbox popup ── */
+  .sector-popup-wrap { position:relative; }
+  .sector-popup-btn {
+    display:flex; align-items:center; gap:6px;
+    width:100%; padding:6px 9px; border-radius:7px;
+    border:1.5px solid var(--border); background:#f8f9fc;
+    font-family:'Montserrat',sans-serif; font-size:.68rem;
+    font-weight:700; color:var(--text-secondary);
+    cursor:pointer; transition:all .2s; white-space:nowrap;
+    text-align:left;
   }
-
-  .btn-add-row {
-    background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-    color: #fff;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.88rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
+  .sector-popup-btn:hover { border-color:var(--blue); background:var(--blue-light); color:var(--blue); }
+  .sector-popup-btn i:first-child { color:var(--blue); font-size:.8rem; flex-shrink:0; }
+  .sector-popup-list {
+    position:absolute; top:calc(100% + 4px); left:0; z-index:9999;
+    background:white; border:1.5px solid var(--blue-border);
+    border-radius:10px; padding:8px 4px;
+    box-shadow:0 8px 28px rgba(0,40,130,0.14);
+    min-width:260px; max-height:280px; overflow-y:auto;
   }
-
-  .btn-add-row:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(15,110,63,0.3);
+  .sector-popup-list::-webkit-scrollbar { width:4px; }
+  .sector-popup-list::-webkit-scrollbar-thumb { background:#c8d4ea; border-radius:10px; }
+  .sp-chk-item {
+    display:flex; align-items:flex-start; gap:8px;
+    padding:6px 12px; cursor:pointer; border-radius:6px;
+    transition:background .15s; font-size:.72rem;
+    font-family:'Open Sans',sans-serif; color:var(--text-primary);
+    line-height:1.35;
   }
-
-  .btn-remove-row {
-    background: #fff;
-    color: #dc3545;
-    border: 2px solid #dc3545;
-    padding: 8px 18px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.88rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
+  .sp-chk-item:hover { background:var(--blue-light); }
+  .sp-chk-item input[type="checkbox"] {
+    display:block !important; width:14px; height:14px;
+    accent-color:var(--blue); cursor:pointer; flex-shrink:0; margin-top:1px;
   }
-
-  .btn-remove-row:hover {
-    background: #dc3545;
-    color: #fff;
-  }
-
-  /* 4Ps badge shown when Yes is selected */
-  .fourps-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: linear-gradient(135deg, #0f6e3f 0%, #27ae60 100%);
-    color: white;
-    font-size: 0.78rem;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 20px;
-    margin-top: 6px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .fourps-badge.visible {
-    opacity: 1;
+  .sp-chk-item input[type="checkbox"]:checked ~ span { color:var(--blue); font-weight:600; }
+  @media(max-width:768px){
+    .form-body{padding:24px 20px 28px;}
+    .form-card-header{padding:22px 20px;}
+    .header-inner{flex-direction:column;align-items:flex-start;gap:12px;}
+    .form-actions{flex-direction:column;align-items:center;}
+    .btn-submit,.btn-cancel{width:100%;justify-content:center;}
+    .sector-grid{grid-template-columns:1fr 1fr;}
   }
 </style>
 
-=======
-</style>
-
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-<div class="intake-wrapper">
-  <div class="form-container">
-    
-    <div class="form-header">
-      <h1>DSWD Beneficiary Intake</h1>
-      <p>Social Welfare Assistance Application Form</p>
-    </div>
-    
-    <div class="form-body">
-      <form method="POST" enctype="multipart/form-data" novalidate>
-        {% csrf_token %}
-
-        <!-- SECTION I: PERSONAL INFORMATION -->
-        <div class="section-divider">
-          <h2>Personal Information</h2>
-          <div class="section-number">I</div>
-        </div>
-
-        <div class="row g-4">
-          <div class="col-md-4">
-            <label class="form-label">First Name *</label>
-            <input type="text" name="first_name" class="form-control" placeholder="Juan" required>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Middle Name</label>
-            <input type="text" name="middle_name" class="form-control" placeholder="Santos">
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Last Name *</label>
-            <input type="text" name="last_name" class="form-control" placeholder="Dela Cruz" required>
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label">Sex *</label>
-            <select name="sex" class="form-select" required>
-              <option value="">Choose...</option>
-              <option>Male</option>
-              <option>Female</option>
-            </select>
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label">Date of Birth *</label>
-            <input type="date" name="birth_date" class="form-control" required>
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label">Civil Status *</label>
-            <select name="civil_status" class="form-select" required>
-              <option value="">Choose...</option>
-              <option>Single</option>
-              <option>Married</option>
-              <option>Widowed</option>
-              <option>Separated</option>
-            </select>
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label">Nationality</label>
-            <input type="text" name="nationality" value="Filipino" class="form-control">
-          </div>
-        </div>
-
-        <!-- SECTION II: ADDRESS & CONTACT -->
-        <div class="section-divider">
-          <h2>Address & Contact Information</h2>
-          <div class="section-number">II</div>
-        </div>
-
-        <div class="row g-4">
-          <div class="col-md-6">
-            <label class="form-label">Complete Address *</label>
-            <input type="text" name="address" class="form-control" placeholder="House No., Street Name" required>
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label">Barangay *</label>
-            <input type="text" name="barangay" class="form-control" placeholder="Barangay Name" required>
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label">Municipality *</label>
-            <input type="text" name="municipality" class="form-control" placeholder="City/Municipality" required>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label">Contact Number *</label>
-            <input type="text" name="contact_no" class="form-control" placeholder="09XX-XXX-XXXX" required>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label">Email Address</label>
-            <input type="email" name="email" class="form-control" placeholder="your.email@example.com">
-          </div>
-        </div>
-
-        <!-- SECTION III: SOCIO-ECONOMIC -->
-        <div class="section-divider">
-          <h2>Socio-Economic Profile</h2>
-          <div class="section-number">III</div>
-        </div>
-
-        <div class="row g-4">
-          <div class="col-md-4">
-            <label class="form-label">Primary Livelihood *</label>
-            <input type="text" name="livelihood" class="form-control" placeholder="e.g., Farmer, Vendor" required>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Monthly Household Income (₱) *</label>
-            <input type="number" name="monthly_income" class="form-control" placeholder="0.00" required>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Household Size *</label>
-            <input type="number" name="household_size" class="form-control" placeholder="Number of members" required>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Person with Disability</label>
-            <select name="has_disability" class="form-select">
-              <option>No</option>
-              <option>Yes</option>
-            </select>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Senior Citizen</label>
-            <select name="is_senior" class="form-select">
-              <option>No</option>
-              <option>Yes</option>
-            </select>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Previous DSWD Assistance</label>
-            <select name="previous_aid" class="form-select">
-              <option>No</option>
-              <option>Yes</option>
-            </select>
-          </div>
-<<<<<<< HEAD
-
-          <!-- 4Ps FIELD -->
-          <div class="col-md-4">
-            <label class="form-label">4Ps Member
-              <span style="font-size:0.8rem; color:#6c757d; font-weight:400;">(Pantawid Pamilyang Pilipino Program)</span>
-            </label>
-            <select name="is_4ps" id="fourpsSelect" class="form-select">
-              <option value="No">No</option>
-              <option value="Yes">Yes</option>
-            </select>
-            <span class="fourps-badge" id="fourpsBadge">
-              <i class="bi bi-patch-check-fill"></i> 4Ps Beneficiary
-            </span>
-          </div>
-
-          <!-- 4Ps HH ID — shown only when Yes -->
-          <div class="col-md-4" id="fourpsIdWrapper" style="display:none;">
-            <label class="form-label">4Ps Household ID No.</label>
-            <input type="text" name="fourps_id" id="fourpsId" class="form-control" placeholder="e.g., 112-0001-000001">
-          </div>
-
-        </div>
-
-        <!-- SECTION IV: BENEFICIARY'S FAMILY INFORMATION -->
-        <div class="section-divider">
-          <h2>Beneficiary's Family Information</h2>
-          <div class="section-number">IV</div>
-        </div>
-
-        <div class="table-responsive">
-          <table class="family-table" id="familyTable">
-            <thead>
-              <tr>
-                <th rowspan="3">Name</th>
-                <th rowspan="3">Age</th>
-                <th rowspan="3">Sex</th>
-                <th colspan="3">Civil Status</th>
-                <th rowspan="3">Relationship<br>to the Client</th>
-                <th colspan="4">Educational Attainment</th>
-                <th rowspan="3">Occupation</th>
-                <th rowspan="3">Income</th>
-              </tr>
-              <tr>
-                <th>S</th>
-                <th>M</th>
-                <th>W</th>
-                <th>Elem.</th>
-                <th>HS</th>
-                <th>Coll. / Voc.</th>
-                <th>Illit.</th>
-              </tr>
-            </thead>
-            <tbody id="familyTableBody">
-              <!-- Rows injected by JS -->
-            </tbody>
-          </table>
-        </div>
-
-        <div class="mt-3 d-flex gap-2">
-          <button type="button" class="btn-add-row" onclick="addFamilyRow()">
-            <i class="bi bi-plus-circle"></i> Add Member
-          </button>
-          <button type="button" class="btn-remove-row" onclick="removeLastRow()">
-            <i class="bi bi-dash-circle"></i> Remove Last
-          </button>
-        </div>
-
-        <!-- SECTION V: PROGRAM ASSISTANCE -->
-        <div class="section-divider" style="margin-top:40px;">
-          <h2>Program / Assistance Requested</h2>
-          <div class="section-number">V</div>
-=======
-        </div>
-
-        <!-- SECTION IV: PROGRAM ASSISTANCE -->
-        <div class="section-divider">
-          <h2>Program / Assistance Requested</h2>
-          <div class="section-number">IV</div>
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-        </div>
-
-        <div class="row g-4">
-          <div class="col-md-4">
-            <label class="form-label">Select Program *</label>
-            <select name="program" id="programSelect" class="form-select" required>
-              <option value="">Choose Program...</option>
-              <option value="AICS">AICS - Crisis Assistance</option>
-              <option value="SEA">SEA - Self-Employment</option>
-              <option value="REDCARD">REDCARD - Emergency</option>
-              <option value="EDUCATIONAL">Educational Assistance</option>
-            </select>
-          </div>
-
-<<<<<<< HEAD
-=======
-          <div class="col-md-4">
-            <label class="form-label">Requested Amount (₱)</label>
-            <input type="number" name="requested_amount" class="form-control" placeholder="0.00">
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Reason for Assistance</label>
-            <input type="text" name="reason" class="form-control" placeholder="Brief description">
-          </div>
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-        </div>
-
-        <!-- AICS SECTION -->
-        <div id="AICSSection" class="program-section d-none">
-          <h3>AICS – Assistance to Individuals in Crisis Situation</h3>
-
-          <div class="row g-4">
-            <div class="col-md-4">
-<<<<<<< HEAD
-              <label class="form-label">Crisis Type *</label>
-              <select name="aics_crisis_type" id="crisisType" class="form-select">
-                <option value="">Select Type</option>
-                <option value="Medical">Medical / Hospitalization</option>
-                <option value="Burial">Burial Assistance</option>
-                <option value="Transportation">Transportation</option>
-                <option value="Educational">Educational</option>
-              </select>
-            </div>
-
-          </div>
-
-          <!-- MEDICAL REQUIREMENTS -->
-          <div id="medicalReq" class="mt-4 d-none">
-            <div class="alert alert-info">
-              <strong>📌 AICS Medical / Hospitalization Requirements</strong><br>
-              • Barangay Certificate of Indigency (Claimant) – 2 copies<br>
-              • Medical Certificate – 2 copies<br>
-              • Official Receipt – 2 copies
-            </div>
-          </div>
-
-          <!-- BURIAL REQUIREMENTS -->
-          <div id="burialReq" class="mt-4 d-none">
-            <div class="alert alert-warning">
-              <strong>📌 Burial Assistance Requirements</strong><br>
-              • Barangay Certificate of Indigency (Claimant) – 2 copies<br>
-              • Death Certificate – 2 copies<br>
-              • Official Receipt – 2 copies
-            </div>
-          </div>
-
-          <h5>Required Documents (AICS)</h5>
-
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="form-label">Barangay Certificate of Indigency</label>
-              <input type="file" name="aics_barangay_cert" class="form-control">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Medical Certificate / Death Certificate</label>
-              <input type="file" name="aics_medical_death_cert" class="form-control">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Official Receipt</label>
-              <input type="file" name="aics_receipt" class="form-control">
-            </div>
-          </div>
-
-=======
-              <label class="form-label">Crisis Type</label>
-              <select name="aics_crisis_type" class="form-select">
-                <option>Medical</option>
-                <option>Burial</option>
-                <option>Transportation</option>
-                <option>Educational</option>
-              </select>
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Requested Amount (₱)</label>
-              <input type="number" name="aics_requested_amount" class="form-control" placeholder="0.00">
-            </div>
-          </div>
-
-          <div class="mt-4">
-            <label class="form-label">Assessment Findings</label>
-            <textarea name="aics_assessment" class="form-control" rows="3" placeholder="Enter assessment details..."></textarea>
-          </div>
-
-          <div class="row g-4 mt-3">
-            <div class="col-md-4">
-              <label class="form-label">Recommendation</label>
-              <select name="aics_recommendation" class="form-select">
-                <option>For Approval</option>
-                <option>Disapproved</option>
-              </select>
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Approved Amount (₱)</label>
-              <input type="number" name="aics_approved_amount" class="form-control" placeholder="0.00">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Date Released</label>
-              <input type="date" name="aics_released_date" class="form-control">
-            </div>
-          </div>
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-        </div>
-
-        <!-- SEA SECTION -->
-        <div id="SEASection" class="program-section d-none">
-          <h3>SEA – Self-Employment Assistance</h3>
-
-<<<<<<< HEAD
-          <h5>Required Documents (SEA)</h5>
-
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Barangay Clearance</label>
-              <input type="file" name="sea_barangay_clearance" class="form-control">
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Photocopy of Residence Certificate (Cedula)</label>
-              <input type="file" name="sea_cedula" class="form-control">
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Project Proposal</label>
-              <input type="file" name="sea_project_proposal" class="form-control">
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Picture of Project</label>
-              <input type="file" name="sea_project_picture" class="form-control">
-            </div>
-          </div>
-
-=======
-          <div class="row g-4">
-            <div class="col-md-6">
-              <label class="form-label">Business / Livelihood Type</label>
-              <input type="text" name="sea_business_type" class="form-control" placeholder="e.g., Sari-sari store, Tricycle">
-            </div>
-
-            <div class="col-md-3">
-              <label class="form-label">Capital Requested (₱)</label>
-              <input type="number" name="sea_capital" class="form-control" placeholder="0.00">
-            </div>
-
-            <div class="col-md-3">
-              <label class="form-label">Training Completed</label>
-              <select name="sea_training" class="form-select">
-                <option>No</option>
-                <option>Yes</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="mt-4">
-            <label class="form-label">Monitoring Notes</label>
-            <textarea name="sea_monitoring" class="form-control" rows="3" placeholder="Enter monitoring details..."></textarea>
-          </div>
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-        </div>
-
-        <!-- REDCARD SECTION -->
-        <div id="REDCARDSection" class="program-section d-none">
-          <h3>REDCARD – Emergency Assistance</h3>
-
-          <div class="row g-4">
-            <div class="col-md-4">
-              <label class="form-label">Emergency Type</label>
-              <input type="text" name="redcard_emergency_type" class="form-control" placeholder="Type of emergency">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Reason</label>
-              <input type="text" name="redcard_reason" class="form-control" placeholder="Detailed reason">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Times Availed</label>
-              <input type="number" name="redcard_usage" class="form-control" placeholder="0">
-            </div>
-          </div>
-<<<<<<< HEAD
-
-          <h5>Required Documents (Red Card)</h5>
-
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="form-label">Birth Certificate</label>
-              <input type="file" name="redcard_birth_cert" class="form-control">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Valid ID Picture</label>
-              <input type="file" name="redcard_valid_id" class="form-control">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Certificate of Indigency</label>
-              <input type="file" name="redcard_indigency" class="form-control">
-            </div>
-          </div>
-=======
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-        </div>
-
-        <!-- EDUCATIONAL SECTION -->
-        <div id="EDUCATIONALSection" class="program-section d-none">
-          <h3>Educational Assistance Requirements</h3>
-
-          <div class="row g-4">
-            <div class="col-md-6">
-              <label class="form-label">School Name</label>
-              <input type="text" name="school_name" class="form-control" placeholder="Name of school">
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Course / Grade Level</label>
-              <input type="text" name="course_level" class="form-control" placeholder="e.g., Grade 10, BS Computer Science">
-            </div>
-          </div>
-
-<<<<<<< HEAD
-          <h5>Upload Required Documents</h5>
-
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="form-label">Letter of Appeal</label>
-              <input type="file" name="edu_letter" class="form-control">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Certificate of Indigency</label>
-              <input type="file" name="edu_indigency" class="form-control">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Grades (Last Semester)</label>
-              <input type="file" name="edu_grades" class="form-control">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Certificate of Enrollment</label>
-              <input type="file" name="edu_enrollment" class="form-control">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Billing Statement</label>
-              <input type="file" name="edu_billing" class="form-control">
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Official Receipt</label>
-              <input type="file" name="edu_receipt" class="form-control">
-=======
-          <div class="mt-4">
-            <label class="form-label">Required Documents</label>
-            <div class="row g-3 mt-2">
-              <div class="col-md-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="doc1">
-                  <label class="form-check-label" for="doc1">Letter of Appeal</label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="doc2">
-                  <label class="form-check-label" for="doc2">Certificate of Indigency</label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="doc3">
-                  <label class="form-check-label" for="doc3">Grades (Last Semester)</label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="doc4">
-                  <label class="form-check-label" for="doc4">Certificate of Enrollment</label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="doc5">
-                  <label class="form-check-label" for="doc5">Billing Statement</label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="doc6">
-                  <label class="form-check-label" for="doc6">Official Receipt</label>
-                </div>
-              </div>
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-            </div>
-          </div>
-        </div>
-
-        <input type="hidden" name="status" value="Pending">
-
-        <!-- SECTION V: SUPPORTING DOCUMENTS -->
-        <div class="section-divider">
-          <h2>Supporting Documents</h2>
-          <div class="section-number">V</div>
-        </div>
-
-        <div class="row g-4">
-          <div class="col-md-4">
-            <label class="form-label">Valid Government ID *</label>
-            <div class="file-input-wrapper">
-              <input type="file" name="valid_id" class="form-control" required>
-            </div>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Barangay Certificate</label>
-            <div class="file-input-wrapper">
-              <input type="file" name="barangay_certificate" class="form-control">
-            </div>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Medical / Other Supporting Document</label>
-            <div class="file-input-wrapper">
-              <input type="file" name="other_document" class="form-control">
-            </div>
-          </div>
-        </div>
-
-        <!-- SECTION VI: ML ELIGIBILITY -->
-        <div class="section-divider">
-          <h2>ML Eligibility Prediction</h2>
-          <div class="section-number">VI</div>
-        </div>
-
-        <div class="alert alert-info">
-          <strong>ℹ️ Automatic Eligibility Assessment</strong><br>
-          Eligibility will be computed using income, household size, vulnerability indicators, and assistance type. Final approval is subject to MSWDO validation.
-        </div>
-
-        <!-- DECLARATION -->
-        <div class="declaration-box">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="declaration" required>
-            <label class="form-check-label" for="declaration">
-              <strong>Declaration:</strong> I certify that all information provided above is true, correct, and complete to the best of my knowledge.
-            </label>
-          </div>
-        </div>
-
-        <!-- ACTION BUTTONS -->
-        <div class="d-flex gap-3 mt-5 justify-content-center">
-<<<<<<< HEAD
-          <button type="submit" class="btn-submit" id="submitBtn">
-=======
-          <button type="submit" class="btn-submit">
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
-            Submit Application
-          </button>
-
-          <a href="{% url 'pending_applications' %}" class="btn-cancel">
-            Cancel
-          </a>
-        </div>
-
-      </form>
+<div class="intake-outer">
+<div class="form-card">
+
+  <div class="form-card-header">
+    <div class="header-inner">
+      <div class="header-emblem">📋</div>
+      <div class="header-text-block">
+        <div class="eyebrow">MSWDO · DSWD Devolved Unit</div>
+        <h1>DSWD Beneficiary Intake Form</h1>
+        <p>Social Welfare Assistance Application — Fill in all required fields accurately</p>
+      </div>
     </div>
   </div>
+
+  <div class="form-body">
+  <form method="POST" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    <!-- I. Personal Information -->
+    <div class="section-divider">
+      <div class="section-num">I</div><h2>Personal Information</h2><span class="section-tag">Required</span>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-4"><label class="form-label">First Name <span class="req">*</span></label><input type="text" name="first_name" class="form-control" placeholder="Juan" required></div>
+      <div class="col-md-4"><label class="form-label">Middle Name</label><input type="text" name="middle_name" class="form-control" placeholder="Santos"></div>
+      <div class="col-md-4"><label class="form-label">Last Name <span class="req">*</span></label><input type="text" name="last_name" class="form-control" placeholder="Dela Cruz" required></div>
+      <div class="col-md-3">
+        <label class="form-label">Sex <span class="req">*</span></label>
+        <select name="sex" class="form-select" required>
+          <option value="">Choose...</option>
+          <option>Male</option><option>Female</option>
+        </select>
+      </div>
+      <div class="col-md-3"><label class="form-label">Date of Birth <span class="req">*</span></label><input type="date" name="birth_date" class="form-control" required></div>
+      <div class="col-md-3">
+        <label class="form-label">Civil Status <span class="req">*</span></label>
+        <select name="civil_status" class="form-select" required>
+          <option value="">Choose...</option>
+          <option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option><option>Divorced</option><option>Annulled</option>
+        </select>
+      </div>
+      <div class="col-md-3"><label class="form-label">Nationality</label><input type="text" name="nationality" value="Filipino" class="form-control"></div>
+    </div>
+
+    <!-- II. Address & Contact -->
+    <div class="section-divider">
+      <div class="section-num">II</div><h2>Address &amp; Contact Information</h2><span class="section-tag">Required</span>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Complete Address <span class="req">*</span></label><input type="text" name="address" class="form-control" placeholder="House No., Street Name" required></div>
+      <div class="col-md-3"><label class="form-label">Barangay <span class="req">*</span></label><input type="text" name="barangay" class="form-control" placeholder="Barangay Name" required></div>
+      <div class="col-md-3"><label class="form-label">Municipality <span class="req">*</span></label><input type="text" name="municipality" class="form-control" placeholder="City/Municipality" required></div>
+      <div class="col-md-6"><label class="form-label">Contact Number <span class="req">*</span></label><input type="text" name="contact_no" class="form-control" placeholder="09XX-XXX-XXXX" required></div>
+      <div class="col-md-6"><label class="form-label">Email Address</label><input type="email" name="email" class="form-control" placeholder="your.email@example.com"></div>
+    </div>
+
+    <!-- III. Socio-Economic Profile -->
+    <div class="section-divider">
+      <div class="section-num">III</div><h2>Socio-Economic Profile</h2>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-4"><label class="form-label">Primary Livelihood <span class="req">*</span></label><input type="text" name="livelihood" class="form-control" placeholder="e.g., Farmer, Vendor" required></div>
+      <div class="col-md-4"><label class="form-label">Monthly Household Income (₱) <span class="req">*</span></label><input type="number" name="monthly_income" class="form-control" placeholder="0.00" required></div>
+      <div class="col-md-4"><label class="form-label">Household Size <span class="req">*</span></label><input type="number" name="household_size" class="form-control" placeholder="Number of members" required></div>
+
+      <!-- Sector Checkboxes -->
+      <div class="col-12">
+        <label class="form-label">Sector / Socio-Economic Status <span style="color:#9aabca;font-weight:400;text-transform:none;letter-spacing:0;">(select all that apply)</span></label>
+        <div class="sector-grid">
+          <div class="sector-item"><input type="checkbox" name="sector_WEDC" id="s_WEDC" value="1"><label for="s_WEDC"><span class="sector-icon">👩</span>Women in Especially Difficult Circumstances (WEDC)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_SC" id="s_SC" value="1"><label for="s_SC"><span class="sector-icon">👴</span>Senior Citizen (SC)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_PWD" id="s_PWD" value="1"><label for="s_PWD"><span class="sector-icon">♿</span>Person with Disability (PWD)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_SP" id="s_SP" value="1"><label for="s_SP"><span class="sector-icon">👤</span>Solo Parent (SP)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_IP" id="s_IP" value="1"><label for="s_IP"><span class="sector-icon">🌿</span>Indigenous People (IP)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_OFW" id="s_OFW" value="1"><label for="s_OFW"><span class="sector-icon">✈️</span>Overseas Filipino Worker (OFW)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_TP" id="s_TP" value="1"><label for="s_TP"><span class="sector-icon">🚫</span>Trafficked Person (TP)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_PDL" id="s_PDL" value="1"><label for="s_PDL"><span class="sector-icon">🔒</span>Person Deprived of Liberty (PDL)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_PWUD" id="s_PWUD" value="1"><label for="s_PWUD"><span class="sector-icon">💊</span>Person Who Uses Drugs (PWUD)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_IFW" id="s_IFW" value="1"><label for="s_IFW"><span class="sector-icon">🔧</span>Informal Filipino Workers (IFW)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_4PS" id="s_4PS" value="1"><label for="s_4PS"><span class="sector-icon">🏠</span>4Ps Beneficiary (4Ps)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_CNSP" id="s_CNSP" value="1"><label for="s_CNSP"><span class="sector-icon">🧒</span>Children in Need of Special Protection (CNSP)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_CAR" id="s_CAR" value="1"><label for="s_CAR"><span class="sector-icon">⚠️</span>Child at Risk (CAR)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_CICL" id="s_CICL" value="1"><label for="s_CICL"><span class="sector-icon">⚖️</span>Child in Conflict with the Law (CICL)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_OSCY" id="s_OSCY" value="1"><label for="s_OSCY"><span class="sector-icon">📚</span>Out of School Children/Youth (OSCY)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_FR" id="s_FR" value="1"><label for="s_FR"><span class="sector-icon">🕊️</span>Former Rebel (FR)</label></div>
+          <div class="sector-item"><input type="checkbox" name="sector_KASAMBAHAY" id="s_KASAMBAHAY" value="1"><label for="s_KASAMBAHAY"><span class="sector-icon">🏡</span>Domestic Helper (Kasambahay)</label></div>
+        </div>
+      </div>
+
+      <!-- 4Ps -->
+      <div class="col-md-4">
+        <label class="form-label">4Ps Member <span style="font-size:.72rem;color:#b0bace;font-weight:400;text-transform:none;letter-spacing:0;">(Pantawid Pamilyang Pilipino Program)</span></label>
+        <select name="is_4ps" id="fourpsSelect" class="form-select">
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+        <span class="fourps-badge" id="fourpsBadge"><i class="bi bi-patch-check-fill"></i> 4Ps Beneficiary</span>
+      </div>
+      <div class="col-md-4" id="fourpsIdWrapper" style="display:none;">
+        <label class="form-label">4Ps Household ID No.</label>
+        <input type="text" name="fourps_id" id="fourpsId" class="form-control" placeholder="e.g., 112-0001-000001">
+      </div>
+    </div>
+
+    <!-- IV. Family Information -->
+    <div class="section-divider">
+      <div class="section-num">IV</div><h2>Beneficiary's Family Information</h2>
+    </div>
+    <div class="table-responsive">
+      <table class="family-table" id="familyTable">
+        <thead>
+          <tr>
+            <th rowspan="2" style="min-width:120px;">Name</th>
+            <th rowspan="2" style="width:46px;">Age</th>
+            <th rowspan="2" style="width:54px;">Sex</th>
+            <th rowspan="2" style="min-width:100px;">Civil Status</th>
+            <th rowspan="2" style="min-width:90px;">Relationship</th>
+            <th colspan="4">Educational Attainment</th>
+            <th rowspan="2" style="min-width:90px;">Occupation</th>
+            <th rowspan="2" style="width:72px;">Income</th>
+            <th rowspan="2" style="min-width:160px;">Sector / Status</th>
+          </tr>
+          <tr>
+            <th>Elem</th><th>HS</th><th>Coll/Voc</th><th>Illit</th>
+          </tr>
+        </thead>
+        <tbody id="familyTableBody"></tbody>
+      </table>
+    </div>
+    <div class="mt-3 d-flex gap-2">
+      <button type="button" class="btn-add-row" onclick="addFamilyRow()"><i class="bi bi-plus-circle"></i> Add Member</button>
+      <button type="button" class="btn-remove-row" onclick="removeLastRow()"><i class="bi bi-dash-circle"></i> Remove Last</button>
+    </div>
+
+    <!-- V. Program / Assistance Requested -->
+    <div class="section-divider" style="margin-top:36px;">
+      <div class="section-num">V</div><h2>Program / Assistance Requested</h2><span class="section-tag">Required</span>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-5">
+        <label class="form-label">Select Program <span class="req">*</span></label>
+        <select name="program" id="programSelect" class="form-select" required>
+          <option value="">Choose Program...</option>
+          <option value="AICS">AICS – Crisis Assistance</option>
+          <option value="SEA">SEA – Self-Employment</option>
+          <option value="REDCARD">REDCARD – Emergency</option>
+          <option value="EDUCATIONAL">Educational Assistance</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- AICS -->
+    <div id="AICSSection" class="program-section d-none">
+      <h3><i class="bi bi-shield-fill-exclamation"></i> AICS – Assistance to Individuals in Crisis Situation</h3>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Crisis Type <span class="req">*</span></label>
+          <select name="aics_crisis_type" id="crisisType" class="form-select">
+            <option value="">Select Type</option>
+            <option value="Medical">Medical / Hospitalization</option>
+            <option value="Death">Death / Burial Assistance</option>
+            <option value="Fire Victim">Fire Victim</option>
+            <option value="Calamity">Calamity</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div id="medicalReq" class="mt-4 d-none"><div class="alert-info"><strong>📌 AICS Medical / Hospitalization Requirements</strong><br>• Barangay Certificate of Indigency – 2 copies<br>• Medical Certificate – 2 copies<br>• Official Receipt – 2 copies</div></div>
+      <div id="burialReq" class="mt-4 d-none"><div class="alert-warning"><strong>📌 Burial / Death Assistance Requirements</strong><br>• Barangay Certificate of Indigency – 2 copies<br>• Death Certificate – 2 copies<br>• Official Receipt – 2 copies</div></div>
+      <h5>Required Documents (AICS)</h5>
+      <div class="row g-3">
+        <div class="col-md-4"><label class="form-label">Barangay Certificate of Indigency</label><input type="file" name="aics_barangay_cert" class="form-control"></div>
+        <div class="col-md-4"><label class="form-label">Medical / Death Certificate</label><input type="file" name="aics_medical_death_cert" class="form-control"></div>
+        <div class="col-md-4"><label class="form-label">Official Receipt</label><input type="file" name="aics_receipt" class="form-control"></div>
+      </div>
+    </div>
+
+    <!-- SEA -->
+    <div id="SEASection" class="program-section d-none">
+      <h3><i class="bi bi-briefcase-fill"></i> SEA – Self-Employment Assistance</h3>
+      <h5>Required Documents (SEA)</h5>
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Barangay Clearance</label><input type="file" name="sea_barangay_clearance" class="form-control"></div>
+        <div class="col-md-6"><label class="form-label">Photocopy of Residence Certificate (Cedula)</label><input type="file" name="sea_cedula" class="form-control"></div>
+        <div class="col-md-6"><label class="form-label">Project Proposal</label><input type="file" name="sea_project_proposal" class="form-control"></div>
+        <div class="col-md-6"><label class="form-label">Picture of Project</label><input type="file" name="sea_project_picture" class="form-control"></div>
+      </div>
+    </div>
+
+    <!-- REDCARD -->
+    <div id="REDCARDSection" class="program-section d-none">
+      <h3><i class="bi bi-exclamation-triangle-fill"></i> REDCARD – Emergency Assistance</h3>
+      <div class="row g-3">
+        <div class="col-md-4"><label class="form-label">Emergency Type</label><select name="redcard_emergency_type" class="form-select"><option value="">Select</option><option>Fire</option><option>Flood</option><option>Typhoon</option><option>Other Calamity</option></select></div>
+        <div class="col-md-4"><label class="form-label">Reason</label><input type="text" name="redcard_reason" class="form-control" placeholder="Detailed reason"></div>
+        <div class="col-md-4"><label class="form-label">Times Availed</label><input type="number" name="redcard_usage" class="form-control" placeholder="0"></div>
+      </div>
+      <h5>Required Documents (Red Card)</h5>
+      <div class="row g-3">
+        <div class="col-md-4"><label class="form-label">Birth Certificate</label><input type="file" name="redcard_birth_cert" class="form-control"></div>
+        <div class="col-md-4"><label class="form-label">Valid ID Picture</label><input type="file" name="redcard_valid_id" class="form-control"></div>
+        <div class="col-md-4"><label class="form-label">Certificate of Indigency</label><input type="file" name="redcard_indigency" class="form-control"></div>
+      </div>
+    </div>
+
+    <!-- EDUCATIONAL -->
+    <div id="EDUCATIONALSection" class="program-section d-none">
+      <h3><i class="bi bi-mortarboard-fill"></i> Educational Assistance</h3>
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">School Name</label><input type="text" name="school_name" class="form-control" placeholder="Name of school"></div>
+        <div class="col-md-6"><label class="form-label">Course / Grade Level</label><input type="text" name="course_level" class="form-control" placeholder="e.g., Grade 10, BS Computer Science"></div>
+      </div>
+      <h5>Upload Required Documents</h5>
+      <div class="row g-3">
+        <div class="col-md-4"><label class="form-label">Letter of Appeal</label><input type="file" name="edu_letter" class="form-control"></div>
+        <div class="col-md-4"><label class="form-label">Certificate of Indigency</label><input type="file" name="edu_indigency" class="form-control"></div>
+        <div class="col-md-4"><label class="form-label">Grades (Last Semester)</label><input type="file" name="edu_grades" class="form-control"></div>
+        <div class="col-md-4"><label class="form-label">Certificate of Enrollment</label><input type="file" name="edu_enrollment" class="form-control"></div>
+        <div class="col-md-4"><label class="form-label">Billing Statement</label><input type="file" name="edu_billing" class="form-control"></div>
+        <div class="col-md-4"><label class="form-label">Official Receipt</label><input type="file" name="edu_receipt" class="form-control"></div>
+      </div>
+    </div>
+
+    <input type="hidden" name="status" value="Pending">
+
+    <!-- VI. Supporting Documents -->
+    <div class="section-divider">
+      <div class="section-num">VI</div><h2>Supporting Documents</h2>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-4"><label class="form-label">Valid Government ID <span class="req">*</span></label><input type="file" name="valid_id" class="form-control" required></div>
+      <div class="col-md-4"><label class="form-label">Barangay Certificate</label><input type="file" name="barangay_certificate" class="form-control"></div>
+      <div class="col-md-4"><label class="form-label">Medical / Other Supporting Document</label><input type="file" name="other_document" class="form-control"></div>
+    </div>
+
+    <!-- VII. ML Eligibility -->
+    <div class="section-divider">
+      <div class="section-num">VII</div><h2>ML Eligibility Prediction</h2><span class="section-tag">Auto</span>
+    </div>
+    <div class="alert-info">
+      <strong>ℹ️ Automatic Eligibility Assessment</strong><br>
+      Eligibility will be computed using income, household size, vulnerability indicators, and assistance type. Final approval is subject to MSWDO validation.
+    </div>
+
+    <!-- Declaration -->
+    <div class="declaration-box">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="declaration" required>
+        <label class="form-check-label" for="declaration">
+          <strong>Declaration:</strong> I certify that all information provided above is true, correct, and complete to the best of my knowledge. I understand that any false statement may result in the cancellation of assistance.
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-submit" id="submitBtn"><i class="bi bi-send-fill"></i>&nbsp; Submit Application</button>
+      <a href="{% url 'pending_applications' %}" class="btn-cancel"><i class="bi bi-x-circle"></i> Cancel</a>
+    </div>
+
+  </form>
+  </div>
+</div>
 </div>
 
 <script>
-<<<<<<< HEAD
-  // ── Family Table ─────────────────────────────────────────────
+  const SECTORS = [
+    ['WEDC','Women in Especially Difficult Circumstances (WEDC)'],
+    ['SC','Senior Citizen (SC)'],
+    ['PWD','Person with Disability (PWD)'],
+    ['SP','Solo Parent (SP)'],
+    ['IP','Indigenous People (IP)'],
+    ['OFW','Overseas Filipino Worker (OFW)'],
+    ['TP','Trafficked Person (TP)'],
+    ['PDL','Person Deprived of Liberty (PDL)'],
+    ['PWUD','Person Who Uses Drugs (PWUD)'],
+    ['IFW','Informal Filipino Workers (IFW)'],
+    ['4PS','4Ps Beneficiary (4Ps)'],
+    ['CNSP','Children in Need of Special Protection (CNSP)'],
+    ['CAR','Child at Risk (CAR)'],
+    ['CICL','Child in Conflict with the Law (CICL)'],
+    ['OSCY','Out of School Children/Youth (OSCY)'],
+    ['FR','Former Rebel (FR)'],
+    ['KASAMBAHAY','Domestic Helper (Kasambahay)'],
+  ];
+
+  function sectorCheckboxes(rowIdx) {
+    return SECTORS.map(([val, label]) => `
+      <label class="sp-chk-item">
+        <input type="checkbox" name="family_sector_${rowIdx}_${val}" value="1"
+          onchange="updateSectorLabel(${rowIdx})">
+        <span>${label}</span>
+      </label>`).join('');
+  }
+
+  function updateSectorLabel(rowIdx) {
+    const wrap = document.getElementById('sp_wrap_'+rowIdx);
+    const checked = wrap.querySelectorAll('input[type=checkbox]:checked');
+    const lbl = document.getElementById('sp_label_'+rowIdx);
+    if (checked.length === 0) lbl.textContent = 'Select Sectors';
+    else if (checked.length === 1) lbl.textContent = checked[0].value || checked[0].name.split('_').pop();
+    else lbl.textContent = checked.length + ' selected';
+  }
+
+  function toggleSectorPopup(rowIdx) {
+    const list = document.getElementById('sp_list_'+rowIdx);
+    // close all other open popups first
+    document.querySelectorAll('.sector-popup-list').forEach(el => {
+      if (el.id !== 'sp_list_'+rowIdx) el.style.display = 'none';
+    });
+    list.style.display = list.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // Close popups when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.sector-popup-wrap')) {
+      document.querySelectorAll('.sector-popup-list').forEach(el => el.style.display = 'none');
+    }
+  });
+
   function addFamilyRow() {
     const tbody = document.getElementById('familyTableBody');
     const i = tbody.rows.length;
     const row = document.createElement('tr');
     row.innerHTML = `
       <td><input type="text" name="family_name_${i}" placeholder="Full Name"></td>
-      <td><input type="number" name="family_age_${i}" placeholder="0" min="0" max="120" style="width:50px"></td>
+      <td><input type="number" name="family_age_${i}" placeholder="0" min="0" max="120" style="width:44px"></td>
       <td>
-        <select name="family_sex_${i}" style="border:none;background:transparent;font-size:0.85rem;text-align:center;outline:none;width:100%">
-          <option value="">-</option>
-          <option>M</option>
-          <option>F</option>
+        <select name="family_sex_${i}" style="min-width:52px;">
+          <option value="">—</option><option value="Male">M</option><option value="Female">F</option>
         </select>
       </td>
-      <td><input type="checkbox" name="family_cs_s_${i}"></td>
-      <td><input type="checkbox" name="family_cs_m_${i}"></td>
-      <td><input type="checkbox" name="family_cs_w_${i}"></td>
+      <td>
+        <select name="family_cs_${i}" style="min-width:90px;border:none;border-radius:5px;padding:5px 4px;background:transparent;font-size:.75rem;font-family:inherit;outline:none;cursor:pointer;">
+          <option value="">—</option>
+          <option value="Single">Single</option>
+          <option value="Married">Married</option>
+          <option value="Widowed">Widowed</option>
+          <option value="Separated">Separated</option>
+          <option value="Divorced">Divorced</option>
+          <option value="Annulled">Annulled</option>
+        </select>
+      </td>
       <td><input type="text" name="family_rel_${i}" placeholder="e.g. Spouse"></td>
       <td><input type="checkbox" name="family_edu_elem_${i}"></td>
       <td><input type="checkbox" name="family_edu_hs_${i}"></td>
       <td><input type="checkbox" name="family_edu_coll_${i}"></td>
       <td><input type="checkbox" name="family_edu_illit_${i}"></td>
       <td><input type="text" name="family_occ_${i}" placeholder="Occupation"></td>
-      <td><input type="number" name="family_inc_${i}" placeholder="0.00" min="0"></td>
+      <td><input type="number" name="family_inc_${i}" placeholder="0.00" min="0" style="min-width:62px;"></td>
+      <td style="min-width:180px;padding:4px 6px;">
+        <div class="sector-popup-wrap" id="sp_wrap_${i}">
+          <button type="button" class="sector-popup-btn" onclick="toggleSectorPopup(${i})">
+            <i class="bi bi-tags-fill"></i>
+            <span id="sp_label_${i}">Select Sectors</span>
+            <i class="bi bi-chevron-down" style="font-size:.6rem;margin-left:auto;"></i>
+          </button>
+          <div class="sector-popup-list" id="sp_list_${i}" style="display:none;">
+            ${sectorCheckboxes(i)}
+          </div>
+        </div>
+      </td>
     `;
     tbody.appendChild(row);
   }
@@ -1088,102 +501,66 @@
     if (tbody.rows.length > 0) tbody.deleteRow(-1);
   }
 
-  // Start with 5 blank rows
   for (let x = 0; x < 5; x++) addFamilyRow();
 
-  // ── 4Ps toggle ──────────────────────────────────────────────
+  // 4Ps toggle
   const fourpsSelect    = document.getElementById('fourpsSelect');
   const fourpsBadge     = document.getElementById('fourpsBadge');
   const fourpsIdWrapper = document.getElementById('fourpsIdWrapper');
   const fourpsId        = document.getElementById('fourpsId');
-
   fourpsSelect.addEventListener('change', function () {
     const is4ps = this.value === 'Yes';
     fourpsBadge.classList.toggle('visible', is4ps);
     fourpsIdWrapper.style.display = is4ps ? '' : 'none';
-    if (is4ps) {
-      fourpsId.setAttribute('required', 'required');
-    } else {
-      fourpsId.removeAttribute('required');
-      fourpsId.value = '';
-    }
+    is4ps ? fourpsId.setAttribute('required','required') : fourpsId.removeAttribute('required');
+    if (!is4ps) fourpsId.value = '';
   });
 
-  // ── Program section toggle ───────────────────────────────────
-  const programSelect = document.getElementById("programSelect");
-  const sections = document.querySelectorAll(".program-section");
-
-  const crisisType = document.getElementById("crisisType");
-  const medicalReq = document.getElementById("medicalReq");
-  const burialReq  = document.getElementById("burialReq");
-
-  crisisType.addEventListener("change", function () {
-    medicalReq.classList.add("d-none");
-    burialReq.classList.add("d-none");
-    if (this.value === "Medical") medicalReq.classList.remove("d-none");
-    else if (this.value === "Burial") burialReq.classList.remove("d-none");
+  // Program toggle
+  const programSelect = document.getElementById('programSelect');
+  const crisisType    = document.getElementById('crisisType');
+  const medicalReq    = document.getElementById('medicalReq');
+  const burialReq     = document.getElementById('burialReq');
+  crisisType.addEventListener('change', function () {
+    medicalReq.classList.add('d-none');
+    burialReq.classList.add('d-none');
+    if (this.value === 'Medical') medicalReq.classList.remove('d-none');
+    else if (this.value === 'Death') burialReq.classList.remove('d-none');
   });
-
-  programSelect.addEventListener("change", function () {
-    sections.forEach(sec => sec.classList.add("d-none"));
+  programSelect.addEventListener('change', function () {
+    document.querySelectorAll('.program-section').forEach(s => s.classList.add('d-none'));
     if (this.value) {
-      const selectedSection = document.getElementById(this.value + "Section");
-      if (selectedSection) {
-        selectedSection.classList.remove("d-none");
-        const inputs = selectedSection.querySelectorAll('input[type="text"], input[type="number"], select, textarea');
-        inputs.forEach(input => {
-          if (input.name && !input.name.includes('_monitoring') && !input.name.includes('_assessment')) {
-            input.setAttribute('required', 'required');
-          }
-        });
-      }
+      const sel = document.getElementById(this.value + 'Section');
+      if (sel) sel.classList.remove('d-none');
     }
   });
 
-  // ── Form validation ──────────────────────────────────────────
+  // Form validation
   document.querySelector('form').addEventListener('submit', function (e) {
     const requiredFields = this.querySelectorAll('[required]');
-    let allFilled  = true;
-    let firstEmpty = null;
-
+    let allFilled = true, firstEmpty = null;
     requiredFields.forEach(field => {
       if (field.offsetParent !== null) {
-        if (!field.value.trim()) {
+        if (field.type === 'checkbox') {
+          if (!field.checked) { allFilled = false; if (!firstEmpty) firstEmpty = field; }
+        } else if (!field.value.trim()) {
           allFilled = false;
-          field.style.borderColor = '#dc3545';
+          field.style.borderColor = 'var(--red)';
           if (!firstEmpty) firstEmpty = field;
         } else {
           field.style.borderColor = '';
         }
       }
     });
-
     if (!allFilled) {
       e.preventDefault();
       alert('Please fill in all required fields before submitting.');
-      if (firstEmpty) {
-        firstEmpty.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        firstEmpty.focus();
-      }
+      if (firstEmpty) { firstEmpty.scrollIntoView({ behavior:'smooth', block:'center' }); firstEmpty.focus(); }
     }
   });
-
   document.querySelectorAll('input, select, textarea').forEach(field => {
-    field.addEventListener('input', function () {
-      this.style.borderColor = '';
-    });
+    field.addEventListener('input', function () { this.style.borderColor = ''; });
   });
-=======
-  const programSelect = document.getElementById("programSelect");
-  const sections = document.querySelectorAll(".program-section");
-
-  programSelect.addEventListener("change", function () {
-    sections.forEach(sec => sec.classList.add("d-none"));
-    if (this.value) {
-      document.getElementById(this.value + "Section")?.classList.remove("d-none");
-    }
-  });
->>>>>>> a8fbec53217cba809913c9e2aa8cf214a334c788
 </script>
 
 {% endblock %}
