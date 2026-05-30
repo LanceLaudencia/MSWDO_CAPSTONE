@@ -131,20 +131,34 @@
   {% endfor %}
 
   <!-- ✅ Email verification banner (shows after successful registration) -->
-  {% if show_verify_banner %}
+  {% if registration_done %}
   <div class="verify-banner">
-    <div class="vb-icon">📧</div>
-    <div class="vb-title">Check Your Email to Verify Your Account</div>
+    <div class="vb-icon">{% if email_sent %}📧{% else %}⚠️{% endif %}</div>
+    <div class="vb-title">
+      {% if email_sent %}Check Your Email to Verify Your Account{% else %}Registration Saved — Email Not Sent{% endif %}
+    </div>
     <div class="vb-sub">
-      We sent a verification link to your email address.<br>
-      Click the link in the email to activate your account before logging in.
+      {% if email_sent %}
+        We sent a verification link to <strong>{{ reg_email }}</strong>.<br>
+        Click the link in that email to activate your account before logging in.
+      {% else %}
+        Your account was created but we could not send the verification email.<br>
+        Use the resend button below or contact support.
+      {% endif %}
     </div>
     <div class="vb-spam">
       <i class="bi bi-envelope-exclamation-fill"></i>
-      Didn't receive it? Check your <span style="margin:0 4px;text-decoration:underline;">Spam / Junk</span> folder.
+      Didn't receive it? Check your <span style="margin:0 4px;text-decoration:underline;">Spam / Junk</span> folder, then resend below.
     </div>
+    <form method="POST" action="{% url 'resend_client_verification' %}" style="margin-top:14px;">
+      {% csrf_token %}
+      <input type="hidden" name="email" value="{{ reg_email }}">
+      <button type="submit" style="background:linear-gradient(135deg,#0038A8,#002882);color:#fff;border:none;border-radius:9px;padding:9px 22px;font-weight:700;font-size:.82rem;cursor:pointer;">
+        <i class="bi bi-arrow-repeat me-1"></i> Resend Verification Email
+      </button>
+    </form>
   </div>
-  {% endif %}
+  {% else %}
 
   <form method="POST">
     {% csrf_token %}
@@ -263,6 +277,8 @@
 
     <button type="submit"><i class="bi bi-person-check-fill"></i>&nbsp; Register Account</button>
   </form>
+  {% endif %}
+
 
   <p class="login-link">Already registered? <a href="{% url 'client_login' %}">Login here</a></p>
   <div class="gov-seal">Republic of the Philippines · Official Government Portal</div>

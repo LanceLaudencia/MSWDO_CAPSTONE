@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 from .views import test_api
 from .views import dashboard_data
-from .views import client_verify 
+
 
 from .import views
 
@@ -90,13 +90,16 @@ path('reports/',                  views.reports_dashboard, name='reports_dashboa
 path('reports/<int:pk>/',         views.report_detail,     name='report_detail'),
 path('reports/<int:pk>/approve/', views.report_approve,    name='report_approve'),
 path('reports/<int:pk>/decline/', views.report_decline,    name='report_decline'),
-path('client/verify/', client_verify, name='client_verify'),
+
 path('reports/generate/', views.generate_report, name='generate_report'),
 
 path('reports/generate/', views.generate_report, name='generate_report'),
     path('program-prediction/', views.program_rate_prediction, name='program_rate_prediction'),
     
     path('analytics/barangay/', views.barangay_analytics, name='barangay_analytics'),
+    
+    path('client/verify/', views.client_verify, name='client_verify'),
+path('client/resend-verification/', views.resend_client_verification, name='resend_client_verification'),
 ]
 
 

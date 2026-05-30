@@ -42,7 +42,6 @@
       overflow-x: hidden;
     }
 
-    /* ===== TRICOLOR BAR ===== */
     .tricolor-bar {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -54,7 +53,6 @@
       z-index: 9999;
     }
 
-    /* ===== SIDEBAR ===== */
     .sidebar {
       width: var(--sidebar-width);
       background: linear-gradient(175deg, var(--blue-dark) 0%, var(--blue) 55%, #0044cc 100%);
@@ -101,7 +99,6 @@
     .sidebar-inner::-webkit-scrollbar { width: 3px; }
     .sidebar-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
 
-    /* Sidebar Header */
     .sidebar-header {
       display: flex;
       align-items: center;
@@ -134,7 +131,6 @@
       text-transform: uppercase; letter-spacing: 1.2px; margin-top: 2px;
     }
 
-    /* Nav section labels */
     .nav-section-label {
       font-family: 'Montserrat', sans-serif;
       font-size: 0.6rem; font-weight: 700;
@@ -143,7 +139,6 @@
       padding: 18px 12px 8px;
     }
 
-    /* Nav links */
     .nav-link {
       display: flex;
       align-items: center;
@@ -194,7 +189,6 @@
       margin: 10px 0;
     }
 
-    /* Logout */
     .nav-link.logout-link {
       background: rgba(206,17,38,0.12);
       border: 1px solid rgba(206,17,38,0.22);
@@ -208,7 +202,6 @@
       transform: translateX(3px);
     }
 
-    /* Sidebar footer */
     .sidebar-footer {
       padding: 14px 4px 0;
       border-top: 1px solid rgba(255,255,255,0.1);
@@ -225,7 +218,6 @@
       text-transform: uppercase; letter-spacing: 0.5px;
     }
 
-    /* ===== MAIN CONTENT ===== */
     .main-content {
       margin-left: var(--sidebar-width);
       width: calc(100% - var(--sidebar-width));
@@ -235,7 +227,6 @@
       flex-direction: column;
     }
 
-    /* ===== TOP HEADER ===== */
     .top-header {
       background: white;
       border-bottom: 1px solid var(--border);
@@ -269,7 +260,6 @@
 
     .header-right { display: flex; align-items: center; gap: 14px; }
 
-    /* ===== NOTIFICATION BELL ===== */
     .notif-wrapper { position: relative; }
 
     .notif-bell-btn {
@@ -394,10 +384,8 @@
       margin-bottom: 10px; color: #c8d4ea;
     }
 
-    /* ===== PAGE BODY ===== */
     .page-body { padding: 28px 32px; flex: 1; }
 
-    /* ===== CARDS ===== */
     .card {
       border-radius: 14px; border: 1px solid var(--border);
       box-shadow: 0 2px 10px rgba(0,40,130,0.05);
@@ -417,7 +405,6 @@
       padding: 14px 20px;
     }
 
-    /* ===== BUTTONS ===== */
     .btn-primary {
       background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
       border: none; padding: 9px 20px; border-radius: 9px;
@@ -438,17 +425,13 @@
       font-weight: 700; font-size: 0.82rem;
     }
 
-    /* ===== CONTENT ANIMATION ===== */
-    .content-wrapper > * {
-      animation: fadeIn 0.35s ease-out;
-    }
+    .content-wrapper > * { animation: fadeIn 0.35s ease-out; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ===== TOAST NOTIFICATIONS ===== */
     #notif-toast-container {
       position: fixed;
       top: 24px; right: 24px;
@@ -488,26 +471,18 @@
     }
 
     .notif-toast-icon i { color: white; font-size: 1rem; }
-
     .notif-toast-title {
       font-family: 'Montserrat', sans-serif;
       font-size: 0.78rem; font-weight: 700;
       color: var(--text-primary); margin-bottom: 3px;
     }
-
-    .notif-toast-msg {
-      font-size: 0.75rem; color: var(--text-secondary);
-      line-height: 1.4; word-break: break-word;
-    }
-
+    .notif-toast-msg { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4; word-break: break-word; }
     .notif-toast-time { font-size: 0.67rem; color: #9aabca; margin-top: 4px; }
-
     .notif-toast-close {
       background: none; border: none;
       color: #b0bace; cursor: pointer;
       font-size: 0.9rem; padding: 0; line-height: 1; flex-shrink: 0;
     }
-
     .notif-toast-close:hover { color: var(--text-primary); }
 
     .badge-custom {
@@ -516,7 +491,6 @@
       font-family: 'Montserrat', sans-serif;
     }
 
-    /* ===== RESPONSIVE ===== */
     @media (max-width: 900px) {
       .sidebar { width: 72px; }
       .sidebar-inner { padding: 16px 10px; }
@@ -535,7 +509,6 @@
 
   <div class="tricolor-bar"></div>
 
-  <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar">
     <div class="sidebar-inner">
 
@@ -567,42 +540,43 @@
         <span>Pending Applications</span>
       </a>
 
-      <!-- ── Reports ── -->
       {% if request.user.role == 'admin' or request.user.is_superuser %}
-      <!-- Admin: full reports dashboard -->
-      <a href="{% url 'reports_dashboard' %}"
-         class="nav-link {% if request.resolver_match.url_name == 'reports_dashboard' or request.resolver_match.url_name == 'report_detail' %}active{% endif %}">
-        <i class="bi bi-bar-chart-fill"></i>
-        <span>Reports</span>
-      </a>
+        <a href="{% url 'reports_dashboard' %}"
+           class="nav-link {% if request.resolver_match.url_name == 'reports_dashboard' or request.resolver_match.url_name == 'report_detail' %}active{% endif %}">
+          <i class="bi bi-bar-chart-fill"></i>
+          <span>Reports</span>
+        </a>
       {% else %}
-      <!-- Staff: submit + view their own reports -->
-      <a href="{% url 'report_submit' %}"
-         class="nav-link {% if request.resolver_match.url_name == 'report_submit' %}active{% endif %}">
-        <i class="bi bi-file-earmark-plus-fill"></i>
-        <span>Submit Report</span>
-      </a>
-      <a href="{% url 'my_reports' %}"
-         class="nav-link {% if request.resolver_match.url_name == 'my_reports' or request.resolver_match.url_name == 'my_report_detail' %}active{% endif %}">
-        <i class="bi bi-file-earmark-text-fill"></i>
-        <span>My Reports</span>
-      </a>
+        <a href="{% url 'report_submit' %}"
+           class="nav-link {% if request.resolver_match.url_name == 'report_submit' %}active{% endif %}">
+          <i class="bi bi-file-earmark-plus-fill"></i>
+          <span>Submit Report</span>
+        </a>
+        <a href="{% url 'my_reports' %}"
+           class="nav-link {% if request.resolver_match.url_name == 'my_reports' or request.resolver_match.url_name == 'my_report_detail' %}active{% endif %}">
+          <i class="bi bi-file-earmark-text-fill"></i>
+          <span>My Reports</span>
+        </a>
       {% endif %}
 
-      <a href="{% url 'program_rate_prediction' %}"
-   class="nav-link {% if request.resolver_match.url_name == 'program_rate_prediction' %}active{% endif %}">
-  <i class="bi bi-graph-up-arrow"></i>
-  <span>3-Year Prediction</span>
-</a>
+      {% if request.user.role == 'admin' or request.user.is_superuser %}
+        <hr class="sidebar-hr">
+        <div class="nav-section-label">Analytics</div>
 
-<a href="{% url 'barangay_analytics' %}"
-         class="nav-link {% if request.resolver_match.url_name == 'barangay_analytics' %}active{% endif %}">
-        <i class="bi bi-geo-alt-fill"></i>
-        <span>Barangay Analytics</span>
-      </a>
+        <a href="{% url 'program_rate_prediction' %}"
+           class="nav-link {% if request.resolver_match.url_name == 'program_rate_prediction' %}active{% endif %}">
+          <i class="bi bi-graph-up-arrow"></i>
+          <span>3-Year Prediction</span>
+        </a>
+
+        <a href="{% url 'barangay_analytics' %}"
+           class="nav-link {% if request.resolver_match.url_name == 'barangay_analytics' %}active{% endif %}">
+          <i class="bi bi-geo-alt-fill"></i>
+          <span>Barangay Analytics</span>
+        </a>
+      {% endif %}
 
       <hr class="sidebar-hr">
-
       <div class="nav-section-label">Settings</div>
 
       <a href="{% url 'admin_account' %}"
@@ -630,7 +604,6 @@
     </div>
   </aside>
 
-  <!-- ===== MAIN CONTENT ===== -->
   <main class="main-content">
 
     <div class="top-header">
@@ -641,9 +614,7 @@
         </h3>
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-              <a href="{% url 'dashboard' %}">Home</a>
-            </li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
             <li class="breadcrumb-item active" aria-current="page">
               {% block breadcrumb %}Dashboard{% endblock %}
             </li>
@@ -652,17 +623,10 @@
       </div>
 
       <div class="header-right">
-
-        <!-- Notification Bell -->
         <div class="notif-wrapper dropdown">
-          <button
-            class="notif-bell-btn dropdown-toggle"
-            type="button"
-            id="notifDropdown"
-            data-bs-toggle="dropdown"
-            data-bs-offset="0,10"
-            aria-expanded="false"
-          >
+          <button class="notif-bell-btn dropdown-toggle" type="button"
+            id="notifDropdown" data-bs-toggle="dropdown"
+            data-bs-offset="0,10" aria-expanded="false">
             {% if unread_notifications_count > 0 %}
               <i class="bi bi-bell-fill"></i>
               <span class="notif-badge">
@@ -685,14 +649,11 @@
                 {% endif %}
               </div>
             </li>
-
             {% for notif in notifications %}
             <li class="notif-item {% if not notif.is_read %}unread{% else %}read{% endif %}">
               <form method="POST" action="{% url 'mark_notification_read' notif.pk %}">
                 {% csrf_token %}
-                {% if notif.link %}
-                  <input type="hidden" name="next" value="{{ notif.link }}">
-                {% endif %}
+                {% if notif.link %}<input type="hidden" name="next" value="{{ notif.link }}">{% endif %}
                 <button type="submit" class="notif-item-btn">
                   <span class="notif-dot"></span>
                   <span class="notif-item-body">

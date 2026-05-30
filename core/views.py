@@ -1622,69 +1622,75 @@ def client_login(request):
 
 
 
+from urllib.parse import quote   # add this import near the top of views.py if not present
+ 
+ 
 def client_register(request):
     if request.method == "POST":
         password  = request.POST.get('password')
         password2 = request.POST.get('confirm_password')
-
+ 
         if password != password2:
             messages.error(request, "Passwords do not match.")
             return render(request, 'client_register.html')
-
-        email = request.POST.get('email') or None
-
-        # ✅ CHECK FOR DUPLICATE EMAIL
-        if email:
-            if Client.objects.filter(email=email).exists() or ClientAccount.objects.filter(email=email).exists():
-                messages.error(request, "This email is already registered.")
-                return render(request, 'client_register.html')
-
+ 
+        email = (request.POST.get('email') or '').strip().lower()
+ 
+        if not email:
+            messages.error(request, "Email address is required.")
+            return render(request, 'client_register.html')
+ 
+        # Duplicate check
+        if Client.objects.filter(email__iexact=email).exists() or \
+           ClientAccount.objects.filter(email__iexact=email).exists():
+            messages.error(request, "This email is already registered.")
+            return render(request, 'client_register.html')
+ 
         try:
-            selected_sectors = request.POST.getlist("selected_sectors")
-            has_disability = request.POST.get("has_disability") == "on"
-            is_senior = request.POST.get("is_senior") == "on"
-            previous_aid = request.POST.get("previous_aid")
-            is_solo_parent = request.POST.get("is_solo_parent") == "on"
-            is_indigenous = request.POST.get("is_indigenous") == "on"
-
+            selected_sectors  = request.POST.getlist("selected_sectors")
+            has_disability    = request.POST.get("has_disability") == "on"
+            is_senior         = request.POST.get("is_senior") == "on"
+            previous_aid      = request.POST.get("previous_aid")
+            is_solo_parent    = request.POST.get("is_solo_parent") == "on"
+            is_indigenous     = request.POST.get("is_indigenous") == "on"
+ 
             client = Client.objects.create(
-                first_name=request.POST.get('first_name'),
-                middle_name=request.POST.get('middle_name') or None,
-                last_name=request.POST.get('last_name'),
-                sex=request.POST.get('sex'),
-                birth_date=request.POST.get('birth_date'),
-                civil_status=request.POST.get('civil_status'),
-                nationality=request.POST.get('nationality') or 'Filipino',
-                address=request.POST.get('address'),
-                barangay=request.POST.get('barangay'),
-                municipality=request.POST.get('municipality'),
-                contact_no=request.POST.get('contact_no'),
-                email=email,
-                livelihood=request.POST.get('livelihood'),
-                monthly_income=request.POST.get('monthly_income') or 0,
-                household_size=request.POST.get('household_size') or 1,
-                sectors=selected_sectors,
-                has_disability=has_disability,
-                is_senior=is_senior,
-                previous_aid=previous_aid,
-                is_solo_parent=is_solo_parent,
-                is_indigenous=is_indigenous,
-                is_4ps=request.POST.get('is_4ps', 'No'),
-                fourps_id=request.POST.get('fourps_id') or None,
+                first_name    = request.POST.get('first_name'),
+                middle_name   = request.POST.get('middle_name') or None,
+                last_name     = request.POST.get('last_name'),
+                sex           = request.POST.get('sex'),
+                birth_date    = request.POST.get('birth_date'),
+                civil_status  = request.POST.get('civil_status'),
+                nationality   = request.POST.get('nationality') or 'Filipino',
+                address       = request.POST.get('address'),
+                barangay      = request.POST.get('barangay'),
+                municipality  = request.POST.get('municipality'),
+                contact_no    = request.POST.get('contact_no'),
+                email         = email,
+                livelihood    = request.POST.get('livelihood'),
+                monthly_income  = request.POST.get('monthly_income') or 0,
+                household_size  = request.POST.get('household_size') or 1,
+                sectors         = selected_sectors,
+                has_disability  = has_disability,
+                is_senior       = is_senior,
+                previous_aid    = previous_aid,
+                is_solo_parent  = is_solo_parent,
+                is_indigenous   = is_indigenous,
+                is_4ps          = request.POST.get('is_4ps', 'No'),
+                fourps_id       = request.POST.get('fourps_id') or None,
             )
-            print("[REGISTER] ✅ Client created:", client)
-
+ 
             # Family Members
             index = 0
             while index <= 50:
                 name = request.POST.get(f"family_name_{index}", "").strip()
                 if name:
-                    civil_status = request.POST.get(f"family_cs_{index}") or None
-                    edu_elem  = request.POST.get(f"family_edu_elem_{index}")
-                    edu_hs    = request.POST.get(f"family_edu_hs_{index}")
-                    edu_coll  = request.POST.get(f"family_edu_coll_{index}")
-                    edu_illit = request.POST.get(f"family_edu_illit_{index}")
-                    education = (
+                    civil_status_fm = request.POST.get(f"family_cs_{index}") or None
+                    edu_elem   = request.POST.get(f"family_edu_elem_{index}")
+                    edu_hs     = request.POST.get(f"family_edu_hs_{index}")
+                    edu_coll   = request.POST.get(f"family_edu_coll_{index}")
+                    edu_illit  = request.POST.get(f"family_edu_illit_{index}")
+                    education  = (
                         "Elem"     if edu_elem  else
                         "HS"       if edu_hs    else
                         "Coll/Voc" if edu_coll  else
@@ -1692,102 +1698,166 @@ def client_register(request):
                     )
                     raw_age    = request.POST.get(f"family_age_{index}", "").strip()
                     raw_income = request.POST.get(f"family_inc_{index}", "").strip()
-
+ 
                     FamilyMember.objects.create(
-                        client=client,
-                        name=name,
-                        age=int(raw_age) if raw_age else None,
-                        sex=request.POST.get(f"family_sex_{index}") or None,
-                        civil_status=civil_status,
-                        relationship=request.POST.get(f"family_rel_{index}") or None,
-                        educational_attainment=education,
-                        occupation=request.POST.get(f"family_occ_{index}") or None,
-                        income=Decimal(raw_income) if raw_income else None,
+                        client                 = client,
+                        name                   = name,
+                        age                    = int(raw_age) if raw_age else None,
+                        sex                    = request.POST.get(f"family_sex_{index}") or None,
+                        civil_status           = civil_status_fm,
+                        relationship           = request.POST.get(f"family_rel_{index}") or None,
+                        educational_attainment = education,
+                        occupation             = request.POST.get(f"family_occ_{index}") or None,
+                        income                 = Decimal(raw_income) if raw_income else None,
                     )
                 index += 1
-
-            print("[REGISTER] ✅ Family members saved")
-
-            # ✅ CREATE ACCOUNT — inactive until email is verified
+ 
+            # Create account — inactive until verified
             account = ClientAccount.objects.create(
-                client=client,
-                email=request.POST.get('email'),
-                is_active=False,
+                client    = client,
+                email     = email,
+                is_active = False,
             )
             account.set_password(password)
+ 
+            # Store token IN THE DATABASE — survives server reloads
+            token = get_random_string(48)
+            account.verification_token = token
             account.save()
-            print("[REGISTER] ✅ Account created:", account.email)
-
-            # ✅ GENERATE & STORE VERIFICATION CODE
-            code = get_random_string(32)
-            verification_codes[account.email] = code
-            print("[EMAIL] 📋 Code stored for:", account.email)
-
+ 
+            # Build verify URL — use quote() so special chars in email are safe
             verify_url = request.build_absolute_uri(
-                reverse('client_verify') + f'?email={account.email}&code={code}'
+                reverse('client_verify') + '?email=' + quote(email, safe='') + '&token=' + token
             )
-
-            print("=" * 60)
-            print(f"[EMAIL] 📨 Attempting to send to: {account.email}")
-            print(f"[EMAIL] 🔗 Verify URL: {verify_url}")
-            print("=" * 60)
-
-            # ✅ SEND VERIFICATION EMAIL
+ 
+            # Send verification email
             try:
                 send_mail(
                     subject='Verify Your MSWDO Account',
-                    message=f'''Hello {client.first_name},
-
-Thank you for registering with MSWDO.
-
-Please click the link below to verify your email address:
-
-{verify_url}
-
-This link will expire soon. If you did not register, please ignore this email.
-
-— MSWDO Team
-''',
+                    message=(
+                        f"Hello {client.first_name},\n\n"
+                        f"Thank you for registering with MSWDO.\n\n"
+                        f"Please click the link below to verify your email address:\n\n"
+                        f"{verify_url}\n\n"
+                        f"If you did not register, please ignore this email.\n\n"
+                        f"— MSWDO Team"
+                    ),
                     from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[account.email],
+                    recipient_list=[email],
                     fail_silently=False,
                 )
-                print("[EMAIL] ✅ Email sent successfully!")
+                email_sent = True
             except Exception as mail_err:
                 print(f"[EMAIL] ❌ FAILED: {mail_err}")
-                messages.warning(request, f"Could not send verification email: {mail_err}")
-
-            print("=" * 60)
-
+                email_sent = False
+                messages.warning(request, f"Registration saved but email could not be sent: {mail_err}")
+ 
             return render(request, 'client_register.html', {
-                'message': 'Registration successful! Check your email to verify your account before logging in.'
+                'registration_done': True,
+                'reg_email': email,
+                'email_sent': email_sent,
             })
-
+ 
         except Exception as e:
             import traceback
-            print("[REGISTER] ❌ Registration failed:")
             traceback.print_exc()
             messages.error(request, f"Registration failed: {e}")
-
+ 
     return render(request, 'client_register.html')
-
+ 
+ 
 def client_verify(request):
-    email = request.GET.get('email')
-    code  = request.GET.get('code')
-
-    if email and code and verification_codes.get(email) == code:
-        try:
-            account = ClientAccount.objects.get(email=email)
-            account.is_active = True
-            account.save()
-            verification_codes.pop(email, None)  # clean up used code
-            messages.success(request, "Email verified! You can now log in.")
-        except ClientAccount.DoesNotExist:
-            messages.error(request, "Account not found.")
+    """
+    Called when the user clicks the verification link in their email.
+    Activates the ClientAccount and shows a success page.
+    """
+    from urllib.parse import unquote
+    email = unquote(request.GET.get('email', '').strip())
+    token = request.GET.get('token', '').strip()
+ 
+    error = None
+ 
+    if not email or not token:
+        error = "Invalid verification link. Please register again."
     else:
-        messages.error(request, "Invalid or expired verification link.")
-
+        try:
+            account = ClientAccount.objects.get(email__iexact=email)
+ 
+            if account.is_active:
+                # Already verified — just send them to login
+                return render(request, 'client_verify_success.html', {
+                    'already_verified': True,
+                    'email': email,
+                })
+ 
+            if not account.verification_token or account.verification_token != token:
+                error = "This verification link is invalid or has already been used."
+            else:
+                account.is_active           = True
+                account.verification_token  = ''   # consume the token
+                account.save()
+                return render(request, 'client_verify_success.html', {
+                    'already_verified': False,
+                    'email': email,
+                })
+ 
+        except ClientAccount.DoesNotExist:
+            error = "No account found for this email address."
+ 
+    return render(request, 'client_verify_success.html', {
+        'error': error,
+        'email': email,
+    })
+ 
+ 
+def resend_client_verification(request):
+    """
+    Lets a client request a fresh verification email if the original expired
+    or was never received.
+    """
+    from urllib.parse import quote
+ 
+    if request.method == 'POST':
+        email = (request.POST.get('email') or '').strip().lower()
+        try:
+            account = ClientAccount.objects.get(email__iexact=email)
+ 
+            if account.is_active:
+                messages.info(request, "This account is already verified. Please log in.")
+                return redirect('client_login')
+ 
+            # Generate fresh token
+            token = get_random_string(48)
+            account.verification_token = token
+            account.save()
+ 
+            verify_url = request.build_absolute_uri(
+                reverse('client_verify') + '?email=' + quote(email, safe='') + '&token=' + token
+            )
+ 
+            try:
+                send_mail(
+                    subject='Verify Your MSWDO Account (Resent)',
+                    message=(
+                        f"Hello,\n\n"
+                        f"Here is your new verification link:\n\n"
+                        f"{verify_url}\n\n"
+                        f"— MSWDO Team"
+                    ),
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[email],
+                    fail_silently=False,
+                )
+                messages.success(request, "Verification email resent! Check your inbox.")
+            except Exception as e:
+                messages.error(request, f"Could not send email: {e}")
+ 
+        except ClientAccount.DoesNotExist:
+            messages.error(request, "No account found with that email.")
+ 
     return redirect('client_login')
+ 
+
 
 
 
@@ -3011,11 +3081,8 @@ def program_rate_prediction(request):
 
 @login_required
 def barangay_analytics(request):
-    """
-    Analytics: how often each barangay requests assistance, which programs
-    they apply for most, and the main reasons / crisis types behind each request.
-    """
-    from collections import defaultdict, Counter
+    from collections import Counter
+    from django.db.models.functions import TruncMonth
  
     if not (
         getattr(request.user, 'role', None) in ['admin', 'staff']
@@ -3023,7 +3090,6 @@ def barangay_analytics(request):
     ):
         return redirect('landing')
  
-    # ── All distinct barangays with at least one client ──────────────────────
     all_barangays = (
         Client.objects
         .filter(barangay__isnull=False)
@@ -3040,6 +3106,7 @@ def barangay_analytics(request):
         clients    = Client.objects.filter(barangay__iexact=selected_brgy)
         client_ids = list(clients.values_list('id', flat=True))
  
+        # ── Prefetched queryset for Python-side processing only ───────────────
         apps = (
             Application.objects
             .filter(client_id__in=client_ids)
@@ -3048,7 +3115,10 @@ def barangay_analytics(request):
             .order_by('-created_at')
         )
  
-        total_apps    = apps.count()
+        # ── Clean queryset for all DB aggregations (no prefetch/select_related)
+        base_qs = Application.objects.filter(client_id__in=client_ids)
+ 
+        total_apps    = base_qs.count()
         total_clients = clients.count()
  
         # ── Programs ─────────────────────────────────────────────────────────
@@ -3059,14 +3129,14 @@ def barangay_analytics(request):
             'EDUCATIONAL': 'Educational Assistance',
         }
         raw_prog = dict(
-            apps.values('aid_type').annotate(n=Count('id')).values_list('aid_type', 'n')
+            base_qs.values('aid_type').annotate(n=Count('id')).values_list('aid_type', 'n')
         )
         program_data = [
             {'code': code, 'label': lbl, 'count': int(raw_prog.get(code, 0))}
             for code, lbl in PROGRAM_LABELS.items()
         ]
  
-        # ── Reason extractor ─────────────────────────────────────────────────
+        # ── Reason extractor (Python-side, uses prefetched data) ──────────────
         def top_reasons(app_list, limit=5):
             counter = Counter()
             for app in app_list:
@@ -3105,7 +3175,7 @@ def barangay_analytics(request):
                     except Exception:
                         pass
                 if not found:
-                    if app.eligibility_reason:
+                    if getattr(app, 'eligibility_reason', None):
                         snippet = app.eligibility_reason[:60].split('.')[0].strip()
                         if snippet:
                             counter[snippet] += 1
@@ -3121,15 +3191,19 @@ def barangay_analytics(request):
         }
         overall_reasons = top_reasons(app_list, limit=8)
  
-        # ── Monthly trend (last 12 months) ───────────────────────────────────
-        from django.db.models.functions import TruncMonth
+        # ── Monthly trend — use base_qs (clean, no prefetch conflicts) ────────
         monthly_qs = (
-            apps.annotate(month=TruncMonth('created_at'))
-            .values('month').annotate(n=Count('id')).order_by('month')
+            base_qs
+            .annotate(month=TruncMonth('created_at'))
+            .values('month')
+            .annotate(n=Count('id'))
+            .order_by('month')
         )
         month_map = {}
         for row in monthly_qs:
             d = row['month']
+            if d is None:
+                continue
             if hasattr(d, 'date'):
                 d = d.date()
             month_map[d.strftime('%Y-%m')] = int(row['n'])
@@ -3146,16 +3220,21 @@ def barangay_analytics(request):
             trend_labels.append(key)
             trend_values.append(month_map.get(key, 0))
  
-        # ── Status counts ────────────────────────────────────────────────────
+        # ── Status counts — use base_qs ────────────────────────────────────
         status_counts = {
             str(k): int(v)
-            for k, v in apps.values('status').annotate(n=Count('id')).values_list('status', 'n')
+            for k, v in (
+                base_qs
+                .values('status')
+                .annotate(n=Count('id'))
+                .values_list('status', 'n')
+            )
         }
  
-        # ── Sector profile ───────────────────────────────────────────────────
+        # ── Sector profile ────────────────────────────────────────────────
         sector_counter = Counter()
         for c in clients:
-            if isinstance(c.sectors, list):
+            if isinstance(getattr(c, 'sectors', None), list):
                 for s in c.sectors:
                     if s:
                         sector_counter[str(s)] += 1

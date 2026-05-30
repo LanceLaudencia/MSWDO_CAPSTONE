@@ -247,6 +247,7 @@ class ClientAccount(models.Model):
     password   = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     is_active  = models.BooleanField(default=True) 
+    verification_token = models.CharField(max_length=64, blank=True, default='')
 
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
