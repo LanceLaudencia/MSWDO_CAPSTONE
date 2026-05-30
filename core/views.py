@@ -3007,3 +3007,185 @@ def program_rate_prediction(request):
         'current_year':       today.year,
     }
     return render(request, 'program_rate_prediction.html', context)
+
+
+@login_required
+def barangay_analytics(request):
+    """
+    Analytics: how often each barangay requests assistance, which programs
+    they apply for most, and the main reasons / crisis types behind each request.
+    """
+    from collections import defaultdict, Counter
+ 
+    if not (
+        getattr(request.user, 'role', None) in ['admin', 'staff']
+        or request.user.is_superuser
+    ):
+        return redirect('landing')
+ 
+    # ── All distinct barangays with at least one client ──────────────────────
+    all_barangays = (
+        Client.objects
+        .filter(barangay__isnull=False)
+        .exclude(barangay='')
+        .values_list('barangay', flat=True)
+        .distinct()
+        .order_by('barangay')
+    )
+ 
+    selected_brgy = request.GET.get('barangay', '').strip()
+    analytics = None
+ 
+    if selected_brgy:
+        clients    = Client.objects.filter(barangay__iexact=selected_brgy)
+        client_ids = list(clients.values_list('id', flat=True))
+ 
+        apps = (
+            Application.objects
+            .filter(client_id__in=client_ids)
+            .select_related('client')
+            .prefetch_related('aics_detail', 'redcard_detail', 'educational_detail')
+            .order_by('-created_at')
+        )
+ 
+        total_apps    = apps.count()
+        total_clients = clients.count()
+ 
+        # ── Programs ─────────────────────────────────────────────────────────
+        PROGRAM_LABELS = {
+            'AICS':        'AICS',
+            'SEA':         'Livelihood (SEA)',
+            'REDCARD':     'Red Card',
+            'EDUCATIONAL': 'Educational Assistance',
+        }
+        raw_prog = dict(
+            apps.values('aid_type').annotate(n=Count('id')).values_list('aid_type', 'n')
+        )
+        program_data = [
+            {'code': code, 'label': lbl, 'count': int(raw_prog.get(code, 0))}
+            for code, lbl in PROGRAM_LABELS.items()
+        ]
+ 
+        # ── Reason extractor ─────────────────────────────────────────────────
+        def top_reasons(app_list, limit=5):
+            counter = Counter()
+            for app in app_list:
+                found = False
+                try:
+                    ct = app.aics_detail.crisis_type
+                    if ct:
+                        counter[ct] += 1
+                        found = True
+                except Exception:
+                    pass
+                if not found:
+                    try:
+                        et = app.redcard_detail.emergency_type
+                        if et:
+                            counter[et] += 1
+                            found = True
+                    except Exception:
+                        pass
+                if not found:
+                    try:
+                        cg = app.educational_detail.course_or_grade
+                        if cg:
+                            counter['Education: ' + str(cg)] += 1
+                            found = True
+                    except Exception:
+                        pass
+                if not found:
+                    try:
+                        secs = app.client.sectors
+                        if isinstance(secs, list) and secs:
+                            for s in secs:
+                                if s:
+                                    counter[str(s)] += 1
+                            found = True
+                    except Exception:
+                        pass
+                if not found:
+                    if app.eligibility_reason:
+                        snippet = app.eligibility_reason[:60].split('.')[0].strip()
+                        if snippet:
+                            counter[snippet] += 1
+                            found = True
+                if not found:
+                    counter['Unspecified'] += 1
+            return [{'label': lbl, 'count': int(cnt)} for lbl, cnt in counter.most_common(limit)]
+ 
+        app_list = list(apps)
+        reasons_by_program = {
+            code: top_reasons([a for a in app_list if a.aid_type == code])
+            for code in PROGRAM_LABELS
+        }
+        overall_reasons = top_reasons(app_list, limit=8)
+ 
+        # ── Monthly trend (last 12 months) ───────────────────────────────────
+        from django.db.models.functions import TruncMonth
+        monthly_qs = (
+            apps.annotate(month=TruncMonth('created_at'))
+            .values('month').annotate(n=Count('id')).order_by('month')
+        )
+        month_map = {}
+        for row in monthly_qs:
+            d = row['month']
+            if hasattr(d, 'date'):
+                d = d.date()
+            month_map[d.strftime('%Y-%m')] = int(row['n'])
+ 
+        today = timezone.now().date()
+        trend_labels, trend_values = [], []
+        for i in range(11, -1, -1):
+            mo = today.month - i
+            yr = today.year
+            while mo <= 0:
+                mo += 12
+                yr -= 1
+            key = '{}-{:02d}'.format(yr, mo)
+            trend_labels.append(key)
+            trend_values.append(month_map.get(key, 0))
+ 
+        # ── Status counts ────────────────────────────────────────────────────
+        status_counts = {
+            str(k): int(v)
+            for k, v in apps.values('status').annotate(n=Count('id')).values_list('status', 'n')
+        }
+ 
+        # ── Sector profile ───────────────────────────────────────────────────
+        sector_counter = Counter()
+        for c in clients:
+            if isinstance(c.sectors, list):
+                for s in c.sectors:
+                    if s:
+                        sector_counter[str(s)] += 1
+        top_sectors = [
+            {'label': s, 'count': int(cnt)}
+            for s, cnt in sector_counter.most_common(6)
+        ]
+ 
+        top_prog   = max(program_data, key=lambda x: x['count'])['label'] if total_apps else '-'
+        top_reason = overall_reasons[0]['label'] if overall_reasons else '-'
+ 
+        analytics = {
+            'barangay':           selected_brgy,
+            'total_apps':         int(total_apps),
+            'total_clients':      int(total_clients),
+            'program_data':       program_data,
+            'reasons_by_program': reasons_by_program,
+            'overall_reasons':    overall_reasons,
+            'trend_labels':       trend_labels,
+            'trend_values':       trend_values,
+            'status_counts':      status_counts,
+            'top_sectors':        top_sectors,
+            'top_program':        top_prog,
+            'top_reason':         top_reason,
+        }
+ 
+    context = {
+        'all_barangays':  list(all_barangays),
+        'selected_brgy':  selected_brgy,
+        'analytics':      analytics,
+        'analytics_json': json.dumps(analytics, ensure_ascii=False) if analytics else 'null',
+    }
+    return render(request, 'barangay_analytics.html', context)

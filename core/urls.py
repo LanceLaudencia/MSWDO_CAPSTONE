@@ -95,6 +95,8 @@ path('reports/generate/', views.generate_report, name='generate_report'),
 
 path('reports/generate/', views.generate_report, name='generate_report'),
     path('program-prediction/', views.program_rate_prediction, name='program_rate_prediction'),
+    
+    path('analytics/barangay/', views.barangay_analytics, name='barangay_analytics'),
 ]
 
 

@@ -595,6 +595,12 @@
   <span>3-Year Prediction</span>
 </a>
 
+<a href="{% url 'barangay_analytics' %}"
+         class="nav-link {% if request.resolver_match.url_name == 'barangay_analytics' %}active{% endif %}">
+        <i class="bi bi-geo-alt-fill"></i>
+        <span>Barangay Analytics</span>
+      </a>
+
       <hr class="sidebar-hr">
 
       <div class="nav-section-label">Settings</div>

@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  :root { --cr: 14px; }
+
+  .ba-header {
+    background: linear-gradient(135deg, #134e2f 0%, #166534 55%, #15803d 100%);
+    border-radius: var(--cr); padding: 1.8rem 2.4rem;
+    color: #fff; position: relative; overflow: hidden; margin-bottom: 1.5rem;
+  }
+  .ba-header::after {
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  .ba-header h1 { font-size:1.55rem; font-weight:800; margin-bottom:.2rem; }
+  .ba-header p  { opacity:.8; font-size:.88rem; margin:0; }
+
+  .filter-bar {
+    background:#fff; border-radius:var(--cr);
+    box-shadow:0 2px 10px rgba(0,0,0,.07);
+    padding:1.2rem 1.6rem; margin-bottom:1.5rem;
+    display:flex; align-items:flex-end; gap:1rem; flex-wrap:wrap;
+  }
+  .filter-bar label { font-size:.78rem; font-weight:700; color:#6b7280; letter-spacing:.4px; text-transform:uppercase; margin-bottom:4px; display:block; }
+  .filter-bar select { border-radius:10px; border:2px solid #e5e7eb; font-size:.9rem; min-width:240px; padding:.45rem .9rem; }
+  .filter-bar select:focus { border-color:#16a34a; box-shadow:none; outline:none; }
+  .btn-go {
+    background:linear-gradient(135deg,#166534,#16a34a);
+    color:#fff; border:none; border-radius:10px;
+    padding:.48rem 1.4rem; font-weight:700; font-size:.88rem; cursor:pointer;
+  }
+  .btn-go:hover { opacity:.88; }
+
+  .empty-state {
+    text-align:center; padding:3.5rem 1rem;
+    background:#fff; border-radius:var(--cr);
+    box-shadow:0 2px 10px rgba(0,0,0,.06);
+  }
+  .empty-state i { font-size:3rem; color:#d1d5db; }
+  .empty-state p { color:#9ca3af; margin-top:.75rem; font-size:.92rem; }
+
+  .stat-row { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+  .stat-card {
+    flex:1; min-width:150px; background:#fff; border-radius:var(--cr);
+    box-shadow:0 2px 10px rgba(0,0,0,.07);
+    padding:1.1rem 1.4rem; display:flex; align-items:center; gap:1rem;
+  }
+  .stat-icon { width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0; }
+  .stat-icon.green  { background:#dcfce7; color:#16a34a; }
+  .stat-icon.blue   { background:#dbeafe; color:#1d4ed8; }
+  .stat-icon.amber  { background:#fef3c7; color:#d97706; }
+  .stat-icon.purple { background:#f3e8ff; color:#7c3aed; }
+  .stat-val { font-size:1.55rem; font-weight:800; line-height:1; color:#111827; }
+  .stat-lbl { font-size:.73rem; color:#9ca3af; font-weight:600; letter-spacing:.3px; margin-top:2px; }
+
+  .sec-card {
+    background:#fff; border-radius:var(--cr);
+    box-shadow:0 2px 10px rgba(0,0,0,.07);
+    overflow:hidden; margin-bottom:1.5rem;
+  }
+  .sec-bar { padding:.8rem 1.4rem; font-weight:700; font-size:.88rem; display:flex; align-items:center; gap:8px; color:#fff; }
+  .sec-bar.green  { background:linear-gradient(90deg,#134e2f,#16a34a); }
+  .sec-bar.blue   { background:linear-gradient(90deg,#1e3a5f,#1a56db); }
+  .sec-bar.amber  { background:linear-gradient(90deg,#78350f,#d97706); }
+  .sec-bar.purple { background:linear-gradient(90deg,#3b0764,#7c3aed); }
+  .sec-body { padding:1.2rem 1.4rem; }
+
+  .reason-bar-wrap { margin-bottom:.65rem; }
+  .reason-label { font-size:.82rem; font-weight:600; color:#374151; margin-bottom:3px; display:flex; justify-content:space-between; }
+  .reason-track { background:#f3f4f6; border-radius:6px; height:10px; overflow:hidden; }
+  .reason-fill  { height:10px; border-radius:6px; }
+
+  .prog-pill { display:flex; align-items:center; justify-content:space-between; padding:.55rem .9rem; border-radius:10px; margin-bottom:.5rem; font-size:.85rem; font-weight:600; }
+</style>
+
+<!-- Header -->
+<div class="ba-header">
+  <div style="position:relative;z-index:1" class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+    <div>
+      <h1><i class="bi bi-geo-alt-fill me-2"></i>Barangay Assistance Analytics</h1>
+      <p>Application frequency and main reasons per barangay</p>
+    </div>
+    <span style="position:relative;z-index:1;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);padding:4px 14px;border-radius:20px;font-size:.76rem;font-weight:600;align-self:flex-start;">
+      <i class="bi bi-bar-chart-line-fill me-1"></i> Barangay-level Insights
+    </span>
+  </div>
+</div>
+
+<!-- Filter -->
+<div class="filter-bar">
+  <form method="get" class="d-flex align-items-end gap-2 flex-wrap w-100">
+    <div>
+      <label>Select Barangay</label>
+      <select name="barangay" class="form-select">
+        <option value="">— Choose a barangay —</option>
+        {% for brgy in all_barangays %}
+          <option value="{{ brgy }}" {% if brgy == selected_brgy %}selected{% endif %}>{{ brgy }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn-go"><i class="bi bi-search me-1"></i>View Analytics</button>
+    {% if selected_brgy %}
+      <a href="{% url 'barangay_analytics' %}" class="btn btn-sm btn-outline-secondary" style="border-radius:10px;padding:.45rem .9rem;">
+        <i class="bi bi-x-circle me-1"></i>Clear
+      </a>
+    {% endif %}
+  </form>
+</div>
+
+{% if not selected_brgy %}
+<div class="empty-state">
+  <i class="bi bi-geo-alt"></i>
+  <p>Select a barangay above to view its assistance analytics.</p>
+</div>
+
+{% elif analytics %}
+
+<!-- Stat Cards -->
+<div class="stat-row">
+  <div class="stat-card">
+    <div class="stat-icon green"><i class="bi bi-file-earmark-text-fill"></i></div>
+    <div><div class="stat-val">{{ analytics.total_apps }}</div><div class="stat-lbl">Total Applications</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="bi bi-people-fill"></i></div>
+    <div><div class="stat-val">{{ analytics.total_clients }}</div><div class="stat-lbl">Registered Residents</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon amber"><i class="bi bi-star-fill"></i></div>
+    <div><div class="stat-val" style="font-size:1rem;">{{ analytics.top_program }}</div><div class="stat-lbl">Most Requested Program</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon purple"><i class="bi bi-chat-quote-fill"></i></div>
+    <div><div class="stat-val" style="font-size:.88rem;line-height:1.3;">{{ analytics.top_reason }}</div><div class="stat-lbl">Top Reason</div></div>
+  </div>
+</div>
+
+<div class="row g-4">
+
+  <!-- LEFT COLUMN -->
+  <div class="col-12 col-lg-7">
+
+    <div class="sec-card">
+      <div class="sec-bar green"><i class="bi bi-activity"></i> Monthly Application Trend (Last 12 Months)</div>
+      <div class="sec-body"><canvas id="trendChart" height="90"></canvas></div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-bar blue"><i class="bi bi-bar-chart-fill"></i> Applications per Program</div>
+      <div class="sec-body"><canvas id="progChart" height="100"></canvas></div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-bar amber"><i class="bi bi-pie-chart-fill"></i> Application Status Breakdown</div>
+      <div class="sec-body" style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+        <canvas id="statusChart" style="max-width:180px;max-height:180px;flex-shrink:0;"></canvas>
+        <div id="statusLegend" style="flex:1;min-width:140px;"></div>
+      </div>
+    </div>
+
+  </div><!-- /col-lg-7 -->
+
+  <!-- RIGHT COLUMN -->
+  <div class="col-12 col-lg-5">
+
+    <div class="sec-card">
+      <div class="sec-bar green"><i class="bi bi-list-ol"></i> Top Reasons — All Programs</div>
+      <div class="sec-body">
+        {% if analytics.overall_reasons %}
+          {% with top=analytics.overall_reasons.0.count %}
+          {% for r in analytics.overall_reasons %}
+          <div class="reason-bar-wrap">
+            <div class="reason-label">
+              <span>{{ r.label }}</span>
+              <span style="color:#6b7280;">{{ r.count }}</span>
+            </div>
+            <div class="reason-track">
+              <div class="reason-fill" style="width:{% widthratio r.count top 100 %}%;background:linear-gradient(90deg,#166534,#4ade80);"></div>
+            </div>
+          </div>
+          {% endfor %}
+          {% endwith %}
+        {% else %}
+          <p class="text-muted text-center py-3" style="font-size:.85rem;">No reason data available.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-bar purple"><i class="bi bi-diagram-3-fill"></i> Reasons by Program</div>
+      <div class="sec-body">
+        {% for pd in analytics.program_data %}
+        {% if pd.count > 0 %}
+        <div class="mb-3">
+          <div class="prog-pill mb-2"
+               style="background:{% if pd.code == 'AICS' %}#dbeafe{% elif pd.code == 'SEA' %}#dcfce7{% elif pd.code == 'REDCARD' %}#fee2e2{% else %}#f3e8ff{% endif %}">
+            <span style="color:{% if pd.code == 'AICS' %}#1d4ed8{% elif pd.code == 'SEA' %}#15803d{% elif pd.code == 'REDCARD' %}#b91c1c{% else %}#7c3aed{% endif %}">{{ pd.label }}</span>
+            <span style="font-weight:800;font-size:1rem;color:{% if pd.code == 'AICS' %}#1d4ed8{% elif pd.code == 'SEA' %}#15803d{% elif pd.code == 'REDCARD' %}#b91c1c{% else %}#7c3aed{% endif %}">{{ pd.count }}</span>
+          </div>
+          {% for code, reasons in analytics.reasons_by_program.items %}
+          {% if code == pd.code %}
+            {% if reasons %}
+              {% with rtop=reasons.0.count %}
+              {% for r in reasons %}
+              <div class="reason-bar-wrap" style="padding-left:.5rem;">
+                <div class="reason-label" style="font-size:.78rem;">
+                  <span>{{ r.label }}</span><span style="color:#9ca3af;">{{ r.count }}</span>
+                </div>
+                <div class="reason-track">
+                  <div class="reason-fill" style="width:{% widthratio r.count rtop 100 %}%;background:{% if pd.code == 'AICS' %}#3b82f6{% elif pd.code == 'SEA' %}#22c55e{% elif pd.code == 'REDCARD' %}#ef4444{% else %}#a855f7{% endif %};"></div>
+                </div>
+              </div>
+              {% endfor %}
+              {% endwith %}
+            {% else %}
+              <p style="font-size:.77rem;color:#9ca3af;padding-left:.5rem;">No reason data for this program.</p>
+            {% endif %}
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if analytics.top_sectors %}
+    <div class="sec-card">
+      <div class="sec-bar amber"><i class="bi bi-person-badge-fill"></i> Resident Sector Profile</div>
+      <div class="sec-body">
+        {% with stop=analytics.top_sectors.0.count %}
+        {% for s in analytics.top_sectors %}
+        <div class="reason-bar-wrap">
+          <div class="reason-label">
+            <span>{{ s.label }}</span><span style="color:#6b7280;">{{ s.count }}</span>
+          </div>
+          <div class="reason-track">
+            <div class="reason-fill" style="width:{% widthratio s.count stop 100 %}%;background:linear-gradient(90deg,#d97706,#fbbf24);"></div>
+          </div>
+        </div>
+        {% endfor %}
+        {% endwith %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div><!-- /col-lg-5 -->
+
+</div><!-- /row -->
+
+<!-- JSON data island — read by extra_js block below -->
+{{ analytics_json|json_script:"analytics_data" }}
+
+{% else %}
+<div class="empty-state">
+  <i class="bi bi-inbox"></i>
+  <p>No applications found for <strong>{{ selected_brgy }}</strong>.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   extra_js runs AFTER </body> scripts in base.html — Chart.js is guaranteed
+   to be loaded and all canvas elements are in the DOM at this point.
+   ══════════════════════════════════════════════════════════════════════════ #}
+{% block extra_js %}
+{% if analytics %}
+<script>
+(function () {
+  'use strict';
+
+  var el = document.getElementById('analytics_data');
+  if (!el) return;
+
+  var D;
+  try { D = JSON.parse(el.textContent); } catch(e) { return; }
+  if (!D) return;
+
+  /* ── 1. Monthly Trend ─────────────────────────────────────────────── */
+  var trendEl = document.getElementById('trendChart');
+  if (trendEl) {
+    new Chart(trendEl, {
+      type: 'line',
+      data: {
+        labels: D.trend_labels,
+        datasets: [{
+          label: 'Applications',
+          data:  D.trend_values,
+          borderColor:     '#16a34a',
+          backgroundColor: 'rgba(22,163,74,0.12)',
+          borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#16a34a',
+          fill: true, tension: 0.4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { font:{size:9}, maxRotation:45 }, grid:{ display:false } },
+          y: { beginAtZero:true, ticks:{ font:{size:10}, maxTicksLimit:5 }, grid:{ color:'rgba(0,0,0,.05)' } }
+        }
+      }
+    });
+  }
+
+  /* ── 2. Applications per Program ──────────────────────────────────── */
+  var progEl = document.getElementById('progChart');
+  if (progEl && D.program_data) {
+    new Chart(progEl, {
+      type: 'bar',
+      data: {
+        labels: D.program_data.map(function(p){ return p.label; }),
+        datasets: [{
+          label: 'Applications',
+          data:  D.program_data.map(function(p){ return p.count; }),
+          backgroundColor: ['rgba(29,78,216,0.75)','rgba(21,128,61,0.75)','rgba(185,28,28,0.75)','rgba(124,58,237,0.75)'],
+          borderColor:     ['#1d4ed8','#15803d','#b91c1c','#7c3aed'],
+          borderWidth: 2, borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display:false } },
+        scales: {
+          x: { grid:{ display:false } },
+          y: { beginAtZero:true, ticks:{ maxTicksLimit:5 }, grid:{ color:'rgba(0,0,0,.05)' } }
+        }
+      }
+    });
+  }
+
+  /* ── 3. Status Doughnut ───────────────────────────────────────────── */
+  var statusEl = document.getElementById('statusChart');
+  if (statusEl && D.status_counts) {
+    var ORDER  = ['PENDING','ASSESSMENT','APPROVAL','RELEASE','RELEASED','REJECTED'];
+    var SLBLS  = ['Pending','Assessment','For Approval','For Release','Released','Rejected'];
+    var SCOLRS = ['#fbbf24','#60a5fa','#818cf8','#34d399','#22c55e','#f87171'];
+
+    var sL = [], sD = [], sC = [];
+    ORDER.forEach(function(k, i) {
+      var v = D.status_counts[k] || 0;
+      if (v > 0) { sL.push(SLBLS[i]); sD.push(v); sC.push(SCOLRS[i]); }
+    });
+
+    if (sD.length) {
+      new Chart(statusEl, {
+        type: 'doughnut',
+        data: { labels: sL, datasets: [{ data: sD, backgroundColor: sC, borderWidth: 2 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: { legend: { display:false } }
+        }
+      });
+
+      var leg = document.getElementById('statusLegend');
+      if (leg) {
+        sL.forEach(function(lbl, i) {
+          var row = document.createElement('div');
+          row.style.cssText = 'display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:.82rem;';
+          row.innerHTML =
+            '<span style="width:12px;height:12px;border-radius:3px;background:' + sC[i] + ';flex-shrink:0;display:inline-block;"></span>' +
+            '<span style="color:#374151;font-weight:600;">' + lbl + '</span>' +
+            '<span style="color:#9ca3af;margin-left:auto;">' + sD[i] + '</span>';
+          leg.appendChild(row);
+        });
+      }
+    }
+  }
+
+})();
+</script>
+{% endif %}
+{% endblock %}
