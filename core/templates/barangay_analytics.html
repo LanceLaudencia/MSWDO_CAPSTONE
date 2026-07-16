@@ -1,619 +1,865 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block page_icon %}geo-alt-fill{% endblock %}
+{% block page_title %}Barangay Analytics{% endblock %}
+{% block breadcrumb %}Barangay Analytics{% endblock %}
+
 {% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
 <style>
+  /* ── Design tokens ── */
   :root {
-    --blue: #0038A8; --blue-dark: #002882; --blue-mid: #1a55d4;
-    --blue-light: rgba(0,56,168,0.08); --blue-border: rgba(0,56,168,0.18);
-    --red: #CE1126; --red-dark: #a50d1e; --red-light: rgba(206,17,38,0.07);
-    --yellow: #FCD116; --yellow-dark: #e6a800;
-    --yellow-light: rgba(252,209,22,0.12);
-    --border: #dde3ef; --text-primary: #0f1f4b; --text-secondary: #5a6a8a;
-    --bg: #f5f7fc; --cr: 13px;
+    --surface:   #111827;
+    --surface2:  #0f172a;
+    --border-dk: #1f2d42;
+    --muted-dk:  #2a3a52;
+    --ink-dim:   #4f6a8a;
+    --ink:       #8facc8;
+    --ink-hi:    #c8ddef;
+    --white-dk:  #eef4fb;
+
+    --teal:   #2dd4bf;
+    --amber:  #f59e0b;
+    --indigo: #818cf8;
+    --danger: #f87171;
+    --green:  #34d399;
+
+    --font-mono: 'DM Mono', monospace;
+    --cr: 12px;
   }
 
-  /* ── Hero header ── */
-  .ba-header {
-    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
-    border-radius: var(--cr); padding: 1.8rem 2.4rem;
-    color: #fff; position: relative; overflow: hidden; margin-bottom: 1.5rem;
+  /* ── KPI strip ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
   }
+  @media (max-width: 900px) { .kpi-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 480px) { .kpi-grid { grid-template-columns: 1fr; } }
 
-  /* Diagonal pattern overlay */
-  .ba-header::before {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background-image: repeating-linear-gradient(
-      45deg, transparent, transparent 40px,
-      rgba(255,255,255,0.025) 40px, rgba(255,255,255,0.025) 41px
-    );
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border-dk);
+    border-radius: var(--cr);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s, transform .2s;
   }
-
-  /* Yellow blob */
-  .ba-header::after {
+  .kpi-card:hover { transform: translateY(-2px); border-color: var(--teal); }
+  .kpi-card::before {
     content: ''; position: absolute;
-    top: -40%; right: -10%;
-    width: 380px; height: 380px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(252,209,22,0.12), transparent 65%);
-    pointer-events: none;
+    top: 0; left: 0; right: 0; height: 2px;
   }
+  .kpi-card.kc-teal::before   { background: linear-gradient(90deg, var(--teal),   transparent); }
+  .kpi-card.kc-amber::before  { background: linear-gradient(90deg, var(--amber),  transparent); }
+  .kpi-card.kc-indigo::before { background: linear-gradient(90deg, var(--indigo), transparent); }
+  .kpi-card.kc-danger::before { background: linear-gradient(90deg, var(--danger), transparent); }
+  .kpi-card.kc-green::before  { background: linear-gradient(90deg, var(--green),  transparent); }
 
-  /* Red blob */
-  .ba-blob-red {
-    position: absolute; bottom: -35%; left: -8%;
-    width: 280px; height: 280px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(206,17,38,0.10), transparent 65%);
-    pointer-events: none;
-  }
+  .kpi-icon { font-size: 1.3rem; margin-bottom: 8px; }
+  .kpi-card.kc-teal   .kpi-icon { color: var(--teal); }
+  .kpi-card.kc-amber  .kpi-icon { color: var(--amber); }
+  .kpi-card.kc-indigo .kpi-icon { color: var(--indigo); }
+  .kpi-card.kc-danger .kpi-icon { color: var(--danger); }
+  .kpi-card.kc-green  .kpi-icon { color: var(--green); }
 
-  /* Flag strip at bottom of header */
-  .ba-flag-strip {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, var(--yellow) 33%, var(--red) 33% 66%, var(--yellow) 66%);
-  }
-
-  .ba-header-inner { position: relative; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
-
-  .ba-eyebrow {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.22);
-    padding: 4px 13px; border-radius: 5px;
+  .kpi-val {
     font-family: 'Montserrat', sans-serif;
-    font-size: 0.6rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1.5px;
-    color: var(--yellow); margin-bottom: 10px;
+    font-size: 2rem; font-weight: 900;
+    color: var(--white-dk); line-height: 1; margin-bottom: 4px;
   }
-
-  .ba-header h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.45rem; font-weight: 900; margin-bottom: 5px;
-  }
-
-  .ba-header p {
-    opacity: 0.78; font-size: 0.86rem; margin: 0;
-    font-family: 'Open Sans', sans-serif;
-  }
-
-  .ba-insights-badge {
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.25);
-    padding: 5px 14px; border-radius: 6px;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.65rem; font-weight: 700;
-    color: white; align-self: flex-start; white-space: nowrap;
-  }
-
-  /* ── Filter bar ── */
-  .filter-bar {
-    background: white; border-radius: var(--cr);
-    border: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,40,130,0.05);
-    padding: 1.1rem 1.5rem; margin-bottom: 1.5rem;
-    display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap;
-  }
-
-  .filter-bar label {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.62rem; font-weight: 700;
-    color: var(--text-secondary); letter-spacing: 0.8px;
-    text-transform: uppercase; margin-bottom: 5px; display: block;
-  }
-
-  .filter-bar select {
-    border-radius: 9px; border: 2px solid var(--border);
-    font-size: 0.88rem; min-width: 240px; padding: 0.45rem 0.9rem;
-    font-family: 'Open Sans', sans-serif;
-    color: var(--text-primary); background: #f8f9fc; transition: all 0.2s;
-  }
-
-  .filter-bar select:focus {
-    border-color: var(--blue);
-    box-shadow: 0 0 0 3px rgba(0,56,168,0.10);
-    background: white; outline: none;
-  }
-
-  .btn-go {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
-    color: white; border: none; border-radius: 9px;
-    padding: 0.48rem 1.4rem;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700; font-size: 0.72rem;
-    text-transform: uppercase; letter-spacing: 0.5px;
-    cursor: pointer; transition: all 0.2s;
-    box-shadow: 0 3px 10px rgba(0,56,168,0.22);
-  }
-  .btn-go:hover { opacity: 0.9; transform: translateY(-1px); }
-
-  .btn-clear {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: white; color: var(--text-secondary);
-    border: 2px solid var(--border); border-radius: 9px;
-    padding: 0.45rem 1rem;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.7rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.5px;
-    text-decoration: none; transition: all 0.2s;
-  }
-  .btn-clear:hover { background: var(--bg); border-color: #b0bace; color: var(--text-primary); }
-
-  /* ── Empty state ── */
-  .empty-state {
-    text-align: center; padding: 56px 20px;
-    background: white; border-radius: var(--cr);
-    border: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,40,130,0.05);
-  }
-
-  .empty-icon {
-    width: 72px; height: 72px;
-    background: var(--blue-light); border: 2px solid var(--blue-border);
-    border-radius: 50%; margin: 0 auto 16px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 2rem; color: var(--blue);
-  }
-
-  .empty-state h5 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.95rem; font-weight: 800;
-    color: var(--text-primary); margin-bottom: 6px;
-  }
-
-  .empty-state p { font-size: 0.84rem; color: var(--text-secondary); margin: 0; }
-
-  /* ── Stat cards ── */
-  .stat-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-
-  .stat-card {
-    flex: 1; min-width: 150px; background: white;
-    border-radius: var(--cr); border: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,40,130,0.05);
-    padding: 1rem 1.3rem;
-    display: flex; align-items: center; gap: 1rem;
-    position: relative; overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-
-  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,40,130,0.10); }
-
-  .stat-card::after {
-    content: ''; position: absolute;
-    bottom: 0; left: 0; right: 0; height: 3px;
-  }
-
-  .stat-card.sc-blue::after   { background: linear-gradient(90deg, var(--blue), var(--blue-mid)); }
-  .stat-card.sc-yellow::after { background: linear-gradient(90deg, var(--yellow), var(--yellow-dark)); }
-  .stat-card.sc-red::after    { background: linear-gradient(90deg, var(--red), #e84060); }
-  .stat-card.sc-purple::after { background: linear-gradient(90deg, #6f42c1, #a855f7); }
-
-  .stat-icon {
-    width: 46px; height: 46px; border-radius: 11px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem; flex-shrink: 0;
-  }
-
-  .stat-icon.blue   { background: var(--blue-light); color: var(--blue); border: 1.5px solid var(--blue-border); }
-  .stat-icon.yellow { background: var(--yellow-light); color: #8a6000; border: 1.5px solid rgba(252,209,22,0.35); }
-  .stat-icon.red    { background: var(--red-light); color: var(--red); border: 1.5px solid rgba(206,17,38,0.22); }
-  .stat-icon.purple { background: rgba(111,66,193,0.10); color: #4a1d99; border: 1.5px solid rgba(111,66,193,0.22); }
-
-  .stat-val { font-family: 'Montserrat', sans-serif; font-size: 1.55rem; font-weight: 900; line-height: 1; color: var(--text-primary); }
-  .stat-lbl { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); margin-top: 3px; }
-  .stat-val-sm { font-size: 0.9rem; }
-  .stat-val-xs { font-size: 0.82rem; line-height: 1.3; }
-
-  /* ── Section cards ── */
-  .sec-card {
-    background: white; border-radius: var(--cr);
-    border: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,40,130,0.05);
-    overflow: hidden; margin-bottom: 1.5rem;
-  }
-
-  .sec-bar {
-    padding: 0.75rem 1.3rem;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 800; font-size: 0.72rem;
+  .kpi-lbl {
+    font-family: var(--font-mono);
+    font-size: 0.65rem; font-weight: 500;
     text-transform: uppercase; letter-spacing: 0.8px;
-    display: flex; align-items: center; gap: 8px; color: #fff;
+    color: var(--ink-dim);
   }
 
-  .sec-bar.blue   { background: linear-gradient(90deg, var(--blue-dark), var(--blue)); }
-  .sec-bar.yellow { background: linear-gradient(90deg, #8a6000, var(--yellow-dark)); color: #fff; }
-  .sec-bar.red    { background: linear-gradient(90deg, var(--red-dark), var(--red)); }
-  .sec-bar.purple { background: linear-gradient(90deg, #3b0764, #7c3aed); }
-  .sec-bar.green  { background: linear-gradient(90deg, #134e2f, #16a34a); }
-
-  .sec-body { padding: 1.2rem 1.4rem; }
-
-  /* ── Reason bars ── */
-  .reason-bar-wrap { margin-bottom: 0.65rem; }
-
-  .reason-label {
-    font-size: 0.82rem; font-weight: 600;
-    color: var(--text-primary); margin-bottom: 3px;
-    display: flex; justify-content: space-between;
-    font-family: 'Open Sans', sans-serif;
+  /* ── Section label ── */
+  .dk-section-label {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem; text-transform: uppercase;
+    letter-spacing: 1.2px; color: var(--ink-dim);
+    margin-bottom: 14px; margin-top: 8px;
+  }
+  .dk-section-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--border-dk);
   }
 
-  .reason-label span:last-child {
+  /* ── Dark base card ── */
+  .dk-card {
+    background: var(--surface);
+    border: 1px solid var(--border-dk);
+    border-radius: var(--cr);
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dk-card-title {
     font-family: 'Montserrat', sans-serif;
-    font-size: 0.72rem; font-weight: 700; color: var(--text-secondary);
+    font-size: 0.82rem; font-weight: 800;
+    color: var(--ink-hi); margin-bottom: 3px;
+  }
+  .dk-card-sub {
+    font-family: var(--font-mono);
+    font-size: 0.68rem; color: var(--ink-dim);
+    margin-bottom: 18px;
   }
 
-  .reason-track { background: #f0f3f9; border-radius: 6px; height: 9px; overflow: hidden; }
-  .reason-fill  { height: 9px; border-radius: 6px; }
+  /* ── Chart grid ── */
+  .chart-grid-2 {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-bottom: 16px;
+  }
+  @media (max-width: 768px) { .chart-grid-2 { grid-template-columns: 1fr; } }
+  .chart-full { grid-column: 1 / -1; }
+  .chart-wrap { position: relative; width: 100%; }
 
-  .fill-blue   { background: linear-gradient(90deg, var(--blue-dark), var(--blue-mid)); }
-  .fill-yellow { background: linear-gradient(90deg, var(--yellow-dark), var(--yellow)); }
-  .fill-red    { background: linear-gradient(90deg, var(--red-dark), var(--red)); }
-  .fill-purple { background: linear-gradient(90deg, #4a1d99, #7c3aed); }
-  .fill-green  { background: linear-gradient(90deg, #134e2f, #22c55e); }
-
-  /* ── Program pills ── */
-  .prog-pill {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0.5rem 0.9rem; border-radius: 9px;
-    margin-bottom: 0.5rem; font-size: 0.84rem; font-weight: 600;
-    font-family: 'Montserrat', sans-serif; font-size: 0.7rem;
-    text-transform: uppercase; letter-spacing: 0.5px;
-    border: 1.5px solid;
+  /* ── Prediction pills ── */
+  .pred-strip {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid var(--border-dk);
+  }
+  .pred-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(129,140,248,.08);
+    border: 1px solid rgba(129,140,248,.18);
+    border-radius: 100px; padding: 5px 13px;
+    font-size: 0.75rem; color: var(--ink);
+  }
+  .pred-pill strong {
+    color: var(--indigo);
+    font-family: var(--font-mono); font-size: 0.8rem;
+  }
+  .pred-lbl {
+    font-family: var(--font-mono);
+    font-size: 0.63rem; color: var(--ink-dim);
+    text-transform: uppercase; letter-spacing: 0.6px;
   }
 
-  .pp-aics    { background: var(--blue-light); color: var(--blue); border-color: var(--blue-border); }
-  .pp-sea     { background: rgba(39,174,96,0.10); color: #1a7a45; border-color: rgba(39,174,96,0.28); }
-  .pp-redcard { background: var(--red-light); color: var(--red); border-color: rgba(206,17,38,0.22); }
-  .pp-edu     { background: var(--yellow-light); color: #7a5500; border-color: rgba(252,209,22,0.40); }
-  .pp-default { background: #f0f2f7; color: #4a5a8a; border-color: var(--border); }
+  /* ── Rankings table ── */
+  .dk-table { width: 100%; border-collapse: collapse; }
+  .dk-table th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.63rem; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--ink-dim); padding: 0 12px 10px;
+    border-bottom: 1px solid var(--border-dk);
+  }
+  .dk-table td {
+    padding: 10px 12px; font-size: 0.84rem;
+    color: var(--ink);
+    border-bottom: 1px solid rgba(31,45,66,.5);
+  }
+  .dk-table tr:last-child td { border-bottom: none; }
+  .dk-table tr:hover td { background: rgba(255,255,255,.02); }
+
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    font-family: var(--font-mono); font-size: 0.68rem;
+    background: var(--muted-dk); color: var(--ink-dim);
+  }
+  .rank-badge.rb-1 { background: rgba(245,158,11,.15); color: var(--amber);  border: 1px solid rgba(245,158,11,.3); }
+  .rank-badge.rb-2 { background: rgba(129,140,248,.12); color: #a5b4fc;      border: 1px solid rgba(129,140,248,.25); }
+  .rank-badge.rb-3 { background: rgba(45,212,191,.10);  color: var(--teal);  border: 1px solid rgba(45,212,191,.2); }
+
+  .bar-inline { display: flex; align-items: center; gap: 8px; }
+  .bar-track  { flex: 1; height: 4px; background: var(--muted-dk); border-radius: 2px; overflow: hidden; }
+  .bar-fill-teal {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--indigo));
+    border-radius: 2px;
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+  }
+  .bar-fill-amber {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), var(--danger));
+    border-radius: 2px;
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+  }
+  .mono-val {
+    font-family: var(--font-mono);
+    font-size: 0.75rem; color: var(--ink-hi);
+    min-width: 28px; text-align: right;
+  }
+
+  /* ── Aid type chip ── */
+  .aid-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 0.62rem; font-weight: 500;
+    padding: 3px 9px; border-radius: 5px;
+    text-transform: uppercase;
+  }
+  .chip-aics  { background: rgba(0,56,168,0.25);   color: #93c5fd;        border: 1px solid rgba(0,56,168,0.4); }
+  .chip-sea   { background: rgba(52,211,153,0.12);  color: var(--green);   border: 1px solid rgba(52,211,153,0.25); }
+  .chip-red   { background: rgba(248,113,113,0.12); color: var(--danger);  border: 1px solid rgba(248,113,113,0.25); }
+  .chip-edu   { background: rgba(245,158,11,0.12);  color: var(--amber);   border: 1px solid rgba(245,158,11,0.25); }
+  .chip-other { background: rgba(129,140,248,0.12); color: var(--indigo);  border: 1px solid rgba(129,140,248,0.25); }
+
+  /* ── Reason analysis ── */
+  .reason-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-bottom: 16px;
+  }
+  @media (max-width: 768px) { .reason-grid { grid-template-columns: 1fr; } }
+
+  .reason-row { margin-bottom: 10px; }
+  .reason-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .reason-name  { font-size: 0.8rem; color: var(--ink-hi); font-weight: 600; font-family: 'Open Sans', sans-serif; }
+  .reason-count { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-dim); }
+  .reason-track { background: var(--muted-dk); border-radius: 3px; height: 6px; overflow: hidden; }
+  .reason-fill  { height: 6px; border-radius: 3px; transition: width .7s cubic-bezier(.4,0,.2,1); }
+
+  /* ── Barangay insight cards ── */
+  .insight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .insight-card {
+    background: var(--surface);
+    border: 1px solid var(--border-dk);
+    border-radius: var(--cr);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s, transform .2s;
+  }
+  .insight-card:hover { border-color: var(--teal); transform: translateY(-2px); }
+  .insight-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--teal), var(--indigo));
+  }
+
+  .insight-bgy-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.88rem; font-weight: 800;
+    color: var(--white-dk); margin-bottom: 2px;
+  }
+  .insight-bgy-sub {
+    font-family: var(--font-mono);
+    font-size: 0.62rem; color: var(--ink-dim);
+    text-transform: uppercase; letter-spacing: 0.7px;
+    margin-bottom: 14px;
+  }
+
+  .insight-dominant {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(45,212,191,0.06);
+    border: 1px solid rgba(45,212,191,0.15);
+    border-radius: 8px; padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+  .insight-dominant-left { flex: 1; }
+  .insight-dominant-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--ink-dim); margin-bottom: 3px;
+  }
+
+  .insight-pct-pill {
+    font-family: var(--font-mono);
+    font-size: 0.72rem; font-weight: 600;
+    background: rgba(45,212,191,0.12);
+    color: var(--teal);
+    border: 1px solid rgba(45,212,191,0.25);
+    border-radius: 100px; padding: 3px 10px;
+    white-space: nowrap;
+  }
+
+  .insight-reason-box {
+    background: rgba(129,140,248,0.06);
+    border: 1px solid rgba(129,140,248,0.15);
+    border-radius: 8px; padding: 9px 12px;
+    margin-bottom: 10px;
+  }
+  .insight-reason-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--ink-dim); margin-bottom: 3px;
+  }
+  .insight-reason-text {
+    font-size: 0.82rem; color: var(--ink-hi);
+    font-weight: 600; font-family: 'Open Sans', sans-serif;
+  }
+  .insight-reason-count {
+    font-family: var(--font-mono);
+    font-size: 0.68rem; color: var(--indigo); margin-top: 1px;
+  }
+
+  .insight-aid-breakdown {
+    display: flex; flex-wrap: wrap; gap: 5px;
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--border-dk);
+  }
+  .insight-aid-item {
+    display: flex; align-items: center; gap: 5px;
+    font-family: var(--font-mono); font-size: 0.62rem;
+    color: var(--ink);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-dk);
+    border-radius: 5px; padding: 3px 8px;
+  }
+  .insight-aid-item span { color: var(--ink-hi); font-weight: 600; }
+
+  .no-reason-note {
+    font-family: var(--font-mono);
+    font-size: 0.68rem; color: var(--ink-dim);
+    font-style: italic; padding: 4px 0;
+  }
+
+  /* ── Timestamp footer ── */
+  .ts-footer {
+    margin-top: 32px; padding-top: 16px;
+    border-top: 1px solid var(--border-dk);
+    display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+  .ts-text { font-family: var(--font-mono); font-size: 0.65rem; color: var(--ink-dim); }
 </style>
 
-<!-- Hero Header -->
-<div class="ba-header">
-  <div class="ba-blob-red"></div>
-  <div class="ba-flag-strip"></div>
-  <div class="ba-header-inner">
-    <div>
-      <div class="ba-eyebrow"><i class="bi bi-geo-alt-fill"></i> MSWDO · DSWD Devolved Unit</div>
-      <h1><i class="bi bi-geo-alt-fill me-2"></i>Barangay Assistance Analytics</h1>
-      <p>Application frequency and main reasons per barangay</p>
-    </div>
-    <div class="ba-insights-badge"><i class="bi bi-bar-chart-line-fill me-1"></i> Barangay-level Insights</div>
+
+{# ══════════════════════════════════════════════════════════════ #}
+{#  KPI STRIP                                                     #}
+{# ══════════════════════════════════════════════════════════════ #}
+<div class="kpi-grid">
+
+  <div class="kpi-card kc-teal">
+    <div class="kpi-icon"><i class="bi bi-folder2-open"></i></div>
+    <div class="kpi-val">{{ total_applications }}</div>
+    <div class="kpi-lbl">Total Applications</div>
   </div>
+
+  <div class="kpi-card kc-amber">
+    <div class="kpi-icon"><i class="bi bi-geo-alt-fill"></i></div>
+    <div class="kpi-val">{{ barangay_stats|length }}</div>
+    <div class="kpi-lbl">Barangays Served</div>
+  </div>
+
+  <div class="kpi-card kc-indigo">
+    <div class="kpi-icon"><i class="bi bi-tags-fill"></i></div>
+    <div class="kpi-val">{{ aid_stats|length }}</div>
+    <div class="kpi-lbl">Aid Types</div>
+  </div>
+
+  <div class="kpi-card kc-danger">
+    <div class="kpi-icon"><i class="bi bi-graph-up-arrow"></i></div>
+    <div class="kpi-val" id="next-month-val">{{ prediction.0|default:"—" }}</div>
+    <div class="kpi-lbl">Predicted Next Month</div>
+  </div>
+
 </div>
 
-<!-- Filter -->
-<div class="filter-bar">
-  <form method="get" class="d-flex align-items-end gap-2 flex-wrap w-100">
-    <div>
-      <label>Select Barangay</label>
-      <select name="barangay" class="form-select">
-        <option value="">— Choose a barangay —</option>
-        {% for brgy in all_barangays %}
-          <option value="{{ brgy }}" {% if brgy == selected_brgy %}selected{% endif %}>{{ brgy }}</option>
-        {% endfor %}
-      </select>
+
+{# ══════════════════════════════════════════════════════════════ #}
+{#  DISTRIBUTION CHARTS                                           #}
+{# ══════════════════════════════════════════════════════════════ #}
+<div class="dk-section-label">
+  <i class="bi bi-bar-chart-line"></i> Distribution
+</div>
+
+<div class="chart-grid-2">
+
+  {# Aid type doughnut #}
+  <div class="dk-card">
+    <div class="dk-card-title">Aid Type Breakdown</div>
+    <div class="dk-card-sub">Share of applications per assistance category</div>
+    <div class="chart-wrap" style="height:220px;">
+      <canvas id="aidChart"></canvas>
     </div>
-    <button type="submit" class="btn-go"><i class="bi bi-search me-1"></i>View Analytics</button>
-    {% if selected_brgy %}
-      <a href="{% url 'barangay_analytics' %}" class="btn-clear">
-        <i class="bi bi-x-circle"></i> Clear
-      </a>
+  </div>
+
+  {# Barangay bar #}
+  <div class="dk-card">
+    <div class="dk-card-title">Applications per Barangay</div>
+    <div class="dk-card-sub">Total submissions by community</div>
+    <div class="chart-wrap" style="height:220px;">
+      <canvas id="barangayChart"></canvas>
+    </div>
+  </div>
+
+  {# Monthly trend — full width #}
+  <div class="dk-card chart-full">
+    <div class="dk-card-title">Monthly Application Trend</div>
+    <div class="dk-card-sub">Historical volume with 3-month linear forecast</div>
+    <div class="chart-wrap" style="height:200px;">
+      <canvas id="trendChart"></canvas>
+    </div>
+    <div class="pred-strip" id="pred-strip"></div>
+  </div>
+
+</div>
+
+
+{# ══════════════════════════════════════════════════════════════ #}
+{#  REASON ANALYSIS                                               #}
+{# ══════════════════════════════════════════════════════════════ #}
+<div class="dk-section-label">
+  <i class="bi bi-chat-quote-fill"></i> Reason Analysis
+</div>
+
+<div class="reason-grid">
+
+  {% for prog_code, prog_reasons in reasons_by_program.items %}
+  <div class="dk-card">
+    <div class="dk-card-title">
+      <span class="aid-chip
+        {% if 'AICS' in prog_code %}chip-aics
+        {% elif 'SEA'  in prog_code %}chip-sea
+        {% elif 'RED'  in prog_code %}chip-red
+        {% elif 'EDU'  in prog_code %}chip-edu
+        {% else %}chip-other{% endif %}">
+        <i class="bi bi-{% if 'AICS' in prog_code %}heart-pulse-fill{% elif 'SEA' in prog_code %}briefcase-fill{% elif 'RED' in prog_code %}exclamation-triangle-fill{% elif 'EDU' in prog_code %}mortarboard-fill{% else %}file-earmark-fill{% endif %}"></i>
+        {{ prog_code }}
+      </span>
+      &nbsp;— Top Reasons
+    </div>
+    <div class="dk-card-sub">{{ prog_reasons|length }} distinct reason{{ prog_reasons|length|pluralize }}</div>
+
+    {% if prog_reasons %}
+      {% with top_count=prog_reasons.0.count %}
+      {% for r in prog_reasons %}
+      <div class="reason-row">
+        <div class="reason-top">
+          <span class="reason-name">{{ r.label }}</span>
+          <span class="reason-count">{{ r.count }}</span>
+        </div>
+        <div class="reason-track">
+          <div class="reason-fill"
+            data-pct="{% widthratio r.count top_count 100 %}"
+            style="width:0%;
+              {% if 'AICS' in prog_code %}background:linear-gradient(90deg,#1e3a8a,#3b82f6);
+              {% elif 'SEA' in prog_code %}background:linear-gradient(90deg,#134e2f,#34d399);
+              {% elif 'RED' in prog_code %}background:linear-gradient(90deg,#7f1d1d,#f87171);
+              {% elif 'EDU' in prog_code %}background:linear-gradient(90deg,#78350f,#f59e0b);
+              {% else %}background:linear-gradient(90deg,#3b0764,#818cf8);{% endif %}">
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endwith %}
+    {% else %}
+      <p style="font-size:0.78rem;color:var(--ink-dim);padding:8px 0;">No reason data available.</p>
     {% endif %}
-  </form>
+  </div>
+
+  {% empty %}
+  <div class="dk-card" style="grid-column:1/-1;">
+    <div class="dk-card-title">No Reason Data</div>
+    <div class="dk-card-sub">Add <code>aics_crisis_type</code> / <code>redcard_emergency_type</code> fields to applications to see breakdown here.</div>
+  </div>
+  {% endfor %}
+
 </div>
 
-<!-- ── No barangay selected ── -->
-{% if not selected_brgy %}
-<div class="empty-state">
-  <div class="empty-icon"><i class="bi bi-geo-alt"></i></div>
-  <h5>No Barangay Selected</h5>
-  <p>Select a barangay above to view its assistance analytics.</p>
+
+{# ══════════════════════════════════════════════════════════════ #}
+{#  RANKINGS                                                      #}
+{# ══════════════════════════════════════════════════════════════ #}
+<div class="dk-section-label">
+  <i class="bi bi-trophy-fill"></i> Rankings
 </div>
 
-<!-- ── Data available ── -->
-{% elif analytics %}
+<div class="chart-grid-2">
 
-<!-- Stat Cards -->
-<div class="stat-row">
-  <div class="stat-card sc-blue">
-    <div class="stat-icon blue"><i class="bi bi-file-earmark-text-fill"></i></div>
-    <div>
-      <div class="stat-val">{{ analytics.total_apps }}</div>
-      <div class="stat-lbl">Total Applications</div>
-    </div>
-  </div>
-  <div class="stat-card sc-yellow">
-    <div class="stat-icon yellow"><i class="bi bi-people-fill"></i></div>
-    <div>
-      <div class="stat-val">{{ analytics.total_clients }}</div>
-      <div class="stat-lbl">Registered Residents</div>
-    </div>
-  </div>
-  <div class="stat-card sc-red">
-    <div class="stat-icon red"><i class="bi bi-star-fill"></i></div>
-    <div>
-      <div class="stat-val stat-val-sm">{{ analytics.top_program }}</div>
-      <div class="stat-lbl">Most Requested Program</div>
-    </div>
-  </div>
-  <div class="stat-card sc-purple">
-    <div class="stat-icon purple"><i class="bi bi-chat-quote-fill"></i></div>
-    <div>
-      <div class="stat-val stat-val-xs">{{ analytics.top_reason }}</div>
-      <div class="stat-lbl">Top Reason</div>
-    </div>
-  </div>
-</div>
-
-<div class="row g-4">
-
-  <!-- LEFT COLUMN -->
-  <div class="col-12 col-lg-7">
-
-    <div class="sec-card">
-      <div class="sec-bar blue"><i class="bi bi-activity"></i> Monthly Application Trend (Last 12 Months)</div>
-      <div class="sec-body"><canvas id="trendChart" height="90"></canvas></div>
-    </div>
-
-    <div class="sec-card">
-      <div class="sec-bar yellow"><i class="bi bi-bar-chart-fill"></i> Applications per Program</div>
-      <div class="sec-body"><canvas id="progChart" height="100"></canvas></div>
-    </div>
-
-    <div class="sec-card">
-      <div class="sec-bar red"><i class="bi bi-pie-chart-fill"></i> Application Status Breakdown</div>
-      <div class="sec-body" style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
-        <canvas id="statusChart" style="max-width:180px;max-height:180px;flex-shrink:0;"></canvas>
-        <div id="statusLegend" style="flex:1;min-width:140px;"></div>
-      </div>
-    </div>
-
-  </div><!-- /col-lg-7 -->
-
-  <!-- RIGHT COLUMN -->
-  <div class="col-12 col-lg-5">
-
-    <div class="sec-card">
-      <div class="sec-bar blue"><i class="bi bi-list-ol"></i> Top Reasons — All Programs</div>
-      <div class="sec-body">
-        {% if analytics.overall_reasons %}
-          {% with top=analytics.overall_reasons.0.count %}
-          {% for r in analytics.overall_reasons %}
-          <div class="reason-bar-wrap">
-            <div class="reason-label">
-              <span>{{ r.label }}</span>
-              <span>{{ r.count }}</span>
-            </div>
-            <div class="reason-track">
-              <div class="reason-fill fill-blue" style="width:{% widthratio r.count top 100 %}%;"></div>
-            </div>
-          </div>
-          {% endfor %}
-          {% endwith %}
-        {% else %}
-          <p style="font-size:0.84rem;color:var(--text-secondary);text-align:center;padding:1rem 0;">No reason data available.</p>
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="sec-card">
-      <div class="sec-bar purple"><i class="bi bi-diagram-3-fill"></i> Reasons by Program</div>
-      <div class="sec-body">
-        {% for pd in analytics.program_data %}
-        {% if pd.count > 0 %}
-        <div class="mb-3">
-          <div class="prog-pill mb-2
-            {% if pd.code == 'AICS' %}pp-aics
-            {% elif pd.code == 'SEA' %}pp-sea
-            {% elif pd.code == 'REDCARD' %}pp-redcard
-            {% elif pd.code == 'EDUCATIONAL' %}pp-edu
-            {% else %}pp-default{% endif %}">
-            <span>{{ pd.label }}</span>
-            <span style="font-weight:900;font-size:0.88rem;">{{ pd.count }}</span>
-          </div>
-          {% for code, reasons in analytics.reasons_by_program.items %}
-          {% if code == pd.code %}
-            {% if reasons %}
-              {% with rtop=reasons.0.count %}
-              {% for r in reasons %}
-              <div class="reason-bar-wrap" style="padding-left:0.5rem;">
-                <div class="reason-label" style="font-size:0.76rem;">
-                  <span>{{ r.label }}</span><span>{{ r.count }}</span>
-                </div>
-                <div class="reason-track">
-                  <div class="reason-fill
-                    {% if pd.code == 'AICS' %}fill-blue
-                    {% elif pd.code == 'SEA' %}fill-green
-                    {% elif pd.code == 'REDCARD' %}fill-red
-                    {% else %}fill-purple{% endif %}"
-                    style="width:{% widthratio r.count rtop 100 %}%;">
-                  </div>
-                </div>
+  {# Barangay ranking #}
+  <div class="dk-card">
+    <div class="dk-card-title">Top Barangays by Volume</div>
+    <div class="dk-card-sub">Ranked by total submissions across all programs</div>
+    <table class="dk-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Barangay</th>
+          <th>Applications</th>
+          <th>Share</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in barangay_stats %}
+        <tr>
+          <td>
+            <span class="rank-badge{% if forloop.counter == 1 %} rb-1{% elif forloop.counter == 2 %} rb-2{% elif forloop.counter == 3 %} rb-3{% endif %}">
+              {{ forloop.counter }}
+            </span>
+          </td>
+          <td style="color:var(--ink-hi);font-weight:600;">{{ item.barangay }}</td>
+          <td>
+            <div class="bar-inline">
+              <div class="bar-track">
+                <div class="bar-fill-teal" data-val="{{ item.total }}" style="width:0%;"></div>
               </div>
-              {% endfor %}
-              {% endwith %}
-            {% else %}
-              <p style="font-size:0.75rem;color:var(--text-secondary);padding-left:0.5rem;">No reason data for this program.</p>
-            {% endif %}
-          {% endif %}
-          {% endfor %}
-        </div>
-        {% endif %}
+              <span class="mono-val">{{ item.total }}</span>
+            </div>
+          </td>
+          <td><span class="mono-val" data-share="{{ item.total }}">—</span></td>
+        </tr>
         {% endfor %}
-      </div>
+      </tbody>
+    </table>
+  </div>
+
+  {# Aid type ranking #}
+  <div class="dk-card">
+    <div class="dk-card-title">Aid Type Ranking</div>
+    <div class="dk-card-sub">Most applied-for assistance programs</div>
+    <table class="dk-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Program</th>
+          <th>Applications</th>
+          <th>Share</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in aid_stats %}
+        <tr>
+          <td>
+            <span class="rank-badge{% if forloop.counter == 1 %} rb-1{% elif forloop.counter == 2 %} rb-2{% elif forloop.counter == 3 %} rb-3{% endif %}">
+              {{ forloop.counter }}
+            </span>
+          </td>
+          <td>
+            <span class="aid-chip
+              {% if 'AICS' in item.aid_type %}chip-aics
+              {% elif 'SEA' in item.aid_type %}chip-sea
+              {% elif 'RED' in item.aid_type %}chip-red
+              {% elif 'EDU' in item.aid_type %}chip-edu
+              {% else %}chip-other{% endif %}">
+              {{ item.aid_type }}
+            </span>
+          </td>
+          <td>
+            <div class="bar-inline">
+              <div class="bar-track">
+                <div class="bar-fill-amber" data-aidval="{{ item.total }}" style="width:0%;"></div>
+              </div>
+              <span class="mono-val">{{ item.total }}</span>
+            </div>
+          </td>
+          <td><span class="mono-val" data-aidshare="{{ item.total }}">—</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+
+{# ══════════════════════════════════════════════════════════════ #}
+{#  BARANGAY REQUEST INSIGHTS  (NEW)                             #}
+{# ══════════════════════════════════════════════════════════════ #}
+<div class="dk-section-label">
+  <i class="bi bi-lightbulb-fill"></i> Barangay Request Insights
+</div>
+
+<div class="insight-grid">
+
+  {% for insight in barangay_insights %}
+  <div class="insight-card">
+
+    {# Header #}
+    <div class="insight-bgy-name">
+      <i class="bi bi-geo-alt-fill" style="color:var(--teal);font-size:0.8rem;"></i>
+      {{ insight.barangay }}
+    </div>
+    <div class="insight-bgy-sub">
+      {{ insight.total }} total application{{ insight.total|pluralize }}
+      &nbsp;·&nbsp;
+      {{ insight.aid_breakdown|length }} aid type{{ insight.aid_breakdown|length|pluralize }}
     </div>
 
-    {% if analytics.top_sectors %}
-    <div class="sec-card">
-      <div class="sec-bar yellow"><i class="bi bi-person-badge-fill"></i> Resident Sector Profile</div>
-      <div class="sec-body">
-        {% with stop=analytics.top_sectors.0.count %}
-        {% for s in analytics.top_sectors %}
-        <div class="reason-bar-wrap">
-          <div class="reason-label">
-            <span>{{ s.label }}</span><span>{{ s.count }}</span>
-          </div>
-          <div class="reason-track">
-            <div class="reason-fill fill-yellow" style="width:{% widthratio s.count stop 100 %}%;"></div>
-          </div>
+    {# Dominant aid type box #}
+    <div class="insight-dominant">
+      <div class="insight-dominant-left">
+        <div class="insight-dominant-label">Most Requested Aid</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px;">
+          <span class="aid-chip
+            {% if 'AICS' in insight.top_aid %}chip-aics
+            {% elif 'SEA' in insight.top_aid %}chip-sea
+            {% elif 'RED' in insight.top_aid %}chip-red
+            {% elif 'EDU' in insight.top_aid %}chip-edu
+            {% else %}chip-other{% endif %}">
+            <i class="bi bi-{% if 'AICS' in insight.top_aid %}heart-pulse-fill{% elif 'SEA' in insight.top_aid %}briefcase-fill{% elif 'RED' in insight.top_aid %}exclamation-triangle-fill{% elif 'EDU' in insight.top_aid %}mortarboard-fill{% else %}file-earmark-fill{% endif %}"></i>
+            {{ insight.top_aid }}
+          </span>
+          <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--ink);">
+            {{ insight.top_aid_count }} app{{ insight.top_aid_count|pluralize }}
+          </span>
         </div>
-        {% endfor %}
-        {% endwith %}
       </div>
+      <div class="insight-pct-pill">{{ insight.top_aid_pct }}% of bgy</div>
+    </div>
+
+    {# Primary reason box #}
+    {% if insight.top_reason %}
+    <div class="insight-reason-box">
+      <div class="insight-reason-label">
+        <i class="bi bi-chat-quote-fill"></i>
+        &nbsp;Primary Reason for {{ insight.top_aid }}
+      </div>
+      <div class="insight-reason-text">{{ insight.top_reason.label }}</div>
+      <div class="insight-reason-count">
+        {{ insight.top_reason.count }} resident{{ insight.top_reason.count|pluralize }} cited this reason
+      </div>
+    </div>
+    {% else %}
+    <div class="no-reason-note">
+      <i class="bi bi-dash-circle"></i>
+      No detailed reason data available for {{ insight.top_aid }}
     </div>
     {% endif %}
 
-  </div><!-- /col-lg-5 -->
+    {# Aid type mini breakdown strip #}
+    <div class="insight-aid-breakdown">
+      {% for item in insight.aid_breakdown %}
+      <div class="insight-aid-item">
+        <span class="aid-chip
+          {% if 'AICS' in item.aid_type %}chip-aics
+          {% elif 'SEA' in item.aid_type %}chip-sea
+          {% elif 'RED' in item.aid_type %}chip-red
+          {% elif 'EDU' in item.aid_type %}chip-edu
+          {% else %}chip-other{% endif %}"
+          style="padding:2px 6px;font-size:0.58rem;">
+          {{ item.aid_type }}
+        </span>
+        <span>{{ item.cnt }}</span>
+      </div>
+      {% endfor %}
+    </div>
 
-</div><!-- /row -->
+  </div>
+  {% empty %}
+  <div class="dk-card" style="grid-column:1/-1;">
+    <div class="dk-card-title">No Barangay Data</div>
+    <div class="dk-card-sub">Applications with linked client barangay data will appear here once records exist.</div>
+  </div>
+  {% endfor %}
 
-{{ analytics_json|json_script:"analytics_data" }}
-
-<!-- ── No data for selected barangay ── -->
-{% else %}
-<div class="empty-state">
-  <div class="empty-icon"><i class="bi bi-inbox"></i></div>
-  <h5>No Applications Found</h5>
-  <p>No applications found for <strong>{{ selected_brgy }}</strong>.</p>
 </div>
-{% endif %}
+
+
+{# ══════════════════════════════════════════════════════════════ #}
+{#  TIMESTAMP FOOTER                                              #}
+{# ══════════════════════════════════════════════════════════════ #}
+<div class="ts-footer">
+  <span class="ts-text">Municipal Social Welfare &amp; Development Office — Socorro</span>
+  <span class="ts-text" id="ts-gen"></span>
+</div>
 
 {% endblock %}
 
 
+{# ══════════════════════════════════════════════════════════════ #}
+{#  JAVASCRIPT                                                    #}
+{# ══════════════════════════════════════════════════════════════ #}
 {% block extra_js %}
-{% if analytics %}
 <script>
 (function () {
   'use strict';
 
-  var el = document.getElementById('analytics_data');
-  if (!el) return;
-  var D;
-  try { D = JSON.parse(el.textContent); } catch(e) { return; }
-  if (!D) return;
+  /* ── Data injected from Django ── */
+  const aidLabels  = [{% for item in aid_stats %}"{{ item.aid_type }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+  const aidValues  = [{% for item in aid_stats %}{{ item.total }}{% if not forloop.last %},{% endif %}{% endfor %}];
 
-  /* Shared Chart.js defaults */
-  var BLUE    = '#0038A8';
-  var BLUE_BG = 'rgba(0,56,168,0.12)';
-  var TOOLTIP = {
-    backgroundColor: 'rgba(0,28,80,0.92)',
-    titleFont: { family: "'Montserrat', sans-serif", size: 11, weight: '700' },
-    bodyFont:  { family: "'Open Sans', sans-serif",  size: 11 },
+  const bgyLabels  = [{% for item in barangay_stats %}"{{ item.barangay }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+  const bgyValues  = [{% for item in barangay_stats %}{{ item.total }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+  const histMonths = [{% for m in months %}"{{ m }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+  const histValues = [{% for v in values %}{{ v }}{% if not forloop.last %},{% endif %}{% endfor %}];
+  const prediction = [{% for p in prediction %}{{ p }}{% if not forloop.last %},{% endif %}{% endfor %}];
+  const totalApps  = {{ total_applications }};
+
+  /* ── Colour palette ── */
+  const palette = [
+    '#2dd4bf','#f59e0b','#818cf8','#f87171','#34d399',
+    '#fb923c','#a78bfa','#38bdf8','#4ade80','#facc15',
+  ];
+
+  /* ── Chart.js global defaults ── */
+  Chart.defaults.color       = '#4f6a8a';
+  Chart.defaults.borderColor = '#1f2d42';
+  Chart.defaults.font.family = "'DM Mono', monospace";
+  Chart.defaults.font.size   = 11;
+
+  const TOOLTIP = {
+    backgroundColor: 'rgba(15,23,42,0.96)',
+    titleFont:  { family: "'Montserrat',sans-serif", size: 11, weight: '700' },
+    bodyFont:   { family: "'DM Mono',monospace",     size: 11 },
     padding: 10, cornerRadius: 8,
+    borderColor: '#1f2d42', borderWidth: 1,
   };
-  var GRID_COLOR = 'rgba(0,40,130,0.05)';
 
-  /* ── 1. Monthly Trend ── */
-  var trendEl = document.getElementById('trendChart');
-  if (trendEl) {
-    new Chart(trendEl, {
-      type: 'line',
-      data: {
-        labels: D.trend_labels,
-        datasets: [{
-          label: 'Applications',
-          data:  D.trend_values,
-          borderColor:     BLUE,
-          backgroundColor: BLUE_BG,
-          borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: BLUE,
-          fill: true, tension: 0.4,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: true,
-        plugins: { legend: { display: false }, tooltip: TOOLTIP },
-        scales: {
-          x: { ticks: { font:{ size:9, family:"'Montserrat',sans-serif" }, maxRotation:45 }, grid:{ display:false } },
-          y: { beginAtZero:true, ticks:{ font:{ size:10, family:"'Montserrat',sans-serif" }, maxTicksLimit:5 }, grid:{ color: GRID_COLOR } }
+  /* ── Aid type doughnut ── */
+  new Chart(document.getElementById('aidChart'), {
+    type: 'doughnut',
+    data: {
+      labels: aidLabels,
+      datasets: [{
+        data: aidValues,
+        backgroundColor: palette,
+        borderColor: '#111827',
+        borderWidth: 3,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { boxWidth: 10, boxHeight: 10, padding: 10, color: '#8facc8' }
+        },
+        tooltip: {
+          ...TOOLTIP,
+          callbacks: {
+            label: ctx => ` ${ctx.label}: ${ctx.raw} (${((ctx.raw / totalApps) * 100).toFixed(1)}%)`
+          }
         }
-      }
-    });
-  }
-
-  /* ── 2. Applications per Program ── */
-  var progEl = document.getElementById('progChart');
-  if (progEl && D.program_data) {
-    var PROG_COLORS = {
-      AICS:        { bg: 'rgba(0,56,168,0.75)',    border: '#0038A8' },
-      SEA:         { bg: 'rgba(39,174,96,0.75)',   border: '#1a7a45' },
-      REDCARD:     { bg: 'rgba(206,17,38,0.75)',   border: '#CE1126' },
-      EDUCATIONAL: { bg: 'rgba(252,209,22,0.75)',  border: '#e6a800' },
-    };
-    var bgColors     = D.program_data.map(function(p){ return (PROG_COLORS[p.code] || { bg:'rgba(90,106,138,0.65)' }).bg; });
-    var borderColors = D.program_data.map(function(p){ return (PROG_COLORS[p.code] || { border:'#5a6a8a' }).border; });
-
-    new Chart(progEl, {
-      type: 'bar',
-      data: {
-        labels: D.program_data.map(function(p){ return p.label; }),
-        datasets: [{
-          label: 'Applications',
-          data:  D.program_data.map(function(p){ return p.count; }),
-          backgroundColor: bgColors,
-          borderColor: borderColors,
-          borderWidth: 2, borderRadius: 6,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: true,
-        plugins: { legend: { display:false }, tooltip: TOOLTIP },
-        scales: {
-          x: { grid:{ display:false }, ticks:{ font:{ family:"'Montserrat',sans-serif", size:10 } } },
-          y: { beginAtZero:true, ticks:{ maxTicksLimit:5, font:{ family:"'Montserrat',sans-serif", size:10 } }, grid:{ color: GRID_COLOR } }
-        }
-      }
-    });
-  }
-
-  /* ── 3. Status Doughnut ── */
-  var statusEl = document.getElementById('statusChart');
-  if (statusEl && D.status_counts) {
-    var ORDER  = ['PENDING','ASSESSMENT','APPROVAL','RELEASE','RELEASED','REJECTED'];
-    var SLBLS  = ['Pending','Assessment','For Approval','For Release','Released','Rejected'];
-    var SCOLRS = [
-      '#FCD116',    /* yellow  — pending    */
-      '#1a55d4',    /* blue    — assessment */
-      '#7c3aed',    /* purple  — approval   */
-      '#fd7e14',    /* orange  — release    */
-      '#27ae60',    /* green   — released   */
-      '#CE1126',    /* red     — rejected   */
-    ];
-
-    var sL = [], sD = [], sC = [];
-    ORDER.forEach(function(k,i) {
-      var v = D.status_counts[k] || 0;
-      if (v > 0) { sL.push(SLBLS[i]); sD.push(v); sC.push(SCOLRS[i]); }
-    });
-
-    if (sD.length) {
-      new Chart(statusEl, {
-        type: 'doughnut',
-        data: { labels: sL, datasets: [{ data: sD, backgroundColor: sC, borderWidth: 2 }] },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          cutout: '62%',
-          plugins: { legend: { display:false }, tooltip: TOOLTIP }
-        }
-      });
-
-      var leg = document.getElementById('statusLegend');
-      if (leg) {
-        sL.forEach(function(lbl, i) {
-          var row = document.createElement('div');
-          row.style.cssText = 'display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:.82rem;font-family:"Open Sans",sans-serif;';
-          row.innerHTML =
-            '<span style="width:12px;height:12px;border-radius:3px;background:' + sC[i] + ';flex-shrink:0;display:inline-block;"></span>' +
-            '<span style="color:var(--text-primary);font-weight:600;">' + lbl + '</span>' +
-            '<span style="color:var(--text-secondary);margin-left:auto;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.75rem;">' + sD[i] + '</span>';
-          leg.appendChild(row);
-        });
       }
     }
-  }
+  });
+
+  /* ── Barangay bar chart ── */
+  new Chart(document.getElementById('barangayChart'), {
+    type: 'bar',
+    data: {
+      labels: bgyLabels,
+      datasets: [{
+        data: bgyValues,
+        backgroundColor: bgyValues.map((_, i) => `${palette[i % palette.length]}bb`),
+        borderColor:      bgyValues.map((_, i) =>  palette[i % palette.length]),
+        borderWidth: 1, borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      indexAxis: bgyLabels.length > 6 ? 'y' : 'x',
+      plugins: { legend: { display: false }, tooltip: TOOLTIP },
+      scales: {
+        x: { grid: { color: '#1f2d4255' } },
+        y: { grid: { color: '#1f2d4255' } },
+      }
+    }
+  });
+
+  /* ── Monthly trend + 3-month forecast ── */
+  (function () {
+    const predMonths = [];
+    const last = histMonths[histMonths.length - 1];
+    if (last) {
+      const [y, m] = last.split('-').map(Number);
+      for (let i = 1; i <= 3; i++) {
+        const d = new Date(y, m - 1 + i, 1);
+        predMonths.push(
+          d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+        );
+      }
+    }
+
+    const allLabels = histMonths.concat(predMonths);
+    const histPad   = histValues.concat([null, null, null]);
+    const lastHist  = histValues.length ? histValues[histValues.length - 1] : 0;
+    const foreData  = Array(histValues.length - 1).fill(null)
+                       .concat([lastHist])
+                       .concat(prediction);
+
+    new Chart(document.getElementById('trendChart'), {
+      type: 'line',
+      data: {
+        labels: allLabels,
+        datasets: [
+          {
+            label: 'Actual',
+            data: histPad,
+            borderColor: '#2dd4bf',
+            backgroundColor: 'rgba(45,212,191,.08)',
+            fill: true, tension: 0.4, pointRadius: 4,
+            pointBackgroundColor: '#2dd4bf',
+            spanGaps: false,
+          },
+          {
+            label: 'Forecast',
+            data: foreData,
+            borderColor: '#818cf8',
+            borderDash: [6, 4],
+            backgroundColor: 'rgba(129,140,248,.06)',
+            fill: true, tension: 0.4, pointRadius: 4,
+            pointBackgroundColor: '#818cf8',
+            spanGaps: false,
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { boxWidth: 10, boxHeight: 10, color: '#8facc8' } },
+          tooltip: TOOLTIP,
+        },
+        scales: {
+          x: { grid: { color: '#1f2d4244' } },
+          y: { beginAtZero: true, grid: { color: '#1f2d4244' } },
+        }
+      }
+    });
+
+    /* Prediction pills */
+    const strip = document.getElementById('pred-strip');
+    predMonths.forEach(function (mo, i) {
+      const pill = document.createElement('div');
+      pill.className = 'pred-pill';
+      pill.innerHTML =
+        '<span class="pred-lbl">' + mo + '</span>' +
+        '<strong>' + (prediction[i] !== undefined ? prediction[i] : '—') + '</strong>';
+      strip.appendChild(pill);
+    });
+  })();
+
+  /* ── Animate bar fills ── */
+  const maxBgy = Math.max(...bgyValues, 1);
+  const maxAid = Math.max(...aidValues, 1);
+
+  setTimeout(function () {
+    document.querySelectorAll('.bar-fill-teal[data-val]').forEach(el => {
+      el.style.width = ((+el.dataset.val / maxBgy) * 100) + '%';
+    });
+    document.querySelectorAll('.bar-fill-amber[data-aidval]').forEach(el => {
+      el.style.width = ((+el.dataset.aidval / maxAid) * 100) + '%';
+    });
+    document.querySelectorAll('[data-share]').forEach(el => {
+      el.textContent = ((+el.dataset.share / totalApps) * 100).toFixed(1) + '%';
+    });
+    document.querySelectorAll('[data-aidshare]').forEach(el => {
+      el.textContent = ((+el.dataset.aidshare / totalApps) * 100).toFixed(1) + '%';
+    });
+    document.querySelectorAll('.reason-fill[data-pct]').forEach(el => {
+      el.style.width = el.dataset.pct + '%';
+    });
+  }, 300);
+
+  /* ── Timestamp ── */
+  document.getElementById('ts-gen').textContent =
+    'Generated ' + new Date().toLocaleString('en-PH', {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
 
 })();
 </script>
-{% endif %}
 {% endblock %}

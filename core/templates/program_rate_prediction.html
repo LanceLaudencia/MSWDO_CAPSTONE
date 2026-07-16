@@ -1,347 +1,607 @@
-{% extends "base.html" %}
-{% load static %}
+{% extends 'base.html' %}
 
 {% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
 <style>
-  :root { --card-radius: 16px; }
+  :root {
+    --dk-bg:     #0b0f17;
+    --dk-surf:   #111827;
+    --dk-border: #1f2d42;
+    --dk-muted:  #2a3a52;
+    --dk-dim:    #4f6a8a;
+    --dk-ink:    #8facc8;
+    --dk-hi:     #c8ddef;
+    --dk-white:  #eef4fb;
 
-  .pred-header {
-    background: linear-gradient(135deg, #1e3a5f 0%, #1a56db 60%, #0891b2 100%);
-    border-radius: var(--card-radius);
-    padding: 2rem 2.5rem;
-    margin-bottom: 1.5rem;
-    color: #fff;
-    position: relative;
-    overflow: hidden;
+    --teal:   #2dd4bf;
+    --amber:  #f59e0b;
+    --indigo: #818cf8;
+    --danger: #f87171;
+    --green:  #34d399;
+    --sky:    #38bdf8;
+    --pink:   #f472b6;
+    --orange: #fb923c;
+
+    /* Program accent colors — dark-optimised */
+    --aics-c:  #60a5fa; --aics-bg:  rgba(96,165,250,0.08);  --aics-br:  rgba(96,165,250,0.22);
+    --sea-c:   #34d399; --sea-bg:   rgba(52,211,153,0.08);  --sea-br:   rgba(52,211,153,0.22);
+    --red-c:   #f87171; --red-bg:   rgba(248,113,113,0.08); --red-br:   rgba(248,113,113,0.22);
+    --edu-c:   #f59e0b; --edu-bg:   rgba(245,158,11,0.08);  --edu-br:   rgba(245,158,11,0.22);
+    --other-c: #a78bfa; --other-bg: rgba(167,139,250,0.08); --other-br: rgba(167,139,250,0.22);
+
+    --font-mono: 'DM Mono', monospace;
+    --cr: 12px;
   }
-  .pred-header::after {
-    content: "";
-    position: absolute;
-    inset: 0;
+
+  .dk-scope { color: var(--dk-ink); }
+
+  /* ── Hero header ── */
+  .fc-header {
+    background: linear-gradient(135deg, #0d1f42 0%, #0b1630 100%);
+    border-radius: var(--cr); padding: 1.8rem 2.4rem;
+    color: #fff; position: relative; overflow: hidden; margin-bottom: 1.5rem;
+    border: 1px solid var(--dk-border);
+  }
+
+  .fc-header::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: repeating-linear-gradient(
+      45deg, transparent, transparent 40px,
+      rgba(255,255,255,0.018) 40px, rgba(255,255,255,0.018) 41px);
+  }
+
+  .fc-header::after {
+    content: ''; position: absolute; top: -40%; right: -10%;
+    width: 380px; height: 380px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(45,212,191,0.10), transparent 65%);
     pointer-events: none;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
   }
-  .pred-header h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: .25rem; }
-  .pred-header p  { opacity: .8; font-size: .9rem; margin: 0; }
-  .method-badge {
+
+  .fc-blob {
+    position: absolute; bottom: -35%; left: -8%;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(129,140,248,0.10), transparent 65%);
+    pointer-events: none;
+  }
+
+  .fc-flag {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--teal) 0%, var(--indigo) 50%, var(--pink) 100%);
+  }
+
+  .fc-header-inner {
+    position: relative; z-index: 1;
+    display: flex; align-items: flex-start;
+    justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+
+  .fc-eyebrow {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(45,212,191,0.08); border: 1px solid rgba(45,212,191,0.22);
+    padding: 4px 13px; border-radius: 100px;
+    font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 1.5px;
+    color: var(--teal); margin-bottom: 12px;
+  }
+
+  .fc-header h1 {
+    font-family: 'Montserrat', sans-serif; font-size: 1.45rem; font-weight: 900;
+    color: var(--dk-white); margin-bottom: 5px;
+  }
+
+  .fc-header p { opacity: 0.65; font-size: 0.85rem; margin: 0; font-family: var(--font-mono); }
+
+  .fc-badge {
     display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
-    padding: 4px 12px; border-radius: 20px; font-size: .76rem; font-weight: 600;
+    background: rgba(129,140,248,0.10); border: 1px solid rgba(129,140,248,0.25);
+    padding: 6px 14px; border-radius: 100px;
+    font-family: var(--font-mono); font-size: 0.65rem; color: var(--indigo);
+    align-self: flex-start;
   }
 
-  .section-card {
-    background: #fff;
-    border-radius: var(--card-radius);
-    box-shadow: 0 2px 12px rgba(0,0,0,.07);
-    overflow: hidden;
-    margin-bottom: 1.5rem;
-  }
-  .section-card .card-bar {
-    background: linear-gradient(90deg, #1e3a5f, #1a56db);
-    color: #fff;
-    padding: .8rem 1.4rem;
-    font-weight: 700;
-    font-size: .9rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  /* ── MAE cards ── */
+  .score-grid {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 12px; margin-bottom: 1.5rem;
   }
 
-  /* Summary table */
-  .sum-table th {
-    font-size: .75rem; font-weight: 700; color: #6b7280;
-    text-transform: uppercase; letter-spacing: .5px; background: #f9fafb;
-    padding: .75rem 1rem;
-  }
-  .sum-table td { font-size: .87rem; vertical-align: middle; padding: .75rem 1rem; }
-  .ypill {
-    display: inline-block; border-radius: 8px; padding: 2px 10px;
-    font-weight: 700; font-size: .82rem; min-width: 52px; text-align: center;
-    background: #eff6ff; color: #1a56db;
-  }
-  .ypill.y2 { background: #f0fdf4; color: #057a55; }
-  .ypill.y3 { background: #fdf4ff; color: #6c2bd9; }
+  @media (max-width:900px) { .score-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width:480px) { .score-grid { grid-template-columns: 1fr; } }
 
-  /* Program cards */
-  .prog-card {
-    background: #fff;
-    border-radius: var(--card-radius);
-    box-shadow: 0 2px 12px rgba(0,0,0,.07);
-    overflow: hidden;
-    margin-bottom: 1.5rem;
-    transition: transform .2s, box-shadow .2s;
+  .score-card {
+    background: var(--dk-surf); border: 1px solid var(--dk-border);
+    border-radius: var(--cr); padding: 1.1rem 1.2rem;
+    position: relative; overflow: hidden;
+    transition: border-color .2s, transform .2s;
   }
-  .prog-card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,.10); }
-  .prog-card-head {
-    padding: .9rem 1.3rem;
+
+  .score-card:hover { transform: translateY(-3px); }
+
+  .score-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+
+  .score-card.sc-aics::before  { background: linear-gradient(90deg, #1e3a8a, var(--aics-c)); }
+  .score-card.sc-sea::before   { background: linear-gradient(90deg, #134e2f, var(--sea-c)); }
+  .score-card.sc-red::before   { background: linear-gradient(90deg, #7f1d1d, var(--red-c)); }
+  .score-card.sc-edu::before   { background: linear-gradient(90deg, #78350f, var(--edu-c)); }
+  .score-card.sc-other::before { background: linear-gradient(90deg, #3b0764, var(--other-c)); }
+
+  .score-card:hover.sc-aics  { border-color: var(--aics-br); }
+  .score-card:hover.sc-sea   { border-color: var(--sea-br); }
+  .score-card:hover.sc-red   { border-color: var(--red-br); }
+  .score-card:hover.sc-edu   { border-color: var(--edu-br); }
+  .score-card:hover.sc-other { border-color: var(--other-br); }
+
+  .score-prog {
+    font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  .score-prog.aics    { color: var(--aics-c); }
+  .score-prog.sea     { color: var(--sea-c); }
+  .score-prog.redcard { color: var(--red-c); }
+  .score-prog.edu     { color: var(--edu-c); }
+  .score-prog.other   { color: var(--other-c); }
+
+  .score-mae {
+    font-family: 'Montserrat', sans-serif; font-size: 1.9rem; font-weight: 900;
+    color: var(--dk-white); line-height: 1; margin-bottom: 8px;
+  }
+
+  .score-trend {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--font-mono); font-size: 0.62rem;
+    padding: 3px 10px; border-radius: 100px;
+  }
+
+  .trend-up   { background: rgba(52,211,153,.10); color: var(--green); border: 1px solid rgba(52,211,153,.22); }
+  .trend-down { background: rgba(248,113,113,.10); color: var(--danger); border: 1px solid rgba(248,113,113,.22); }
+  .trend-flat { background: rgba(245,158,11,.10); color: var(--amber); border: 1px solid rgba(245,158,11,.22); }
+
+  .score-lbl {
+    display: block; margin-top: 8px;
+    font-family: var(--font-mono); font-size: 0.58rem;
+    text-transform: uppercase; letter-spacing: 0.8px; color: var(--dk-dim);
+  }
+
+  /* ── Section cards ── */
+  .sec-card {
+    background: var(--dk-surf); border: 1px solid var(--dk-border);
+    border-radius: var(--cr); overflow: hidden; margin-bottom: 1.5rem;
+    transition: border-color .2s;
+  }
+
+  .sec-bar {
+    padding: 0.7rem 1.2rem;
+    font-family: var(--font-mono); font-size: 0.65rem;
+    text-transform: uppercase; letter-spacing: 1px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--dk-border);
+  }
+
+  .sec-bar.blue   { color: var(--teal);   }
+  .sec-bar.blue i  { color: var(--teal); }
+  .sec-bar.yellow { color: var(--amber);  }
+  .sec-bar.yellow i{ color: var(--amber); }
+  .sec-bar.blue  .sec-bar-line  { background: var(--teal); }
+  .sec-bar.yellow .sec-bar-line { background: var(--amber); }
+
+  .sec-bar-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .dot-teal   { background: var(--teal); }
+  .dot-amber  { background: var(--amber); }
+  .dot-indigo { background: var(--indigo); }
+
+  .sec-body { padding: 1.2rem 1.4rem; }
+
+  /* ── Summary table ── */
+  .fc-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+
+  .fc-table thead {
+    background: linear-gradient(135deg, #0d1f42, #111827);
+    border-bottom: 1px solid var(--dk-border);
+  }
+
+  .fc-table thead th {
+    font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.8px;
+    text-transform: uppercase; color: var(--dk-dim);
+    padding: 11px 14px; border: none; white-space: nowrap;
+  }
+
+  .fc-table tbody td {
+    padding: 11px 14px; border-bottom: 1px solid rgba(31,45,66,.5);
+    color: var(--dk-ink); vertical-align: middle;
+  }
+
+  .fc-table tbody tr:last-child td { border-bottom: none; }
+  .fc-table tbody tr:hover td { background: rgba(255,255,255,.025); }
+
+  .prog-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--font-mono); font-size: 0.58rem;
+    padding: 3px 9px; border-radius: 5px; text-transform: uppercase; letter-spacing: 0.4px;
+    border: 1px solid;
+  }
+
+  .pb-aics    { background: var(--aics-bg);  color: var(--aics-c);  border-color: var(--aics-br); }
+  .pb-sea     { background: var(--sea-bg);   color: var(--sea-c);   border-color: var(--sea-br); }
+  .pb-redcard { background: var(--red-bg);   color: var(--red-c);   border-color: var(--red-br); }
+  .pb-edu     { background: var(--edu-bg);   color: var(--edu-c);   border-color: var(--edu-br); }
+  .pb-other   { background: var(--other-bg); color: var(--other-c); border-color: var(--other-br); }
+
+  .year-num {
+    font-family: var(--font-mono); font-size: 0.86rem;
+    color: var(--dk-hi); font-weight: 500;
+  }
+
+  .total-chip {
+    display: inline-flex; align-items: center;
+    background: rgba(45,212,191,.10); color: var(--teal);
+    font-family: var(--font-mono); font-size: 0.72rem;
+    padding: 4px 12px; border-radius: 6px;
+    border: 1px solid rgba(45,212,191,.25);
+  }
+
+  /* ── Forecast detail cards ── */
+  .forecast-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 768px) { .forecast-grid { grid-template-columns: 1fr; } }
+
+  .forecast-prog-card {
+    background: var(--dk-surf); border: 1px solid var(--dk-border);
+    border-radius: var(--cr); overflow: hidden;
+    transition: border-color .2s;
+  }
+
+  .fp-header {
+    padding: 0.6rem 1rem;
     display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid #f0f0f0;
+    font-family: var(--font-mono); font-size: 0.62rem;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--dk-border);
   }
-  .prog-code { font-size: .72rem; color: #9ca3af; font-weight: 700; letter-spacing: .5px; }
-  .prog-name { font-size: .94rem; font-weight: 700; color: #1e3a5f; }
-  .prog-stats {
-    display: flex; gap: .75rem;
-    padding: .75rem 1.3rem;
-    background: #fafafa;
-    border-bottom: 1px solid #f0f0f0;
-    flex-wrap: wrap;
-  }
-  .stat-box { flex: 1; min-width: 70px; text-align: center; }
-  .stat-val { font-size: 1.25rem; font-weight: 800; color: #1a56db; line-height: 1.1; }
-  .stat-val.c2 { color: #057a55; }
-  .stat-val.c3 { color: #6c2bd9; }
-  .stat-val.cg { color: #6b7280; }
-  .stat-lbl { font-size: .67rem; color: #9ca3af; font-weight: 600; letter-spacing: .3px; margin-top: 2px; }
-  .chart-area { padding: .9rem 1.3rem 1.1rem; }
-  .legend-dot { display:inline-block; width:10px; height:3px; border-radius:2px; margin-bottom:1px; vertical-align:middle; }
 
-  .disclaimer {
-    background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px;
-    padding: .7rem 1rem; font-size: .79rem; color: #92400e;
-    display: flex; align-items: flex-start; gap: 8px; margin-bottom: 1.5rem;
+  .fp-header.aics    { color: var(--aics-c);  background: var(--aics-bg); }
+  .fp-header.sea     { color: var(--sea-c);   background: var(--sea-bg); }
+  .fp-header.redcard { color: var(--red-c);   background: var(--red-bg); }
+  .fp-header.edu     { color: var(--edu-c);   background: var(--edu-bg); }
+  .fp-header.other   { color: var(--other-c); background: var(--other-bg); }
+
+  .fp-body { padding: 0.8rem 1rem; }
+
+  .fp-month-row {
+    display: flex; align-items: center;
+    padding: 5px 0; border-bottom: 1px solid rgba(31,45,66,.4);
+    font-size: 0.8rem; color: var(--dk-ink);
   }
+
+  .fp-month-row:last-child { border-bottom: none; }
+
+  .fp-month-name {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    color: var(--dk-hi); min-width: 88px;
+  }
+
+  .fp-bar-wrap {
+    flex: 1; margin: 0 10px;
+    background: var(--dk-muted); border-radius: 3px;
+    height: 6px; overflow: hidden;
+  }
+
+  .fp-bar { height: 6px; border-radius: 3px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+  .fp-bar.aics    { background: linear-gradient(90deg, #1e3a8a, var(--aics-c)); }
+  .fp-bar.sea     { background: linear-gradient(90deg, #134e2f, var(--sea-c)); }
+  .fp-bar.redcard { background: linear-gradient(90deg, #7f1d1d, var(--red-c)); }
+  .fp-bar.edu     { background: linear-gradient(90deg, #78350f, var(--edu-c)); }
+  .fp-bar.other   { background: linear-gradient(90deg, #3b0764, var(--other-c)); }
+
+  .fp-val {
+    font-family: var(--font-mono); font-size: 0.72rem;
+    color: var(--dk-white); min-width: 28px; text-align: right;
+  }
+
+  /* ── Section header bar (freestanding) ── */
+  .dk-section-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--dk-surf); border: 1px solid var(--dk-border);
+    border-radius: var(--cr) var(--cr) 0 0;
+    padding: 0.7rem 1.2rem; margin-bottom: 1px;
+    font-family: var(--font-mono); font-size: 0.65rem;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--teal);
+  }
+
+  .dk-reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
+  .dk-reveal.visible { opacity: 1; transform: none; }
 </style>
 
-<!-- Header -->
-<div class="pred-header">
-  <div style="position:relative;z-index:1" class="d-flex align-items-start justify-content-between flex-wrap gap-3">
-    <div>
-      <h1><i class="bi bi-graph-up-arrow me-2"></i>3-Year Program Rate Prediction</h1>
-      <p>Projected application volume — {{ current_year|add:1 }}, {{ current_year|add:2 }}, {{ current_year|add:3 }}</p>
-    </div>
-    <div class="d-flex flex-column align-items-end gap-2 mt-1">
-      <span class="method-badge"><i class="bi bi-cpu-fill"></i> Linear Regression</span>
-      <span class="method-badge"><i class="bi bi-calendar3"></i> Based on historical data</span>
+<div class="dk-scope">
+
+  <!-- Hero -->
+  <div class="fc-header dk-reveal">
+    <div class="fc-blob"></div>
+    <div class="fc-flag"></div>
+    <div class="fc-header-inner">
+      <div>
+        <div class="fc-eyebrow"><i class="bi bi-graph-up-arrow me-1"></i> MSWDO · DSWD Devolved Unit</div>
+        <h1><i class="bi bi-graph-up-arrow me-2" style="color:var(--teal);"></i>3-Year Program Application Forecast</h1>
+        <p>Predicted application volumes per assistance program for the next 36 months</p>
+      </div>
+      <div class="fc-badge"><i class="bi bi-cpu-fill me-1"></i> ML-Powered Forecast</div>
     </div>
   </div>
-</div>
 
-<!-- Disclaimer -->
-<div class="disclaimer">
-  <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
-  <span><strong>Disclaimer:</strong> Predictions are statistical estimates based on historical trends. Actual figures may vary due to policy changes, population shifts, or budget availability. Use for planning purposes only.</span>
-</div>
+  <!-- MAE Cards -->
+  <div class="score-grid">
+    {% for program, score in scores.items %}
+    {% with prog_lower=program|lower %}
+    <div class="score-card dk-reveal
+      {% if 'aics' in prog_lower %}sc-aics
+      {% elif 'sea' in prog_lower %}sc-sea
+      {% elif 'red' in prog_lower %}sc-red
+      {% elif 'edu' in prog_lower %}sc-edu
+      {% else %}sc-other{% endif %}">
 
-<!-- Summary Table -->
-<div class="section-card">
-  <div class="card-bar"><i class="bi bi-table"></i> Program Prediction Summary</div>
-  <div class="table-responsive">
-    <table class="table table-hover mb-0 sum-table">
-      <thead>
-        <tr>
-          <th>Program</th>
-          <th class="text-center">Trend</th>
-          <th class="text-center">Avg / Month (Yr 1)</th>
-          <th class="text-center">{{ current_year|add:1 }}</th>
-          <th class="text-center">{{ current_year|add:2 }}</th>
-          <th class="text-center">{{ current_year|add:3 }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in summary_rows %}
-        <tr>
-          <td>
-            <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary fw-bold me-1" style="font-size:.71rem">{{ row.code }}</span>
-            <span class="text-muted" style="font-size:.84rem">{{ row.label }}</span>
-          </td>
-          <td class="text-center"><span class="{{ row.trend_class }} fw-semibold" style="font-size:.87rem">{{ row.trend }}</span></td>
-          <td class="text-center fw-bold">{{ row.avg_monthly_y1 }}</td>
-          <td class="text-center"><span class="ypill">{{ row.y1 }}</span></td>
-          <td class="text-center"><span class="ypill y2">{{ row.y2 }}</span></td>
-          <td class="text-center"><span class="ypill y3">{{ row.y3 }}</span></td>
-        </tr>
+      <div class="score-prog
+        {% if 'aics' in prog_lower %}aics
+        {% elif 'sea' in prog_lower %}sea
+        {% elif 'red' in prog_lower %}redcard
+        {% elif 'edu' in prog_lower %}edu
+        {% else %}other{% endif %}">
+        <i class="bi bi-{% if 'aics' in prog_lower %}heart-pulse-fill{% elif 'sea' in prog_lower %}briefcase-fill{% elif 'red' in prog_lower %}exclamation-triangle-fill{% elif 'edu' in prog_lower %}mortarboard-fill{% else %}file-earmark-fill{% endif %}"></i>
+        {{ program }}
+      </div>
+
+      <div class="score-mae">{{ score.mae }}</div>
+
+      <span class="score-trend
+        {% if 'up' in score.trend|lower or '↑' in score.trend or 'increas' in score.trend|lower %}trend-up
+        {% elif 'down' in score.trend|lower or '↓' in score.trend or 'decreas' in score.trend|lower %}trend-down
+        {% else %}trend-flat{% endif %}">
+        <i class="bi bi-{% if 'up' in score.trend|lower or '↑' in score.trend %}arrow-up-right{% elif 'down' in score.trend|lower or '↓' in score.trend %}arrow-down-right{% else %}dash{% endif %}"></i>
+        {{ score.trend }}
+      </span>
+
+      <span class="score-lbl">Mean Absolute Error (MAE)</span>
+    </div>
+    {% endwith %}
+    {% endfor %}
+  </div>
+
+  <!-- Chart + Summary -->
+  <div class="row g-3 mb-0">
+
+    <div class="col-12 col-lg-7">
+      <div class="sec-card dk-reveal" style="height:100%;">
+        <div class="sec-bar blue">
+          <span class="sec-bar-dot dot-teal"></span>
+          <i class="bi bi-bar-chart-fill"></i> 3-Year Forecast Overview
+        </div>
+        <div class="sec-body" style="min-height:300px;">
+          <canvas id="forecastChart" style="width:100%;"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <div class="sec-card dk-reveal" style="height:100%;">
+        <div class="sec-bar yellow">
+          <span class="sec-bar-dot dot-amber"></span>
+          <i class="bi bi-table"></i> Combined 3-Year Summary
+        </div>
+        <div class="sec-body" style="padding:0;">
+          <div class="table-responsive">
+            <table class="fc-table">
+              <thead>
+                <tr>
+                  <th>Program</th>
+                  <th style="text-align:center;">Yr 1</th>
+                  <th style="text-align:center;">Yr 2</th>
+                  <th style="text-align:center;">Yr 3</th>
+                  <th style="text-align:center;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for program, data in summary.items %}
+                {% with prog_lower=program|lower %}
+                <tr>
+                  <td>
+                    <span class="prog-badge
+                      {% if 'aics' in prog_lower %}pb-aics
+                      {% elif 'sea' in prog_lower %}pb-sea
+                      {% elif 'red' in prog_lower %}pb-redcard
+                      {% elif 'edu' in prog_lower %}pb-edu
+                      {% else %}pb-other{% endif %}">
+                      {{ program }}
+                    </span>
+                  </td>
+                  <td style="text-align:center;"><span class="year-num">{{ data.year1 }}</span></td>
+                  <td style="text-align:center;"><span class="year-num">{{ data.year2 }}</span></td>
+                  <td style="text-align:center;"><span class="year-num">{{ data.year3 }}</span></td>
+                  <td style="text-align:center;"><span class="total-chip">{{ data.total }}</span></td>
+                </tr>
+                {% endwith %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Monthly Forecast Detail -->
+  <div class="dk-section-bar dk-reveal" style="margin-top:1.5rem;">
+    <span class="sec-bar-dot dot-indigo"></span>
+    <i class="bi bi-calendar3-range"></i> Monthly Forecast Detail — All Programs
+  </div>
+
+  <div class="forecast-grid">
+    {% for program, forecast in forecasts.items %}
+    {% with prog_lower=program|lower %}
+
+    <div class="forecast-prog-card dk-reveal">
+      <div class="fp-header
+        {% if 'aics' in prog_lower %}aics
+        {% elif 'sea' in prog_lower %}sea
+        {% elif 'red' in prog_lower %}redcard
+        {% elif 'edu' in prog_lower %}edu
+        {% else %}other{% endif %}">
+        <span>
+          <i class="bi bi-{% if 'aics' in prog_lower %}heart-pulse-fill{% elif 'sea' in prog_lower %}briefcase-fill{% elif 'red' in prog_lower %}exclamation-triangle-fill{% elif 'edu' in prog_lower %}mortarboard-fill{% else %}file-earmark-fill{% endif %} me-1"></i>
+          {{ program }}
+        </span>
+        <span>{{ forecast|length }} months</span>
+      </div>
+      <div class="fp-body">
+        {% with max_val=forecast.0.applications %}
+        {% for item in forecast %}
+        <div class="fp-month-row">
+          <span class="fp-month-name">{{ item.month }}</span>
+          <div class="fp-bar-wrap">
+            <div class="fp-bar
+              {% if 'aics' in prog_lower %}aics
+              {% elif 'sea' in prog_lower %}sea
+              {% elif 'red' in prog_lower %}redcard
+              {% elif 'edu' in prog_lower %}edu
+              {% else %}other{% endif %}"
+              style="width:{% widthratio item.applications max_val 100 %}%;"></div>
+          </div>
+          <span class="fp-val">{{ item.applications }}</span>
+        </div>
         {% endfor %}
-      </tbody>
-    </table>
+        {% endwith %}
+      </div>
+    </div>
+
+    {% endwith %}
+    {% endfor %}
   </div>
-</div>
 
-<!-- Combined Bar Chart -->
-<div class="section-card">
-  <div class="card-bar"><i class="bi bi-bar-chart-line"></i> Combined 3-Year Application Forecast — All Programs</div>
-  <div class="p-4">
-    <canvas id="combinedChart" height="75"></canvas>
-  </div>
-</div>
+</div><!-- /dk-scope -->
 
-<!-- Individual Program Cards -->
-<div class="row g-4" id="prog-grid"></div>
+{{ summary|json_script:"summary_data" }}
+{{ forecasts|json_script:"forecast_data" }}
 
-<!-- Data island -->
-{{ programs_data_json|json_script:"prog_data" }}
+{% endblock %}
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+{% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+setTimeout(function () {
+  var summaryEl = document.getElementById('summary_data');
+  if (!summaryEl) return;
 
-  var RAW = JSON.parse(document.getElementById('prog_data').textContent);
+  var summary;
+  try { summary = JSON.parse(summaryEl.textContent); } catch(e) { return; }
 
-  var COLORS = {
-    'AICS':        { line: '#1a56db', fill: 'rgba(26,86,219,0.13)',  bar: 'rgba(26,86,219,0.60)'  },
-    'SEA':         { line: '#057a55', fill: 'rgba(5,122,85,0.13)',   bar: 'rgba(5,122,85,0.60)'   },
-    'REDCARD':     { line: '#c81e1e', fill: 'rgba(200,30,30,0.13)',  bar: 'rgba(200,30,30,0.60)'  },
-    'EDUCATIONAL': { line: '#6c2bd9', fill: 'rgba(108,43,217,0.13)', bar: 'rgba(108,43,217,0.60)' },
+  /* Dark-optimised program colors */
+  var PROG = {
+    'AICS':                 { border: '#60a5fa', y1bg: 'rgba(96,165,250,0.15)',  y2bg: 'rgba(96,165,250,0.45)',  y3bg: '#60a5fa' },
+    'SEA':                  { border: '#34d399', y1bg: 'rgba(52,211,153,0.15)',  y2bg: 'rgba(52,211,153,0.45)',  y3bg: '#34d399' },
+    'REDCARD':              { border: '#f87171', y1bg: 'rgba(248,113,113,0.15)', y2bg: 'rgba(248,113,113,0.45)', y3bg: '#f87171' },
+    'Red Card':             { border: '#f87171', y1bg: 'rgba(248,113,113,0.15)', y2bg: 'rgba(248,113,113,0.45)', y3bg: '#f87171' },
+    'EDUCATIONAL':          { border: '#f59e0b', y1bg: 'rgba(245,158,11,0.15)',  y2bg: 'rgba(245,158,11,0.45)',  y3bg: '#f59e0b' },
+    'Educational':          { border: '#f59e0b', y1bg: 'rgba(245,158,11,0.15)',  y2bg: 'rgba(245,158,11,0.45)',  y3bg: '#f59e0b' },
+    'Educational Assistance':{ border: '#f59e0b', y1bg: 'rgba(245,158,11,0.15)', y2bg: 'rgba(245,158,11,0.45)',  y3bg: '#f59e0b' },
   };
 
-  /* ── Combined grouped bar chart ─────────────────────────────────── */
-  var codes       = Object.keys(RAW);
-  var yearLabels  = (codes.length && RAW[codes[0]].year_labels) ? RAW[codes[0]].year_labels : [];
-
-  if (!yearLabels.length) {
-    var y = new Date().getFullYear();
-    yearLabels = [String(y+1), String(y+2), String(y+3)];
+  function getP(prog) {
+    for (var k in PROG) {
+      if (prog.toUpperCase().indexOf(k.toUpperCase()) !== -1) return PROG[k];
+    }
+    return { border: '#a78bfa', y1bg: 'rgba(167,139,250,0.15)', y2bg: 'rgba(167,139,250,0.45)', y3bg: '#a78bfa' };
   }
 
-  var barDatasets = codes.map(function(code) {
-    var pd  = RAW[code];
-    var col = COLORS[code] || { bar: 'rgba(136,136,136,0.6)', line: '#888' };
-    var yf  = (pd.yearly_forecast && pd.yearly_forecast.length === 3) ? pd.yearly_forecast : [0,0,0];
-    return {
-      label:           pd.label || code,
-      data:            yf,
-      backgroundColor: col.bar,
-      borderColor:     col.line,
-      borderWidth:     2,
-      borderRadius:    6,
-    };
-  });
+  var TOOLTIP = {
+    backgroundColor: 'rgba(11,15,23,0.96)',
+    titleFont: { family: "'Montserrat',sans-serif", size: 11, weight: '700' },
+    bodyFont:  { family: "'DM Mono',monospace", size: 11 },
+    padding: 10, cornerRadius: 8,
+    borderColor: '#1f2d42', borderWidth: 1,
+  };
 
-  new Chart(document.getElementById('combinedChart'), {
+  var canvas = document.getElementById('forecastChart');
+  if (!canvas || !summary) return;
+
+  var programs = Object.keys(summary);
+  var y1 = programs.map(function(p){ return summary[p].year1; });
+  var y2 = programs.map(function(p){ return summary[p].year2; });
+  var y3 = programs.map(function(p){ return summary[p].year3; });
+
+  new Chart(canvas, {
     type: 'bar',
-    data: { labels: yearLabels, datasets: barDatasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: { position: 'top', labels: { font: { size: 11 }, padding: 14 } },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) {
-              return '  ' + ctx.dataset.label + ': ' + ctx.raw.toLocaleString() + ' applications';
-            }
-          }
+    data: {
+      labels: programs,
+      datasets: [
+        {
+          label: 'Year 1',
+          data: y1,
+          backgroundColor: programs.map(function(p){ return getP(p).y1bg; }),
+          borderColor:      programs.map(function(p){ return getP(p).border; }),
+          borderWidth: 1.5, borderRadius: 5,
+        },
+        {
+          label: 'Year 2',
+          data: y2,
+          backgroundColor: programs.map(function(p){ return getP(p).y2bg; }),
+          borderColor:      programs.map(function(p){ return getP(p).border; }),
+          borderWidth: 1.5, borderRadius: 5,
+        },
+        {
+          label: 'Year 3',
+          data: y3,
+          backgroundColor: programs.map(function(p){ return getP(p).y3bg; }),
+          borderColor:      programs.map(function(p){ return getP(p).border; }),
+          borderWidth: 1.5, borderRadius: 5,
         }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true, position: 'top',
+          labels: {
+            color: '#8facc8',
+            font: { family: "'DM Mono',monospace", size: 10 },
+            padding: 14, usePointStyle: true, pointStyle: 'rectRounded',
+          }
+        },
+        tooltip: TOOLTIP,
       },
       scales: {
-        x: { grid: { display: false } },
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.05)' } }
+        x: {
+          grid: { display: false },
+          ticks: { color: '#4f6a8a', font: { family: "'DM Mono',monospace", size: 10 } }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(31,45,66,0.7)' },
+          ticks: { color: '#4f6a8a', font: { family: "'DM Mono',monospace", size: 10 }, maxTicksLimit: 6 }
+        }
       }
     }
   });
 
-  /* ── Individual program cards ───────────────────────────────────── */
-  var grid = document.getElementById('prog-grid');
+  /* ── Scroll reveal ── */
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
 
-  codes.forEach(function(code) {
-    var pd  = RAW[code];
-    var col = COLORS[code] || { line: '#888', fill: 'rgba(136,136,136,0.12)', bar: 'rgba(136,136,136,0.55)' };
-    var yf  = (pd.yearly_forecast && pd.yearly_forecast.length === 3) ? pd.yearly_forecast : [0,0,0];
-    var yl  = (pd.year_labels && pd.year_labels.length === 3) ? pd.year_labels : yearLabels;
-    var cid = 'cv_' + code;
+  document.querySelectorAll('.dk-reveal').forEach(function(el) { obs.observe(el); });
 
-    var col2 = document.createElement('div');
-    col2.className = 'col-12 col-xl-6';
-    col2.innerHTML =
-      '<div class="prog-card">' +
-        '<div class="prog-card-head">' +
-          '<div><div class="prog-code">' + code + '</div>' +
-          '<div class="prog-name">' + (pd.label || code) + '</div></div>' +
-          '<span class="' + (pd.trend_class || '') + ' fw-semibold" style="font-size:.86rem">' + (pd.trend || '') + '</span>' +
-        '</div>' +
-        '<div class="prog-stats">' +
-          '<div class="stat-box"><div class="stat-val">'    + yf[0].toLocaleString() + '</div><div class="stat-lbl">YR 1 (' + yl[0] + ')</div></div>' +
-          '<div class="stat-box"><div class="stat-val c2">' + yf[1].toLocaleString() + '</div><div class="stat-lbl">YR 2 (' + yl[1] + ')</div></div>' +
-          '<div class="stat-box"><div class="stat-val c3">' + yf[2].toLocaleString() + '</div><div class="stat-lbl">YR 3 (' + yl[2] + ')</div></div>' +
-          '<div class="stat-box"><div class="stat-val cg">' + (pd.avg_monthly_y1 || 0) + '</div><div class="stat-lbl">AVG/MO YR1</div></div>' +
-        '</div>' +
-        '<div class="chart-area">' +
-          '<div class="d-flex align-items-center justify-content-between mb-2">' +
-            '<span style="font-size:.72rem;font-weight:700;color:#9ca3af;letter-spacing:.4px">MONTHLY TREND &amp; FORECAST</span>' +
-            '<div style="font-size:.69rem;font-weight:600;color:#6b7280;">' +
-              '<span class="legend-dot" style="background:' + col.line + '"></span> Historical &nbsp;' +
-              '<span class="legend-dot" style="background:' + col.bar + '"></span> Forecast' +
-            '</div>' +
-          '</div>' +
-          '<canvas id="' + cid + '" height="120"></canvas>' +
-        '</div>' +
-      '</div>';
-
-    grid.appendChild(col2);
-
-    /* build line chart */
-    (function(canvasId, pd, col) {
-      var hl = pd.hist_labels    || [];
-      var hv = pd.hist_values    || [];
-      var fl = pd.forecast_labels || [];
-      var fv = pd.forecast_values || [];
-
-      var labels   = hl.concat(fl);
-      var histData = hv.concat(new Array(fl.length).fill(null));
-      var foreData = new Array(hl.length).fill(null).concat(fv);
-
-      /* trend line from slope */
-      var slope     = pd.slope || 0;
-      var avgH      = hv.length ? hv.reduce(function(a,b){return a+b;},0)/hv.length : 0;
-      var intercept = avgH - slope * (hl.length / 2);
-      var trendData = labels.map(function(_, i) {
-        return Math.max(0, Math.round(intercept + slope * i));
-      });
-
-      var cvs = document.getElementById(canvasId);
-      if (!cvs) return;
-
-      new Chart(cvs, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Historical',
-              data: histData,
-              borderColor: col.line,
-              backgroundColor: col.fill,
-              borderWidth: 2, pointRadius: 2, fill: true, tension: 0.35, spanGaps: false,
-            },
-            {
-              label: 'Forecast',
-              data: foreData,
-              borderColor: col.bar,
-              backgroundColor: 'transparent',
-              borderWidth: 2, borderDash: [6,4], pointRadius: 1.5, fill: false, tension: 0.35, spanGaps: false,
-            },
-            {
-              label: 'Trend',
-              data: trendData,
-              borderColor: 'rgba(0,0,0,0.12)',
-              borderWidth: 1.5, borderDash: [3,3], pointRadius: 0, fill: false, tension: 0,
-            },
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          interaction: { mode: 'index', intersect: false },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function(ctx) {
-                  if (ctx.parsed.y === null) return null;
-                  return '  ' + ctx.dataset.label + ': ' + ctx.parsed.y + ' applications';
-                }
-              }
-            }
-          },
-          scales: {
-            x: { ticks: { font:{size:9}, maxTicksLimit:12, maxRotation:45 }, grid:{display:false} },
-            y: { beginAtZero:true, ticks:{font:{size:10},maxTicksLimit:6}, grid:{color:'rgba(0,0,0,.04)'} }
-          }
-        }
-      });
-    })(cid, pd, col);
-
-  }); /* end codes.forEach */
-
-}); /* end DOMContentLoaded */
+}, 0);
 </script>
 {% endblock %}

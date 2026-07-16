@@ -116,6 +116,54 @@
 
     .box-divider{height:1px;background:linear-gradient(90deg,var(--blue-border),transparent);margin:16px 0;}
     .program-select-wrap{margin-bottom:4px;}
+
+    /* ── Program info ? button ── */
+    .program-select-row{display:flex;align-items:center;gap:10px;}
+    .program-select-row select{flex:1;}
+    .prog-info-btn{
+      flex-shrink:0;width:38px;height:38px;border-radius:50%;
+      background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+      color:#fff;border:none;font-family:'Montserrat',sans-serif;
+      font-size:.95rem;font-weight:900;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 3px 10px rgba(0,56,168,0.30);
+      transition:transform .15s,box-shadow .15s;line-height:1;
+    }
+    .prog-info-btn:hover{transform:scale(1.12);box-shadow:0 5px 16px rgba(0,56,168,0.40);}
+    .prog-info-btn:active{transform:scale(.95);}
+    /* ── Modal overlay ── */
+    .prog-modal-overlay{
+      display:none;position:fixed;inset:0;
+      background:rgba(0,0,0,0.55);backdrop-filter:blur(3px);
+      z-index:9000;align-items:center;justify-content:center;padding:20px;
+    }
+    .prog-modal-overlay.open{display:flex;}
+    .prog-modal{
+      background:#fff;border-radius:18px;
+      box-shadow:0 24px 64px rgba(0,28,80,0.40);
+      max-width:520px;width:100%;
+      animation:modalPop .3s cubic-bezier(.34,1.56,.64,1);
+      overflow:hidden;
+    }
+    @keyframes modalPop{from{opacity:0;transform:scale(.88) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .prog-modal-header{padding:22px 26px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+    .prog-modal-icon{width:52px;height:52px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
+    .prog-modal-title{flex:1;}
+    .prog-modal-title h3{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:900;color:var(--text-primary);margin-bottom:3px;line-height:1.3;}
+    .prog-modal-title .prog-abbr{font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-secondary);}
+    .prog-modal-close{background:none;border:none;cursor:pointer;color:#9ca3af;font-size:1.1rem;padding:4px;line-height:1;transition:color .15s;flex-shrink:0;}
+    .prog-modal-close:hover{color:#374151;}
+    .prog-modal-divider{height:3px;margin:0;}
+    .prog-modal-body{padding:20px 26px 22px;}
+    .prog-modal-body p{font-size:.87rem;color:#374151;line-height:1.75;margin-bottom:14px;}
+    .prog-detail-list{list-style:none;padding:0;margin:0;}
+    .prog-detail-list li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:.82rem;color:#374151;}
+    .prog-detail-list li:last-child{border-bottom:none;}
+    .prog-detail-list li i{flex-shrink:0;margin-top:2px;font-size:.95rem;}
+    .prog-modal-footer{padding:12px 26px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-top:1px solid #f3f4f6;}
+    .prog-modal-footer .office-note{font-size:.72rem;color:#9ca3af;}
+    .prog-modal-select-btn{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;border:none;border-radius:9px;padding:9px 20px;font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;cursor:pointer;transition:opacity .2s;}
+    .prog-modal-select-btn:hover{opacity:.88;}
     .program-box{background:var(--blue-light);border:1.5px solid var(--blue-border);border-left:4px solid var(--blue);padding:24px;border-radius:12px;margin-top:20px;display:none;animation:fadeIn .3s ease-out;}
     @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
     .program-box h3{font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--blue);margin-bottom:18px;display:flex;align-items:center;gap:8px;}
@@ -281,13 +329,127 @@
 
     <div class="field program-select-wrap">
       <label>Select Program <span class="req">*</span></label>
-      <select name="aid_type" id="aidType" required onchange="showFields()">
-        <option value="">Choose a program…</option>
-        <option value="AICS">AICS — Crisis Assistance</option>
-        <option value="SEA">SEA — Self-Employment</option>
-        <option value="REDCARD">Red Card — Emergency</option>
-        <option value="EDUCATIONAL">Educational Assistance</option>
-      </select>
+      <div class="program-select-row">
+        <select name="aid_type" id="aidType" required onchange="showFields(); updateInfoBtn();">
+          <option value="">Choose a program…</option>
+          <option value="AICS">AICS — Crisis Assistance</option>
+          <option value="SEA">SEA — Self-Employment</option>
+          <option value="REDCARD">Red Card — Emergency</option>
+          <option value="EDUCATIONAL">Educational Assistance</option>
+        </select>
+        <button type="button" class="prog-info-btn" id="progInfoBtn"
+                onclick="openProgModal()" title="What is this program?" style="display:none;">?</button>
+      </div>
+    </div>
+
+    <!-- PROGRAM DEFINITION MODALS -->
+
+    <div class="prog-modal-overlay" id="modal-AICS">
+      <div class="prog-modal">
+        <div class="prog-modal-header">
+          <div class="prog-modal-icon" style="background:#dbeafe;color:#1d4ed8;"><i class="bi bi-heart-pulse-fill"></i></div>
+          <div class="prog-modal-title">
+            <div class="prog-abbr">AICS</div>
+            <h3>Ayuda sa Indibidwal na nasa Krisis na Sitwasyon</h3>
+          </div>
+          <button class="prog-modal-close" onclick="closeProgModal('modal-AICS')"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="prog-modal-divider" style="background:linear-gradient(90deg,#1d4ed8,#3b82f6);"></div>
+        <div class="prog-modal-body">
+          <p>AICS provides immediate financial assistance to individuals and families in crisis situations who are unable to meet their basic needs due to sudden or unexpected circumstances.</p>
+          <ul class="prog-detail-list">
+            <li><i class="bi bi-check-circle-fill" style="color:#16a34a;"></i><span><strong>Who can apply:</strong> Indigent individuals or families facing medical, death, fire, calamity, or other crisis situations.</span></li>
+            <li><i class="bi bi-check-circle-fill" style="color:#16a34a;"></i><span><strong>Type of aid:</strong> Financial assistance for medical bills, funeral expenses, food, transportation, or other immediate needs.</span></li>
+            <li><i class="bi bi-check-circle-fill" style="color:#16a34a;"></i><span><strong>Requirements:</strong> Valid ID, proof of crisis (medical certificate, death certificate, etc.), and barangay certification.</span></li>
+            <li><i class="bi bi-info-circle-fill" style="color:#1d4ed8;"></i><span><strong>Note:</strong> One-time grant per crisis situation, subject to available funds and social worker assessment.</span></li>
+          </ul>
+        </div>
+        <div class="prog-modal-footer">
+          <span class="office-note"><i class="bi bi-geo-alt me-1"></i>MSWDO — Socorro Municipality</span>
+          <button class="prog-modal-select-btn" onclick="selectProgram('AICS'); closeProgModal('modal-AICS');"><i class="bi bi-check2 me-1"></i>Apply for AICS</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="prog-modal-overlay" id="modal-SEA">
+      <div class="prog-modal">
+        <div class="prog-modal-header">
+          <div class="prog-modal-icon" style="background:#dcfce7;color:#15803d;"><i class="bi bi-briefcase-fill"></i></div>
+          <div class="prog-modal-title">
+            <div class="prog-abbr">SEA — Kaunlaran</div>
+            <h3>Self-Employment Assistance — Kaunlaran</h3>
+          </div>
+          <button class="prog-modal-close" onclick="closeProgModal('modal-SEA')"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="prog-modal-divider" style="background:linear-gradient(90deg,#15803d,#22c55e);"></div>
+        <div class="prog-modal-body">
+          <p>SEA-K is a livelihood assistance program that provides capital assistance to indigent individuals who wish to start or expand a small business to achieve economic independence.</p>
+          <ul class="prog-detail-list">
+            <li><i class="bi bi-check-circle-fill" style="color:#16a34a;"></i><span><strong>Who can apply:</strong> Indigent individuals 18 years and above with a viable livelihood or small business plan.</span></li>
+            <li><i class="bi bi-check-circle-fill" style="color:#16a34a;"></i><span><strong>Type of aid:</strong> Seed capital or livelihood starter kit (sari-sari store, vending, farming, etc.).</span></li>
+            <li><i class="bi bi-check-circle-fill" style="color:#16a34a;"></i><span><strong>Requirements:</strong> Valid ID, proof of indigency, business proposal, and barangay certification.</span></li>
+            <li><i class="bi bi-info-circle-fill" style="color:#15803d;"></i><span><strong>Note:</strong> Beneficiaries undergo livelihood skills training before release of assistance.</span></li>
+          </ul>
+        </div>
+        <div class="prog-modal-footer">
+          <span class="office-note"><i class="bi bi-geo-alt me-1"></i>MSWDO — Socorro Municipality</span>
+          <button class="prog-modal-select-btn" style="background:linear-gradient(135deg,#15803d,#166534);" onclick="selectProgram('SEA'); closeProgModal('modal-SEA');"><i class="bi bi-check2 me-1"></i>Apply for SEA</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="prog-modal-overlay" id="modal-REDCARD">
+      <div class="prog-modal">
+        <div class="prog-modal-header">
+          <div class="prog-modal-icon" style="background:#fee2e2;color:#b91c1c;"><i class="bi bi-shield-fill-exclamation"></i></div>
+          <div class="prog-modal-title">
+            <div class="prog-abbr">RED CARD</div>
+            <h3>Rapid Emergency Disaster Card for Affected Residents</h3>
+          </div>
+          <button class="prog-modal-close" onclick="closeProgModal('modal-REDCARD')"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="prog-modal-divider" style="background:linear-gradient(90deg,#b91c1c,#ef4444);"></div>
+        <div class="prog-modal-body">
+          <p>The Red Card program provides immediate relief assistance to Socorro residents affected by natural or man-made disasters such as fires, floods, or typhoons.</p>
+          <ul class="prog-detail-list">
+            <li><i class="bi bi-check-circle-fill" style="color:#16a34a;"></i><span><strong>Who can apply:</strong> Residents of Socorro directly affected by a disaster or emergency incident.</span></li>
+            <li><i class="bi bi-check-circle-fill" style="color:#16a34a;"></i><span><strong>Type of aid:</strong> Food packs, non-food items, temporary shelter assistance, and cash aid.</span></li>
+            <li><i class="bi bi-check-circle-fill" style="color:#16a34a;"></i><span><strong>Requirements:</strong> Disaster/incident report from barangay, valid ID, and proof of residency.</span></li>
+            <li><i class="bi bi-info-circle-fill" style="color:#b91c1c;"></i><span><strong>Note:</strong> Priority given to most vulnerable — elderly, PWD, pregnant women, and children.</span></li>
+          </ul>
+        </div>
+        <div class="prog-modal-footer">
+          <span class="office-note"><i class="bi bi-geo-alt me-1"></i>MSWDO — Socorro Municipality</span>
+          <button class="prog-modal-select-btn" style="background:linear-gradient(135deg,#b91c1c,#991b1b);" onclick="selectProgram('REDCARD'); closeProgModal('modal-REDCARD');"><i class="bi bi-check2 me-1"></i>Apply for Red Card</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="prog-modal-overlay" id="modal-EDUCATIONAL">
+      <div class="prog-modal">
+        <div class="prog-modal-header">
+          <div class="prog-modal-icon" style="background:#fef9c3;color:#a16207;"><i class="bi bi-mortarboard-fill"></i></div>
+          <div class="prog-modal-title">
+            <div class="prog-abbr">Educational Assistance</div>
+            <h3>Municipal Educational Assistance Program</h3>
+          </div>
+          <button class="prog-modal-close" onclick="closeProgModal('modal-EDUCATIONAL')"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="prog-modal-divider" style="background:linear-gradient(90deg,#a16207,#fbbf24);"></div>
+        <div class="prog-modal-body">
+          <p>The Educational Assistance Program supports indigent students of Socorro by providing financial assistance for tuition fees, school supplies, and other educational expenses to help them continue their studies.</p>
+          <ul class="prog-detail-list">
+            <li><i class="bi bi-check-circle-fill" style="color:#16a34a;"></i><span><strong>Who can apply:</strong> Indigent students from elementary to college level who are residents of Socorro.</span></li>
+            <li><i class="bi bi-check-circle-fill" style="color:#16a34a;"></i><span><strong>Type of aid:</strong> Financial assistance for tuition, school supplies, uniforms, and other educational needs.</span></li>
+            <li><i class="bi bi-check-circle-fill" style="color:#16a34a;"></i><span><strong>Requirements:</strong> Valid ID, certificate of enrollment, report card, proof of indigency, and barangay certification.</span></li>
+            <li><i class="bi bi-info-circle-fill" style="color:#a16207;"></i><span><strong>Note:</strong> Students must maintain good academic standing and reapply each school year.</span></li>
+          </ul>
+        </div>
+        <div class="prog-modal-footer">
+          <span class="office-note"><i class="bi bi-geo-alt me-1"></i>MSWDO — Socorro Municipality</span>
+          <button class="prog-modal-select-btn" style="background:linear-gradient(135deg,#a16207,#92400e);" onclick="selectProgram('EDUCATIONAL'); closeProgModal('modal-EDUCATIONAL');"><i class="bi bi-check2 me-1"></i>Apply for Educational Assistance</button>
+        </div>
+      </div>
     </div>
 
     <!-- AICS -->
@@ -306,6 +468,7 @@
       </div>
       <div class="box-divider"></div>
       <div class="form-grid-2">
+        <div class="field"><label>Valid ID</label><input type="file" name="aics_valid_id"></div>
         <div class="field"><label>Barangay Certificate</label><input type="file" name="aics_barangay_cert"></div>
         <div class="field"><label>Medical / Death Certificate</label><input type="file" name="aics_medical_death_cert"></div>
         <div class="field"><label>Official Receipt</label><input type="file" name="aics_receipt"></div>
@@ -316,6 +479,7 @@
     <div id="SEA" class="program-box">
       <h3><i class="bi bi-briefcase-fill"></i> SEA Requirements</h3>
       <div class="form-grid-2">
+        <div class="field"><label>Valid ID</label><input type="file" name="sea_valid_id"></div>
         <div class="field"><label>Barangay Clearance</label><input type="file" name="sea_barangay_clearance"></div>
         <div class="field"><label>Cedula</label><input type="file" name="sea_cedula"></div>
         <div class="field"><label>Project Proposal</label><input type="file" name="sea_project_proposal"></div>
@@ -359,6 +523,7 @@
       </div>
       <div class="box-divider"></div>
       <div class="form-grid-2">
+        <div class="field"><label>Valid ID</label><input type="file" name="edu_valid_id"></div>
         <div class="field"><label>Letter of Appeal</label><input type="file" name="edu_letter"></div>
         <div class="field"><label>Certificate of Indigency</label><input type="file" name="edu_indigency"></div>
         <div class="field"><label>Grades / Report Card</label><input type="file" name="edu_grades"></div>
@@ -392,5 +557,56 @@
   }
 </script>
 
+
+  <script>
+    var _currentProgram = '';
+
+    function updateInfoBtn() {
+      var sel = document.getElementById('aidType');
+      var btn = document.getElementById('progInfoBtn');
+      _currentProgram = sel.value;
+      btn.style.display = _currentProgram ? 'flex' : 'none';
+    }
+
+    function openProgModal() {
+      if (!_currentProgram) return;
+      var overlay = document.getElementById('modal-' + _currentProgram);
+      if (overlay) {
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeProgModal(id) {
+      var overlay = document.getElementById(id);
+      if (overlay) {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }
+
+    function selectProgram(value) {
+      var sel = document.getElementById('aidType');
+      sel.value = value;
+      showFields();
+      updateInfoBtn();
+    }
+
+    // Close on overlay click
+    document.querySelectorAll('.prog-modal-overlay').forEach(function(overlay) {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closeProgModal(overlay.id);
+      });
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.prog-modal-overlay.open').forEach(function(o) {
+          closeProgModal(o.id);
+        });
+      }
+    });
+  </script>
 </body>
 </html>

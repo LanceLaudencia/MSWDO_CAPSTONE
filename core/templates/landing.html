@@ -35,7 +35,6 @@
     .navbar{display:flex;justify-content:space-between;align-items:center;padding:16px 52px;max-width:1400px;margin:0 auto;transition:var(--transition);}
     .navbar.scrolled{padding:10px 52px;}
 
-    /* ── Logo — double-click secret staff access ── */
     .logo{display:flex;align-items:center;gap:10px;font-family:'Montserrat',sans-serif;font-size:1.3rem;font-weight:900;color:var(--blue);letter-spacing:.5px;transition:var(--transition);cursor:pointer;user-select:none;}
     .logo .shield-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:1.1rem;box-shadow:0 3px 10px var(--shadow);position:relative;overflow:hidden;}
     .logo .shield-icon::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--yellow),var(--red));}
@@ -47,14 +46,12 @@
     .nav-link:hover,.nav-link.active{color:var(--blue);}
     .nav-link:hover::after,.nav-link.active::after{width:100%;}
 
-    /* Client "Apply" button — visible */
     .apply-btn{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;padding:9px 22px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:7px;transition:var(--transition);box-shadow:0 4px 14px var(--shadow);position:relative;overflow:hidden;}
     .apply-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--red),var(--red-dark));opacity:0;transition:var(--transition);}
     .apply-btn:hover::before{opacity:1;}
     .apply-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(206,17,38,0.3);}
     .apply-btn i,.apply-btn span{position:relative;z-index:1;}
 
-    /* Staff logout button — only shown when authenticated */
     .logout-btn{background:rgba(0,56,168,0.08);color:var(--blue);border:1.5px solid var(--blue-border);padding:8px 18px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:7px;transition:var(--transition);}
     .logout-btn:hover{background:var(--red-light);color:var(--red);border-color:rgba(206,17,38,0.3);}
 
@@ -90,19 +87,31 @@
     .stat-item{text-align:left;}
     .stat-number{font-family:'Montserrat',sans-serif;font-size:2.2rem;font-weight:900;color:var(--blue);line-height:1;margin-bottom:4px;}
     .stat-label{font-family:'Montserrat',sans-serif;font-size:.65rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;}
-    .hero-image{position:relative;animation:slideInRight .9s ease-out;}
+    .hero-image{position:relative;animation:slideInRight .9s ease-out;display:flex;align-items:center;justify-content:center;}
     @keyframes slideInRight{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
-    .image-wrapper{position:relative;}
-    .image-wrapper img{width:100%;max-width:460px;margin:0 auto;animation:float 5s ease-in-out infinite;filter:drop-shadow(0 20px 40px rgba(0,56,168,0.18));}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
-    .floating-card{position:absolute;background:white;padding:13px 20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,40,130,0.14);display:flex;align-items:center;gap:10px;font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;color:var(--dark);border-left:3px solid var(--blue);animation:floatCard 6s ease-in-out infinite;}
-    .floating-card i{color:var(--blue);font-size:1.1rem;}
-    .card-1{top:8%;right:-8%;animation-delay:0s;}
-    .card-2{top:50%;left:-8%;animation-delay:2s;border-left-color:var(--red);}
-    .card-2 i{color:var(--red);}
-    .card-3{bottom:12%;right:8%;animation-delay:4s;border-left-color:var(--yellow-dark);}
-    .card-3 i{color:var(--yellow-dark);}
-    @keyframes floatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+    /* ── Hero logo display box ── */
+    .logo-display-box{
+      width:100%;
+      max-width:560px;
+      height:560px;
+      border-radius:24px;
+      overflow:hidden;
+      margin:0 auto;
+      box-shadow:0 24px 60px rgba(0,56,168,0.18),0 0 0 4px rgba(0,56,168,0.08);
+      border:3px solid rgba(0,56,168,0.12);
+      background:rgba(255,255,255,0.85);
+      backdrop-filter:blur(8px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .logo-display-box img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      object-position:center center;
+    }
 
     /* ── Sections ── */
     section{padding:100px 0;position:relative;}
@@ -209,17 +218,7 @@
     .footer-links a:hover{color:var(--yellow);}
     .footer-links span{color:rgba(255,255,255,0.2);}
 
-    /* ── Hidden staff portal link — invisible, only accessible by those who know ── */
-    .staff-secret-link{
-      opacity:0;
-      font-size:1px;
-      color:transparent;
-      pointer-events:auto;
-      user-select:none;
-      position:absolute;
-      width:1px;height:1px;
-      overflow:hidden;
-    }
+    .staff-secret-link{opacity:0;font-size:1px;color:transparent;pointer-events:auto;user-select:none;position:absolute;width:1px;height:1px;overflow:hidden;}
 
     #backTop{position:fixed;bottom:36px;right:36px;width:46px;height:46px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;border-radius:10px;display:none;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;z-index:999;box-shadow:0 6px 20px var(--shadow);transition:var(--transition);}
     #backTop:hover{transform:translateY(-4px) rotate(360deg);box-shadow:0 10px 28px var(--shadow-md);background:linear-gradient(135deg,var(--red),var(--red-dark));}
@@ -227,6 +226,7 @@
     .parallax-circle{position:fixed;border-radius:50%;pointer-events:none;opacity:.05;z-index:0;}
     .circle-1{width:180px;height:180px;background:var(--blue);top:15%;left:4%;animation:float 8s ease-in-out infinite;}
     .circle-2{width:130px;height:130px;background:var(--red);bottom:20%;right:5%;animation:float 6s ease-in-out infinite reverse;}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
 
     @media(max-width:992px){
       .navbar{padding:14px 28px;}
@@ -235,8 +235,7 @@
       .hero-buttons{justify-content:center;}
       .hero-stats{justify-content:center;}
       .hero p{max-width:100%;}
-      .image-wrapper img{margin:0 auto;}
-      .floating-card{display:none;}
+      .logo-display-box{max-width:420px;height:420px;}
       .about-content{grid-template-columns:1fr;gap:40px;}
       section{padding:80px 0;}
       .section-header h2{font-size:2rem;}
@@ -249,6 +248,7 @@
       .hero-buttons{flex-direction:column;width:100%;}
       .btn-hero-primary,.btn-hero-secondary,.btn-hero-apply{width:100%;justify-content:center;}
       .hero-stats{flex-direction:column;gap:20px;text-align:center;}
+      .logo-display-box{max-width:320px;height:320px;}
       .services-grid,.announcements-grid{grid-template-columns:1fr;}
       .about-images{grid-template-columns:1fr;}
       .footer-top{grid-template-columns:1fr;}
@@ -261,6 +261,7 @@
       .hero h1{font-size:1.8rem;}
       .section-header h2{font-size:1.7rem;}
       .contact-box{padding:28px 20px;}
+      .logo-display-box{max-width:260px;height:260px;}
     }
   </style>
 </head>
@@ -270,14 +271,8 @@
   <div class="parallax-circle circle-1"></div>
   <div class="parallax-circle circle-2"></div>
 
-  <!-- HEADER -->
   <header>
     <nav class="navbar" id="navbar">
-
-      <!--
-        LOGO — Double-click to open staff/admin portal.
-        This is invisible to regular users. Staff/admin know to double-click the logo.
-      -->
       <div class="logo" id="staffLogoAccess" title="MSWDO">
         <div class="shield-icon"><i class="bi bi-shield-fill"></i></div>
         <span>MSWDO</span>
@@ -292,12 +287,6 @@
         <li><a href="#contact" class="nav-link">Contact</a></li>
       </ul>
 
-      <!--
-        ACCOUNT AREA:
-        - If staff/admin is already logged in  → show Logout button
-        - If not logged in                     → show ONLY Apply Now (for clients)
-        - The staff login URL is NOT visible   → accessed via logo double-click
-      -->
       {% if user.is_authenticated %}
         <form method="post" action="{% url 'logout' %}" class="auth-form">
           {% csrf_token %}
@@ -343,12 +332,14 @@
           <div class="stat-item"><div class="stat-number">24/7</div><div class="stat-label">Support</div></div>
         </div>
       </div>
+
+      <!-- RIGHT SIDE: Steady large seal display box -->
       <div class="hero-image">
-        <div class="image-wrapper">
-          <img src="{% static 'images/newlogo.png' %}" alt="DSWD Logo" />
-     
+        <div class="logo-display-box">
+          <img src="{% static 'images/socorro_seal.png' %}" alt="Municipality of Socorro Official Seal" />
         </div>
       </div>
+
     </div>
   </section>
 
@@ -519,11 +510,8 @@
         <div class="footer-bottom-content">
           <p>
             &copy; 2025 MSWDO Socorro. All rights reserved. Republic of the Philippines.
-           
-
             <a href="{% url 'access_code' %}" class="staff-secret-link" tabindex="-1" aria-hidden="true">.</a>
           </p>
-         
         </div>
       </div>
     </div>
@@ -532,7 +520,6 @@
   <script>
     document.documentElement.classList.add("js-enabled");
 
-    // Back to top & navbar scroll
     const backTop = document.getElementById("backTop");
     const navbar  = document.getElementById("navbar");
     window.addEventListener("scroll", () => {
@@ -549,9 +536,6 @@
     });
     backTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
-    // ── Secret staff access: double-click the MSWDO logo ──────────────────
-    // Regular users will never discover this — they'll just think the logo
-    // is not clickable. Staff/admin know to double-click it to reach the login.
     let logoClickCount = 0;
     let logoClickTimer = null;
     document.getElementById('staffLogoAccess').addEventListener('click', function() {
@@ -564,13 +548,11 @@
       }
     });
 
-    // Scroll reveal
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); });
     }, { threshold: 0.12, rootMargin: "0px 0px -50px 0px" });
     document.querySelectorAll(".fade-in").forEach(el => revealObserver.observe(el));
 
-    // Parallax
     window.addEventListener("mousemove", e => {
       document.querySelectorAll(".parallax-circle").forEach((circle, i) => {
         const speed = (i + 1) * 0.05;
@@ -578,7 +560,6 @@
       });
     });
 
-    // Smooth scroll
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener("click", function(e) {
         e.preventDefault();
@@ -587,7 +568,6 @@
       });
     });
 
-    // Mobile menu
     const mobileToggle = document.getElementById("mobileToggle");
     const navMenu = document.querySelector(".nav-menu");
     if (mobileToggle) {
@@ -604,7 +584,6 @@
       });
     }
 
-    // Image error fallback
     document.querySelectorAll("img").forEach(img => {
       img.addEventListener("error", function() {
         this.style.minHeight = "200px";

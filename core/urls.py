@@ -98,8 +98,13 @@ path('reports/generate/', views.generate_report, name='generate_report'),
     
     path('analytics/barangay/', views.barangay_analytics, name='barangay_analytics'),
     
+    
     path('client/verify/', views.client_verify, name='client_verify'),
 path('client/resend-verification/', views.resend_client_verification, name='resend_client_verification'),
+
+path('account/update-profile/', views.admin_update_profile, name='admin_update_profile'),
+path('account/change-password/', views.admin_change_password, name='admin_change_password'),
+
 ]
 
 

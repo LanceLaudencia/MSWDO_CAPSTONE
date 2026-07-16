@@ -1,281 +1,565 @@
 {% extends "base.html" %}
 {% load humanize %}
+
 {% block content %}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-<div class="container-fluid">
+<style>
+  /* ── Dark surface tokens ── */
+  :root {
+    --dk-bg:      #0b0f17;
+    --dk-surf:    #111827;
+    --dk-surf2:   #0f172a;
+    --dk-border:  #1f2d42;
+    --dk-muted:   #2a3a52;
+    --dk-dim:     #4f6a8a;
+    --dk-ink:     #8facc8;
+    --dk-hi:      #c8ddef;
+    --dk-white:   #eef4fb;
 
-  <!-- ===================== PAGE HEADER ===================== -->
-  <div class="d-flex justify-content-between align-items-center mb-4 page-header">
+    --teal:       #2dd4bf;
+    --amber:      #f59e0b;
+    --indigo:     #818cf8;
+    --pink:       #f472b6;
+    --danger:     #f87171;
+    --green:      #34d399;
+    --orange:     #fb923c;
+    --sky:        #38bdf8;
+
+    --font-mono:  'DM Mono', monospace;
+    --cr:         12px;
+  }
+
+  /* ── Scope dark styles to .dk-scope so base layout stays intact ── */
+  .dk-scope { color: var(--dk-ink); }
+
+  /* ── Page header ── */
+  .dk-page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 14px;
+    padding: 20px 24px; border-radius: var(--cr);
+    background: var(--dk-surf);
+    border: 1px solid var(--dk-border);
+    margin-bottom: 20px; position: relative; overflow: hidden;
+  }
+
+  .dk-page-header::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: repeating-linear-gradient(
+      45deg, transparent, transparent 40px,
+      rgba(255,255,255,0.018) 40px, rgba(255,255,255,0.018) 41px
+    );
+  }
+
+  .dk-page-header::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--teal) 0%, var(--indigo) 50%, var(--pink) 100%);
+  }
+
+  .dk-header-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2rem; font-weight: 900;
+    color: var(--dk-white); margin-bottom: 2px; position: relative; z-index: 1;
+  }
+
+  .dk-header-sub {
+    font-family: var(--font-mono);
+    font-size: 0.68rem; color: var(--dk-dim);
+    text-transform: uppercase; letter-spacing: 0.8px; position: relative; z-index: 1;
+  }
+
+  .dk-live-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(45,212,191,.08);
+    border: 1px solid rgba(45,212,191,.22);
+    border-radius: 100px; padding: 6px 14px;
+    font-family: var(--font-mono); font-size: 0.7rem; color: var(--teal);
+    position: relative; z-index: 1;
+  }
+
+  .live-dot {
+    width: 7px; height: 7px; background: var(--teal);
+    border-radius: 50%; animation: blink-live 2s ease-in-out infinite;
+  }
+
+  @keyframes blink-live { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  .dk-gen-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: linear-gradient(135deg, var(--indigo), #6366f1);
+    color: white; border: none; padding: 9px 18px; border-radius: 9px;
+    font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none;
+    box-shadow: 0 4px 14px rgba(129,140,248,0.30);
+    transition: all .2s; position: relative; z-index: 1; overflow: hidden;
+  }
+
+  .dk-gen-btn::before {
+    content: ''; position: absolute; top:0; left:-100%; width:100%; height:100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    transition: left 0.4s;
+  }
+
+  .dk-gen-btn:hover::before { left: 100%; }
+  .dk-gen-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(129,140,248,0.42); color: white; }
+
+  /* ── Stat cards ── */
+  .dk-stat-grid {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 14px; margin-bottom: 16px;
+  }
+
+  @media (max-width: 768px) { .dk-stat-grid { grid-template-columns: 1fr; } }
+
+  .dk-stat-card {
+    background: var(--dk-surf); border: 1px solid var(--dk-border);
+    border-radius: var(--cr); padding: 18px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: relative; overflow: hidden;
+    transition: border-color .2s, transform .2s;
+  }
+
+  .dk-stat-card:hover { transform: translateY(-2px); }
+
+  .dk-stat-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+  }
+
+  .sc-teal::before   { background: linear-gradient(90deg, var(--teal), transparent); }
+  .sc-amber::before  { background: linear-gradient(90deg, var(--amber), transparent); }
+  .sc-green::before  { background: linear-gradient(90deg, var(--green), transparent); }
+
+  .dk-stat-card:hover.sc-teal  { border-color: var(--teal); }
+  .dk-stat-card:hover.sc-amber { border-color: var(--amber); }
+  .dk-stat-card:hover.sc-green { border-color: var(--green); }
+
+  .dk-stat-val {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2rem; font-weight: 900;
+    color: var(--dk-white); line-height: 1; margin-bottom: 3px;
+  }
+
+  .dk-stat-lbl {
+    font-family: var(--font-mono);
+    font-size: 0.65rem; color: var(--dk-dim);
+    text-transform: uppercase; letter-spacing: 0.8px;
+  }
+
+  .dk-stat-icon {
+    width: 52px; height: 52px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
+  }
+
+  .si-teal   { background: rgba(45,212,191,.10); color: var(--teal);   border: 1px solid rgba(45,212,191,.2); }
+  .si-amber  { background: rgba(245,158,11,.10); color: var(--amber);  border: 1px solid rgba(245,158,11,.2); }
+  .si-green  { background: rgba(52,211,153,.10); color: var(--green);  border: 1px solid rgba(52,211,153,.2); }
+
+  /* ── Pipeline strip ── */
+  .dk-pipeline {
+    display: grid; grid-template-columns: repeat(6,1fr);
+    gap: 10px; margin-bottom: 16px;
+  }
+
+  @media (max-width: 768px) { .dk-pipeline { grid-template-columns: repeat(3,1fr); } }
+
+  .dk-pipe-card {
+    background: var(--dk-surf); border: 1px solid var(--dk-border);
+    border-radius: var(--cr); padding: 14px 10px; text-align: center;
+    border-left: 3px solid;
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .dk-pipe-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+
+  .dk-pipe-count {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.7rem; font-weight: 900;
+    color: var(--dk-white); line-height: 1;
+  }
+
+  .dk-pipe-lbl {
+    font-family: var(--font-mono);
+    font-size: 0.6rem; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--dk-dim); margin-top: 5px;
+  }
+
+  /* ── Section label ── */
+  .dk-section-label {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono); font-size: 0.68rem;
+    text-transform: uppercase; letter-spacing: 1.2px; color: var(--dk-dim);
+    margin-bottom: 12px; margin-top: 6px;
+  }
+
+  .dk-section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--dk-border);
+  }
+
+  /* ── Chart cards ── */
+  .dk-card {
+    background: var(--dk-surf); border: 1px solid var(--dk-border);
+    border-radius: var(--cr); padding: 22px 24px;
+    position: relative; overflow: hidden;
+    transition: border-color .2s, transform .2s;
+  }
+
+  .dk-card:hover { transform: translateY(-2px); }
+
+  .dk-card-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.82rem; font-weight: 800;
+    color: var(--dk-hi); margin-bottom: 3px;
+    display: flex; align-items: center; gap: 7px;
+  }
+
+  .dk-card-title i { font-size: 0.9rem; }
+
+  .dk-card-sub {
+    font-family: var(--font-mono);
+    font-size: 0.65rem; color: var(--dk-dim); margin-bottom: 18px;
+  }
+
+  .dk-badge {
+    display: inline-flex; align-items: center;
+    font-family: var(--font-mono); font-size: 0.6rem;
+    padding: 3px 9px; border-radius: 100px; font-weight: 500;
+  }
+
+  .db-teal   { background: rgba(45,212,191,.08); color: var(--teal);   border: 1px solid rgba(45,212,191,.2); }
+  .db-sky    { background: rgba(56,189,248,.08); color: var(--sky);    border: 1px solid rgba(56,189,248,.2); }
+  .db-green  { background: rgba(52,211,153,.08); color: var(--green);  border: 1px solid rgba(52,211,153,.2); }
+  .db-amber  { background: rgba(245,158,11,.08); color: var(--amber);  border: 1px solid rgba(245,158,11,.2); }
+  .db-indigo { background: rgba(129,140,248,.08); color: var(--indigo); border: 1px solid rgba(129,140,248,.2); }
+
+  /* ── Latest applications table ── */
+  .dk-table-card {
+    background: var(--dk-surf); border: 1px solid var(--dk-border);
+    border-radius: var(--cr); overflow: hidden; margin-top: 4px;
+  }
+
+  .dk-table-header {
+    padding: 16px 22px; border-bottom: 1px solid var(--dk-border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .dk-table-header-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.82rem; font-weight: 800; color: var(--dk-hi);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .dk-table-header-title i { color: var(--teal); }
+
+  .dk-view-all {
+    font-family: var(--font-mono); font-size: 0.68rem;
+    color: var(--teal); text-decoration: none;
+    transition: all .2s;
+  }
+
+  .dk-view-all:hover { color: var(--dk-white); letter-spacing: 0.5px; }
+
+  .dk-tbl { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+
+  .dk-tbl thead th {
+    font-family: var(--font-mono); font-size: 0.62rem;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--dk-dim); padding: 10px 16px;
+    border-bottom: 1px solid var(--dk-border); text-align: left;
+  }
+
+  .dk-tbl tbody td {
+    padding: 12px 16px; color: var(--dk-ink);
+    border-bottom: 1px solid rgba(31,45,66,.5); vertical-align: middle;
+  }
+
+  .dk-tbl tbody tr:last-child td { border-bottom: none; }
+  .dk-tbl tbody tr { transition: background .15s; }
+  .dk-tbl tbody tr:hover td { background: rgba(255,255,255,.025); }
+
+  .row-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--dk-muted); color: var(--dk-dim);
+    font-family: var(--font-mono); font-size: 0.68rem;
+  }
+
+  .client-link {
+    color: var(--dk-hi); font-weight: 700;
+    text-decoration: none; transition: color .2s;
+  }
+
+  .client-link:hover { color: var(--teal); }
+
+  .prog-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--font-mono); font-size: 0.6rem;
+    padding: 3px 9px; border-radius: 5px; text-transform: uppercase;
+  }
+
+  .chip-aics    { background: rgba(56,189,248,.10); color: var(--sky);    border: 1px solid rgba(56,189,248,.22); }
+  .chip-sea     { background: rgba(52,211,153,.10); color: var(--green);  border: 1px solid rgba(52,211,153,.22); }
+  .chip-redcard { background: rgba(248,113,113,.10);color: var(--danger); border: 1px solid rgba(248,113,113,.22); }
+  .chip-edu     { background: rgba(245,158,11,.10); color: var(--amber);  border: 1px solid rgba(245,158,11,.22); }
+  .chip-other   { background: rgba(129,140,248,.10);color: var(--indigo); border: 1px solid rgba(129,140,248,.22); }
+
+  .status-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--font-mono); font-size: 0.6rem;
+    padding: 3px 9px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.4px;
+  }
+
+  .status-chip .dot { width: 5px; height: 5px; border-radius: 50%; }
+
+  .st-pending    { background: rgba(245,158,11,.10); color: var(--amber);  border: 1px solid rgba(245,158,11,.22); }
+  .st-pending .dot    { background: var(--amber); animation: blink-live 2s ease-in-out infinite; }
+  .st-assessment { background: rgba(56,189,248,.10); color: var(--sky);    border: 1px solid rgba(56,189,248,.22); }
+  .st-assessment .dot { background: var(--sky); }
+  .st-approval   { background: rgba(129,140,248,.10);color: var(--indigo); border: 1px solid rgba(129,140,248,.22); }
+  .st-approval .dot   { background: var(--indigo); }
+  .st-release    { background: rgba(251,146,60,.10); color: var(--orange); border: 1px solid rgba(251,146,60,.22); }
+  .st-release .dot    { background: var(--orange); }
+  .st-released   { background: rgba(52,211,153,.10); color: var(--green);  border: 1px solid rgba(52,211,153,.22); }
+  .st-released .dot   { background: var(--green); }
+  .st-rejected   { background: rgba(248,113,113,.10);color: var(--danger); border: 1px solid rgba(248,113,113,.22); }
+  .st-rejected .dot   { background: var(--danger); }
+
+  /* Empty state */
+  .dk-empty { text-align: center; padding: 48px 20px; color: var(--dk-dim); }
+  .dk-empty i { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+  .dk-empty p { font-family: var(--font-mono); font-size: 0.78rem; }
+
+  /* Chart layout */
+  .chart-row-2 { display: grid; grid-template-columns: 7fr 5fr; gap: 14px; margin-bottom: 14px; }
+  .chart-row-eq { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .chart-row-rev { display: grid; grid-template-columns: 5fr 7fr; gap: 14px; margin-bottom: 14px; }
+
+  @media (max-width: 900px) {
+    .chart-row-2, .chart-row-eq, .chart-row-rev { grid-template-columns: 1fr; }
+  }
+
+  /* Reveal animation */
+  .dk-reveal { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+  .dk-reveal.visible { opacity: 1; transform: none; }
+</style>
+
+<div class="dk-scope">
+
+  <!-- ── Page header ── -->
+  <div class="dk-page-header dk-reveal">
     <div>
-      <h3 class="fw-bold text-primary mb-0 animate-slide-in">📊 Dashboard Overview</h3>
-      <span class="text-muted small animate-fade-in">Real-time system insights</span>
+      <div class="dk-header-title"><i class="bi bi-bar-chart-fill me-2" style="color:var(--teal);"></i>Dashboard Overview</div>
+      <div class="dk-header-sub">Real-time system insights · MSWDO Socorro</div>
     </div>
     <div class="d-flex align-items-center gap-3">
-      <a href="{% url 'generate_report' %}"
-         class="btn btn-sm d-flex align-items-center gap-2"
-         style="background:linear-gradient(135deg,#0038A8,#002882);color:white;border:none;padding:9px 18px;border-radius:9px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.75rem;letter-spacing:.5px;text-transform:uppercase;text-decoration:none;box-shadow:0 4px 14px rgba(0,56,168,0.25);transition:all .2s;"
-         onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,56,168,0.35)'"
-         onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 14px rgba(0,56,168,0.25)'">
-        <i class="bi bi-file-earmark-arrow-down-fill"></i>
-        Generate Report
+      <a href="{% url 'generate_report' %}" class="dk-gen-btn">
+        <i class="bi bi-file-earmark-arrow-down-fill"></i> Generate Report
       </a>
-      <div class="pulse-dot"></div>
-    </div>
-  </div>
-
-  <!-- ===================== TOP STAT CARDS ===================== -->
-  <div class="row g-4 mb-4">
-    <div class="col-md-4">
-      <div class="card stat-card shadow-sm border-0 rounded-4 card-animate" style="animation-delay: 0.1s">
-        <div class="card-body d-flex justify-content-between align-items-center">
-          <div>
-            <h4 class="fw-bold mb-0 counter-number" data-target="{{ total_beneficiaries|default:0 }}">0</h4>
-            <small class="text-muted">Total Beneficiaries</small>
-          </div>
-          <div class="icon-wrapper icon-primary">
-            <i class="bi bi-people-fill fs-1"></i>
-          </div>
-        </div>
-        <div class="card-glow glow-primary"></div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card stat-card shadow-sm border-0 rounded-4 card-animate" style="animation-delay: 0.2s">
-        <div class="card-body d-flex justify-content-between align-items-center">
-          <div>
-            <h4 class="fw-bold mb-0 counter-number" data-target="{{ pending_applications|default:0 }}">0</h4>
-            <small class="text-muted">Pending Applications</small>
-          </div>
-          <div class="icon-wrapper icon-warning">
-            <i class="bi bi-hourglass-split fs-1"></i>
-          </div>
-        </div>
-        <div class="card-glow glow-warning"></div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card stat-card shadow-sm border-0 rounded-4 card-animate" style="animation-delay: 0.3s">
-        <div class="card-body d-flex justify-content-between align-items-center">
-          <div>
-            <h4 class="fw-bold mb-0">₱<span class="counter-number" data-target="{{ monthly_disbursements|floatformat:0|default:0 }}">0</span></h4>
-            <small class="text-muted">Monthly Disbursements</small>
-          </div>
-          <div class="icon-wrapper icon-success">
-            <i class="bi bi-cash-coin fs-1"></i>
-          </div>
-        </div>
-        <div class="card-glow glow-success"></div>
+      <div class="dk-live-badge">
+        <div class="live-dot"></div> Live
       </div>
     </div>
   </div>
 
-  <!-- ===================== PIPELINE MINI-STATS ===================== -->
-  <div class="row g-3 mb-4">
-    <div class="col">
-      <div class="pipeline-card" style="border-left-color:#f59e0b;">
-        <div class="pipeline-count">{{ pipeline_counts.pending }}</div>
-        <div class="pipeline-label">Pending</div>
+  <!-- ── Stat cards ── -->
+  <div class="dk-stat-grid">
+    <div class="dk-stat-card sc-teal dk-reveal">
+      <div>
+        <div class="dk-stat-val counter-number" data-target="{{ total_beneficiaries|default:0 }}">0</div>
+        <div class="dk-stat-lbl">Total Beneficiaries</div>
       </div>
+      <div class="dk-stat-icon si-teal"><i class="bi bi-people-fill"></i></div>
     </div>
-    <div class="col">
-      <div class="pipeline-card" style="border-left-color:#17a2b8;">
-        <div class="pipeline-count">{{ pipeline_counts.assessment }}</div>
-        <div class="pipeline-label">Assessment</div>
+
+    <div class="dk-stat-card sc-amber dk-reveal">
+      <div>
+        <div class="dk-stat-val counter-number" data-target="{{ pending_applications|default:0 }}">0</div>
+        <div class="dk-stat-lbl">Pending Applications</div>
       </div>
+      <div class="dk-stat-icon si-amber"><i class="bi bi-hourglass-split"></i></div>
     </div>
-    <div class="col">
-      <div class="pipeline-card" style="border-left-color:#6f42c1;">
-        <div class="pipeline-count">{{ pipeline_counts.approval }}</div>
-        <div class="pipeline-label">For Approval</div>
+
+    <div class="dk-stat-card sc-green dk-reveal">
+      <div>
+        <div class="dk-stat-val">₱<span class="counter-number" data-target="{{ monthly_disbursements|floatformat:0|default:0 }}">0</span></div>
+        <div class="dk-stat-lbl">Monthly Disbursements</div>
       </div>
-    </div>
-    <div class="col">
-      <div class="pipeline-card" style="border-left-color:#fd7e14;">
-        <div class="pipeline-count">{{ pipeline_counts.release }}</div>
-        <div class="pipeline-label">For Release</div>
-      </div>
-    </div>
-    <div class="col">
-      <div class="pipeline-card" style="border-left-color:#28a745;">
-        <div class="pipeline-count">{{ pipeline_counts.released }}</div>
-        <div class="pipeline-label">Released</div>
-      </div>
-    </div>
-    <div class="col">
-      <div class="pipeline-card" style="border-left-color:#dc3545;">
-        <div class="pipeline-count">{{ pipeline_counts.rejected }}</div>
-        <div class="pipeline-label">Rejected</div>
-      </div>
+      <div class="dk-stat-icon si-green"><i class="bi bi-cash-coin"></i></div>
     </div>
   </div>
 
-  <!-- ===================== CHARTS ROW 1 ===================== -->
-  <div class="row g-4 mb-4">
-    <div class="col-lg-7">
-      <div class="card shadow-sm border-0 rounded-4 h-100 chart-card card-animate" style="animation-delay: 0.5s">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-semibold mb-0">
-              <i class="bi bi-bar-chart-fill text-primary me-2"></i>Beneficiaries per Program
-            </h6>
-            <span class="badge bg-primary-subtle text-primary">Active</span>
-          </div>
-          <canvas id="barChart" height="120"></canvas>
-        </div>
-      </div>
+  <!-- ── Pipeline strip ── -->
+  <div class="dk-pipeline dk-reveal">
+    <div class="dk-pipe-card" style="border-left-color:var(--amber);">
+      <div class="dk-pipe-count">{{ pipeline_counts.pending }}</div>
+      <div class="dk-pipe-lbl">Pending</div>
     </div>
-
-    <div class="col-lg-5">
-      <div class="card shadow-sm border-0 rounded-4 h-100 chart-card card-animate" style="animation-delay: 0.6s">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-semibold mb-0">
-              <i class="bi bi-pie-chart-fill text-primary me-2"></i>Application Status Distribution
-            </h6>
-            <span class="badge bg-info-subtle text-info">Live</span>
-          </div>
-          <canvas id="doughnutChart" height="140"></canvas>
-        </div>
-      </div>
+    <div class="dk-pipe-card" style="border-left-color:var(--sky);">
+      <div class="dk-pipe-count">{{ pipeline_counts.assessment }}</div>
+      <div class="dk-pipe-lbl">Assessment</div>
+    </div>
+    <div class="dk-pipe-card" style="border-left-color:var(--indigo);">
+      <div class="dk-pipe-count">{{ pipeline_counts.approval }}</div>
+      <div class="dk-pipe-lbl">For Approval</div>
+    </div>
+    <div class="dk-pipe-card" style="border-left-color:var(--orange);">
+      <div class="dk-pipe-count">{{ pipeline_counts.release }}</div>
+      <div class="dk-pipe-lbl">For Release</div>
+    </div>
+    <div class="dk-pipe-card" style="border-left-color:var(--green);">
+      <div class="dk-pipe-count">{{ pipeline_counts.released }}</div>
+      <div class="dk-pipe-lbl">Released</div>
+    </div>
+    <div class="dk-pipe-card" style="border-left-color:var(--danger);">
+      <div class="dk-pipe-count">{{ pipeline_counts.rejected }}</div>
+      <div class="dk-pipe-lbl">Rejected</div>
     </div>
   </div>
 
-  <!-- ===================== CHARTS ROW 2 ===================== -->
-  <div class="row g-4 mb-4">
-    <div class="col-lg-6">
-      <div class="card shadow-sm border-0 rounded-4 chart-card card-animate" style="animation-delay: 0.7s">
-        <div class="card-body">
-          <h6 class="fw-semibold mb-3">
-            <i class="bi bi-check2-circle text-success me-2"></i>Eligibility Overview
-          </h6>
-          <canvas id="eligibilityChart" height="120"></canvas>
-        </div>
+  <!-- ── Charts Row 1: Bar + Doughnut ── -->
+  <div class="dk-section-label dk-reveal">
+    <i class="bi bi-bar-chart-line"></i> Distribution
+  </div>
+
+  <div class="chart-row-2">
+    <div class="dk-card dk-reveal">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <div class="dk-card-title"><i class="bi bi-bar-chart-fill" style="color:var(--teal);"></i> Beneficiaries per Program</div>
+        <span class="dk-badge db-teal">Active</span>
       </div>
+      <div class="dk-card-sub">Applications by assistance category</div>
+      <canvas id="barChart" height="120"></canvas>
     </div>
 
-    <div class="col-lg-6">
-      <div class="card shadow-sm border-0 rounded-4 chart-card card-animate" style="animation-delay: 0.8s">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-semibold mb-0">
-              <i class="bi bi-graph-up text-primary me-2"></i>Active Clients Over Time
-            </h6>
-            <span class="badge bg-success-subtle text-success">Trending</span>
-          </div>
-          <canvas id="lineChart" height="90"></canvas>
-        </div>
+    <div class="dk-card dk-reveal">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <div class="dk-card-title"><i class="bi bi-pie-chart-fill" style="color:var(--sky);"></i> Status Distribution</div>
+        <span class="dk-badge db-sky">Live</span>
       </div>
+      <div class="dk-card-sub">Application status breakdown</div>
+      <canvas id="doughnutChart" height="140"></canvas>
     </div>
   </div>
 
-  <!-- ===================== CHARTS ROW 3 ===================== -->
-  <div class="row g-4 mb-4">
-    <div class="col-lg-5">
-      <div class="card shadow-sm border-0 rounded-4 h-100 chart-card card-animate" style="animation-delay: 0.9s">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-semibold mb-0">
-              <i class="bi bi-gender-ambiguous text-primary me-2"></i>Sex Distribution
-            </h6>
-            <span class="badge bg-primary-subtle text-primary">Clients</span>
-          </div>
-          <canvas id="sexChart" height="140"></canvas>
-        </div>
-      </div>
+  <!-- ── Charts Row 2: Eligibility + Line ── -->
+  <div class="chart-row-eq">
+    <div class="dk-card dk-reveal">
+      <div class="dk-card-title"><i class="bi bi-check2-circle" style="color:var(--green);"></i> Eligibility Overview</div>
+      <div class="dk-card-sub">Eligible vs. Not Eligible results</div>
+      <canvas id="eligibilityChart" height="120"></canvas>
     </div>
 
-    <div class="col-lg-7">
-      <div class="card shadow-sm border-0 rounded-4 h-100 chart-card card-animate" style="animation-delay: 1.0s">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-semibold mb-0">
-              <i class="bi bi-diagram-3-fill text-primary me-2"></i>Clients by Sector
-            </h6>
-            <span class="badge bg-warning-subtle text-warning">Sectors</span>
-          </div>
-          <canvas id="sectorChart" height="140"></canvas>
-        </div>
+    <div class="dk-card dk-reveal">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <div class="dk-card-title"><i class="bi bi-graph-up" style="color:var(--indigo);"></i> Active Clients Over Time</div>
+        <span class="dk-badge db-green">Trending</span>
       </div>
+      <div class="dk-card-sub">Monthly registration trend</div>
+      <canvas id="lineChart" height="90"></canvas>
     </div>
   </div>
 
-  <!-- ===================== LATEST APPLICATIONS ===================== -->
-  <div class="card shadow-sm border-0 rounded-4 mt-2 table-card card-animate" style="animation-delay: 1.1s">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h6 class="fw-semibold mb-0">
-          <i class="bi bi-person-lines-fill text-primary me-2"></i>Latest Applications
-        </h6>
-        <a href="{% url 'pending_applications' %}" class="text-decoration-none small text-primary hover-link">View All →</a>
+  <!-- ── Charts Row 3: Sex + Sector ── -->
+  <div class="chart-row-rev">
+    <div class="dk-card dk-reveal">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <div class="dk-card-title"><i class="bi bi-gender-ambiguous" style="color:var(--pink);"></i> Sex Distribution</div>
+        <span class="dk-badge db-indigo">Clients</span>
       </div>
+      <div class="dk-card-sub">Registered client sex breakdown</div>
+      <canvas id="sexChart" height="140"></canvas>
+    </div>
 
-      <div class="table-responsive">
-        <table class="table table-hover align-middle modern-table">
-          <thead class="table-light">
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Barangay</th>
-              <th>Program</th>
-              <th>Status</th>
-              <th>Date Applied</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for app in latest_applications %}
-            <tr class="table-row-animate" style="animation-delay: {{ forloop.counter|add:9 }}00ms">
-              <td><span class="badge bg-light text-dark">{{ forloop.counter }}</span></td>
-              <td>
-                <a href="{% url 'application_detail' app.id %}"
-                   class="fw-semibold text-decoration-none text-dark">
-                  {{ app.client.first_name }} {{ app.client.last_name }}
-                </a>
-              </td>
-              <td class="text-muted">{{ app.client.barangay|default:"—" }}</td>
-              <td>
-                <span class="badge rounded-pill
-                  {% if app.aid_type == 'AICS' %}bg-primary
-                  {% elif app.aid_type == 'SEA' %}bg-success
-                  {% elif app.aid_type == 'REDCARD' %}bg-danger
-                  {% elif app.aid_type == 'EDUCATIONAL' %}bg-warning text-dark
-                  {% else %}bg-secondary{% endif %}">
-                  {{ app.aid_type }}
-                </span>
-              </td>
-              <td>
-                <span class="badge rounded-pill" style="
-                  {% if app.status == 'PENDING' %}background:#f59e0b;color:#fff;
-                  {% elif app.status == 'ASSESSMENT' %}background:#17a2b8;color:#fff;
-                  {% elif app.status == 'APPROVAL' %}background:#6f42c1;color:#fff;
-                  {% elif app.status == 'RELEASE' %}background:#fd7e14;color:#fff;
-                  {% elif app.status == 'RELEASED' %}background:#28a745;color:#fff;
-                  {% elif app.status == 'REJECTED' %}background:#dc3545;color:#fff;
-                  {% else %}background:#6c757d;color:#fff;{% endif %}">
-                  {{ app.status }}
-                </span>
-              </td>
-              <td><span class="text-muted">{{ app.created_at|date:"M d, Y" }}</span></td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="6" class="text-center text-muted py-5">
-                <i class="bi bi-inbox fs-2 d-block mb-2"></i>No applications found.
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    <div class="dk-card dk-reveal">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <div class="dk-card-title"><i class="bi bi-diagram-3-fill" style="color:var(--amber);"></i> Clients by Sector</div>
+        <span class="dk-badge db-amber">Sectors</span>
       </div>
+      <div class="dk-card-sub">Socio-economic sector classification</div>
+      <canvas id="sectorChart" height="140"></canvas>
     </div>
   </div>
 
-</div>
+  <!-- ── Latest Applications ── -->
+  <div class="dk-section-label dk-reveal">
+    <i class="bi bi-person-lines-fill"></i> Latest Applications
+  </div>
 
-<!-- ===================== JSON DATA ===================== -->
+  <div class="dk-table-card dk-reveal">
+    <div class="dk-table-header">
+      <div class="dk-table-header-title">
+        <i class="bi bi-inbox-fill"></i> Recent Submissions
+      </div>
+      <a href="{% url 'pending_applications' %}" class="dk-view-all">View All →</a>
+    </div>
+    <div class="table-responsive">
+      <table class="dk-tbl">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Barangay</th>
+            <th>Program</th>
+            <th>Status</th>
+            <th>Date Applied</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in latest_applications %}
+          <tr>
+            <td><span class="row-num">{{ forloop.counter }}</span></td>
+            <td>
+              <a href="{% url 'application_detail' app.id %}" class="client-link">
+                {{ app.client.first_name }} {{ app.client.last_name }}
+              </a>
+            </td>
+            <td style="font-size:0.82rem;">{{ app.client.barangay|default:"—" }}</td>
+            <td>
+              <span class="prog-chip
+                {% if app.aid_type == 'AICS' %}chip-aics
+                {% elif app.aid_type == 'SEA' %}chip-sea
+                {% elif app.aid_type == 'REDCARD' %}chip-redcard
+                {% elif app.aid_type == 'EDUCATIONAL' %}chip-edu
+                {% else %}chip-other{% endif %}">
+                {{ app.aid_type }}
+              </span>
+            </td>
+            <td>
+              <span class="status-chip
+                {% if app.status == 'PENDING' %}st-pending
+                {% elif app.status == 'ASSESSMENT' %}st-assessment
+                {% elif app.status == 'APPROVAL' %}st-approval
+                {% elif app.status == 'RELEASE' %}st-release
+                {% elif app.status == 'RELEASED' %}st-released
+                {% elif app.status == 'REJECTED' %}st-rejected
+                {% else %}st-pending{% endif %}">
+                <span class="dot"></span> {{ app.status }}
+              </span>
+            </td>
+            <td style="font-family:var(--font-mono);font-size:0.72rem;">{{ app.created_at|date:"M d, Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6">
+              <div class="dk-empty">
+                <i class="bi bi-inbox"></i>
+                <p>No applications found.</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /dk-scope -->
+
+<!-- JSON data islands -->
 {{ program_labels|json_script:"program_labels" }}
 {{ program_values|json_script:"program_values" }}
 {{ status_labels|json_script:"status_labels" }}
@@ -289,413 +573,304 @@
 {{ sector_labels|json_script:"sector_labels" }}
 {{ sector_values|json_script:"sector_values" }}
 
+{% endblock %}
+
+
+{% block extra_js %}
 <script>
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function safeParseJSON(elementId, defaultValue = []) {
-  try {
-    const el = document.getElementById(elementId);
-    if (!el || !el.textContent) return defaultValue;
-    return JSON.parse(el.textContent);
-  } catch (e) {
-    console.error(`Error parsing ${elementId}:`, e);
-    return defaultValue;
+(function () {
+  'use strict';
+
+  function safeJSON(id, def) {
+    try {
+      const el = document.getElementById(id);
+      return el ? JSON.parse(el.textContent) : def;
+    } catch(e) { return def; }
   }
-}
 
-// ── Data ─────────────────────────────────────────────────────────────────────
-const programs          = safeParseJSON("program_labels",     ["No Data"]);
-const programCounts     = safeParseJSON("program_values",     [0]);
-const statuses          = safeParseJSON("status_labels",      ["No Data"]);
-const statusCounts      = safeParseJSON("status_values",      [0]);
-const months            = safeParseJSON("month_labels",       ["No Data"]);
-const monthCounts       = safeParseJSON("month_values",       [0]);
-const eligibilityLabels = safeParseJSON("eligibility_labels", ["Eligible","Not Eligible"]);
-const eligibilityValues = safeParseJSON("eligibility_values", [0,0]);
-const sexLabels         = safeParseJSON("sex_labels",         ["Male","Female"]);
-const sexValues         = safeParseJSON("sex_values",         [0,0]);
-const sectorLabels      = safeParseJSON("sector_labels",      ["No Data"]);
-const sectorValues      = safeParseJSON("sector_values",      [0]);
+  const programs          = safeJSON('program_labels',     ['No Data']);
+  const programCounts     = safeJSON('program_values',     [0]);
+  const statuses          = safeJSON('status_labels',      ['No Data']);
+  const statusCounts      = safeJSON('status_values',      [0]);
+  const months            = safeJSON('month_labels',       ['No Data']);
+  const monthCounts       = safeJSON('month_values',       [0]);
+  const eligibilityLabels = safeJSON('eligibility_labels', ['Eligible','Not Eligible']);
+  const eligibilityValues = safeJSON('eligibility_values', [0,0]);
+  const sexLabels         = safeJSON('sex_labels',         ['Male','Female']);
+  const sexValues         = safeJSON('sex_values',         [0,0]);
+  const sectorLabels      = safeJSON('sector_labels',      ['No Data']);
+  const sectorValues      = safeJSON('sector_values',      [0]);
 
-// ── Colour palette ────────────────────────────────────────────────────────────
-const PALETTE = [
-  'rgba(99,102,241,0.85)','rgba(236,72,153,0.85)','rgba(251,146,60,0.85)',
-  'rgba(34,197,94,0.85)', 'rgba(59,130,246,0.85)','rgba(168,85,247,0.85)',
-  'rgba(239,68,68,0.85)', 'rgba(20,184,166,0.85)','rgba(245,158,11,0.85)',
-  'rgba(139,92,246,0.85)','rgba(6,182,212,0.85)', 'rgba(217,70,239,0.85)',
-  'rgba(16,185,129,0.85)','rgba(249,115,22,0.85)','rgba(14,165,233,0.85)',
-  'rgba(234,179,8,0.85)', 'rgba(244,63,94,0.85)',
-];
-const solid = arr => arr.map(c => c.replace('0.85','1'));
-
-const TOOLTIP_DEFAULTS = {
-  backgroundColor: 'rgba(0,0,0,0.85)',
-  padding: 15,
-  cornerRadius: 10,
-  titleFont: { size: 14, weight: 'bold' },
-  bodyFont: { size: 13 },
-};
-
-// ── 1. Bar — Beneficiaries per Program ───────────────────────────────────────
-const barCtx = document.getElementById("barChart");
-if (barCtx) {
-  new Chart(barCtx, {
-    type: "bar",
-    data: {
-      labels: programs,
-      datasets: [{
-        data: programCounts,
-        backgroundColor: PALETTE.slice(0, programs.length),
-        hoverBackgroundColor: solid(PALETTE.slice(0, programs.length)),
-        borderRadius: 10, barThickness: 40,
-        borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)'
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: true,
-      plugins: { legend: { display: false }, tooltip: TOOLTIP_DEFAULTS },
-      scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }, ticks: { font: { size: 12 }, padding: 10 } },
-        x: { grid: { display: false }, ticks: { font: { size: 12 }, padding: 5 } }
-      },
-      animation: { duration: 2000, easing: 'easeOutQuart' }
-    }
-  });
-}
-
-// ── 2. Doughnut — Application Status ─────────────────────────────────────────
-const doughnutCtx = document.getElementById("doughnutChart");
-if (doughnutCtx) {
-  new Chart(doughnutCtx, {
-    type: "doughnut",
-    data: {
-      labels: statuses,
-      datasets: [{
-        data: statusCounts,
-        backgroundColor: PALETTE.slice(0, statuses.length),
-        hoverBackgroundColor: solid(PALETTE.slice(0, statuses.length)),
-        borderWidth: 3, borderColor: '#fff', hoverBorderWidth: 4, hoverOffset: 15
-      }]
-    },
-    options: {
-      cutout: "65%", responsive: true, maintainAspectRatio: true,
-      plugins: {
-        legend: {
-          position: "bottom",
-          labels: {
-            padding: 20, font: { size: 12, weight: '600' },
-            usePointStyle: true, pointStyle: 'circle',
-            generateLabels(chart) {
-              return chart.data.labels.map((label, i) => ({
-                text: `${label} (${chart.data.datasets[0].data[i]})`,
-                fillStyle: chart.data.datasets[0].backgroundColor[i],
-                hidden: false, index: i
-              }));
-            }
-          }
-        },
-        tooltip: {
-          ...TOOLTIP_DEFAULTS,
-          callbacks: {
-            label(ctx) {
-              const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
-              const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
-              return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
-            }
-          }
-        }
-      },
-      animation: { animateRotate: true, animateScale: true, duration: 2000, easing: 'easeOutQuart' }
-    }
-  });
-}
-
-// ── 3. Bar — Eligibility ──────────────────────────────────────────────────────
-const eligibilityCtx = document.getElementById("eligibilityChart");
-if (eligibilityCtx) {
-  new Chart(eligibilityCtx, {
-    type: "bar",
-    data: {
-      labels: eligibilityLabels,
-      datasets: [{
-        data: eligibilityValues,
-        backgroundColor: ['rgba(34,197,94,0.85)','rgba(239,68,68,0.85)'],
-        hoverBackgroundColor: ['rgba(34,197,94,1)','rgba(239,68,68,1)'],
-        borderRadius: 10, barThickness: 60,
-        borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)'
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: true,
-      plugins: { legend: { display: false }, tooltip: TOOLTIP_DEFAULTS },
-      scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false } },
-        x: { grid: { display: false } }
-      },
-      animation: { duration: 1500, easing: 'easeOutQuart' }
-    }
-  });
-}
-
-// ── 4. Line — Clients Over Time ───────────────────────────────────────────────
-const lineCtx = document.getElementById("lineChart");
-if (lineCtx) {
-  const grad = lineCtx.getContext('2d').createLinearGradient(0, 0, 0, 300);
-  grad.addColorStop(0, 'rgba(99,102,241,0.4)');
-  grad.addColorStop(1, 'rgba(99,102,241,0.01)');
-  new Chart(lineCtx, {
-    type: "line",
-    data: {
-      labels: months,
-      datasets: [{
-        data: monthCounts,
-        fill: true,
-        backgroundColor: grad,
-        borderColor: 'rgba(99,102,241,0.9)',
-        borderWidth: 3, tension: 0.4,
-        pointBackgroundColor: 'rgba(99,102,241,1)',
-        pointBorderColor: '#fff', pointBorderWidth: 3,
-        pointRadius: 6, pointHoverRadius: 8
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: true,
-      plugins: { legend: { display: false }, tooltip: TOOLTIP_DEFAULTS },
-      scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }, ticks: { font: { size: 12 }, padding: 10 } },
-        x: { grid: { display: false }, ticks: { font: { size: 12 }, padding: 5 } }
-      },
-      animation: { duration: 2000, easing: 'easeOutQuart' }
-    }
-  });
-}
-
-// ── 5. Bar — Sex Distribution ─────────────────────────────────────────────────
-const sexCtx = document.getElementById("sexChart");
-if (sexCtx) {
-  const sexColors = [
-    'rgba(59,130,246,0.85)',
-    'rgba(236,72,153,0.85)',
-    'rgba(168,85,247,0.85)',
-    'rgba(34,197,94,0.85)',
+  /* ── Shared palette ── */
+  const P = [
+    '#2dd4bf','#f59e0b','#818cf8','#f87171','#34d399',
+    '#fb923c','#a78bfa','#38bdf8','#4ade80','#facc15',
+    '#f472b6','#6366f1','#ec4899','#14b8a6','#84cc16',
+    '#e879f9','#06b6d4',
   ];
-  new Chart(sexCtx, {
-    type: "bar",
-    data: {
-      labels: sexLabels,
-      datasets: [{
-        label: 'Clients',
-        data: sexValues,
-        backgroundColor: sexColors.slice(0, sexLabels.length),
-        hoverBackgroundColor: solid(sexColors.slice(0, sexLabels.length)),
-        borderRadius: 10, barThickness: 70,
-        borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)'
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          ...TOOLTIP_DEFAULTS,
-          callbacks: {
-            label(ctx) {
-              const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
-              const pct = total > 0 ? ((ctx.parsed.y / total) * 100).toFixed(1) : 0;
-              return ` ${ctx.parsed.y} clients (${pct}%)`;
-            }
-          }
-        }
-      },
-      scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }, ticks: { font: { size: 12 }, padding: 10 } },
-        x: { grid: { display: false }, ticks: { font: { size: 13, weight: '600' }, padding: 5 } }
-      },
-      animation: { duration: 1500, easing: 'easeOutQuart' }
-    }
-  });
-}
 
-// ── 6. Doughnut — Clients by Sector ──────────────────────────────────────────
-const sectorCtx = document.getElementById("sectorChart");
-if (sectorCtx) {
-  new Chart(sectorCtx, {
-    type: "doughnut",
-    data: {
-      labels: sectorLabels,
-      datasets: [{
-        data: sectorValues,
-        backgroundColor: PALETTE.slice(0, sectorLabels.length),
-        hoverBackgroundColor: solid(PALETTE.slice(0, sectorLabels.length)),
-        borderWidth: 3, borderColor: '#fff', hoverBorderWidth: 4, hoverOffset: 15
-      }]
-    },
-    options: {
-      cutout: "60%", responsive: true, maintainAspectRatio: true,
-      plugins: {
-        legend: {
-          position: "bottom",
-          labels: {
-            padding: 14, font: { size: 11, weight: '600' },
-            usePointStyle: true, pointStyle: 'circle',
-            generateLabels(chart) {
-              return chart.data.labels.map((label, i) => ({
-                text: `${label} (${chart.data.datasets[0].data[i]})`,
-                fillStyle: chart.data.datasets[0].backgroundColor[i],
-                hidden: false, index: i
-              }));
-            }
-          }
+  Chart.defaults.color         = '#4f6a8a';
+  Chart.defaults.borderColor   = '#1f2d42';
+  Chart.defaults.font.family   = "'DM Mono', monospace";
+  Chart.defaults.font.size     = 11;
+
+  const TOOLTIP = {
+    backgroundColor: 'rgba(11,15,23,0.96)',
+    titleFont: { family: "'Montserrat',sans-serif", size: 11, weight: '700' },
+    bodyFont:  { family: "'DM Mono',monospace", size: 11 },
+    padding: 10, cornerRadius: 8,
+    borderColor: '#1f2d42', borderWidth: 1,
+  };
+
+  const GRID_COLOR = 'rgba(31,45,66,0.6)';
+
+  /* ── 1. Bar — Programs ── */
+  const barEl = document.getElementById('barChart');
+  if (barEl) {
+    new Chart(barEl, {
+      type: 'bar',
+      data: {
+        labels: programs,
+        datasets: [{
+          data: programCounts,
+          backgroundColor: P.slice(0, programs.length).map(c => c + 'bb'),
+          borderColor: P.slice(0, programs.length),
+          borderWidth: 1.5, borderRadius: 7,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false }, tooltip: TOOLTIP },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+          y: { beginAtZero: true, grid: { color: GRID_COLOR }, ticks: { maxTicksLimit: 6, font: { size: 10 } } }
         },
-        tooltip: {
-          ...TOOLTIP_DEFAULTS,
-          callbacks: {
-            label(ctx) {
-              const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
-              const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
-              return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
-            }
-          }
-        }
-      },
-      animation: { animateRotate: true, animateScale: true, duration: 2000, easing: 'easeOutQuart' }
-    }
-  });
-}
-
-// ── Counter Animation ─────────────────────────────────────────────────────────
-function animateCounter(element) {
-  const target = parseInt(element.getAttribute('data-target')) || 0;
-  const increment = target / (2000 / 16);
-  let current = 0;
-  const timer = setInterval(() => {
-    current += increment;
-    if (current >= target) {
-      element.textContent = target.toLocaleString();
-      clearInterval(timer);
-    } else {
-      element.textContent = Math.floor(current).toLocaleString();
-    }
-  }, 16);
-}
-
-// ── Intersection Observer ─────────────────────────────────────────────────────
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-      if (entry.target.classList.contains('stat-card')) {
-        const counter = entry.target.querySelector('.counter-number');
-        if (counter && !counter.classList.contains('animated')) {
-          counter.classList.add('animated');
-          animateCounter(counter);
-        }
+        animation: { duration: 1500, easing: 'easeOutQuart' }
       }
-    }
-  });
-}, { threshold: 0.2, rootMargin: '0px 0px -50px 0px' });
+    });
+  }
 
-document.querySelectorAll('.card-animate, .table-row-animate').forEach(el => observer.observe(el));
+  /* ── 2. Doughnut — Status ── */
+  const doughnutEl = document.getElementById('doughnutChart');
+  if (doughnutEl) {
+    const statusColors = {
+      'PENDING':'#f59e0b','Pending':'#f59e0b',
+      'ASSESSMENT':'#38bdf8','Assessment':'#38bdf8',
+      'APPROVAL':'#818cf8','For Approval':'#818cf8',
+      'RELEASE':'#fb923c','For Release':'#fb923c',
+      'RELEASED':'#34d399','Released':'#34d399',
+      'REJECTED':'#f87171','Rejected':'#f87171',
+    };
+    const colors = statuses.map(function(s,i){ return statusColors[s] || P[i % P.length]; });
 
-document.querySelectorAll('.modern-table tbody tr').forEach(row => {
-  row.addEventListener('mouseenter', function () { this.style.transform = 'scale(1.01)'; });
-  row.addEventListener('mouseleave', function () { this.style.transform = 'scale(1)'; });
-});
+    new Chart(doughnutEl, {
+      type: 'doughnut',
+      data: {
+        labels: statuses,
+        datasets: [{
+          data: statusCounts,
+          backgroundColor: colors,
+          borderColor: '#111827', borderWidth: 2.5,
+          hoverOffset: 8,
+        }]
+      },
+      options: {
+        cutout: '65%', responsive: true, maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { padding: 14, boxWidth: 10, boxHeight: 10, color: '#8facc8',
+              generateLabels(chart) {
+                return chart.data.labels.map(function(label, i) {
+                  return {
+                    text: label + ' (' + chart.data.datasets[0].data[i] + ')',
+                    fillStyle: chart.data.datasets[0].backgroundColor[i],
+                    hidden: false, index: i
+                  };
+                });
+              }
+            }
+          },
+          tooltip: Object.assign({}, TOOLTIP, {
+            callbacks: {
+              label: function(ctx) {
+                var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
+                var pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                return ' ' + ctx.label + ': ' + ctx.parsed + ' (' + pct + '%)';
+              }
+            }
+          })
+        },
+        animation: { animateRotate: true, animateScale: true, duration: 1800, easing: 'easeOutQuart' }
+      }
+    });
+  }
+
+  /* ── 3. Bar — Eligibility ── */
+  const eligEl = document.getElementById('eligibilityChart');
+  if (eligEl) {
+    new Chart(eligEl, {
+      type: 'bar',
+      data: {
+        labels: eligibilityLabels,
+        datasets: [{
+          data: eligibilityValues,
+          backgroundColor: ['rgba(52,211,153,.75)', 'rgba(248,113,113,.75)'],
+          borderColor:      ['#34d399', '#f87171'],
+          borderWidth: 1.5, borderRadius: 7,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false }, tooltip: TOOLTIP },
+        scales: {
+          x: { grid: { display: false } },
+          y: { beginAtZero: true, grid: { color: GRID_COLOR }, ticks: { maxTicksLimit: 5, font: { size: 10 } } }
+        },
+        animation: { duration: 1200, easing: 'easeOutQuart' }
+      }
+    });
+  }
+
+  /* ── 4. Line — Clients Over Time ── */
+  const lineEl = document.getElementById('lineChart');
+  if (lineEl) {
+    var ctx2 = lineEl.getContext('2d');
+    var grad = ctx2.createLinearGradient(0, 0, 0, 280);
+    grad.addColorStop(0, 'rgba(129,140,248,0.30)');
+    grad.addColorStop(1, 'rgba(129,140,248,0.01)');
+    new Chart(lineEl, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [{
+          data: monthCounts,
+          fill: true, backgroundColor: grad,
+          borderColor: '#818cf8', borderWidth: 2.5, tension: 0.4,
+          pointBackgroundColor: '#818cf8', pointBorderColor: '#111827',
+          pointBorderWidth: 2.5, pointRadius: 4, pointHoverRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false }, tooltip: TOOLTIP },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+          y: { beginAtZero: true, grid: { color: GRID_COLOR }, ticks: { maxTicksLimit: 5, font: { size: 10 } } }
+        },
+        animation: { duration: 1800, easing: 'easeOutQuart' }
+      }
+    });
+  }
+
+  /* ── 5. Bar — Sex ── */
+  const sexEl = document.getElementById('sexChart');
+  if (sexEl) {
+    const sexPalette = ['rgba(56,189,248,.75)','rgba(244,114,182,.75)','rgba(129,140,248,.75)','rgba(52,211,153,.75)'];
+    const sexBorder  = ['#38bdf8','#f472b6','#818cf8','#34d399'];
+    new Chart(sexEl, {
+      type: 'bar',
+      data: {
+        labels: sexLabels,
+        datasets: [{
+          label: 'Clients',
+          data: sexValues,
+          backgroundColor: sexPalette.slice(0, sexLabels.length),
+          borderColor: sexBorder.slice(0, sexLabels.length),
+          borderWidth: 1.5, borderRadius: 7,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false }, tooltip: TOOLTIP },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' } } },
+          y: { beginAtZero: true, grid: { color: GRID_COLOR }, ticks: { maxTicksLimit: 5, font: { size: 10 } } }
+        },
+        animation: { duration: 1200, easing: 'easeOutQuart' }
+      }
+    });
+  }
+
+  /* ── 6. Doughnut — Sector ── */
+  const sectorEl = document.getElementById('sectorChart');
+  if (sectorEl) {
+    new Chart(sectorEl, {
+      type: 'doughnut',
+      data: {
+        labels: sectorLabels,
+        datasets: [{
+          data: sectorValues,
+          backgroundColor: P.slice(0, sectorLabels.length),
+          borderColor: '#111827', borderWidth: 2.5, hoverOffset: 8,
+        }]
+      },
+      options: {
+        cutout: '60%', responsive: true, maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { padding: 12, boxWidth: 10, boxHeight: 10, color: '#8facc8', font: { size: 10 },
+              generateLabels(chart) {
+                return chart.data.labels.map(function(label, i) {
+                  return {
+                    text: label + ' (' + chart.data.datasets[0].data[i] + ')',
+                    fillStyle: chart.data.datasets[0].backgroundColor[i],
+                    hidden: false, index: i
+                  };
+                });
+              }
+            }
+          },
+          tooltip: Object.assign({}, TOOLTIP, {
+            callbacks: {
+              label: function(ctx) {
+                var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
+                var pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                return ' ' + ctx.label + ': ' + ctx.parsed + ' (' + pct + '%)';
+              }
+            }
+          })
+        },
+        animation: { animateRotate: true, animateScale: true, duration: 1800, easing: 'easeOutQuart' }
+      }
+    });
+  }
+
+  /* ── Counter animation ── */
+  function animateCounter(el) {
+    var target = parseInt(el.getAttribute('data-target')) || 0;
+    var step = target / (1800 / 16);
+    var current = 0;
+    var timer = setInterval(function() {
+      current += step;
+      if (current >= target) {
+        el.textContent = target.toLocaleString();
+        clearInterval(timer);
+      } else {
+        el.textContent = Math.floor(current).toLocaleString();
+      }
+    }, 16);
+  }
+
+  /* ── Scroll reveal + counter trigger ── */
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        entry.target.querySelectorAll('.counter-number').forEach(function(el) {
+          if (!el.dataset.animated) {
+            el.dataset.animated = '1';
+            animateCounter(el);
+          }
+        });
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.dk-reveal').forEach(function(el) { obs.observe(el); });
+
+})();
 </script>
-
-<style>
-@keyframes slideInDown { from { opacity:0; transform:translateY(-30px); } to { opacity:1; transform:translateY(0); } }
-@keyframes fadeInUp    { from { opacity:0; transform:translateY(30px);  } to { opacity:1; transform:translateY(0); } }
-@keyframes pulse       { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.7; transform:scale(1.1); } }
-@keyframes glow        { 0%,100% { opacity:0.3; } 50% { opacity:0.6; } }
-
-.page-header {
-  position: relative; padding: 1rem;
-  background: linear-gradient(135deg, rgba(0,109,91,0.05), rgba(15,161,140,0.05));
-  border-radius: 1rem; margin-bottom: 2rem !important;
-}
-.animate-slide-in { animation: slideInDown 0.6s ease-out; }
-.animate-fade-in  { animation: fadeInUp 0.8s ease-out 0.2s backwards; }
-.pulse-dot {
-  width: 12px; height: 12px; background: #10b981;
-  border-radius: 50%; animation: pulse 2s ease-in-out infinite;
-  box-shadow: 0 0 0 0 rgba(16,185,129,0.4);
-}
-
-/* Pipeline */
-.pipeline-card {
-  background: #fff; border-left: 4px solid #ccc; border-radius: 10px;
-  padding: 16px 12px; text-align: center;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.pipeline-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-.pipeline-count { font-size: 1.8rem; font-weight: 700; color: #1a1a2e; line-height: 1; }
-.pipeline-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-top: 4px; font-weight: 600; }
-
-/* Stat cards */
-.stat-card {
-  position: relative; overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-}
-.stat-card::before {
-  content: ''; position: absolute; top: 0; left: -100%;
-  width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
-  transition: left 0.5s;
-}
-.stat-card:hover::before { left: 100%; }
-.stat-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 1rem 2rem rgba(0,109,91,0.15) !important; }
-.stat-card:hover .icon-wrapper { transform: rotate(360deg) scale(1.1); }
-.icon-wrapper { transition: all 0.3s ease; }
-.icon-primary { color: #006d5b; }
-.icon-warning { color: #f59e0b; }
-.icon-success { color: #10b981; }
-
-.card-glow { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; animation: glow 2s ease-in-out infinite; }
-.glow-primary { background: linear-gradient(90deg, #006d5b, #0fa18c); }
-.glow-warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-.glow-success { background: linear-gradient(90deg, #10b981, #34d399); }
-
-/* Card animations */
-.card-animate { opacity: 0; transform: translateY(30px); transition: all 0.6s ease-out; }
-.card-animate.visible { opacity: 1; transform: translateY(0); }
-
-/* Chart cards */
-.chart-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  transition: all 0.3s ease;
-}
-.chart-card:hover { transform: translateY(-4px); box-shadow: 0 1rem 2rem rgba(0,0,0,0.1) !important; }
-.chart-card .badge { font-size: 0.7rem; padding: 0.35em 0.65em; font-weight: 600; letter-spacing: 0.5px; }
-
-/* Table */
-.table-card { background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); }
-.modern-table { margin-bottom: 0; }
-.modern-table thead th {
-  border-bottom: 2px solid #e2e8f0; color: #475569;
-  font-weight: 600; font-size: 0.85rem;
-  text-transform: uppercase; letter-spacing: 0.5px; padding: 1rem;
-}
-.modern-table tbody tr { transition: all 0.3s ease; border-bottom: 1px solid #f1f5f9; }
-.modern-table tbody tr:hover { background: linear-gradient(90deg, rgba(0,109,91,0.03), transparent); }
-
-.table-row-animate { opacity: 0; transform: translateX(-20px); transition: all 0.4s ease-out; }
-.table-row-animate.visible { opacity: 1; transform: translateX(0); }
-
-.hover-link { transition: all 0.3s ease; font-weight: 500; }
-.hover-link:hover { transform: translateX(5px); color: #0fa18c !important; }
-
-.counter-number { font-variant-numeric: tabular-nums; transition: color 0.3s ease; }
-.stat-card:hover .counter-number { color: #006d5b; }
-
-@media (max-width: 768px) {
-  .stat-card { margin-bottom: 1rem; }
-  .page-header { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
-  .pulse-dot { position: absolute; top: 1rem; right: 1rem; }
-  .pipeline-card { padding: 12px 8px; }
-  .pipeline-count { font-size: 1.4rem; }
-}
-</style>
-
 {% endblock %}

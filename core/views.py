@@ -167,25 +167,65 @@ def admin_account(request):
         'admin': request.user,       # 👈 needed by your template
         'staffs': staff_members,     # 👈 rename to match template
     })
+  
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import update_session_auth_hash
+
+  
+def admin_update_profile(request):
+    email = request.POST.get('email', '').strip()
+    try:
+        validate_email(email)
+    except ValidationError:
+        messages.error(request, "Please enter a valid email address.")
+        return redirect(reverse('admin_account') + '#profile')
+ 
+    request.user.first_name = request.POST.get('first_name', '').strip()
+    request.user.last_name = request.POST.get('last_name', '').strip()
+    request.user.email = email
+    request.user.save()
+    messages.success(request, "Your profile has been updated.")
+    return redirect(reverse('admin_account') + '#profile')
+ 
+def admin_change_password(request):
+    current_password = request.POST.get('current_password', '')
+    new_password = request.POST.get('new_password', '')
+    confirm_password = request.POST.get('confirm_password', '')
+ 
+    if not request.user.check_password(current_password):
+        messages.error(request, "Your current password is incorrect.")
+        return redirect(reverse('admin_account') + '#security')
+ 
+    if new_password != confirm_password:
+        messages.error(request, "New password and confirmation do not match.")
+        return redirect(reverse('admin_account') + '#security')
+ 
+    try:
+        validate_password(new_password, user=request.user)
+    except ValidationError as e:
+        for err in e.messages:
+            messages.error(request, err)
+        return redirect(reverse('admin_account') + '#security')
+ 
+    request.user.set_password(new_password)
+    request.user.save()
+    update_session_auth_hash(request, request.user)  # keeps the admin logged in
+    messages.success(request, "Your password has been changed successfully.")
+    return redirect(reverse('admin_account') + '#security')
 
 
-
-@login_required
 def update_staff(request, staff_id):
-    # Only ADMIN can access this
-    if getattr(request.user, 'role', None) != 'admin' and not request.user.is_superuser:
-        return redirect('landing')
-
     staff = get_object_or_404(User, id=staff_id)
-
     if request.method == 'POST':
-        staff.first_name = request.POST.get('first_name')
-        staff.last_name = request.POST.get('last_name')
-        staff.email = request.POST.get('email')
+        staff.first_name = request.POST.get('first_name', '').strip()
+        staff.last_name = request.POST.get('last_name', '').strip()
+        staff.email = request.POST.get('email', '').strip()
         staff.role = request.POST.get('role')
         staff.save()
-        return redirect('admin_account')
-
+        messages.success(request, f"{staff.get_full_name() or staff.username}'s details have been updated.")
+        return redirect(reverse('admin_account') + '#staff')
     return render(request, 'update_staff.html', {'staff': staff})
 
 
@@ -497,16 +537,47 @@ def add_client(request):
             docs = {}
             if aid_type == "AICS":
                 AICSDetail.objects.create(application=application, crisis_type=request.POST.get("aics_crisis_type"))
-                docs = {"AICS Barangay Cert": request.FILES.get("aics_barangay_cert"), "Medical/Death Cert": request.FILES.get("aics_medical_death_cert"), "Official Receipt": request.FILES.get("aics_receipt")}
+                docs = {
+                    "Valid ID":            request.FILES.get("aics_valid_id"),
+                    "AICS Barangay Cert":  request.FILES.get("aics_barangay_cert"),
+                    "Medical/Death Cert":  request.FILES.get("aics_medical_death_cert"),
+                    "Official Receipt":    request.FILES.get("aics_receipt"),
+                }
             elif aid_type == "SEA":
                 SEADetail.objects.create(application=application)
-                docs = {"Barangay Clearance": request.FILES.get("sea_barangay_clearance"), "Cedula": request.FILES.get("sea_cedula"), "Project Proposal": request.FILES.get("sea_project_proposal"), "Project Picture": request.FILES.get("sea_project_picture")}
+                docs = {
+                    "Valid ID":            request.FILES.get("sea_valid_id"),
+                    "Barangay Clearance":  request.FILES.get("sea_barangay_clearance"),
+                    "Cedula":              request.FILES.get("sea_cedula"),
+                    "Project Proposal":    request.FILES.get("sea_project_proposal"),
+                    "Project Picture":     request.FILES.get("sea_project_picture"),
+                }
             elif aid_type == "REDCARD":
                 REDCARDDetail.objects.create(application=application, emergency_type=request.POST.get("redcard_emergency_type"), reason=request.POST.get("redcard_reason"), usage_count=request.POST.get("redcard_usage") or 1)
-                docs = {"Birth Certificate": request.FILES.get("redcard_birth_cert"), "Valid ID Picture": request.FILES.get("redcard_valid_id"), "Certificate of Indigency": request.FILES.get("redcard_indigency")}
+                docs = {
+                    "Birth Certificate":        request.FILES.get("redcard_birth_cert"),
+                    "Valid ID Picture":         request.FILES.get("redcard_valid_id"),
+                    "Certificate of Indigency": request.FILES.get("redcard_indigency"),
+                }
             elif aid_type == "EDUCATIONAL":
                 EducationalAssistanceDetail.objects.create(application=application, school_name=request.POST.get("school_name"), course_or_grade=request.POST.get("course_level"))
-                docs = {"Letter of Appeal": request.FILES.get("edu_letter"), "Certificate of Indigency": request.FILES.get("edu_indigency"), "Grades": request.FILES.get("edu_grades"), "Certificate of Enrollment": request.FILES.get("edu_enrollment"), "Billing Statement": request.FILES.get("edu_billing"), "Official Receipt": request.FILES.get("edu_receipt")}
+                docs = {
+                    "Valid ID":                   request.FILES.get("edu_valid_id"),
+                    "Letter of Appeal":           request.FILES.get("edu_letter"),
+                    "Certificate of Indigency":   request.FILES.get("edu_indigency"),
+                    "Grades":                     request.FILES.get("edu_grades"),
+                    "Certificate of Enrollment":  request.FILES.get("edu_enrollment"),
+                    "Billing Statement":          request.FILES.get("edu_billing"),
+                    "Official Receipt":           request.FILES.get("edu_receipt"),
+                }
+ 
+            # ── General supporting documents (Section VI of the intake form) ──
+            if request.FILES.get("valid_id"):
+                docs["Valid Government ID"] = request.FILES.get("valid_id")
+            if request.FILES.get("barangay_certificate"):
+                docs["Barangay Certificate"] = request.FILES.get("barangay_certificate")
+            if request.FILES.get("other_document"):
+                docs["Supporting Document"] = request.FILES.get("other_document")
  
             for doc_name, file in docs.items():
                 if file:
@@ -520,7 +591,6 @@ def add_client(request):
             messages.error(request, f"Submission failed: {e}")
  
     return render(request, "add_client.html")
- 
  
 
     
@@ -1017,15 +1087,11 @@ def client_delete(request, pk):
 
 @login_required
 def toggle_staff_status(request, staff_id):
-    # Only ADMIN can access this
-    if getattr(request.user, 'role', None) != 'admin' and not request.user.is_superuser:
-        return redirect('landing')
-
     staff = get_object_or_404(User, id=staff_id)
     staff.is_active = not staff.is_active
     staff.save()
-
-    return redirect('admin_account')
+    messages.success(request, f"{staff.get_full_name() or staff.username} is now {'active' if staff.is_active else 'inactive'}.")
+    return redirect(reverse('admin_account') + '#staff')
 
 
 from rest_framework.decorators import api_view
@@ -1565,11 +1631,16 @@ def toggle_staff(request, staff_id):
 
 def reset_staff_password(request, staff_id):
     staff = get_object_or_404(User, id=staff_id)
-    # Simple password reset to 'password123' for demo; replace with proper workflow
-    staff.set_password('password123')
+ 
+    temp_password = get_random_string(length=12)
+    staff.set_password(temp_password)
     staff.save()
-    messages.success(request, f"Password for {staff.get_full_name()} has been reset.")
-    return redirect('admin_account')
+    messages.success(
+        request,
+        f"Password for {staff.get_full_name() or staff.username} has been reset. "
+        f"Temporary password: {temp_password} — share this with them securely. It won't be shown again."
+    )
+    return redirect(reverse('admin_account') + '#staff')
 
 
 def edit_staff_role(request, staff_id):
@@ -1578,8 +1649,8 @@ def edit_staff_role(request, staff_id):
         role = request.POST.get('role')
         staff.role = role
         staff.save()
-        messages.success(request, f"{staff.get_full_name()}'s role has been updated to {role}.")
-        return redirect('admin_account')
+        messages.success(request, f"{staff.get_full_name() or staff.username}'s role has been updated to {role}.")
+        return redirect(reverse('admin_account') + '#staff')
     return render(request, 'edit_staff_role.html', {'staff': staff})
 
 
@@ -1587,7 +1658,7 @@ def staff_activity_logs(request, staff_id):
     staff = get_object_or_404(User, id=staff_id)
     activity_logs = [
         {"action": "Account Created", "date": staff.date_joined},
-        {"action": "Last Login", "date": staff.last_login or "Never"}
+        {"action": "Last Login", "date": staff.last_login or "Never"},
     ]
     return render(request, 'staff_activity_logs.html', {'staff': staff, 'activity_logs': activity_logs})
 
@@ -1987,24 +2058,24 @@ def client_apply_program(request):
     client_id = request.session.get("client_id")
     if not client_id:
         return redirect("client_login")
-
+ 
     client = get_object_or_404(Client, id=client_id)
-
+ 
     if request.method == "POST":
         aid_type = request.POST.get("aid_type")
-
+ 
         if not aid_type:
             messages.error(request, "Please select a program.")
             return redirect("client_apply_program")
-
+ 
         try:
             with transaction.atomic():
-
+ 
                 # ── ML Prediction (SAME AS add_client) ───────────────
                 try:
                     income = float(client.monthly_income)
                     hh     = int(client.household_size) or 1
-
+ 
                     ml_input = {
                         "monthly_income":    income,
                         "household_size":    hh,
@@ -2016,20 +2087,20 @@ def client_apply_program(request):
                         "is_indigenous":     1 if getattr(client, "is_indigenous", "No") == "Yes" else 0,
                         "is_4ps":            1 if getattr(client, "is_4ps", "No") == "Yes" else 0,
                     }
-
+ 
                     prediction = predict_input(ml_input, aid_type)
                     score      = compute_score(ml_input)
                     reason     = generate_reason(ml_input, prediction, aid_type)
-
+ 
                     eligibility = "Eligible" if prediction == 1 else "Not Eligible"
-
+ 
                 except Exception as ml_err:
                     import traceback
                     traceback.print_exc()
                     eligibility = "Not Eligible"
                     score = 0
                     reason = "Eligibility could not be determined automatically. Please assess manually."
-
+ 
                 # ── Create Application ───────────────────────────────
                 application = Application.objects.create(
                     client=client,
@@ -2039,11 +2110,11 @@ def client_apply_program(request):
                     eligibility_score=score,
                     eligibility_reason=reason,
                 )
-
+ 
                 print(f"📋 Application {application.id} created for {client.full_name}")
-
+ 
                 docs = {}
-
+ 
                 # ── AICS ─────────────────────────────────────────────
                 if aid_type == "AICS":
                     AICSDetail.objects.create(
@@ -2051,21 +2122,23 @@ def client_apply_program(request):
                         crisis_type=request.POST.get("aics_crisis_type"),
                     )
                     docs = {
-                        "AICS Barangay Certificate":  request.FILES.get("aics_barangay_cert"),
-                        "Medical / Death Certificate": request.FILES.get("aics_medical_death_cert"),
-                        "Official Receipt":            request.FILES.get("aics_receipt"),
+                        "Valid ID":                    request.FILES.get("aics_valid_id"),
+                        "AICS Barangay Certificate":    request.FILES.get("aics_barangay_cert"),
+                        "Medical / Death Certificate":  request.FILES.get("aics_medical_death_cert"),
+                        "Official Receipt":             request.FILES.get("aics_receipt"),
                     }
-
+ 
                 # ── SEA ──────────────────────────────────────────────
                 elif aid_type == "SEA":
                     SEADetail.objects.create(application=application)
                     docs = {
-                        "Barangay Clearance": request.FILES.get("sea_barangay_clearance"),
-                        "Cedula":             request.FILES.get("sea_cedula"),
-                        "Project Proposal":   request.FILES.get("sea_project_proposal"),
-                        "Project Picture":    request.FILES.get("sea_project_picture"),
+                        "Valid ID":            request.FILES.get("sea_valid_id"),
+                        "Barangay Clearance":  request.FILES.get("sea_barangay_clearance"),
+                        "Cedula":              request.FILES.get("sea_cedula"),
+                        "Project Proposal":    request.FILES.get("sea_project_proposal"),
+                        "Project Picture":     request.FILES.get("sea_project_picture"),
                     }
-
+ 
                 # ── REDCARD ──────────────────────────────────────────
                 elif aid_type == "REDCARD":
                     REDCARDDetail.objects.create(
@@ -2079,7 +2152,7 @@ def client_apply_program(request):
                         "Valid ID Picture":         request.FILES.get("redcard_valid_id"),
                         "Certificate of Indigency": request.FILES.get("redcard_indigency"),
                     }
-
+ 
                 # ── EDUCATIONAL ──────────────────────────────────────
                 elif aid_type == "EDUCATIONAL":
                     EducationalAssistanceDetail.objects.create(
@@ -2088,14 +2161,15 @@ def client_apply_program(request):
                         course_or_grade=request.POST.get("course_level"),
                     )
                     docs = {
-                        "Letter of Appeal":          request.FILES.get("edu_letter"),
-                        "Certificate of Indigency":  request.FILES.get("edu_indigency"),
-                        "Grades":                    request.FILES.get("edu_grades"),
-                        "Certificate of Enrollment": request.FILES.get("edu_enrollment"),
-                        "Billing Statement":         request.FILES.get("edu_billing"),
-                        "Official Receipt":          request.FILES.get("edu_receipt"),
+                        "Valid ID":                   request.FILES.get("edu_valid_id"),
+                        "Letter of Appeal":           request.FILES.get("edu_letter"),
+                        "Certificate of Indigency":   request.FILES.get("edu_indigency"),
+                        "Grades":                     request.FILES.get("edu_grades"),
+                        "Certificate of Enrollment":  request.FILES.get("edu_enrollment"),
+                        "Billing Statement":          request.FILES.get("edu_billing"),
+                        "Official Receipt":           request.FILES.get("edu_receipt"),
                     }
-
+ 
                 # ── Save Documents ───────────────────────────────────
                 for doc_name, file in docs.items():
                     if file:
@@ -2104,28 +2178,29 @@ def client_apply_program(request):
                             name=doc_name,
                             file=file,
                         )
-
+ 
                 # ── Notify Staff/Admin ───────────────────────────────
                 staff_admins = User.objects.filter(role__in=["staff", "admin"]) | User.objects.filter(is_superuser=True)
-
+ 
                 for user in staff_admins.distinct():
                     Notification.objects.create(
                         recipient=user,
                         message=f"New {aid_type} application from {client.full_name}",
                         link=f"/application/{application.id}/",
                     )
-
+ 
                 print("🎉 Application + ML + Notifications completed!")
-
+ 
             messages.success(request, "Application submitted successfully!")
             return redirect("client_applications")
-
+ 
         except Exception as e:
             import traceback
             traceback.print_exc()
             messages.error(request, f"Submission failed: {e}")
-
+ 
     return render(request, "client_apply_program.html", {"client": client})
+ 
 
 from django.views.decorators.http import require_POST
 @login_required
@@ -2912,359 +2987,340 @@ def generate_report(request):
     return response
 
 
-@login_required
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+import numpy as np
+
 def program_rate_prediction(request):
     """
-    3-Year application rate prediction for every MSWDO program.
-    Uses simple least-squares linear regression on monthly application counts.
+    Predict the potential application rate of every MSWDO program
+    over the next 3 years using Linear Regression.
     """
-    import datetime
-    from collections import defaultdict
- 
-    # Guard: staff/admin only
-    if not (
-        getattr(request.user, 'role', None) in ['admin', 'staff']
-        or request.user.is_superuser
-    ):
-        return redirect('landing')
- 
-    PROGRAMS = {
-        'AICS':        'AICS (Aid to Individuals in Crisis Situation)',
-        'SEA':         'Sustainable Livelihood (SEA)',
-        'REDCARD':     'Red Card',
-        'EDUCATIONAL': 'Educational Assistance',
-    }
- 
-    # ── 1. Fetch all historical monthly counts per program ───────────────────
-    qs = (
-        Application.objects
-        .annotate(month=TruncMonth('created_at'))
-        .values('aid_type', 'month')
-        .annotate(count=Count('id'))
-        .order_by('aid_type', 'month')
-    )
- 
-    raw = defaultdict(list)   # { 'AICS': [(date, count), ...], ... }
-    for row in qs:
-        if row['aid_type'] in PROGRAMS and row['month'] is not None:
-            # TruncMonth may return datetime or date depending on DB
-            d = row['month']
-            if hasattr(d, 'date'):
-                d = d.date()
-            raw[row['aid_type']].append((d, row['count']))
- 
-    # ── 2. Determine epoch (earliest month ever seen, or 2 years ago) ────────
-    all_dates = [d for entries in raw.values() for (d, _) in entries]
-    today     = timezone.now().date()
- 
-    if all_dates:
-        epoch = min(all_dates).replace(day=1)
-    else:
-        epoch = today.replace(day=1, month=1, year=today.year - 2)
- 
-    def month_idx(d):
-        """0-based integer index relative to epoch."""
-        d = d.replace(day=1)
-        return (d.year - epoch.year) * 12 + (d.month - epoch.month)
- 
-    def idx_to_label(idx):
-        """Convert a month index back to 'YYYY-MM' string."""
-        total_months = epoch.month + idx - 1   # 0-based offset from epoch month
-        yr = epoch.year + total_months // 12
-        mo = total_months % 12 + 1
-        return f"{yr}-{mo:02d}"
- 
-    # ── 3. Linear regression ─────────────────────────────────────────────────
-    def linear_regression(xy_pairs):
-        n = len(xy_pairs)
-        if n == 0:
-            return 0.0, 0.0
-        if n == 1:
-            return 0.0, float(xy_pairs[0][1])
-        sx  = sum(x for x, _ in xy_pairs)
-        sy  = sum(y for _, y in xy_pairs)
-        sxy = sum(x * y for x, y in xy_pairs)
-        sx2 = sum(x * x for x, _ in xy_pairs)
-        denom = n * sx2 - sx * sx
-        if denom == 0:
-            return 0.0, sy / n
-        slope     = (n * sxy - sx * sy) / denom
-        intercept = (sy - slope * sx) / n
-        return slope, intercept
- 
-    # ── 4. Build per-program data ────────────────────────────────────────────
-    cur_idx      = month_idx(today.replace(day=1))
-    programs_data = {}
-    summary_rows  = []
- 
-    for code, prog_label in PROGRAMS.items():
-        entries = raw.get(code, [])
- 
-        # Convert to (x, y) pairs for regression
-        xy = [(month_idx(d), c) for d, c in entries]
-        slope, intercept = linear_regression(xy)
- 
-        # ── Historical: last 24 months (fill 0 for months with no applications)
-        hist_labels = []
-        hist_values = []
-        hist_map    = {month_idx(d): c for d, c in entries}
-        start_idx   = max(cur_idx - 23, 0)
- 
-        for i in range(start_idx, cur_idx + 1):
-            hist_labels.append(idx_to_label(i))
-            hist_values.append(hist_map.get(i, 0))
- 
-        # ── Forecast: next 36 months ─────────────────────────────────────────
-        forecast_labels = []
-        forecast_values = []
-        yearly_totals   = [0, 0, 0]    # Year1, Year2, Year3
- 
-        for offset in range(1, 37):
-            fi  = cur_idx + offset
-            val = max(0, round(intercept + slope * fi))
-            forecast_labels.append(idx_to_label(fi))
-            forecast_values.append(val)
-            yearly_totals[(offset - 1) // 12] += val
- 
-        year_labels = [
-            str(today.year + 1),
-            str(today.year + 2),
-            str(today.year + 3),
-        ]
- 
-        # Trend label
-        if slope > 0.5:
-            trend = "📈 Increasing"
-            trend_class = "text-success"
-        elif slope < -0.5:
-            trend = "📉 Decreasing"
-            trend_class = "text-danger"
+
+    forecasts = {}
+    summary = {}
+    model_scores = {}
+
+    programs = dict(Application.PROGRAM_CHOICES)
+
+    for code, name in programs.items():
+
+        applications = (
+            Application.objects
+            .filter(aid_type=code)
+            .order_by('created_at')
+        )
+
+        if not applications.exists():
+            forecasts[name] = []
+            continue
+
+        df = pd.DataFrame(
+            applications.values('created_at')
+        )
+
+        df['created_at'] = pd.to_datetime(df['created_at'])
+
+        monthly = (
+            df.groupby(
+                df['created_at'].dt.to_period('M')
+            )
+            .size()
+            .reset_index(name='count')
+        )
+
+        if len(monthly) < 2:
+            forecasts[name] = []
+            continue
+
+        monthly['month_num'] = np.arange(len(monthly))
+
+        X = monthly[['month_num']]
+        y = monthly['count']
+
+        # Linear Regression Model
+        model = LinearRegression()
+        model.fit(X, y)
+
+        # Accuracy
+        train_predictions = model.predict(X)
+
+        mae = mean_absolute_error(
+            y,
+            train_predictions
+        )
+
+        slope = model.coef_[0]
+
+        if slope > 0:
+            trend = "Increasing"
+        elif slope < 0:
+            trend = "Decreasing"
         else:
-            trend = "➡️ Stable"
-            trend_class = "text-warning"
- 
-        avg_monthly_y1 = round(yearly_totals[0] / 12) if yearly_totals[0] else 0
- 
-        programs_data[code] = {
-            'label':            prog_label,
-            'hist_labels':      hist_labels,
-            'hist_values':      hist_values,
-            'forecast_labels':  forecast_labels,
-            'forecast_values':  forecast_values,
-            'yearly_forecast':  yearly_totals,
-            'year_labels':      year_labels,
-            'slope':            round(slope, 4),
-            'trend':            trend,
-            'trend_class':      trend_class,
-            'avg_monthly_y1':   avg_monthly_y1,
-            'total_historical': sum(c for _, c in entries),
+            trend = "Stable"
+
+        model_scores[name] = {
+            'mae': round(mae, 2),
+            'trend': trend
         }
- 
-        summary_rows.append({
-            'code':          code,
-            'label':         prog_label,
-            'trend':         trend,
-            'trend_class':   trend_class,
-            'y1':            yearly_totals[0],
-            'y2':            yearly_totals[1],
-            'y3':            yearly_totals[2],
-            'avg_monthly_y1': avg_monthly_y1,
-        })
- 
-    context = {
-        'programs_data_json': json.dumps(programs_data),
-        'summary_rows':       summary_rows,
-        'current_year':       today.year,
-    }
-    return render(request, 'program_rate_prediction.html', context)
 
+        # Forecast next 36 months
+        future_months = 36
 
+        future_x = np.array(
+            range(
+                len(monthly),
+                len(monthly) + future_months
+            )
+        ).reshape(-1, 1)
+
+        predictions = model.predict(
+            future_x
+        )
+
+        predictions = [
+            max(0, round(value))
+            for value in predictions
+        ]
+
+        last_month = (
+            monthly.iloc[-1]['created_at']
+            .to_timestamp()
+        )
+
+        forecast_data = []
+
+        for i, prediction in enumerate(
+            predictions,
+            start=1
+        ):
+
+            future_date = (
+                last_month +
+                relativedelta(months=i)
+            )
+
+            forecast_data.append({
+                'month': future_date.strftime('%B %Y'),
+                'applications': prediction
+            })
+
+        forecasts[name] = forecast_data
+
+        # Yearly Summary
+        year1 = sum(
+            item['applications']
+            for item in forecast_data[:12]
+        )
+
+        year2 = sum(
+            item['applications']
+            for item in forecast_data[12:24]
+        )
+
+        year3 = sum(
+            item['applications']
+            for item in forecast_data[24:36]
+        )
+
+        summary[name] = {
+            'year1': year1,
+            'year2': year2,
+            'year3': year3,
+            'total': year1 + year2 + year3,
+        }
+
+    return render(
+        request,
+        'program_rate_prediction.html',
+        {
+            'forecasts': forecasts,
+            'summary': summary,
+            'scores': model_scores,
+        }
+    )
+    
+from collections import defaultdict
 @login_required
 def barangay_analytics(request):
-    from collections import Counter
-    from django.db.models.functions import TruncMonth
  
-    if not (
-        getattr(request.user, 'role', None) in ['admin', 'staff']
-        or request.user.is_superuser
-    ):
-        return redirect('landing')
+    # ─────────────────────────────────────────
+    # TOTAL APPLICATIONS
+    # ─────────────────────────────────────────
+    total_applications = Application.objects.count()
  
-    all_barangays = (
-        Client.objects
-        .filter(barangay__isnull=False)
-        .exclude(barangay='')
-        .values_list('barangay', flat=True)
-        .distinct()
-        .order_by('barangay')
+    # ─────────────────────────────────────────
+    # AID TYPE DISTRIBUTION
+    # ─────────────────────────────────────────
+    aid_stats = (
+        Application.objects
+        .values('aid_type')
+        .annotate(total=Count('id'))
+        .order_by('-total')
     )
  
-    selected_brgy = request.GET.get('barangay', '').strip()
-    analytics = None
+    # ─────────────────────────────────────────
+    # BARANGAY DISTRIBUTION
+    # ─────────────────────────────────────────
+    barangay_stats_raw = (
+        Application.objects
+        .values('client__barangay')
+        .annotate(total=Count('id'))
+        .order_by('-total')
+    )
  
-    if selected_brgy:
-        clients    = Client.objects.filter(barangay__iexact=selected_brgy)
-        client_ids = list(clients.values_list('id', flat=True))
- 
-        # ── Prefetched queryset for Python-side processing only ───────────────
-        apps = (
-            Application.objects
-            .filter(client_id__in=client_ids)
-            .select_related('client')
-            .prefetch_related('aics_detail', 'redcard_detail', 'educational_detail')
-            .order_by('-created_at')
-        )
- 
-        # ── Clean queryset for all DB aggregations (no prefetch/select_related)
-        base_qs = Application.objects.filter(client_id__in=client_ids)
- 
-        total_apps    = base_qs.count()
-        total_clients = clients.count()
- 
-        # ── Programs ─────────────────────────────────────────────────────────
-        PROGRAM_LABELS = {
-            'AICS':        'AICS',
-            'SEA':         'Livelihood (SEA)',
-            'REDCARD':     'Red Card',
-            'EDUCATIONAL': 'Educational Assistance',
+    barangay_stats = [
+        {
+            "barangay": i["client__barangay"],
+            "total":    i["total"],
         }
-        raw_prog = dict(
-            base_qs.values('aid_type').annotate(n=Count('id')).values_list('aid_type', 'n')
-        )
-        program_data = [
-            {'code': code, 'label': lbl, 'count': int(raw_prog.get(code, 0))}
-            for code, lbl in PROGRAM_LABELS.items()
-        ]
+        for i in barangay_stats_raw
+    ]
  
-        # ── Reason extractor (Python-side, uses prefetched data) ──────────────
-        def top_reasons(app_list, limit=5):
-            counter = Counter()
-            for app in app_list:
-                found = False
-                try:
-                    ct = app.aics_detail.crisis_type
-                    if ct:
-                        counter[ct] += 1
-                        found = True
-                except Exception:
-                    pass
-                if not found:
-                    try:
-                        et = app.redcard_detail.emergency_type
-                        if et:
-                            counter[et] += 1
-                            found = True
-                    except Exception:
-                        pass
-                if not found:
-                    try:
-                        cg = app.educational_detail.course_or_grade
-                        if cg:
-                            counter['Education: ' + str(cg)] += 1
-                            found = True
-                    except Exception:
-                        pass
-                if not found:
-                    try:
-                        secs = app.client.sectors
-                        if isinstance(secs, list) and secs:
-                            for s in secs:
-                                if s:
-                                    counter[str(s)] += 1
-                            found = True
-                    except Exception:
-                        pass
-                if not found:
-                    if getattr(app, 'eligibility_reason', None):
-                        snippet = app.eligibility_reason[:60].split('.')[0].strip()
-                        if snippet:
-                            counter[snippet] += 1
-                            found = True
-                if not found:
-                    counter['Unspecified'] += 1
-            return [{'label': lbl, 'count': int(cnt)} for lbl, cnt in counter.most_common(limit)]
+    # ─────────────────────────────────────────
+    # MONTHLY TREND
+    # ─────────────────────────────────────────
+    monthly_stats = (
+        Application.objects
+        .annotate(month=TruncMonth('created_at'))
+        .values('month')
+        .annotate(total=Count('id'))
+        .order_by('month')
+    )
  
-        app_list = list(apps)
-        reasons_by_program = {
-            code: top_reasons([a for a in app_list if a.aid_type == code])
-            for code in PROGRAM_LABELS
-        }
-        overall_reasons = top_reasons(app_list, limit=8)
+    months, values = [], []
+    for item in monthly_stats:
+        if item['month']:
+            months.append(item['month'].strftime("%Y-%m"))
+            values.append(item['total'])
  
-        # ── Monthly trend — use base_qs (clean, no prefetch conflicts) ────────
-        monthly_qs = (
-            base_qs
-            .annotate(month=TruncMonth('created_at'))
-            .values('month')
-            .annotate(n=Count('id'))
-            .order_by('month')
-        )
-        month_map = {}
-        for row in monthly_qs:
-            d = row['month']
-            if d is None:
-                continue
-            if hasattr(d, 'date'):
-                d = d.date()
-            month_map[d.strftime('%Y-%m')] = int(row['n'])
+    # ─────────────────────────────────────────
+    # SIMPLE LINEAR PREDICTION  (next 3 months)
+    # ─────────────────────────────────────────
+    def predict_next(vals, steps=3):
+        if len(vals) < 2:
+            return [0] * steps
+        n         = len(vals)
+        x         = list(range(n))
+        x_mean    = sum(x) / n
+        y_mean    = sum(vals) / n
+        num       = sum((x[i] - x_mean) * (vals[i] - y_mean) for i in range(n))
+        den       = sum((x[i] - x_mean) ** 2                  for i in range(n))
+        slope     = num / den if den != 0 else 0
+        intercept = y_mean - slope * x_mean
+        return [max(0, round(slope * (n + i) + intercept)) for i in range(1, steps + 1)]
  
-        today = timezone.now().date()
-        trend_labels, trend_values = [], []
-        for i in range(11, -1, -1):
-            mo = today.month - i
-            yr = today.year
-            while mo <= 0:
-                mo += 12
-                yr -= 1
-            key = '{}-{:02d}'.format(yr, mo)
-            trend_labels.append(key)
-            trend_values.append(month_map.get(key, 0))
+    prediction = predict_next(values, 3)
  
-        # ── Status counts — use base_qs ────────────────────────────────────
-        status_counts = {
-            str(k): int(v)
-            for k, v in (
-                base_qs
-                .values('status')
-                .annotate(n=Count('id'))
-                .values_list('status', 'n')
-            )
-        }
- 
-        # ── Sector profile ────────────────────────────────────────────────
-        sector_counter = Counter()
-        for c in clients:
-            if isinstance(getattr(c, 'sectors', None), list):
-                for s in c.sectors:
-                    if s:
-                        sector_counter[str(s)] += 1
-        top_sectors = [
-            {'label': s, 'count': int(cnt)}
-            for s, cnt in sector_counter.most_common(6)
-        ]
- 
-        top_prog   = max(program_data, key=lambda x: x['count'])['label'] if total_apps else '-'
-        top_reason = overall_reasons[0]['label'] if overall_reasons else '-'
- 
-        analytics = {
-            'barangay':           selected_brgy,
-            'total_apps':         int(total_apps),
-            'total_clients':      int(total_clients),
-            'program_data':       program_data,
-            'reasons_by_program': reasons_by_program,
-            'overall_reasons':    overall_reasons,
-            'trend_labels':       trend_labels,
-            'trend_values':       trend_values,
-            'status_counts':      status_counts,
-            'top_sectors':        top_sectors,
-            'top_program':        top_prog,
-            'top_reason':         top_reason,
-        }
- 
-    context = {
-        'all_barangays':  list(all_barangays),
-        'selected_brgy':  selected_brgy,
-        'analytics':      analytics,
-        'analytics_json': json.dumps(analytics, ensure_ascii=False) if analytics else 'null',
+    # ─────────────────────────────────────────
+    # REASON FIELD MAP
+    # Maps aid_type value  →  (related_name, field_on_detail_model)
+    # These come straight from your models:
+    #   AICSDetail    related_name='aics_detail'    field='crisis_type'
+    #   REDCARDDetail related_name='redcard_detail' field='emergency_type'
+    # ─────────────────────────────────────────
+    REASON_MAP = {
+        'AICS':    ('aics_detail',    'aics_detail__crisis_type'),
+        'REDCARD': ('redcard_detail', 'redcard_detail__emergency_type'),
     }
-    return render(request, 'barangay_analytics.html', context)
+ 
+    # ─────────────────────────────────────────
+    # REASONS BY PROGRAM  (for reason-analysis cards)
+    # ─────────────────────────────────────────
+    reasons_by_program = defaultdict(list)
+ 
+    for aid in aid_stats:
+        code = aid['aid_type']
+        if code not in REASON_MAP:
+            continue
+        _, lookup = REASON_MAP[code]
+        reasons = (
+            Application.objects
+            .filter(aid_type=code)
+            .exclude(**{lookup + '__isnull': True})
+            .exclude(**{lookup + '__exact':  ''})
+            .values(lookup)
+            .annotate(count=Count('id'))
+            .order_by('-count')[:5]
+        )
+        reasons_by_program[code] = [
+            {"label": r[lookup], "count": r['count']}
+            for r in reasons
+        ]
+ 
+    # ─────────────────────────────────────────
+    # PER-BARANGAY INSIGHTS
+    # ─────────────────────────────────────────
+    barangay_insights = []
+ 
+    for b in barangay_stats:
+        bgy_name = b["barangay"]
+        bgy_qs   = Application.objects.filter(client__barangay=bgy_name)
+ 
+        # Dominant aid type for this barangay
+        top_aid = (
+            bgy_qs
+            .values('aid_type')
+            .annotate(cnt=Count('id'))
+            .order_by('-cnt')
+            .first()
+        )
+        if not top_aid:
+            continue
+ 
+        top_aid_code  = top_aid['aid_type']
+        top_aid_count = top_aid['cnt']
+        top_aid_pct   = round((top_aid_count / b["total"]) * 100) if b["total"] else 0
+ 
+        # Top-3 aid types for the mini breakdown strip
+        aid_breakdown = list(
+            bgy_qs
+            .values('aid_type')
+            .annotate(cnt=Count('id'))
+            .order_by('-cnt')[:3]
+        )
+ 
+        # Primary reason for the dominant aid type
+        top_reason = None
+        if top_aid_code in REASON_MAP:
+            _, lookup = REASON_MAP[top_aid_code]
+            r = (
+                bgy_qs
+                .filter(aid_type=top_aid_code)
+                .exclude(**{lookup + '__isnull': True})
+                .exclude(**{lookup + '__exact':  ''})
+                .values(lookup)
+                .annotate(cnt=Count('id'))
+                .order_by('-cnt')
+                .first()
+            )
+            if r:
+                top_reason = {"label": r[lookup], "count": r['cnt']}
+ 
+        barangay_insights.append({
+            "barangay":      bgy_name,
+            "total":         b["total"],
+            "top_aid":       top_aid_code,
+            "top_aid_count": top_aid_count,
+            "top_aid_pct":   top_aid_pct,
+            "top_reason":    top_reason,
+            "aid_breakdown": aid_breakdown,
+        })
+ 
+    # ─────────────────────────────────────────
+    # CONTEXT
+    # ─────────────────────────────────────────
+    context = {
+        "total_applications": total_applications,
+        "aid_stats":          aid_stats,
+        "barangay_stats":     barangay_stats,
+        "months":             months,
+        "values":             values,
+        "prediction":         prediction,
+        "reasons_by_program": dict(reasons_by_program),
+        "barangay_insights":  barangay_insights,
+    }
+ 
+    return render(request, "barangay_analytics.html", context)

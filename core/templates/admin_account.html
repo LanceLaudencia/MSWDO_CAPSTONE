@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
-{% block page_icon %}person-circle{% endblock %}
-{% block page_title %}Account{% endblock %}
-{% block breadcrumb %}Account{% endblock %}
+{% block page_icon %}gear-fill{% endblock %}
+{% block page_title %}Account Settings{% endblock %}
+{% block breadcrumb %}Account Settings{% endblock %}
 
 {% block content %}
 
@@ -13,7 +13,9 @@
     --blue-light: rgba(0, 56, 168, 0.08);
     --red: #CE1126;
     --red-dark: #a50d1e;
+    --red-light: rgba(206, 17, 38, 0.08);
     --yellow: #FCD116;
+    --yellow-dark: #a07800;
     --border: #e0e6f0;
     --text-primary: #0f1f4b;
     --text-secondary: #5a6a8a;
@@ -56,9 +58,7 @@
     border: 3px solid rgba(0, 56, 168, 0.15);
   }
 
-  .admin-details-left {
-    flex: 1;
-  }
+  .admin-details-left { flex: 1; }
 
   .admin-name-row {
     display: flex;
@@ -98,7 +98,6 @@
 
   .admin-meta i { color: var(--blue); font-size: 0.95rem; }
 
-  /* Stats row */
   .admin-stats {
     display: flex;
     gap: 0;
@@ -133,6 +132,275 @@
     letter-spacing: 0.5px;
     font-family: 'Montserrat', sans-serif;
     font-weight: 600;
+  }
+
+  /* ===== SETTINGS TABS ===== */
+  .settings-tabs-nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .settings-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 22px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    margin-bottom: -2px;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .settings-tab-btn i { font-size: 1rem; }
+
+  .settings-tab-btn:hover {
+    color: var(--blue);
+    background: var(--blue-light);
+  }
+
+  .settings-tab-btn.active {
+    color: var(--blue);
+    border-bottom-color: var(--blue);
+  }
+
+  .settings-tab-panel { display: none; }
+  .settings-tab-panel.active { display: block; animation: fadeIn 0.25s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== SETTINGS CARD (Profile / Security) ===== */
+  .settings-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 16px rgba(0, 40, 130, 0.07);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .settings-card-header {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+    padding: 22px 32px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .settings-card-header.security-header {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+  }
+
+  .settings-card-header h4 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: 0.3px;
+  }
+
+  .settings-card-header p {
+    margin: 2px 0 0;
+    font-size: 0.78rem;
+    opacity: 0.85;
+    font-weight: 400;
+  }
+
+  .settings-card-body { padding: 32px; }
+
+  .settings-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .settings-form-group { margin-bottom: 20px; }
+  .settings-form-row .settings-form-group { margin-bottom: 0; }
+
+  .settings-label {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .settings-input {
+    width: 100%;
+    padding: 11px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-family: 'Open Sans', sans-serif;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background: white;
+  }
+
+  .settings-input:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(0, 56, 168, 0.1);
+  }
+
+  .settings-input:disabled {
+    background: #f5f7fc;
+    color: var(--text-secondary);
+    cursor: not-allowed;
+  }
+
+  .settings-input-hint {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    margin-top: 6px;
+  }
+
+  .settings-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: -4px 0 24px;
+    padding: 12px 16px;
+    background: #f5f7fc;
+    border-radius: 9px;
+  }
+
+  .settings-meta-row .settings-input-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 0;
+  }
+
+  /* Password field with toggle */
+  .password-field-wrapper { position: relative; }
+
+  .password-field-wrapper .settings-input { padding-right: 44px; }
+
+  .password-toggle-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.95rem;
+    padding: 4px;
+  }
+  .password-toggle-icon:hover { color: var(--blue); }
+
+  /* Password strength meter */
+  .strength-meter {
+    display: flex;
+    gap: 4px;
+    margin-top: 10px;
+  }
+  .strength-bar-seg {
+    height: 4px;
+    flex: 1;
+    border-radius: 3px;
+    background: var(--border);
+    transition: background 0.25s ease;
+  }
+  .strength-bar-seg.weak { background: var(--red); }
+  .strength-bar-seg.fair { background: var(--yellow); }
+  .strength-bar-seg.strong { background: var(--blue); }
+
+  .strength-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: 'Montserrat', sans-serif;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-height: 14px;
+  }
+  .strength-label.weak { color: var(--red); }
+  .strength-label.fair { color: var(--yellow-dark); }
+  .strength-label.strong { color: var(--blue); }
+
+  /* Requirements checklist */
+  .pw-requirements {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: #f5f7fc;
+    border-radius: 9px;
+  }
+  .pw-requirement {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+  }
+  .pw-requirement i { font-size: 0.85rem; color: #c8d4ea; transition: color 0.2s ease; }
+  .pw-requirement.met { color: var(--text-primary); font-weight: 600; }
+  .pw-requirement.met i { color: var(--blue); }
+
+  .match-hint {
+    font-size: 0.75rem;
+    margin-top: 7px;
+    font-weight: 600;
+    display: none;
+    align-items: center;
+    gap: 5px;
+  }
+  .match-hint.show { display: flex; }
+  .match-hint.match { color: var(--blue); }
+  .match-hint.mismatch { color: var(--red); }
+
+  /* Save buttons */
+  .btn-save-settings {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: 9px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(0, 56, 168, 0.25);
+  }
+  .btn-save-settings:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 56, 168, 0.32);
+  }
+
+  .btn-save-settings.security-btn {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    box-shadow: 0 4px 14px rgba(206, 17, 38, 0.25);
+  }
+  .btn-save-settings.security-btn:hover {
+    box-shadow: 0 6px 18px rgba(206, 17, 38, 0.32);
   }
 
   /* ===== STAFF SECTION CARD ===== */
@@ -182,7 +450,6 @@
     letter-spacing: 0.5px;
   }
 
-  /* Yellow accent strip below header */
   .staff-subheader {
     background: var(--blue-light);
     border-bottom: 1px solid var(--border);
@@ -199,14 +466,8 @@
   }
 
   /* ===== TABLE ===== */
-  .table {
-    margin: 0;
-    font-size: 0.875rem;
-  }
-
-  .table thead {
-    background: #f5f7fc;
-  }
+  .table { margin: 0; font-size: 0.875rem; }
+  .table thead { background: #f5f7fc; }
 
   .table thead th {
     padding: 14px 20px;
@@ -228,13 +489,9 @@
     color: var(--text-primary);
   }
 
-  .table tbody tr:hover {
-    background: var(--blue-light);
-  }
-
+  .table tbody tr:hover { background: var(--blue-light); }
   .table tbody tr:last-child td { border-bottom: none; }
 
-  /* Row number */
   .row-number {
     font-family: 'Montserrat', sans-serif;
     font-weight: 800;
@@ -242,12 +499,7 @@
     font-size: 0.85rem;
   }
 
-  /* Staff name */
-  .staff-name-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .staff-name-cell { display: flex; align-items: center; gap: 10px; }
 
   .staff-mini-avatar {
     width: 34px; height: 34px;
@@ -266,26 +518,11 @@
     font-size: 0.88rem;
   }
 
-  /* Email */
-  .staff-email-cell {
-    color: var(--text-secondary);
-    font-size: 0.82rem;
-  }
+  .staff-email-cell { color: var(--text-secondary); font-size: 0.82rem; }
 
-  /* Last login */
-  .last-login-date {
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: 0.82rem;
-  }
+  .last-login-date { font-weight: 600; color: var(--text-primary); font-size: 0.82rem; }
+  .last-login-time { color: var(--text-secondary); font-size: 0.75rem; margin-top: 2px; }
 
-  .last-login-time {
-    color: var(--text-secondary);
-    font-size: 0.75rem;
-    margin-top: 2px;
-  }
-
-  /* Status badges */
   .status-badge {
     display: inline-flex;
     align-items: center;
@@ -304,13 +541,9 @@
     color: var(--blue);
     border: 1px solid rgba(0, 56, 168, 0.18);
   }
-
   .status-badge.active::before {
-    content: '';
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--blue);
-    flex-shrink: 0;
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--blue); flex-shrink: 0;
   }
 
   .status-badge.inactive {
@@ -318,22 +551,12 @@
     color: #a07800;
     border: 1px solid rgba(252, 209, 22, 0.35);
   }
-
   .status-badge.inactive::before {
-    content: '';
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: #e6b800;
-    flex-shrink: 0;
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: #e6b800; flex-shrink: 0;
   }
 
-  /* Action buttons */
-  .action-cell {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
+  .action-cell { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 
   .action-btn {
     display: inline-flex;
@@ -355,87 +578,40 @@
 
   .action-btn:hover { transform: translateY(-1px); text-decoration: none; }
 
-  .btn-deactivate {
-    color: var(--red);
-    border-color: rgba(206,17,38,0.3);
-  }
+  .btn-deactivate { color: var(--red); border-color: rgba(206,17,38,0.3); }
   .btn-deactivate:hover {
-    background: var(--red);
-    border-color: var(--red);
-    color: white;
+    background: var(--red); border-color: var(--red); color: white;
     box-shadow: 0 3px 10px rgba(206,17,38,0.25);
   }
 
-  .btn-activate {
-    color: var(--blue);
-    border-color: rgba(0,56,168,0.3);
-  }
+  .btn-activate { color: var(--blue); border-color: rgba(0,56,168,0.3); }
   .btn-activate:hover {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: white;
+    background: var(--blue); border-color: var(--blue); color: white;
     box-shadow: 0 3px 10px rgba(0,56,168,0.2);
   }
 
   .btn-reset {
-    color: #c47d00;
-    border-color: rgba(252,209,22,0.5);
+    color: #c47d00; border-color: rgba(252,209,22,0.5);
     background: rgba(252,209,22,0.06);
   }
   .btn-reset:hover {
-    background: var(--yellow);
-    border-color: var(--yellow);
-    color: #5c3a00;
+    background: var(--yellow); border-color: var(--yellow); color: #5c3a00;
     box-shadow: 0 3px 10px rgba(252,209,22,0.3);
   }
 
-  .btn-edit {
-    color: var(--blue);
-    border-color: rgba(0,56,168,0.25);
-  }
-  .btn-edit:hover {
-    background: var(--blue-light);
-    border-color: var(--blue);
-    color: var(--blue);
-  }
+  .btn-edit { color: var(--blue); border-color: rgba(0,56,168,0.25); }
+  .btn-edit:hover { background: var(--blue-light); border-color: var(--blue); color: var(--blue); }
 
-  .btn-logs {
-    color: var(--text-secondary);
-    border-color: var(--border);
-  }
-  .btn-logs:hover {
-    background: #f0f3f9;
-    border-color: #b0bace;
-    color: var(--text-primary);
-  }
+  .btn-logs { color: var(--text-secondary); border-color: var(--border); }
+  .btn-logs:hover { background: #f0f3f9; border-color: #b0bace; color: var(--text-primary); }
 
-  /* Empty state */
-  .empty-state {
-    text-align: center;
-    padding: 64px 40px;
-    color: var(--text-secondary);
-  }
-
-  .empty-state i {
-    font-size: 3.5rem;
-    color: #c8d4ea;
-    display: block;
-    margin-bottom: 16px;
-  }
-
+  .empty-state { text-align: center; padding: 64px 40px; color: var(--text-secondary); }
+  .empty-state i { font-size: 3.5rem; color: #c8d4ea; display: block; margin-bottom: 16px; }
   .empty-state h5 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 8px;
+    font-family: 'Montserrat', sans-serif; font-size: 1.1rem; font-weight: 700;
+    color: var(--text-primary); margin-bottom: 8px;
   }
-
-  .empty-state p {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin: 0;
-  }
+  .empty-state p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
 
   @media (max-width: 768px) {
     .admin-info-content { flex-direction: column; }
@@ -444,6 +620,11 @@
     .staff-section-header { flex-direction: column; align-items: flex-start; }
     .table-container { overflow-x: auto; }
     .action-cell { flex-direction: column; align-items: flex-start; }
+    .settings-form-row { grid-template-columns: 1fr; gap: 20px; }
+    .pw-requirements { grid-template-columns: 1fr; }
+    .settings-card-body { padding: 24px 20px; }
+    .settings-tab-btn { padding: 12px 14px; font-size: 0.78rem; }
+    .settings-meta-row { flex-direction: column; gap: 8px; }
   }
 </style>
 
@@ -469,11 +650,7 @@
         <span class="admin-stat-label">Staff</span>
       </div>
       <div class="admin-stat">
-        <span class="admin-stat-num">
-          {% with staffs|length as total %}
-            {{ staffs|length }}
-          {% endwith %}
-        </span>
+        <span class="admin-stat-num">{{ active_staff_count }}</span>
         <span class="admin-stat-label">Active</span>
       </div>
       <div class="admin-stat">
@@ -484,118 +661,403 @@
   </div>
 </div>
 
-<!-- Staff Management Card -->
-<div class="staff-section-card">
-
-  <div class="staff-section-header">
-    <div class="staff-header-left">
-      <i class="bi bi-people-fill" style="font-size:1.3rem;"></i>
-      <h4>Staff Management</h4>
-    </div>
-    <span class="staff-count-badge">
-      {{ staffs|length }} Staff Member{{ staffs|length|pluralize }}
-    </span>
-  </div>
-
-  <div class="staff-subheader">
-    <i class="bi bi-info-circle" style="color:var(--blue); font-size:0.85rem;"></i>
-    <span>Manage staff accounts, reset passwords, and view activity logs</span>
-  </div>
-
-  <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0">
-      <thead>
-        <tr>
-          <th style="width:52px;">#</th>
-          <th style="min-width:180px;">Staff Member</th>
-          <th style="min-width:200px;">Email Address</th>
-          <th style="min-width:140px;">Last Login</th>
-          <th style="min-width:110px;">Status</th>
-          <th style="min-width:290px;" class="text-center">Actions</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {% for staff in staffs %}
-        <tr>
-          <td class="row-number">{{ forloop.counter }}</td>
-
-          <td>
-            <div class="staff-name-cell">
-              <div class="staff-mini-avatar">🧑‍💼</div>
-              <span class="staff-name-text">{{ staff.get_full_name|default:staff.username }}</span>
-            </div>
-          </td>
-
-          <td class="staff-email-cell">{{ staff.email }}</td>
-
-          <td>
-            {% if staff.last_login %}
-              <div class="last-login-date">{{ staff.last_login|date:"M d, Y" }}</div>
-              <div class="last-login-time">{{ staff.last_login|date:"h:i A" }}</div>
-            {% else %}
-              <span style="color:#b0bace; font-size:0.8rem; font-style:italic;">Never logged in</span>
-            {% endif %}
-          </td>
-
-          <td>
-            {% if staff.is_active %}
-              <span class="status-badge active">Active</span>
-            {% else %}
-              <span class="status-badge inactive">Inactive</span>
-            {% endif %}
-          </td>
-
-          <td>
-            <div class="action-cell">
-
-              <!-- Toggle Active/Inactive -->
-              <form method="post" action="{% url 'toggle_staff' staff.id %}" style="display:inline;">
-                {% csrf_token %}
-                {% if staff.is_active %}
-                  <button type="submit" class="action-btn btn-deactivate">
-                    <i class="bi bi-x-circle"></i> Deactivate
-                  </button>
-                {% else %}
-                  <button type="submit" class="action-btn btn-activate">
-                    <i class="bi bi-check-circle"></i> Activate
-                  </button>
-                {% endif %}
-              </form>
-
-              <!-- Reset Password -->
-              <a href="{% url 'reset_staff_password' staff.id %}" class="action-btn btn-reset">
-                <i class="bi bi-key-fill"></i> Reset
-              </a>
-
-              <!-- Edit Role -->
-              <a href="{% url 'edit_staff_role' staff.id %}" class="action-btn btn-edit">
-                <i class="bi bi-pencil-fill"></i> Edit
-              </a>
-
-              <!-- View Logs -->
-              <a href="{% url 'staff_activity_logs' staff.id %}" class="action-btn btn-logs">
-                <i class="bi bi-clock-history"></i> Logs
-              </a>
-
-            </div>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="6">
-            <div class="empty-state">
-              <i class="bi bi-person-x"></i>
-              <h5>No Staff Members Found</h5>
-              <p>There are currently no staff accounts registered in the system.</p>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
+<!-- Settings Tabs -->
+<div class="settings-tabs-nav">
+  <button type="button" class="settings-tab-btn active" data-tab="profile">
+    <i class="bi bi-person-badge"></i> My Profile
+  </button>
+  <button type="button" class="settings-tab-btn" data-tab="security">
+    <i class="bi bi-shield-lock-fill"></i> Password &amp; Security
+  </button>
+  <button type="button" class="settings-tab-btn" data-tab="staff">
+    <i class="bi bi-people-fill"></i> Staff Management
+  </button>
 </div>
+
+<!-- ===== MY PROFILE PANEL ===== -->
+<div class="settings-tab-panel active" id="tab-profile">
+  <div class="settings-card">
+    <div class="settings-card-header">
+      <i class="bi bi-person-badge" style="font-size:1.2rem;"></i>
+      <div>
+        <h4>My Profile</h4>
+        <p>Update your personal information</p>
+      </div>
+    </div>
+    <div class="settings-card-body">
+
+      <div class="settings-meta-row">
+        <span class="settings-input-hint"><i class="bi bi-calendar3"></i> Administrator since {{ admin.date_joined|date:"F d, Y" }}</span>
+        <span class="settings-input-hint"><i class="bi bi-clock-history"></i> Last login: {% if admin.last_login %}{{ admin.last_login|date:"M d, Y, h:i A" }}{% else %}—{% endif %}</span>
+      </div>
+
+      <form method="post" action="{% url 'admin_update_profile' %}">
+        {% csrf_token %}
+        <div class="settings-form-row">
+          <div class="settings-form-group">
+            <label class="settings-label" for="id_first_name">First Name</label>
+            <input type="text" id="id_first_name" name="first_name" class="settings-input" value="{{ admin.first_name }}" required>
+          </div>
+          <div class="settings-form-group">
+            <label class="settings-label" for="id_last_name">Last Name</label>
+            <input type="text" id="id_last_name" name="last_name" class="settings-input" value="{{ admin.last_name }}" required>
+          </div>
+        </div>
+        <div class="settings-form-row">
+          <div class="settings-form-group">
+            <label class="settings-label" for="id_email">Email Address</label>
+            <input type="email" id="id_email" name="email" class="settings-input" value="{{ admin.email }}" required>
+          </div>
+          <div class="settings-form-group">
+            <label class="settings-label" for="id_username">Username</label>
+            <input type="text" id="id_username" class="settings-input" value="{{ admin.username }}" disabled>
+            <div class="settings-input-hint">Username cannot be changed</div>
+          </div>
+        </div>
+        <button type="submit" class="btn-save-settings">
+          <i class="bi bi-check-lg"></i> Save Changes
+        </button>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== PASSWORD & SECURITY PANEL ===== -->
+<div class="settings-tab-panel" id="tab-security">
+  <div class="settings-card">
+    <div class="settings-card-header security-header">
+      <i class="bi bi-shield-lock-fill" style="font-size:1.2rem;"></i>
+      <div>
+        <h4>Password &amp; Security</h4>
+        <p>Change the password used to sign in to your account</p>
+      </div>
+    </div>
+    <div class="settings-card-body">
+      <form method="post" action="{% url 'admin_change_password' %}" id="changePasswordForm">
+        {% csrf_token %}
+
+        <div class="settings-form-group">
+          <label class="settings-label" for="currentPassword">Current Password</label>
+          <div class="password-field-wrapper">
+            <input type="password" id="currentPassword" name="current_password" class="settings-input" required autocomplete="current-password">
+            <i class="bi bi-eye password-toggle-icon" data-target="currentPassword"></i>
+          </div>
+        </div>
+
+        <div class="settings-form-group">
+          <label class="settings-label" for="newPassword">New Password</label>
+          <div class="password-field-wrapper">
+            <input type="password" id="newPassword" name="new_password" class="settings-input" required autocomplete="new-password">
+            <i class="bi bi-eye password-toggle-icon" data-target="newPassword"></i>
+          </div>
+
+          <div class="strength-meter" id="strengthMeter">
+            <div class="strength-bar-seg"></div>
+            <div class="strength-bar-seg"></div>
+            <div class="strength-bar-seg"></div>
+            <div class="strength-bar-seg"></div>
+          </div>
+          <div class="strength-label" id="strengthLabel"></div>
+
+          <div class="pw-requirements">
+            <div class="pw-requirement" data-rule="length"><i class="bi bi-circle-fill"></i> At least 8 characters</div>
+            <div class="pw-requirement" data-rule="letter"><i class="bi bi-circle-fill"></i> Contains a letter</div>
+            <div class="pw-requirement" data-rule="number"><i class="bi bi-circle-fill"></i> Contains a number</div>
+            <div class="pw-requirement" data-rule="nocommon"><i class="bi bi-circle-fill"></i> Not all numbers</div>
+          </div>
+        </div>
+
+        <div class="settings-form-group">
+          <label class="settings-label" for="confirmPassword">Confirm New Password</label>
+          <div class="password-field-wrapper">
+            <input type="password" id="confirmPassword" name="confirm_password" class="settings-input" required autocomplete="new-password">
+            <i class="bi bi-eye password-toggle-icon" data-target="confirmPassword"></i>
+          </div>
+          <div class="match-hint" id="matchHint"><i class="bi bi-check-circle-fill"></i><span></span></div>
+        </div>
+
+        <button type="submit" class="btn-save-settings security-btn">
+          <i class="bi bi-shield-check"></i> Update Password
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ===== STAFF MANAGEMENT PANEL ===== -->
+<div class="settings-tab-panel" id="tab-staff">
+  <div class="staff-section-card">
+
+    <div class="staff-section-header">
+      <div class="staff-header-left">
+        <i class="bi bi-people-fill" style="font-size:1.3rem;"></i>
+        <h4>Staff Management</h4>
+      </div>
+      <span class="staff-count-badge">
+        {{ staffs|length }} Staff Member{{ staffs|length|pluralize }}
+      </span>
+    </div>
+
+    <div class="staff-subheader">
+      <i class="bi bi-info-circle" style="color:var(--blue); font-size:0.85rem;"></i>
+      <span>Manage staff accounts, reset passwords, and view activity logs</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="width:52px;">#</th>
+            <th style="min-width:180px;">Staff Member</th>
+            <th style="min-width:200px;">Email Address</th>
+            <th style="min-width:140px;">Last Login</th>
+            <th style="min-width:110px;">Status</th>
+            <th style="min-width:290px;" class="text-center">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for staff in staffs %}
+          <tr>
+            <td class="row-number">{{ forloop.counter }}</td>
+
+            <td>
+              <div class="staff-name-cell">
+                <div class="staff-mini-avatar">🧑‍💼</div>
+                <span class="staff-name-text">{{ staff.get_full_name|default:staff.username }}</span>
+              </div>
+            </td>
+
+            <td class="staff-email-cell">{{ staff.email }}</td>
+
+            <td>
+              {% if staff.last_login %}
+                <div class="last-login-date">{{ staff.last_login|date:"M d, Y" }}</div>
+                <div class="last-login-time">{{ staff.last_login|date:"h:i A" }}</div>
+              {% else %}
+                <span style="color:#b0bace; font-size:0.8rem; font-style:italic;">Never logged in</span>
+              {% endif %}
+            </td>
+
+            <td>
+              {% if staff.is_active %}
+                <span class="status-badge active">Active</span>
+              {% else %}
+                <span class="status-badge inactive">Inactive</span>
+              {% endif %}
+            </td>
+
+            <td>
+              <div class="action-cell">
+
+                <!-- Toggle Active/Inactive -->
+                <form method="post" action="{% url 'toggle_staff' staff.id %}" class="confirm-action" data-confirm="{% if staff.is_active %}Deactivate {{ staff.get_full_name|default:staff.username }}? They won't be able to log in until reactivated.{% else %}Activate {{ staff.get_full_name|default:staff.username }}?{% endif %}" style="display:inline;">
+                  {% csrf_token %}
+                  {% if staff.is_active %}
+                    <button type="submit" class="action-btn btn-deactivate">
+                      <i class="bi bi-x-circle"></i> Deactivate
+                    </button>
+                  {% else %}
+                    <button type="submit" class="action-btn btn-activate">
+                      <i class="bi bi-check-circle"></i> Activate
+                    </button>
+                  {% endif %}
+                </form>
+
+                <!-- Reset Password -->
+                <form method="post" action="{% url 'reset_staff_password' staff.id %}" class="confirm-action" data-confirm="Reset password for {{ staff.get_full_name|default:staff.username }}? A new temporary password will be generated and shown once." style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="action-btn btn-reset">
+                    <i class="bi bi-key-fill"></i> Reset
+                  </button>
+                </form>
+
+                <!-- Edit Role -->
+                <a href="{% url 'edit_staff_role' staff.id %}" class="action-btn btn-edit">
+                  <i class="bi bi-pencil-fill"></i> Edit
+                </a>
+
+                <!-- View Logs -->
+                <a href="{% url 'staff_activity_logs' staff.id %}" class="action-btn btn-logs">
+                  <i class="bi bi-clock-history"></i> Logs
+                </a>
+
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <i class="bi bi-person-x"></i>
+                <h5>No Staff Members Found</h5>
+                <p>There are currently no staff accounts registered in the system.</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ---------- Tab switching ---------- */
+  var tabButtons = document.querySelectorAll('.settings-tab-btn');
+  var tabPanels = document.querySelectorAll('.settings-tab-panel');
+  var validTabs = ['profile', 'security', 'staff'];
+
+  function setActiveTab(tabName) {
+    if (validTabs.indexOf(tabName) === -1) { tabName = 'profile'; }
+    tabButtons.forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-tab') === tabName);
+    });
+    tabPanels.forEach(function (p) {
+      p.classList.toggle('active', p.id === 'tab-' + tabName);
+    });
+  }
+
+  tabButtons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var tabName = btn.getAttribute('data-tab');
+      setActiveTab(tabName);
+      history.replaceState(null, '', '#' + tabName);
+    });
+  });
+
+  setActiveTab(window.location.hash.replace('#', ''));
+
+  /* ---------- Password visibility toggle ---------- */
+  document.querySelectorAll('.password-toggle-icon').forEach(function (icon) {
+    icon.addEventListener('click', function () {
+      var input = document.getElementById(icon.getAttribute('data-target'));
+      if (!input) { return; }
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+      }
+    });
+  });
+
+  /* ---------- Password strength + requirements ---------- */
+  var newPasswordInput = document.getElementById('newPassword');
+  var confirmPasswordInput = document.getElementById('confirmPassword');
+  var strengthSegs = document.querySelectorAll('#strengthMeter .strength-bar-seg');
+  var strengthLabel = document.getElementById('strengthLabel');
+  var matchHint = document.getElementById('matchHint');
+
+  function checkRequirements(value) {
+    var rules = {
+      length: value.length >= 8,
+      letter: /[a-zA-Z]/.test(value),
+      number: /[0-9]/.test(value),
+      nocommon: value.length > 0 && !/^\d+$/.test(value)
+    };
+
+    Object.keys(rules).forEach(function (key) {
+      var el = document.querySelector('.pw-requirement[data-rule="' + key + '"]');
+      if (!el) { return; }
+      el.classList.toggle('met', rules[key]);
+      var icon = el.querySelector('i');
+      icon.className = rules[key] ? 'bi bi-check-circle-fill' : 'bi bi-circle-fill';
+    });
+
+    return rules;
+  }
+
+  function updateStrength(value) {
+    var rules = checkRequirements(value);
+    var score = Object.keys(rules).filter(function (k) { return rules[k]; }).length;
+
+    strengthSegs.forEach(function (seg) { seg.className = 'strength-bar-seg'; });
+
+    var level = '';
+    if (value.length === 0) {
+      level = '';
+    } else if (score <= 1) {
+      level = 'weak';
+    } else if (score <= 3) {
+      level = 'fair';
+    } else {
+      level = 'strong';
+    }
+
+    var fillCount = level === 'weak' ? 1 : level === 'fair' ? 2 : level === 'strong' ? 4 : 0;
+    for (var i = 0; i < fillCount; i++) {
+      if (strengthSegs[i]) { strengthSegs[i].classList.add(level); }
+    }
+
+    strengthLabel.textContent = level ? level.charAt(0).toUpperCase() + level.slice(1) + ' password' : '';
+    strengthLabel.className = 'strength-label ' + level;
+  }
+
+  function checkMatch() {
+    if (!newPasswordInput || !confirmPasswordInput) { return; }
+    var newVal = newPasswordInput.value;
+    var confirmVal = confirmPasswordInput.value;
+
+    if (confirmVal.length === 0) {
+      matchHint.classList.remove('show', 'match', 'mismatch');
+      return;
+    }
+
+    matchHint.classList.add('show');
+    if (newVal === confirmVal) {
+      matchHint.classList.remove('mismatch');
+      matchHint.classList.add('match');
+      matchHint.querySelector('i').className = 'bi bi-check-circle-fill';
+      matchHint.querySelector('span').textContent = 'Passwords match';
+    } else {
+      matchHint.classList.remove('match');
+      matchHint.classList.add('mismatch');
+      matchHint.querySelector('i').className = 'bi bi-x-circle-fill';
+      matchHint.querySelector('span').textContent = 'Passwords do not match';
+    }
+  }
+
+  if (newPasswordInput) {
+    newPasswordInput.addEventListener('input', function () {
+      updateStrength(newPasswordInput.value);
+      checkMatch();
+    });
+  }
+  if (confirmPasswordInput) {
+    confirmPasswordInput.addEventListener('input', checkMatch);
+  }
+
+  /* ---------- Block submit on mismatch ---------- */
+  var changePasswordForm = document.getElementById('changePasswordForm');
+  if (changePasswordForm) {
+    changePasswordForm.addEventListener('submit', function (e) {
+      if (newPasswordInput.value !== confirmPasswordInput.value) {
+        e.preventDefault();
+        checkMatch();
+        confirmPasswordInput.focus();
+      }
+    });
+  }
+
+  /* ---------- Confirm dialogs for staff actions ---------- */
+  document.querySelectorAll('.confirm-action').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      var message = form.getAttribute('data-confirm') || 'Are you sure?';
+      if (!confirm(message)) {
+        e.preventDefault();
+      }
+    });
+  });
+
+});
+</script>
 
 {% endblock %}
