@@ -1108,6 +1108,38 @@ def toggle_staff_status(request, staff_id):
     messages.success(request, f"{staff.get_full_name() or staff.username} is now {'active' if staff.is_active else 'inactive'}.")
     return redirect(reverse('admin_account') + '#staff')
 
+def change_staff_password(request, staff_id):
+    staff = get_object_or_404(User, pk=staff_id)
+
+    new_password = request.POST.get('new_password', '')
+    confirm_password = request.POST.get('confirm_password', '')
+
+    redirect_url = f"{reverse('account_settings')}#staff"  # <-- rename to your actual settings URL name
+
+    if not new_password or not confirm_password:
+        messages.error(request, "Please fill in both password fields.")
+        return redirect(redirect_url)
+
+    if new_password != confirm_password:
+        messages.error(request, "Passwords do not match.")
+        return redirect(redirect_url)
+
+    if len(new_password) < 8:
+        messages.error(request, "Password must be at least 8 characters long.")
+        return redirect(redirect_url)
+
+    if new_password.isdigit():
+        messages.error(request, "Password cannot be all numbers.")
+        return redirect(redirect_url)
+
+    staff.set_password(new_password)
+    staff.save()
+
+    messages.success(
+        request,
+        f"Password updated successfully for {staff.get_full_name() or staff.username}."
+    )
+    return redirect(redirect_url)
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response

@@ -105,6 +105,7 @@ path('client/resend-verification/', views.resend_client_verification, name='rese
 path('account/update-profile/', views.admin_update_profile, name='admin_update_profile'),
 path('account/change-password/', views.admin_change_password, name='admin_change_password'),
 
+path('staff/<int:staff_id>/change-password/', views.change_staff_password, name='change_staff_password'),
 ]
 
 
