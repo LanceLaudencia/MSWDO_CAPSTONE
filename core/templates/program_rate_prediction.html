@@ -168,6 +168,14 @@
     text-transform: uppercase; letter-spacing: 0.8px; color: var(--dk-dim);
   }
 
+  .score-ci {
+    display: inline-block; margin-top: 6px;
+    font-family: var(--font-mono); font-size: 0.56rem;
+    letter-spacing: 0.4px; color: var(--dk-dim);
+  }
+
+  .score-ci.has-ci { color: var(--teal); }
+
   /* ── Section cards ── */
   .sec-card {
     background: var(--dk-surf); border: 1px solid var(--dk-border);
@@ -306,7 +314,12 @@
 
   .fp-val {
     font-family: var(--font-mono); font-size: 0.72rem;
-    color: var(--dk-white); min-width: 28px; text-align: right;
+    color: var(--dk-white); min-width: 62px; text-align: right;
+    white-space: nowrap;
+  }
+
+  .fp-range {
+    font-size: 0.6rem; color: var(--dk-dim); margin-left: 3px;
   }
 
   /* ── Section header bar (freestanding) ── */
@@ -371,6 +384,11 @@
       </span>
 
       <span class="score-lbl">Mean Absolute Error (MAE)</span>
+      <span class="score-ci{% if score.has_interval %} has-ci{% endif %}">
+        {% if score.has_interval %}<i class="bi bi-shield-check"></i> 90% confidence interval
+        {% else %}<i class="bi bi-hourglass-split"></i> Needs more months for a confidence range
+        {% endif %}
+      </span>
     </div>
     {% endwith %}
     {% endfor %}
@@ -444,6 +462,11 @@
     <span class="sec-bar-dot dot-indigo"></span>
     <i class="bi bi-calendar3-range"></i> Monthly Forecast Detail — All Programs
   </div>
+  <p style="font-family:var(--font-mono); font-size:0.68rem; color:var(--dk-dim); margin:8px 2px 1rem;">
+    The number shown is the expected monthly count. Where a program has at least 3 months of
+    history, a range in dimmer text (e.g. <span style="color:var(--dk-hi);">12 <span class="fp-range" style="margin-left:0;">4-20</span></span>) is also shown —
+    that's the 90% confidence interval, i.e. the model's honest best-and-worst-case range, not just the single-number guess.
+  </p>
 
   <div class="forecast-grid">
     {% for program, forecast in forecasts.items %}
@@ -476,7 +499,7 @@
               {% else %}other{% endif %}"
               style="width:{% widthratio item.applications max_val 100 %}%;"></div>
           </div>
-          <span class="fp-val">{{ item.applications }}</span>
+          <span class="fp-val">{{ item.applications }}{% if item.lower != item.applications or item.upper != item.applications %}<span class="fp-range">{{ item.lower }}-{{ item.upper }}</span>{% endif %}</span>
         </div>
         {% endfor %}
         {% endwith %}

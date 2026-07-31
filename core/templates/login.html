@@ -59,10 +59,12 @@
       background: var(--blue);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem;
+      color: white;
       box-shadow: 0 2px 8px rgba(0,56,168,0.3);
       flex-shrink: 0;
     }
+
+    .header-seal svg { width: 22px; height: 22px; }
 
     .header-titles h1 {
       font-family: 'Montserrat', sans-serif;
@@ -90,7 +92,12 @@
       border-radius: 3px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
+
+    .badge-secure svg { width: 11px; height: 11px; }
 
     /* Main Layout */
     .main {
@@ -164,6 +171,11 @@
       gap: 8px;
     }
 
+    .alert-success svg, .alert-error svg {
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+    }
+
     .alert-error {
       background: rgba(206,17,38,0.06);
       border: 1px solid rgba(206,17,38,0.18);
@@ -174,6 +186,9 @@
       margin-bottom: 22px;
       font-size: 0.83rem;
       font-weight: 600;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
     }
 
     .alert-error ul, .alert-error .errorlist {
@@ -219,8 +234,16 @@
       left: 14px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 1rem;
       pointer-events: none;
+      color: #8592b0;
+      display: flex;
+      transition: color 0.2s ease;
+    }
+
+    .input-icon svg { width: 18px; height: 18px; }
+
+    .input-wrap:focus-within .input-icon {
+      color: var(--blue);
     }
 
     input[type="text"],
@@ -262,13 +285,15 @@
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 1rem;
       padding: 0;
       width: auto;
       margin: 0;
       color: #8592b0;
+      display: flex;
       transition: color 0.2s;
     }
+
+    .toggle-pass svg { width: 18px; height: 18px; }
 
     .toggle-pass:hover {
       color: var(--blue);
@@ -295,7 +320,13 @@
       margin-top: 8px;
       position: relative;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
     }
+
+    .btn-login svg { width: 16px; height: 16px; flex-shrink: 0; }
 
     .btn-login::before {
       content: '';
@@ -357,6 +388,8 @@
       gap: 6px;
       text-decoration: none;
     }
+
+    .btn-return svg { width: 14px; height: 14px; flex-shrink: 0; }
 
     .btn-return:hover {
       border-color: var(--blue);
@@ -433,9 +466,11 @@
       border-radius: 50%;
       margin: 0 auto 28px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 2.5rem;
+      color: white;
       backdrop-filter: blur(10px);
     }
+
+    .right-emblem svg { width: 40px; height: 40px; }
 
     .right-eyebrow {
       font-family: 'Montserrat', sans-serif;
@@ -526,13 +561,18 @@
 <!-- Header -->
 <header class="site-header">
   <div class="header-left">
-    <div class="header-seal">🛡️</div>
+    <div class="header-seal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3z"/></svg>
+    </div>
     <div class="header-titles">
       <h1>Municipal Social Welfare and Development Office</h1>
       <p>Republic of the Philippines · DSWD Devolved Unit</p>
     </div>
   </div>
-  <span class="badge-secure">Secure Login</span>
+  <span class="badge-secure">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    Secure Login
+  </span>
 </header>
 
 <!-- Main -->
@@ -547,12 +587,16 @@
       <p class="subtitle">Sign in to access the MSWDO Assistance Portal</p>
 
       {% if message %}
-        <div class="alert-success">ℹ️ {{ message }}</div>
+        <div class="alert-success">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>{{ message }}</span>
+        </div>
       {% endif %}
 
       {% if form.non_field_errors %}
         <div class="alert-error">
-          ⚠️ {{ form.non_field_errors }}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>{{ form.non_field_errors }}</span>
         </div>
       {% endif %}
 
@@ -565,7 +609,9 @@
             <span class="field-errors">{{ form.username.errors }}</span>
           {% endif %}
           <div class="input-wrap">
-            <span class="input-icon">👤</span>
+            <span class="input-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
             <input type="text"
                    id="id_username"
                    name="{{ form.username.html_name }}"
@@ -582,18 +628,25 @@
             <span class="field-errors">{{ form.password.errors }}</span>
           {% endif %}
           <div class="input-wrap">
-            <span class="input-icon">🔒</span>
+            <span class="input-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
             <input type="password"
                    id="id_password"
                    name="{{ form.password.html_name }}"
                    placeholder="Enter your password"
                    required
                    class="{% if form.password.errors %}error{% endif %}">
-            <button type="button" class="toggle-pass" onclick="togglePassword()" id="toggle-btn">👁️</button>
+            <button type="button" class="toggle-pass" onclick="togglePassword()" id="toggle-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
           </div>
         </div>
 
-        <button type="submit" class="btn-login">→ &nbsp;Sign In</button>
+        <button type="submit" class="btn-login">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          Sign In
+        </button>
       </form>
 
       <div class="signup-link">
@@ -602,7 +655,10 @@
 
       <div class="form-divider"><span>or</span></div>
 
-      <a class="btn-return" href="{% url 'select_account' %}">← Return to Account Selection</a>
+      <a class="btn-return" href="{% url 'select_account' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Return to Account Selection
+      </a>
 
     </div>
   </div>
@@ -613,7 +669,9 @@
     <div class="blob-2"></div>
     <div class="right-inner">
 
-      <div class="right-emblem">🤝</div>
+      <div class="right-emblem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
 
       <p class="right-eyebrow">MSWDO · DSWD</p>
       <h3>MSWDO Assistance Portal</h3>
@@ -651,15 +709,18 @@
 </div>
 
 <script>
+  const eyeIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const eyeOffIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
   function togglePassword() {
     const input = document.getElementById('id_password');
     const btn = document.getElementById('toggle-btn');
     if (input.type === 'password') {
       input.type = 'text';
-      btn.textContent = '🙈';
+      btn.innerHTML = eyeOffIcon;
     } else {
       input.type = 'password';
-      btn.textContent = '👁️';
+      btn.innerHTML = eyeIcon;
     }
   }
 </script>

@@ -257,24 +257,26 @@ def dashboard(request):
         status='PENDING'
     ).count()
 
-    monthly_disbursements = Application.objects.filter(
-        status='RELEASED',
-        created_at__gte=start_of_month,
-        created_at__lte=now
-    ).aggregate(
-        total=Sum('released_amount')
-    )['total'] or 0
+    monthly_disbursements = (
+        Application.objects.filter(
+            status='RELEASED',
+            created_at__gte=start_of_month,
+            created_at__lte=now
+        ).aggregate(
+            total=Sum('released_amount')
+        )['total'] or 0
+    )
 
     # =============================
     # PIPELINE COUNTS
     # =============================
     pipeline_counts = {
-        'pending':    Application.objects.filter(status='PENDING').count(),
+        'pending': Application.objects.filter(status='PENDING').count(),
         'assessment': Application.objects.filter(status='ASSESSMENT').count(),
-        'approval':   Application.objects.filter(status='APPROVAL').count(),
-        'release':    Application.objects.filter(status='RELEASE').count(),
-        'released':   Application.objects.filter(status='RELEASED').count(),
-        'rejected':   Application.objects.filter(status='REJECTED').count(),
+        'approval': Application.objects.filter(status='APPROVAL').count(),
+        'release': Application.objects.filter(status='RELEASE').count(),
+        'released': Application.objects.filter(status='RELEASED').count(),
+        'rejected': Application.objects.filter(status='REJECTED').count(),
     }
 
     # =============================
@@ -286,6 +288,7 @@ def dashboard(request):
         .annotate(count=Count('id'))
         .order_by('aid_type')
     )
+
     program_labels = [p['aid_type'] for p in program_data]
     program_values = [p['count'] for p in program_data]
 
@@ -297,6 +300,7 @@ def dashboard(request):
         .values('status')
         .annotate(count=Count('id'))
     )
+
     status_labels = [s['status'].capitalize() for s in status_data]
     status_values = [s['count'] for s in status_data]
 
@@ -310,20 +314,35 @@ def dashboard(request):
     ]
 
     # =============================
-    # CLIENTS OVER TIME (6 MONTHS)
+    # MONTHLY APPLICATIONS (LAST 6 MONTHS)
+    # Counts every application submitted
     # =============================
-    six_months_ago = now - timedelta(days=180)
+    six_months_ago = now.replace(day=1) - relativedelta(months=5)
 
-    monthly_clients = (
-        Client.objects
+    monthly_data = (
+        Application.objects
         .filter(created_at__gte=six_months_ago)
         .annotate(month=TruncMonth('created_at'))
         .values('month')
-        .annotate(count=Count('id'))
+        .annotate(total=Count('id'))
         .order_by('month')
     )
-    month_labels = [m['month'].strftime('%b %Y') for m in monthly_clients]
-    month_values = [m['count'] for m in monthly_clients]
+
+    month_map = {
+        item['month'].strftime('%b %Y'): item['total']
+        for item in monthly_data
+    }
+
+    month_labels = []
+    month_values = []
+
+    current = six_months_ago
+
+    while current <= now:
+        label = current.strftime('%b %Y')
+        month_labels.append(label)
+        month_values.append(month_map.get(label, 0))
+        current += relativedelta(months=1)
 
     # =============================
     # SEX DISTRIBUTION
@@ -334,28 +353,24 @@ def dashboard(request):
         .annotate(count=Count('id'))
         .order_by('sex')
     )
+
     sex_labels = [s['sex'] or 'Unknown' for s in sex_data]
     sex_values = [s['count'] for s in sex_data]
 
     # =============================
-    # SECTORS DISTRIBUTION
+    # SECTOR DISTRIBUTION
     # =============================
-    from collections import Counter
     sector_counter = Counter()
+
     for client in Client.objects.only('sectors'):
-        sectors = client.sectors or []
-        if isinstance(sectors, list):
-            sector_counter.update(sectors)
+        if client.sectors:
+            sector_counter.update(client.sectors)
 
     sector_labels = list(sector_counter.keys())
     sector_values = list(sector_counter.values())
 
     # =============================
     # LATEST APPLICATIONS
-    # ✅ Shows every submission from both staff (add_client)
-    #    and self-apply (client_apply_program).
-    #    Program & Status are always populated since we
-    #    query Application directly instead of Client.
     # =============================
     latest_applications = (
         Application.objects
@@ -367,10 +382,10 @@ def dashboard(request):
     # RENDER
     # =============================
     return render(request, 'dashboard.html', {
-        'total_beneficiaries':   total_beneficiaries,
-        'pending_applications':  pending_applications,
+        'total_beneficiaries': total_beneficiaries,
+        'pending_applications': pending_applications,
         'monthly_disbursements': monthly_disbursements,
-        'pipeline_counts':       pipeline_counts,
+        'pipeline_counts': pipeline_counts,
 
         'program_labels': program_labels,
         'program_values': program_values,
@@ -392,7 +407,7 @@ def dashboard(request):
 
         'latest_applications': latest_applications,
     })
-
+    
 from datetime import datetime
 from decimal import Decimal
 from ml.model_loader import predict_input
@@ -423,166 +438,168 @@ def add_client(request):
  
     if request.method == "POST":
         try:
-            # ── Collect selected sectors ──────────────────────────
-            selected_sectors = [k for k in SECTOR_KEYS if request.POST.get(f"sector_{k}")]
+            with transaction.atomic():
+                # ── Collect selected sectors ──────────────────────────
+                selected_sectors = [k for k in SECTOR_KEYS if request.POST.get(f"sector_{k}")]
  
-            # ── Derive ML flags from sectors ──────────────────────
-            has_disability  = "Yes" if "PWD"  in selected_sectors else "No"
-            is_senior       = "Yes" if "SC"   in selected_sectors else "No"
-            is_solo_parent  = "Yes" if "SP"   in selected_sectors else "No"
-            is_indigenous   = "Yes" if "IP"   in selected_sectors else "No"
+                # ── Derive ML flags from sectors ──────────────────────
+                has_disability  = "Yes" if "PWD"  in selected_sectors else "No"
+                is_senior       = "Yes" if "SC"   in selected_sectors else "No"
+                is_solo_parent  = "Yes" if "SP"   in selected_sectors else "No"
+                is_indigenous   = "Yes" if "IP"   in selected_sectors else "No"
  
-            client = Client.objects.create(
-                first_name=request.POST.get("first_name"),
-                middle_name=request.POST.get("middle_name") or None,
-                last_name=request.POST.get("last_name"),
-                sex=request.POST.get("sex"),
-                birth_date=datetime.strptime(request.POST.get("birth_date"), "%Y-%m-%d").date(),
-                civil_status=request.POST.get("civil_status"),
-                nationality=request.POST.get("nationality"),
-                address=request.POST.get("address"),
-                barangay=request.POST.get("barangay"),
-                municipality=request.POST.get("municipality"),
-                email=request.POST.get("email") or None,
-                contact_no=request.POST.get("contact_no"),
-                livelihood=request.POST.get("livelihood"),
-                monthly_income=Decimal(request.POST.get("monthly_income") or 0),
-                household_size=int(request.POST.get("household_size") or 0),
-                # ML-compatible single flags (derived from sectors)
-                has_disability=has_disability,
-                is_senior=is_senior,
-                is_solo_parent=is_solo_parent,
-                is_indigenous=is_indigenous,
-                previous_aid=request.POST.get("previous_aid", "No"),
-                # 4Ps
-                is_4ps=request.POST.get("is_4ps", "No"),
-                fourps_id=request.POST.get("fourps_id") or None,
-                # Full sector list (JSON field)
-                sectors=selected_sectors,
-            )
- 
-            # ── Family Members ─────────────────────────────────────
-            for index in range(51):
-                name = request.POST.get(f"family_name_{index}", "").strip()
-                if not name:
-                    continue
-                civil_status = request.POST.get(f"family_cs_{index}") or None
-                education = (
-                    "Elem"     if request.POST.get(f"family_edu_elem_{index}") else
-                    "HS"       if request.POST.get(f"family_edu_hs_{index}")   else
-                    "Coll/Voc" if request.POST.get(f"family_edu_coll_{index}") else
-                    "Illit"    if request.POST.get(f"family_edu_illit_{index}") else None
-                )
-                raw_age    = request.POST.get(f"family_age_{index}", "").strip()
-                raw_income = request.POST.get(f"family_inc_{index}", "").strip()
-                # Collect multiple sectors for this family member
-                SECTOR_KEYS_LOCAL = [
-                    'WEDC','SC','PWD','SP','IP','OFW','TP','PDL',
-                    'PWUD','IFW','4PS','CNSP','CAR','CICL','OSCY','FR','KASAMBAHAY'
-                ]
-                member_sectors = [
-                    k for k in SECTOR_KEYS_LOCAL
-                    if request.POST.get(f"family_sector_{index}_{k}")
-                ]
- 
-                FamilyMember.objects.create(
-                    client=client,
-                    name=name,
-                    age=int(raw_age) if raw_age else None,
-                    sex=request.POST.get(f"family_sex_{index}") or None,
-                    civil_status=civil_status,
-                    relationship=request.POST.get(f"family_rel_{index}") or None,
-                    educational_attainment=education,
-                    occupation=request.POST.get(f"family_occ_{index}") or None,
-                    income=Decimal(raw_income) if raw_income else None,
-                    sectors=member_sectors,   # JSONField list
+                client = Client.objects.create(
+                    first_name=request.POST.get("first_name"),
+                    middle_name=request.POST.get("middle_name") or None,
+                    last_name=request.POST.get("last_name"),
+                    sex=request.POST.get("sex"),
+                    birth_date=datetime.strptime(request.POST.get("birth_date"), "%Y-%m-%d").date(),
+                    civil_status=request.POST.get("civil_status"),
+                    nationality=request.POST.get("nationality"),
+                    address=request.POST.get("address"),
+                    barangay=request.POST.get("barangay"),
+                    municipality=request.POST.get("municipality"),
+                    email=request.POST.get("email") or None,
+                    contact_no=request.POST.get("contact_no"),
+                    livelihood=request.POST.get("livelihood"),
+                    monthly_income=Decimal(request.POST.get("monthly_income") or 0),
+                    household_size=int(request.POST.get("household_size") or 0),
+                    # ML-compatible single flags (derived from sectors)
+                    has_disability=has_disability,
+                    is_senior=is_senior,
+                    is_solo_parent=is_solo_parent,
+                    is_indigenous=is_indigenous,
+                    previous_aid=request.POST.get("previous_aid", "No"),
+                    # 4Ps
+                    is_4ps=request.POST.get("is_4ps", "No"),
+                    fourps_id=request.POST.get("fourps_id") or None,
+                    # Full sector list (JSON field)
+                    sectors=selected_sectors,
                 )
  
-            # ── Application ────────────────────────────────────────
-            aid_type = request.POST.get("program")
-            application = Application.objects.create(
-                client=client, aid_type=aid_type, status="PENDING",
-            )
+                # ── Family Members ─────────────────────────────────────
+                for index in range(51):
+                    name = request.POST.get(f"family_name_{index}", "").strip()
+                    if not name:
+                        continue
+                    civil_status = request.POST.get(f"family_cs_{index}") or None
+                    education = (
+                        "Elem"     if request.POST.get(f"family_edu_elem_{index}") else
+                        "HS"       if request.POST.get(f"family_edu_hs_{index}")   else
+                        "Coll/Voc" if request.POST.get(f"family_edu_coll_{index}") else
+                        "Illit"    if request.POST.get(f"family_edu_illit_{index}") else None
+                    )
+                    raw_age    = request.POST.get(f"family_age_{index}", "").strip()
+                    raw_income = request.POST.get(f"family_inc_{index}", "").strip()
+                    # Collect multiple sectors for this family member
+                    SECTOR_KEYS_LOCAL = [
+                        'WEDC','SC','PWD','SP','IP','OFW','TP','PDL',
+                        'PWUD','IFW','4PS','CNSP','CAR','CICL','OSCY','FR','KASAMBAHAY'
+                    ]
+                    member_sectors = [
+                        k for k in SECTOR_KEYS_LOCAL
+                        if request.POST.get(f"family_sector_{index}_{k}")
+                    ]
  
-            # ── ML Prediction ──────────────────────────────────────
-            try:
-                income = float(client.monthly_income)
-                hh     = int(client.household_size) or 1
-                ml_input = {
-                    "monthly_income":    income,
-                    "household_size":    hh,
-                    "income_per_person": income / hh,
-                    "has_disability":    1 if has_disability  == "Yes" else 0,
-                    "is_senior":         1 if is_senior       == "Yes" else 0,
-                    "previous_aid":      1 if client.previous_aid == "Yes" else 0,
-                    "is_solo_parent":    1 if is_solo_parent  == "Yes" else 0,
-                    "is_indigenous":     1 if is_indigenous   == "Yes" else 0,
-                    "is_4ps":            1 if client.is_4ps   == "Yes" else 0,
-                }
-                prediction = predict_input(ml_input, aid_type)
-                score      = compute_score(ml_input)
-                reason     = generate_reason(ml_input, prediction, aid_type)
-                application.eligibility_result = "Eligible" if prediction == 1 else "Not Eligible"
-                application.eligibility_score  = score
-                application.eligibility_reason = reason
-            except Exception as ml_err:
-                import traceback; traceback.print_exc()
-                application.eligibility_result = "Not Eligible"
-                application.eligibility_score  = 0
-                application.eligibility_reason = "Eligibility could not be determined automatically. Please assess manually."
+                    FamilyMember.objects.create(
+                        client=client,
+                        name=name,
+                        age=int(raw_age) if raw_age else None,
+                        sex=request.POST.get(f"family_sex_{index}") or None,
+                        civil_status=civil_status,
+                        relationship=request.POST.get(f"family_rel_{index}") or None,
+                        educational_attainment=education,
+                        occupation=request.POST.get(f"family_occ_{index}") or None,
+                        income=Decimal(raw_income) if raw_income else None,
+                        sectors=member_sectors,   # JSONField list
+                    )
  
-            application.save()
+                # ── Application ────────────────────────────────────────
+                aid_type = request.POST.get("program")
+                application = Application.objects.create(
+                    client=client, aid_type=aid_type, status="PENDING",
+                )
  
-            # ── Program Details & Documents ────────────────────────
-            docs = {}
-            if aid_type == "AICS":
-                AICSDetail.objects.create(application=application, crisis_type=request.POST.get("aics_crisis_type"))
-                docs = {
-                    "Valid ID":            request.FILES.get("aics_valid_id"),
-                    "AICS Barangay Cert":  request.FILES.get("aics_barangay_cert"),
-                    "Medical/Death Cert":  request.FILES.get("aics_medical_death_cert"),
-                    "Official Receipt":    request.FILES.get("aics_receipt"),
-                }
-            elif aid_type == "SEA":
-                SEADetail.objects.create(application=application)
-                docs = {
-                    "Valid ID":            request.FILES.get("sea_valid_id"),
-                    "Barangay Clearance":  request.FILES.get("sea_barangay_clearance"),
-                    "Cedula":              request.FILES.get("sea_cedula"),
-                    "Project Proposal":    request.FILES.get("sea_project_proposal"),
-                    "Project Picture":     request.FILES.get("sea_project_picture"),
-                }
-            elif aid_type == "REDCARD":
-                REDCARDDetail.objects.create(application=application, emergency_type=request.POST.get("redcard_emergency_type"), reason=request.POST.get("redcard_reason"), usage_count=request.POST.get("redcard_usage") or 1)
-                docs = {
-                    "Birth Certificate":        request.FILES.get("redcard_birth_cert"),
-                    "Valid ID Picture":         request.FILES.get("redcard_valid_id"),
-                    "Certificate of Indigency": request.FILES.get("redcard_indigency"),
-                }
-            elif aid_type == "EDUCATIONAL":
-                EducationalAssistanceDetail.objects.create(application=application, school_name=request.POST.get("school_name"), course_or_grade=request.POST.get("course_level"))
-                docs = {
-                    "Valid ID":                   request.FILES.get("edu_valid_id"),
-                    "Letter of Appeal":           request.FILES.get("edu_letter"),
-                    "Certificate of Indigency":   request.FILES.get("edu_indigency"),
-                    "Grades":                     request.FILES.get("edu_grades"),
-                    "Certificate of Enrollment":  request.FILES.get("edu_enrollment"),
-                    "Billing Statement":          request.FILES.get("edu_billing"),
-                    "Official Receipt":           request.FILES.get("edu_receipt"),
-                }
+                # ── ML Prediction ──────────────────────────────────────
+                try:
+                    income = float(client.monthly_income)
+                    hh     = int(client.household_size) or 1
+                    ml_input = {
+                        "monthly_income":    income,
+                        "household_size":    hh,
+                        "income_per_person": income / hh,
+                        "has_disability":    1 if has_disability  == "Yes" else 0,
+                        "is_senior":         1 if is_senior       == "Yes" else 0,
+                        "previous_aid":      1 if client.previous_aid == "Yes" else 0,
+                        "is_solo_parent":    1 if is_solo_parent  == "Yes" else 0,
+                        "is_indigenous":     1 if is_indigenous   == "Yes" else 0,
+                        "is_4ps":            1 if client.is_4ps   == "Yes" else 0,
+                    }
+                    prediction = predict_input(ml_input, aid_type)
+                    score      = compute_score(ml_input)
+                    reason     = generate_reason(ml_input, prediction, aid_type)
+                    application.eligibility_result = "Eligible" if prediction == 1 else "Not Eligible"
+                    application.eligibility_score  = score
+                    application.eligibility_reason = reason
+                except Exception as ml_err:
+                    import traceback; traceback.print_exc()
+                    application.eligibility_result = "Not Eligible"
+                    application.eligibility_score  = 0
+                    application.eligibility_reason = "Eligibility could not be determined automatically. Please assess manually."
  
-            # ── General supporting documents (Section VI of the intake form) ──
-            if request.FILES.get("valid_id"):
-                docs["Valid Government ID"] = request.FILES.get("valid_id")
-            if request.FILES.get("barangay_certificate"):
-                docs["Barangay Certificate"] = request.FILES.get("barangay_certificate")
-            if request.FILES.get("other_document"):
-                docs["Supporting Document"] = request.FILES.get("other_document")
+                application.save()
  
-            for doc_name, file in docs.items():
-                if file:
-                    ApplicationDocument.objects.create(application=application, name=doc_name, file=file)
+                # ── Program Details & Documents ────────────────────────
+                docs = {}
+                if aid_type == "AICS":
+                    AICSDetail.objects.create(application=application, crisis_type=request.POST.get("aics_crisis_type"))
+                    docs = {
+                        "Valid ID":            request.FILES.get("aics_valid_id"),
+                        "AICS Barangay Cert":  request.FILES.get("aics_barangay_cert"),
+                        "Medical/Death Cert":  request.FILES.get("aics_medical_death_cert"),
+                        "Official Receipt":    request.FILES.get("aics_receipt"),
+                    }
+                elif aid_type == "SEA":
+                    SEADetail.objects.create(application=application)
+                    docs = {
+                        "Valid ID":            request.FILES.get("sea_valid_id"),
+                        "Barangay Clearance":  request.FILES.get("sea_barangay_clearance"),
+                        "Cedula":              request.FILES.get("sea_cedula"),
+                        "Project Proposal":    request.FILES.get("sea_project_proposal"),
+                        "Project Picture":     request.FILES.get("sea_project_picture"),
+                    }
+                elif aid_type == "REDCARD":
+                    REDCARDDetail.objects.create(application=application, emergency_type=request.POST.get("redcard_emergency_type"), reason=request.POST.get("redcard_reason"), usage_count=request.POST.get("redcard_usage") or 1)
+                    docs = {
+                        "Birth Certificate":        request.FILES.get("redcard_birth_cert"),
+                        "Valid ID Picture":         request.FILES.get("redcard_valid_id"),
+                        "Certificate of Indigency": request.FILES.get("redcard_indigency"),
+                    }
+                elif aid_type == "EDUCATIONAL":
+                    EducationalAssistanceDetail.objects.create(application=application, school_name=request.POST.get("school_name"), course_or_grade=request.POST.get("course_level"))
+                    docs = {
+                        "Valid ID":                   request.FILES.get("edu_valid_id"),
+                        "Letter of Appeal":           request.FILES.get("edu_letter"),
+                        "Certificate of Indigency":   request.FILES.get("edu_indigency"),
+                        "Grades":                     request.FILES.get("edu_grades"),
+                        "Certificate of Enrollment":  request.FILES.get("edu_enrollment"),
+                        "Billing Statement":          request.FILES.get("edu_billing"),
+                        "Official Receipt":           request.FILES.get("edu_receipt"),
+                    }
  
+                # ── General supporting documents (Section VI of the intake form) ──
+                if request.FILES.get("valid_id"):
+                    docs["Valid Government ID"] = request.FILES.get("valid_id")
+                if request.FILES.get("barangay_certificate"):
+                    docs["Barangay Certificate"] = request.FILES.get("barangay_certificate")
+                if request.FILES.get("other_document"):
+                    docs["Supporting Document"] = request.FILES.get("other_document")
+ 
+                for doc_name, file in docs.items():
+                    if file:
+                        ApplicationDocument.objects.create(application=application, name=doc_name, file=file)
+ 
+            # ── Outside the atomic block: everything above committed together ──
             messages.success(request, "Application submitted successfully!")
             return redirect("application_detail", application.id)
  
@@ -591,8 +608,6 @@ def add_client(request):
             messages.error(request, f"Submission failed: {e}")
  
     return render(request, "add_client.html")
- 
-
     
 # --- Simple APIs ---
 @login_required
@@ -2992,12 +3007,39 @@ from sklearn.metrics import mean_absolute_error
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import numpy as np
-
+from scipy import stats
+import logging
+ 
+logger = logging.getLogger(__name__)
+ 
+ 
 def program_rate_prediction(request):
     """
     Predict the potential application rate of every MSWDO program
-    over the next 3 years using Linear Regression.
+    over the next 3 years using Linear Regression, with a 90%
+    prediction interval band around each monthly point estimate.
+
+    Every application created through either the staff intake form
+    (add_client) or the client self-service form (client_apply_program)
+    is written to the same Application table, so both sources already
+    feed this forecast automatically once submitted.
+
+    How much history exists changes what can honestly be claimed:
+      < 2 distinct months -> no trend line is possible at all. Falls
+        back to a flat baseline (current observed pace), no interval,
+        labelled "Insufficient Data".
+      exactly 2 months    -> a line technically fits through 2 points,
+        but there are zero degrees of freedom left to estimate error,
+        so a statistically honest interval still cannot be computed.
+        Point forecast only.
+      3+ months           -> a real 90% prediction interval is derived
+        from the regression's own residual variance, so the band
+        widens the further out the forecast goes - which is the
+        statistically correct behavior (distant guesses really are
+        less certain than near ones).
     """
+
+    CONFIDENCE_LEVEL = 0.90
 
     forecasts = {}
     summary = {}
@@ -3031,69 +3073,105 @@ def program_rate_prediction(request):
             .reset_index(name='count')
         )
 
-        if len(monthly) < 2:
-            forecasts[name] = []
-            continue
-
         monthly['month_num'] = np.arange(len(monthly))
-
-        X = monthly[['month_num']]
-        y = monthly['count']
-
-        # Linear Regression Model
-        model = LinearRegression()
-        model.fit(X, y)
-
-        # Accuracy
-        train_predictions = model.predict(X)
-
-        mae = mean_absolute_error(
-            y,
-            train_predictions
-        )
-
-        slope = model.coef_[0]
-
-        if slope > 0:
-            trend = "Increasing"
-        elif slope < 0:
-            trend = "Decreasing"
-        else:
-            trend = "Stable"
-
-        model_scores[name] = {
-            'mae': round(mae, 2),
-            'trend': trend
-        }
-
-        # Forecast next 36 months
-        future_months = 36
-
-        future_x = np.array(
-            range(
-                len(monthly),
-                len(monthly) + future_months
-            )
-        ).reshape(-1, 1)
-
-        predictions = model.predict(
-            future_x
-        )
-
-        predictions = [
-            max(0, round(value))
-            for value in predictions
-        ]
 
         last_month = (
             monthly.iloc[-1]['created_at']
             .to_timestamp()
         )
 
+        n = len(monthly)
+
+        # Forecast next 36 months
+        future_months = 36
+
+        if n < 2:
+            # Only one calendar month of data so far - not enough to fit a
+            # slope. Fall back to a flat baseline using the current pace so
+            # the program still appears here right away, instead of being
+            # silently omitted until next month. No confidence interval is
+            # possible with this little history.
+            baseline = int(round(monthly['count'].mean()))
+            predictions = [baseline] * future_months
+            lower_bounds = list(predictions)
+            upper_bounds = list(predictions)
+            mae = "N/A"
+            trend = "Insufficient Data"
+        else:
+            X = monthly[['month_num']]
+            y = monthly['count']
+
+            # Linear Regression Model
+            model = LinearRegression()
+            model.fit(X, y)
+
+            # Accuracy
+            train_predictions = model.predict(X)
+
+            mae = round(
+                mean_absolute_error(y, train_predictions),
+                2
+            )
+
+            slope = model.coef_[0]
+
+            if slope > 0:
+                trend = "Increasing"
+            elif slope < 0:
+                trend = "Decreasing"
+            else:
+                trend = "Stable"
+
+            future_x_vals = np.arange(n, n + future_months)
+
+            raw_predictions = model.predict(
+                future_x_vals.reshape(-1, 1)
+            )
+
+            predictions = [
+                int(max(0, round(value)))
+                for value in raw_predictions
+            ]
+
+            if n >= 3:
+                # 90% prediction interval from the regression's own
+                # residual variance (the standard simple-linear-regression
+                # formula) - widens the further out the forecast goes,
+                # which is the statistically honest behavior.
+                x_mean = float(np.mean(monthly['month_num']))
+                sxx = float(np.sum((monthly['month_num'] - x_mean) ** 2))
+                residuals = y - train_predictions
+                sse = float(np.sum(residuals ** 2))
+                dof = n - 2
+                residual_se = (sse / dof) ** 0.5
+                t_crit = stats.t.ppf(1 - (1 - CONFIDENCE_LEVEL) / 2, df=dof)
+
+                lower_bounds = []
+                upper_bounds = []
+                for x0, point in zip(future_x_vals, predictions):
+                    se_pred = residual_se * (
+                        1 + 1 / n + ((x0 - x_mean) ** 2) / sxx
+                    ) ** 0.5
+                    margin = t_crit * se_pred
+                    lower_bounds.append(int(max(0, round(point - margin))))
+                    upper_bounds.append(int(round(point + margin)))
+            else:
+                # Exactly 2 months: a line technically fits, but there
+                # are zero degrees of freedom left to estimate error, so
+                # a statistically honest interval can't be computed yet.
+                lower_bounds = list(predictions)
+                upper_bounds = list(predictions)
+
+        model_scores[name] = {
+            'mae': mae,
+            'trend': trend,
+            'has_interval': n >= 3,
+        }
+
         forecast_data = []
 
-        for i, prediction in enumerate(
-            predictions,
+        for i, (prediction, lower, upper) in enumerate(
+            zip(predictions, lower_bounds, upper_bounds),
             start=1
         ):
 
@@ -3104,12 +3182,15 @@ def program_rate_prediction(request):
 
             forecast_data.append({
                 'month': future_date.strftime('%B %Y'),
-                'applications': prediction
+                'applications': prediction,
+                'lower': lower,
+                'upper': upper,
             })
 
         forecasts[name] = forecast_data
 
-        # Yearly Summary
+        # Yearly Summary (point-estimate totals; the chart shows the
+        # month-by-month confidence band separately)
         year1 = sum(
             item['applications']
             for item in forecast_data[:12]

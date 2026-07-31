@@ -599,6 +599,15 @@
     box-shadow: 0 3px 10px rgba(252,209,22,0.3);
   }
 
+  .btn-changepw {
+    color: var(--blue-dark); border-color: rgba(0,40,130,0.3);
+    background: rgba(0,40,130,0.04);
+  }
+  .btn-changepw:hover {
+    background: var(--blue-dark); border-color: var(--blue-dark); color: white;
+    box-shadow: 0 3px 10px rgba(0,40,130,0.25);
+  }
+
   .btn-edit { color: var(--blue); border-color: rgba(0,56,168,0.25); }
   .btn-edit:hover { background: var(--blue-light); border-color: var(--blue); color: var(--blue); }
 
@@ -612,6 +621,83 @@
     color: var(--text-primary); margin-bottom: 8px;
   }
   .empty-state p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+
+  /* ===== CHANGE PASSWORD MODAL (Staff Management) ===== */
+  .cp-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 31, 75, 0.55);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .cp-modal-overlay.show { display: flex; }
+
+  .cp-modal {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: cpModalIn 0.2s ease;
+  }
+  @keyframes cpModalIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .cp-modal-header {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    color: white;
+    padding: 22px 28px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+  }
+  .cp-modal-header h5 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cp-modal-header p {
+    margin: 3px 0 0;
+    font-size: 0.78rem;
+    opacity: 0.85;
+  }
+  .cp-modal-close {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+  }
+  .cp-modal-close:hover { background: rgba(255,255,255,0.28); }
+
+  .cp-modal-body { padding: 28px; }
+
+  .cp-modal-footer {
+    padding: 0 28px 28px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .cp-modal-footer .action-btn { padding: 10px 20px; font-size: 0.72rem; }
 
   @media (max-width: 768px) {
     .admin-info-content { flex-direction: column; }
@@ -865,13 +951,22 @@
                   {% endif %}
                 </form>
 
-                <!-- Reset Password -->
+                <!-- Reset Password (auto-generated temporary password) -->
                 <form method="post" action="{% url 'reset_staff_password' staff.id %}" class="confirm-action" data-confirm="Reset password for {{ staff.get_full_name|default:staff.username }}? A new temporary password will be generated and shown once." style="display:inline;">
                   {% csrf_token %}
                   <button type="submit" class="action-btn btn-reset">
                     <i class="bi bi-key-fill"></i> Reset
                   </button>
                 </form>
+
+                <!-- Change Password (admin sets a specific new password) -->
+                <button type="button"
+                        class="action-btn btn-changepw"
+                        data-staff-name="{{ staff.get_full_name|default:staff.username }}"
+                        data-action-url="{% url 'change_staff_password' staff.id %}"
+                        onclick="openChangePasswordModal(this)">
+                  <i class="bi bi-shield-lock"></i> Change Password
+                </button>
 
                 <!-- Edit Role -->
                 <a href="{% url 'edit_staff_role' staff.id %}" class="action-btn btn-edit">
@@ -904,6 +999,64 @@
   </div>
 </div>
 
+<!-- ===== CHANGE STAFF PASSWORD MODAL ===== -->
+<div class="cp-modal-overlay" id="changePasswordOverlay">
+  <div class="cp-modal">
+    <div class="cp-modal-header">
+      <div>
+        <h5><i class="bi bi-shield-lock-fill"></i> Change Password</h5>
+        <p id="cpStaffLabel">Set a new password</p>
+      </div>
+      <button type="button" class="cp-modal-close" id="cpCloseBtn" aria-label="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="cp-modal-body">
+      <form method="post" id="changeStaffPasswordForm">
+        {% csrf_token %}
+
+        <div class="settings-form-group">
+          <label class="settings-label" for="modalNewPassword">New Password</label>
+          <div class="password-field-wrapper">
+            <input type="password" id="modalNewPassword" name="new_password" class="settings-input" required minlength="8" autocomplete="new-password">
+            <i class="bi bi-eye password-toggle-icon" data-target="modalNewPassword"></i>
+          </div>
+
+          <div class="strength-meter" id="modalStrengthMeter">
+            <div class="strength-bar-seg"></div>
+            <div class="strength-bar-seg"></div>
+            <div class="strength-bar-seg"></div>
+            <div class="strength-bar-seg"></div>
+          </div>
+          <div class="strength-label" id="modalStrengthLabel"></div>
+
+          <div class="pw-requirements">
+            <div class="pw-requirement" data-modal-rule="length"><i class="bi bi-circle-fill"></i> At least 8 characters</div>
+            <div class="pw-requirement" data-modal-rule="letter"><i class="bi bi-circle-fill"></i> Contains a letter</div>
+            <div class="pw-requirement" data-modal-rule="number"><i class="bi bi-circle-fill"></i> Contains a number</div>
+            <div class="pw-requirement" data-modal-rule="nocommon"><i class="bi bi-circle-fill"></i> Not all numbers</div>
+          </div>
+        </div>
+
+        <div class="settings-form-group" style="margin-bottom:0;">
+          <label class="settings-label" for="modalConfirmPassword">Confirm New Password</label>
+          <div class="password-field-wrapper">
+            <input type="password" id="modalConfirmPassword" name="confirm_password" class="settings-input" required autocomplete="new-password">
+            <i class="bi bi-eye password-toggle-icon" data-target="modalConfirmPassword"></i>
+          </div>
+          <div class="match-hint" id="modalMatchHint"><i class="bi bi-check-circle-fill"></i><span></span></div>
+        </div>
+      </form>
+    </div>
+    <div class="cp-modal-footer">
+      <button type="button" class="action-btn btn-logs" id="cpCancelBtn">Cancel</button>
+      <button type="submit" form="changeStaffPasswordForm" class="btn-save-settings security-btn" style="padding:10px 22px;">
+        <i class="bi bi-shield-check"></i> Update Password
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -932,7 +1085,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   setActiveTab(window.location.hash.replace('#', ''));
 
-  /* ---------- Password visibility toggle ---------- */
+  /* ---------- Password visibility toggle (works for profile, security tab, and modal fields) ---------- */
   document.querySelectorAll('.password-toggle-icon').forEach(function (icon) {
     icon.addEventListener('click', function () {
       var input = document.getElementById(icon.getAttribute('data-target'));
@@ -949,7 +1102,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  /* ---------- Password strength + requirements ---------- */
+  /* ---------- Password strength + requirements (Security tab) ---------- */
   var newPasswordInput = document.getElementById('newPassword');
   var confirmPasswordInput = document.getElementById('confirmPassword');
   var strengthSegs = document.querySelectorAll('#strengthMeter .strength-bar-seg');
@@ -1035,7 +1188,7 @@ document.addEventListener('DOMContentLoaded', function () {
     confirmPasswordInput.addEventListener('input', checkMatch);
   }
 
-  /* ---------- Block submit on mismatch ---------- */
+  /* ---------- Block submit on mismatch (Security tab) ---------- */
   var changePasswordForm = document.getElementById('changePasswordForm');
   if (changePasswordForm) {
     changePasswordForm.addEventListener('submit', function (e) {
@@ -1056,6 +1209,157 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+
+  /* ---------- Change Password modal (Staff Management) ---------- */
+  var cpOverlay = document.getElementById('changePasswordOverlay');
+  var cpForm = document.getElementById('changeStaffPasswordForm');
+  var cpStaffLabel = document.getElementById('cpStaffLabel');
+  var cpNewPassword = document.getElementById('modalNewPassword');
+  var cpConfirmPassword = document.getElementById('modalConfirmPassword');
+  var cpStrengthSegs = document.querySelectorAll('#modalStrengthMeter .strength-bar-seg');
+  var cpStrengthLabel = document.getElementById('modalStrengthLabel');
+  var cpMatchHint = document.getElementById('modalMatchHint');
+
+  function resetModalRequirements() {
+    cpStrengthSegs.forEach(function (seg) { seg.className = 'strength-bar-seg'; });
+    if (cpStrengthLabel) {
+      cpStrengthLabel.textContent = '';
+      cpStrengthLabel.className = 'strength-label';
+    }
+    document.querySelectorAll('.pw-requirement[data-modal-rule]').forEach(function (el) {
+      el.classList.remove('met');
+      el.querySelector('i').className = 'bi bi-circle-fill';
+    });
+  }
+
+  function closeChangePasswordModal() {
+    if (!cpOverlay) { return; }
+    cpOverlay.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  window.openChangePasswordModal = function (btn) {
+    if (!cpOverlay || !cpForm) { return; }
+    var staffName = btn.getAttribute('data-staff-name');
+    var actionUrl = btn.getAttribute('data-action-url');
+
+    cpForm.reset();
+    cpForm.setAttribute('action', actionUrl);
+    if (cpStaffLabel) { cpStaffLabel.textContent = 'Set a new password for ' + staffName; }
+
+    resetModalRequirements();
+    if (cpMatchHint) { cpMatchHint.classList.remove('show', 'match', 'mismatch'); }
+
+    cpOverlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function () { if (cpNewPassword) { cpNewPassword.focus(); } }, 50);
+  };
+
+  if (document.getElementById('cpCloseBtn')) {
+    document.getElementById('cpCloseBtn').addEventListener('click', closeChangePasswordModal);
+  }
+  if (document.getElementById('cpCancelBtn')) {
+    document.getElementById('cpCancelBtn').addEventListener('click', closeChangePasswordModal);
+  }
+  if (cpOverlay) {
+    cpOverlay.addEventListener('click', function (e) {
+      if (e.target === cpOverlay) { closeChangePasswordModal(); }
+    });
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && cpOverlay && cpOverlay.classList.contains('show')) {
+      closeChangePasswordModal();
+    }
+  });
+
+  function checkModalRequirements(value) {
+    var rules = {
+      length: value.length >= 8,
+      letter: /[a-zA-Z]/.test(value),
+      number: /[0-9]/.test(value),
+      nocommon: value.length > 0 && !/^\d+$/.test(value)
+    };
+    Object.keys(rules).forEach(function (key) {
+      var el = document.querySelector('.pw-requirement[data-modal-rule="' + key + '"]');
+      if (!el) { return; }
+      el.classList.toggle('met', rules[key]);
+      var icon = el.querySelector('i');
+      icon.className = rules[key] ? 'bi bi-check-circle-fill' : 'bi bi-circle-fill';
+    });
+    return rules;
+  }
+
+  function updateModalStrength(value) {
+    var rules = checkModalRequirements(value);
+    var score = Object.keys(rules).filter(function (k) { return rules[k]; }).length;
+
+    cpStrengthSegs.forEach(function (seg) { seg.className = 'strength-bar-seg'; });
+
+    var level = '';
+    if (value.length === 0) {
+      level = '';
+    } else if (score <= 1) {
+      level = 'weak';
+    } else if (score <= 3) {
+      level = 'fair';
+    } else {
+      level = 'strong';
+    }
+
+    var fillCount = level === 'weak' ? 1 : level === 'fair' ? 2 : level === 'strong' ? 4 : 0;
+    for (var i = 0; i < fillCount; i++) {
+      if (cpStrengthSegs[i]) { cpStrengthSegs[i].classList.add(level); }
+    }
+
+    if (cpStrengthLabel) {
+      cpStrengthLabel.textContent = level ? level.charAt(0).toUpperCase() + level.slice(1) + ' password' : '';
+      cpStrengthLabel.className = 'strength-label ' + level;
+    }
+  }
+
+  function checkModalMatch() {
+    if (!cpNewPassword || !cpConfirmPassword || !cpMatchHint) { return; }
+    var newVal = cpNewPassword.value;
+    var confirmVal = cpConfirmPassword.value;
+
+    if (confirmVal.length === 0) {
+      cpMatchHint.classList.remove('show', 'match', 'mismatch');
+      return;
+    }
+
+    cpMatchHint.classList.add('show');
+    if (newVal === confirmVal) {
+      cpMatchHint.classList.remove('mismatch');
+      cpMatchHint.classList.add('match');
+      cpMatchHint.querySelector('i').className = 'bi bi-check-circle-fill';
+      cpMatchHint.querySelector('span').textContent = 'Passwords match';
+    } else {
+      cpMatchHint.classList.remove('match');
+      cpMatchHint.classList.add('mismatch');
+      cpMatchHint.querySelector('i').className = 'bi bi-x-circle-fill';
+      cpMatchHint.querySelector('span').textContent = 'Passwords do not match';
+    }
+  }
+
+  if (cpNewPassword) {
+    cpNewPassword.addEventListener('input', function () {
+      updateModalStrength(cpNewPassword.value);
+      checkModalMatch();
+    });
+  }
+  if (cpConfirmPassword) {
+    cpConfirmPassword.addEventListener('input', checkModalMatch);
+  }
+
+  if (cpForm) {
+    cpForm.addEventListener('submit', function (e) {
+      if (cpNewPassword.value !== cpConfirmPassword.value) {
+        e.preventDefault();
+        checkModalMatch();
+        cpConfirmPassword.focus();
+      }
+    });
+  }
 
 });
 </script>
