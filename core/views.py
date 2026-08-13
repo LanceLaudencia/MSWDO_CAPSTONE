@@ -56,7 +56,8 @@ verification_codes = {}
 def landing(request):
     return render(request, 'landing.html')
 
-
+from .decorators import access_code_required
+@access_code_required
 def select_account(request):
     return render(request, "select_account.html")
 
@@ -67,6 +68,8 @@ def verify_email(request):
 def resend_verification(request):
     return HttpResponse("Resend Verification Page")
 
+from .decorators import access_code_required
+@access_code_required
 def signup(request):
     form = SignupForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -120,7 +123,8 @@ def verify(request):
 
     return render(request, 'login.html', {"message": "Invalid verification link or code."})
 
-
+from .decorators import access_code_required
+@access_code_required
 def login_view(request):
     form = LoginForm(request, data=request.POST or None)
 
@@ -150,6 +154,10 @@ def login_view(request):
 
 
 def logout_view(request):
+    # Clear the access-code gate along with the auth session, so logging
+    # out sends the person all the way back to needing the code again —
+    # not just back to the login screen.
+    request.session.pop('access_granted', None)
     logout(request)
     return redirect('landing')
 
@@ -435,19 +443,19 @@ SECTOR_KEYS = [
 def add_client(request):
     if not (getattr(request.user, "role", None) in ["staff", "admin"] or request.user.is_superuser):
         return redirect("dashboard")
- 
+
     if request.method == "POST":
         try:
             with transaction.atomic():
                 # ── Collect selected sectors ──────────────────────────
                 selected_sectors = [k for k in SECTOR_KEYS if request.POST.get(f"sector_{k}")]
- 
+
                 # ── Derive ML flags from sectors ──────────────────────
                 has_disability  = "Yes" if "PWD"  in selected_sectors else "No"
                 is_senior       = "Yes" if "SC"   in selected_sectors else "No"
                 is_solo_parent  = "Yes" if "SP"   in selected_sectors else "No"
                 is_indigenous   = "Yes" if "IP"   in selected_sectors else "No"
- 
+
                 client = Client.objects.create(
                     first_name=request.POST.get("first_name"),
                     middle_name=request.POST.get("middle_name") or None,
@@ -476,7 +484,7 @@ def add_client(request):
                     # Full sector list (JSON field)
                     sectors=selected_sectors,
                 )
- 
+
                 # ── Family Members ─────────────────────────────────────
                 for index in range(51):
                     name = request.POST.get(f"family_name_{index}", "").strip()
@@ -500,7 +508,7 @@ def add_client(request):
                         k for k in SECTOR_KEYS_LOCAL
                         if request.POST.get(f"family_sector_{index}_{k}")
                     ]
- 
+
                     FamilyMember.objects.create(
                         client=client,
                         name=name,
@@ -513,13 +521,13 @@ def add_client(request):
                         income=Decimal(raw_income) if raw_income else None,
                         sectors=member_sectors,   # JSONField list
                     )
- 
+
                 # ── Application ────────────────────────────────────────
                 aid_type = request.POST.get("program")
                 application = Application.objects.create(
                     client=client, aid_type=aid_type, status="PENDING",
                 )
- 
+
                 # ── ML Prediction ──────────────────────────────────────
                 try:
                     income = float(client.monthly_income)
@@ -534,6 +542,7 @@ def add_client(request):
                         "is_solo_parent":    1 if is_solo_parent  == "Yes" else 0,
                         "is_indigenous":     1 if is_indigenous   == "Yes" else 0,
                         "is_4ps":            1 if client.is_4ps   == "Yes" else 0,
+                        "sectors":           selected_sectors,
                     }
                     prediction = predict_input(ml_input, aid_type)
                     score      = compute_score(ml_input)
@@ -546,9 +555,9 @@ def add_client(request):
                     application.eligibility_result = "Not Eligible"
                     application.eligibility_score  = 0
                     application.eligibility_reason = "Eligibility could not be determined automatically. Please assess manually."
- 
+
                 application.save()
- 
+
                 # ── Program Details & Documents ────────────────────────
                 docs = {}
                 if aid_type == "AICS":
@@ -586,7 +595,7 @@ def add_client(request):
                         "Billing Statement":          request.FILES.get("edu_billing"),
                         "Official Receipt":           request.FILES.get("edu_receipt"),
                     }
- 
+
                 # ── General supporting documents (Section VI of the intake form) ──
                 if request.FILES.get("valid_id"):
                     docs["Valid Government ID"] = request.FILES.get("valid_id")
@@ -594,21 +603,21 @@ def add_client(request):
                     docs["Barangay Certificate"] = request.FILES.get("barangay_certificate")
                 if request.FILES.get("other_document"):
                     docs["Supporting Document"] = request.FILES.get("other_document")
- 
+
                 for doc_name, file in docs.items():
                     if file:
                         ApplicationDocument.objects.create(application=application, name=doc_name, file=file)
- 
+
             # ── Outside the atomic block: everything above committed together ──
             messages.success(request, "Application submitted successfully!")
             return redirect("application_detail", application.id)
- 
+
         except Exception as e:
             import traceback; traceback.print_exc()
             messages.error(request, f"Submission failed: {e}")
- 
+
     return render(request, "add_client.html")
-    
+
 # --- Simple APIs ---
 @login_required
 def api_program_counts(request):
@@ -2105,24 +2114,24 @@ def client_apply_program(request):
     client_id = request.session.get("client_id")
     if not client_id:
         return redirect("client_login")
- 
+
     client = get_object_or_404(Client, id=client_id)
- 
+
     if request.method == "POST":
         aid_type = request.POST.get("aid_type")
- 
+
         if not aid_type:
             messages.error(request, "Please select a program.")
             return redirect("client_apply_program")
- 
+
         try:
             with transaction.atomic():
- 
+
                 # ── ML Prediction (SAME AS add_client) ───────────────
                 try:
                     income = float(client.monthly_income)
                     hh     = int(client.household_size) or 1
- 
+
                     ml_input = {
                         "monthly_income":    income,
                         "household_size":    hh,
@@ -2133,21 +2142,22 @@ def client_apply_program(request):
                         "is_solo_parent":    1 if getattr(client, "is_solo_parent", "No") == "Yes" else 0,
                         "is_indigenous":     1 if getattr(client, "is_indigenous", "No") == "Yes" else 0,
                         "is_4ps":            1 if getattr(client, "is_4ps", "No") == "Yes" else 0,
+                        "sectors":           getattr(client, "sectors", None) or [],
                     }
- 
+
                     prediction = predict_input(ml_input, aid_type)
                     score      = compute_score(ml_input)
                     reason     = generate_reason(ml_input, prediction, aid_type)
- 
+
                     eligibility = "Eligible" if prediction == 1 else "Not Eligible"
- 
+
                 except Exception as ml_err:
                     import traceback
                     traceback.print_exc()
                     eligibility = "Not Eligible"
                     score = 0
                     reason = "Eligibility could not be determined automatically. Please assess manually."
- 
+
                 # ── Create Application ───────────────────────────────
                 application = Application.objects.create(
                     client=client,
@@ -2157,11 +2167,11 @@ def client_apply_program(request):
                     eligibility_score=score,
                     eligibility_reason=reason,
                 )
- 
+
                 print(f"📋 Application {application.id} created for {client.full_name}")
- 
+
                 docs = {}
- 
+
                 # ── AICS ─────────────────────────────────────────────
                 if aid_type == "AICS":
                     AICSDetail.objects.create(
@@ -2174,7 +2184,7 @@ def client_apply_program(request):
                         "Medical / Death Certificate":  request.FILES.get("aics_medical_death_cert"),
                         "Official Receipt":             request.FILES.get("aics_receipt"),
                     }
- 
+
                 # ── SEA ──────────────────────────────────────────────
                 elif aid_type == "SEA":
                     SEADetail.objects.create(application=application)
@@ -2185,7 +2195,7 @@ def client_apply_program(request):
                         "Project Proposal":    request.FILES.get("sea_project_proposal"),
                         "Project Picture":     request.FILES.get("sea_project_picture"),
                     }
- 
+
                 # ── REDCARD ──────────────────────────────────────────
                 elif aid_type == "REDCARD":
                     REDCARDDetail.objects.create(
@@ -2199,7 +2209,7 @@ def client_apply_program(request):
                         "Valid ID Picture":         request.FILES.get("redcard_valid_id"),
                         "Certificate of Indigency": request.FILES.get("redcard_indigency"),
                     }
- 
+
                 # ── EDUCATIONAL ──────────────────────────────────────
                 elif aid_type == "EDUCATIONAL":
                     EducationalAssistanceDetail.objects.create(
@@ -2216,7 +2226,7 @@ def client_apply_program(request):
                         "Billing Statement":          request.FILES.get("edu_billing"),
                         "Official Receipt":           request.FILES.get("edu_receipt"),
                     }
- 
+
                 # ── Save Documents ───────────────────────────────────
                 for doc_name, file in docs.items():
                     if file:
@@ -2225,27 +2235,27 @@ def client_apply_program(request):
                             name=doc_name,
                             file=file,
                         )
- 
+
                 # ── Notify Staff/Admin ───────────────────────────────
                 staff_admins = User.objects.filter(role__in=["staff", "admin"]) | User.objects.filter(is_superuser=True)
- 
+
                 for user in staff_admins.distinct():
                     Notification.objects.create(
                         recipient=user,
                         message=f"New {aid_type} application from {client.full_name}",
                         link=f"/application/{application.id}/",
                     )
- 
+
                 print("🎉 Application + ML + Notifications completed!")
- 
+
             messages.success(request, "Application submitted successfully!")
             return redirect("client_applications")
- 
+
         except Exception as e:
             import traceback
             traceback.print_exc()
             messages.error(request, f"Submission failed: {e}")
- 
+
     return render(request, "client_apply_program.html", {"client": client})
  
 
@@ -2261,21 +2271,34 @@ def mark_notification_read(request, pk):
     next_url = request.POST.get('next') or request.META.get('HTTP_REFERER', 'dashboard')
     return redirect(next_url)
 
-
+  
 ACCESS_CODE = "357246"
 
+from functools import wraps
+from .decorators import access_code_required
+
+ 
+# ─────────────────────────────────────────────────────────────────
+# Access code entry
+# ─────────────────────────────────────────────────────────────────
 def access_code_view(request):
+    # If this browser session already passed the gate, don't make them
+    # re-enter the code — send them straight through.
+    if request.session.get('access_granted'):
+        return redirect('select_account')
+ 
     if request.method == "POST":
         entered_code = request.POST.get("access_code")
-
+ 
         if entered_code == ACCESS_CODE:
             request.session['access_granted'] = True
             return redirect('select_account')
         else:
             messages.error(request, "Invalid access code.")
-
+ 
     return render(request, "access_code.html")
-
+ 
+ 
 
 from django.http import JsonResponse
 

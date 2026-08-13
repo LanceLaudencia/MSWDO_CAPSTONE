@@ -7,12 +7,13 @@ Functions:
   compute_score(ml_input)       → int 0–100
   generate_reason(ml_input, prediction) → str
   run_eligibility(client, aid_type)     → EligibilityResult
+  get_flagged_sectors(ml_input)         → set of DSWD sector codes
 """
 
 from dataclasses import dataclass, field
 
 # ── INCOME THRESHOLDS (monthly, in PHP) ──────────────────────
-POVERTY_LINE      = 13_000   # indigent / below poverty
+POVERTY_LINE      = 13_000   # indigent / below poverty (PSA 2023 official line: ~₱13,873/mo for a family of 5)
 NEAR_POOR         = 20_000   # near-poor / vulnerable
 PROGRAM_LIMITS = {
     "AICS":        22_000,
@@ -22,6 +23,43 @@ PROGRAM_LIMITS = {
 }
 DEFAULT_LIMIT     = 22_000
 PASS_SCORE        = 40       # minimum score to be Eligible
+
+# ── DSWD RECOGNIZED SECTORS ───────────────────────────────────
+# Mirrors the sector checkboxes on the intake form (add_client.html)
+# exactly, so any sector code checked there is guaranteed to resolve
+# to a label here. Previously only 5 of these 17 (PWD, SC, SP, IP,
+# 4PS) ever affected the eligibility score - the rest were collected
+# at intake and stored on Client.sectors, but silently ignored by
+# scoring. Now all 17 count.
+SECTOR_LABELS = {
+    "WEDC":       "Woman in Especially Difficult Circumstances (WEDC)",
+    "SC":         "Senior Citizen",
+    "PWD":        "Person with Disability (PWD)",
+    "SP":         "Solo Parent",
+    "IP":         "Indigenous People (IP)",
+    "OFW":        "Overseas Filipino Worker (OFW)",
+    "TP":         "Trafficked Person (TP)",
+    "PDL":        "Person Deprived of Liberty (PDL)",
+    "PWUD":       "Person Who Uses Drugs (PWUD)",
+    "IFW":        "Informal Filipino Worker (IFW)",
+    "4PS":        "registered 4Ps beneficiary",
+    "CNSP":       "Child in Need of Special Protection (CNSP)",
+    "CAR":        "Child at Risk (CAR)",
+    "CICL":       "Child in Conflict with the Law (CICL)",
+    "OSCY":       "Out of School Child/Youth (OSCY)",
+    "FR":         "Former Rebel (FR)",
+    "KASAMBAHAY": "Domestic Helper (Kasambahay)",
+}
+
+# Sectors treated as inherently crisis/protection-adjacent. Used only
+# to decide whether to suggest AICS (Crisis Assistance) as an
+# alternative for an applicant who doesn't qualify for the program
+# they actually applied for. This grouping is a reasonable judgment
+# call, not an official DSWD list - adjust freely if your office
+# prioritizes differently.
+CRISIS_ADJACENT_SECTORS = {
+    "WEDC", "TP", "CNSP", "CAR", "CICL", "PWUD",
+}
 
 
 @dataclass
@@ -35,6 +73,37 @@ class EligibilityResult:
 
 
 # ─────────────────────────────────────────────────────────────
+# SECTOR HELPER
+# ─────────────────────────────────────────────────────────────
+def get_flagged_sectors(ml_input: dict) -> set:
+    """
+    Returns the set of recognized DSWD sector codes that apply to this
+    applicant. Merges two possible sources so both older and newer
+    callers work correctly:
+      - an explicit "sectors" list on ml_input (everything picked at
+        intake - up to the full 17 in SECTOR_LABELS)
+      - the legacy individual boolean flags (has_disability, is_senior,
+        is_solo_parent, is_indigenous, is_4ps), for any caller that
+        only ever sets those.
+    """
+    flagged = set(
+        code for code in (ml_input.get("sectors") or [])
+        if code in SECTOR_LABELS
+    )
+    if ml_input.get("has_disability"):
+        flagged.add("PWD")
+    if ml_input.get("is_senior"):
+        flagged.add("SC")
+    if ml_input.get("is_solo_parent"):
+        flagged.add("SP")
+    if ml_input.get("is_indigenous"):
+        flagged.add("IP")
+    if ml_input.get("is_4ps"):
+        flagged.add("4PS")
+    return flagged
+
+
+# ─────────────────────────────────────────────────────────────
 # SCORE ENGINE
 # ─────────────────────────────────────────────────────────────
 def compute_score(ml_input: dict) -> int:
@@ -44,6 +113,9 @@ def compute_score(ml_input: dict) -> int:
         monthly_income, household_size,
         has_disability, is_senior, previous_aid,
         is_solo_parent, is_indigenous, is_4ps,
+        sectors (optional list of DSWD sector codes — see
+                 SECTOR_LABELS; covers all 17 recognized sectors from
+                 intake, not just the 5 with dedicated Client fields),
         income_per_person (optional — computed if missing)
     """
     score = 0
@@ -83,17 +155,14 @@ def compute_score(ml_input: dict) -> int:
     else:
         score += 2
 
-    # ── 4. VULNERABILITY FLAGS (max 5 pts each) ───────────────
-    if ml_input.get("has_disability"):
-        score += 5
-    if ml_input.get("is_senior"):
-        score += 5
-    if ml_input.get("is_solo_parent"):
-        score += 5
-    if ml_input.get("is_indigenous"):
-        score += 5
-    if ml_input.get("is_4ps"):
-        score += 5
+    # ── 4. RECOGNIZED VULNERABLE SECTORS (max 25 pts) ─────────
+    # +5 per distinct DSWD sector flagged at intake (any of the 17 in
+    # SECTOR_LABELS). Capped at 25 total - the same ceiling as
+    # before, since the old code's 5 hardcoded flags already maxed
+    # out at 5x5=25 - so this is purely additive: applicants flagged
+    # as e.g. OFW, PWUD, CICL, or Former Rebel now get credit for it
+    # instead of being scored as if that information didn't exist.
+    score += min(25, 5 * len(get_flagged_sectors(ml_input)))
 
     # ── 5. PREVIOUS AID (slight deduction) ───────────────────
     if ml_input.get("previous_aid"):
@@ -116,6 +185,7 @@ def generate_reason(ml_input: dict, prediction: int, aid_type: str = "") -> str:
     hh      = int(ml_input.get("household_size", 1)) or 1
     score   = compute_score(ml_input)
     limit   = PROGRAM_LIMITS.get(aid_type.upper(), DEFAULT_LIMIT)
+    flagged_sectors = get_flagged_sectors(ml_input)
 
     positives = []
     negatives = []
@@ -128,16 +198,8 @@ def generate_reason(ml_input: dict, prediction: int, aid_type: str = "") -> str:
         positives.append("income within the near-poor range")
     if hh >= 5:
         positives.append(f"large household ({hh} members)")
-    if ml_input.get("has_disability"):
-        positives.append("Person with Disability (PWD)")
-    if ml_input.get("is_senior"):
-        positives.append("Senior Citizen")
-    if ml_input.get("is_solo_parent"):
-        positives.append("Solo Parent")
-    if ml_input.get("is_indigenous"):
-        positives.append("Indigenous People (IP)")
-    if ml_input.get("is_4ps"):
-        positives.append("registered 4Ps beneficiary")
+    for code in sorted(flagged_sectors):
+        positives.append(SECTOR_LABELS[code])
     if not ml_input.get("previous_aid"):
         positives.append("first-time DSWD assistance applicant")
 
@@ -167,9 +229,16 @@ def generate_reason(ml_input: dict, prediction: int, aid_type: str = "") -> str:
             suggestions.append("Educational Assistance (higher income threshold)")
         if income <= PROGRAM_LIMITS.get("SEA", 25_000) and aid != "SEA":
             suggestions.append("SEA – Self-Employment Assistance (livelihood support)")
-        if (ml_input.get("has_disability") or ml_input.get("is_senior")
-                or ml_input.get("is_solo_parent")) and aid != "AICS":
-            suggestions.append("AICS – Crisis Assistance (priority for PWDs, seniors, solo parents)")
+        if (
+            (flagged_sectors & CRISIS_ADJACENT_SECTORS)
+            or ml_input.get("has_disability")
+            or ml_input.get("is_senior")
+            or ml_input.get("is_solo_parent")
+        ) and aid != "AICS":
+            suggestions.append(
+                "AICS – Crisis Assistance (priority for PWDs, seniors, solo parents, "
+                "and other crisis-adjacent cases)"
+            )
         if not suggestions:
             suggestions.append(
                 "referral to other government agencies (DOLE, TESDA, DSWD-NHTS, or LGU programs)"
@@ -240,15 +309,16 @@ def run_eligibility(client, aid_type: str) -> EligibilityResult:
     hh     = int(client.household_size or 1) or 1
 
     ml_input = {
-        "monthly_income":   income,
-        "household_size":   hh,
+        "monthly_income":    income,
+        "household_size":    hh,
         "income_per_person": income / hh,
-        "has_disability":   1 if client.has_disability == "Yes" else 0,
-        "is_senior":        1 if client.is_senior == "Yes" else 0,
-        "previous_aid":     1 if client.previous_aid == "Yes" else 0,
-        "is_solo_parent":   1 if getattr(client, "is_solo_parent", "No") == "Yes" else 0,
-        "is_indigenous":    1 if getattr(client, "is_indigenous", "No") == "Yes" else 0,
-        "is_4ps":           1 if client.is_4ps == "Yes" else 0,
+        "has_disability":    1 if client.has_disability == "Yes" else 0,
+        "is_senior":         1 if client.is_senior == "Yes" else 0,
+        "previous_aid":      1 if client.previous_aid == "Yes" else 0,
+        "is_solo_parent":    1 if getattr(client, "is_solo_parent", "No") == "Yes" else 0,
+        "is_indigenous":     1 if getattr(client, "is_indigenous", "No") == "Yes" else 0,
+        "is_4ps":            1 if client.is_4ps == "Yes" else 0,
+        "sectors":           getattr(client, "sectors", None) or [],
     }
 
     prediction = predict_input(ml_input, aid_type)
