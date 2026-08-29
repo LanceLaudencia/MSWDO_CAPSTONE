@@ -7,104 +7,573 @@
   <title>Sign Up – MSWDO</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    *{box-sizing:border-box;margin:0;padding:0;}
-    :root{
-      --blue:#0038A8;--blue-dark:#002882;--blue-light:rgba(0,56,168,0.08);
-      --red:#CE1126;--red-dark:#a50d1e;--yellow:#FCD116;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #0038A8;
+      --blue-dark: #002882;
+      --blue-light: rgba(0, 56, 168, 0.08);
+      --red: #CE1126;
+      --red-dark: #a50d1e;
+      --yellow: #FCD116;
     }
-    body{font-family:'Open Sans',sans-serif;display:flex;flex-direction:column;min-height:100vh;background:#f0f2f7;}
-    .top-bar{height:5px;background:linear-gradient(90deg,var(--blue) 33%,var(--red) 33% 66%,var(--yellow) 66%);position:fixed;top:0;left:0;right:0;z-index:100;}
-    .site-header{position:fixed;top:5px;left:0;right:0;background:white;box-shadow:0 2px 10px rgba(0,0,0,0.07);padding:10px 32px;display:flex;align-items:center;justify-content:space-between;z-index:90;}
-    .header-left{display:flex;align-items:center;gap:12px;}
-    .header-seal{width:46px;height:46px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 2px 8px rgba(0,56,168,0.3);flex-shrink:0;}
-    .header-titles h1{font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.4px;line-height:1.2;}
-    .header-titles p{font-size:.62rem;color:#888;text-transform:uppercase;letter-spacing:.3px;}
-    .badge-secure{background:var(--blue);color:white;font-size:.6rem;font-weight:700;padding:3px 9px;border-radius:3px;text-transform:uppercase;letter-spacing:.5px;}
-    .main{display:flex;min-height:100vh;padding-top:67px;}
-    .left-panel{flex:1;display:flex;align-items:center;justify-content:center;padding:48px;background:white;position:relative;}
-    .left-panel::after{content:'';position:absolute;right:0;top:10%;bottom:10%;width:1px;background:linear-gradient(to bottom,transparent,#e0e4ef,transparent);}
-    .form-container{width:100%;max-width:440px;}
-    .section-eyebrow{font-family:'Montserrat',sans-serif;font-size:.65rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
-    .form-container h2{font-family:'Montserrat',sans-serif;font-size:1.75rem;font-weight:800;color:#1a2540;margin-bottom:6px;line-height:1.2;}
-    .subtitle{color:#6b7a99;margin-bottom:28px;font-size:.85rem;}
 
-    /* ── Email verification pending banner ── */
-    .verify-banner{background:linear-gradient(135deg,rgba(0,56,168,0.07),rgba(0,56,168,0.04));border:1.5px solid rgba(0,56,168,0.2);border-left:4px solid var(--blue);border-radius:10px;padding:18px 20px;margin-bottom:24px;}
-    .verify-banner-title{font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:800;color:var(--blue);display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-    .verify-banner-body{font-size:.82rem;color:#3a4a6b;line-height:1.6;margin-bottom:12px;}
-    .verify-banner-email{display:inline-flex;align-items:center;gap:7px;background:white;border:1.5px solid rgba(0,56,168,0.18);border-radius:8px;padding:7px 14px;font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:700;color:var(--blue);margin-bottom:12px;}
-    .resend-link{font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;color:var(--blue);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;}
-    .resend-link:hover{color:var(--red);}
+    body {
+      font-family: 'Open Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: #f0f2f7;
+    }
 
-    .alert-success{background:rgba(0,56,168,.06);border:1px solid rgba(0,56,168,.18);border-left:4px solid var(--blue);color:var(--blue-dark);padding:12px 16px;border-radius:8px;margin-bottom:22px;font-size:.83rem;font-weight:600;}
-    .alert-error{background:rgba(206,17,38,.06);border:1px solid rgba(206,17,38,.18);border-left:4px solid var(--red);color:var(--red-dark);padding:12px 16px;border-radius:8px;margin-bottom:22px;font-size:.83rem;font-weight:600;}
-    .alert-error ul,.alert-error .errorlist{list-style:none;padding:0;margin:0;}
-    .alert-error li{margin:3px 0;}
-    .field-errors{color:var(--red);font-size:.76rem;margin-top:5px;display:block;font-weight:600;}
-    .field-errors ul{list-style:none;padding:0;margin:0;}
+    /* Tricolor top bar */
+    .top-bar {
+      height: 5px;
+      background: linear-gradient(90deg, var(--blue) 0%, var(--blue) 33%, var(--red) 33%, var(--red) 66%, var(--yellow) 66%, var(--yellow) 100%);
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+    }
 
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-    .form-group{margin-bottom:18px;}
-    .form-group label{display:block;margin-bottom:7px;color:#3a4a6b;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.7rem;text-transform:uppercase;letter-spacing:.8px;}
-    .input-wrap{position:relative;}
-    .input-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:.95rem;pointer-events:none;z-index:1;}
-    input[type="text"],input[type="email"],input[type="password"],select{width:100%;padding:12px 14px 12px 40px;border:2px solid #dde3ef;border-radius:10px;outline:none;font-family:'Open Sans',sans-serif;font-size:.88rem;transition:all .2s;background:#f8f9fc;color:#1a2540;-webkit-appearance:none;appearance:none;}
-    input:focus,select:focus{border-color:var(--blue);background:white;box-shadow:0 0 0 3px rgba(0,56,168,.10);}
-    input.error,select.error{border-color:var(--red);background:rgba(206,17,38,.03);}
-    .select-wrap::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#8592b0;font-size:.85rem;pointer-events:none;}
-    .toggle-pass{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:.95rem;padding:0;color:#8592b0;transition:color .2s;box-shadow:none!important;}
-    .toggle-pass:hover{color:var(--blue);transform:translateY(-50%);}
-    .strength-bar{display:flex;gap:4px;margin-top:7px;}
-    .strength-seg{flex:1;height:3px;border-radius:2px;background:#e4e9f5;transition:background .3s;}
-    .strength-label{font-size:.7rem;color:#8592b0;margin-top:4px;}
+    /* Header */
+    .site-header {
+      position: fixed;
+      top: 5px; left: 0; right: 0;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      padding: 10px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 90;
+    }
 
-    .btn-signup{width:100%;background:linear-gradient(135deg,var(--red),var(--red-dark));color:white;border:none;padding:15px;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:.88rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;cursor:pointer;transition:all .25s;box-shadow:0 4px 15px rgba(206,17,38,.28);margin-top:6px;position:relative;overflow:hidden;}
-    .btn-signup::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left .4s;}
-    .btn-signup:hover::before{left:100%;}
-    .btn-signup:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(206,17,38,.40);}
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-    .form-divider{display:flex;align-items:center;gap:12px;margin:18px 0 14px;}
-    .form-divider span{font-size:.75rem;color:#b0bace;white-space:nowrap;}
-    .form-divider::before,.form-divider::after{content:'';flex:1;height:1px;background:#e4e9f5;}
-    .btn-return{width:100%;padding:13px;border-radius:10px;border:2px solid #d0d7ea;background:transparent;color:#5a6a8a;font-family:'Montserrat',sans-serif;font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;}
-    .btn-return:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+    .header-seal {
+      width: 46px; height: 46px;
+      background: var(--blue);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 2px 8px rgba(0,56,168,0.3);
+      flex-shrink: 0;
+    }
 
-    .right-panel{width:40%;background:linear-gradient(160deg,var(--blue) 0%,var(--blue-dark) 60%,#001a5e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 44px;position:relative;overflow:hidden;}
-    .right-panel::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(255,255,255,0.02) 40px,rgba(255,255,255,0.02) 41px);}
-    .blob-1{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(252,209,22,0.12) 0%,transparent 70%);top:-120px;right:-120px;}
-    .blob-2{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(206,17,38,0.15) 0%,transparent 70%);bottom:-80px;left:-60px;}
-    .right-inner{position:relative;z-index:1;max-width:320px;text-align:center;}
-    .right-emblem{width:88px;height:88px;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);border-radius:50%;margin:0 auto 26px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;backdrop-filter:blur(10px);}
-    .right-eyebrow{font-family:'Montserrat',sans-serif;font-size:.65rem;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;}
-    .right-inner h3{font-family:'Montserrat',sans-serif;font-size:1.5rem;font-weight:800;color:white;line-height:1.25;margin-bottom:14px;}
-    .right-inner p{font-size:.84rem;color:rgba(255,255,255,0.65);line-height:1.7;margin-bottom:30px;}
-    .steps-list{text-align:left;margin-bottom:30px;}
-    .step-item{display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08);}
-    .step-item:last-child{border-bottom:none;}
-    .step-num{width:24px;height:24px;border-radius:50%;background:var(--yellow);color:#1a2540;font-family:'Montserrat',sans-serif;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
-    .step-text{font-size:.81rem;color:rgba(255,255,255,0.72);line-height:1.5;}
-    .step-text strong{color:white;display:block;font-size:.84rem;margin-bottom:2px;}
-    /* Step 2 highlighted when verification is pending */
-    .step-item.active-step .step-num{background:white;color:var(--blue);animation:pulse-step 2s ease-in-out infinite;}
-    .step-item.active-step .step-text strong{color:var(--yellow);}
-    @keyframes pulse-step{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.4)}50%{box-shadow:0 0 0 6px rgba(255,255,255,0)}}
-    .notice-box{background:rgba(252,209,22,0.12);border:1px solid rgba(252,209,22,0.25);border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:10px;text-align:left;margin-bottom:24px;}
-    .notice-box p{font-size:.76rem;color:rgba(255,255,255,0.65);line-height:1.5;margin:0;}
-    .flag-row{display:flex;align-items:center;justify-content:center;gap:6px;}
-    .flag-seg{height:5px;border-radius:2px;}
-    .right-footer-text{font-size:.67rem;color:rgba(255,255,255,0.38);margin-top:8px;text-align:center;}
+    .header-titles h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      line-height: 1.2;
+    }
 
-    @media(max-width:900px){
-      .main{flex-direction:column;}
-      .right-panel{width:100%;padding:44px 28px;}
-      .left-panel{padding:40px 20px;}
-      .left-panel::after{display:none;}
-      .form-row{grid-template-columns:1fr;}
+    .header-titles p {
+      font-size: 0.62rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-secure {
+      background: var(--blue);
+      color: white;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Main Layout */
+    .main {
+      display: flex;
+      min-height: 100vh;
+      padding-top: 67px;
+    }
+
+    /* Left Panel */
+    .left-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 48px;
+      background: white;
+      position: relative;
+    }
+
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 10%; bottom: 10%;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, #e0e4ef, transparent);
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .section-eyebrow {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 8px;
+    }
+
+    .form-container h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #1a2540;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: #6b7a99;
+      margin-bottom: 28px;
+      font-size: 0.85rem;
+    }
+
+    /* Alerts */
+    .alert-success {
+      background: rgba(0, 56, 168, 0.06);
+      border: 1px solid rgba(0, 56, 168, 0.18);
+      border-left: 4px solid var(--blue);
+      color: var(--blue-dark);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 22px;
+      font-size: 0.83rem;
+      font-weight: 600;
+    }
+
+    .alert-error {
+      background: rgba(206,17,38,0.06);
+      border: 1px solid rgba(206,17,38,0.18);
+      border-left: 4px solid var(--red);
+      color: var(--red-dark);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 22px;
+      font-size: 0.83rem;
+      font-weight: 600;
+    }
+
+    .alert-error ul, .alert-error .errorlist {
+      list-style: none;
+      padding: 0; margin: 0;
+    }
+    .alert-error li { margin: 3px 0; }
+
+    .field-errors {
+      color: var(--red);
+      font-size: 0.76rem;
+      margin-top: 5px;
+      display: block;
+      font-weight: 600;
+    }
+    .field-errors ul { list-style: none; padding: 0; margin: 0; }
+
+    /* Two-column row */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* Form Groups */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 7px;
+      color: #3a4a6b;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.95rem;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 12px 14px 12px 40px;
+      border: 2px solid #dde3ef;
+      border-radius: 10px;
+      outline: none;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 0.88rem;
+      transition: all 0.2s ease;
+      background: #f8f9fc;
+      color: #1a2540;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+      border-color: var(--blue);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(0, 56, 168, 0.10);
+    }
+
+    input.error, select.error {
+      border-color: var(--red);
+      background: rgba(206,17,38,0.03);
+    }
+
+    /* Select arrow */
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #8592b0;
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+
+    /* Password toggle */
+    .toggle-pass {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 0;
+      width: auto;
+      margin: 0;
+      color: #8592b0;
+      transition: color 0.2s;
+      box-shadow: none !important;
+    }
+
+    .toggle-pass:hover {
+      color: var(--blue);
+      transform: translateY(-50%);
+    }
+
+    /* Password strength */
+    .strength-bar {
+      display: flex;
+      gap: 4px;
+      margin-top: 7px;
+    }
+
+    .strength-seg {
+      flex: 1;
+      height: 3px;
+      border-radius: 2px;
+      background: #e4e9f5;
+      transition: background 0.3s;
+    }
+
+    .strength-label {
+      font-size: 0.7rem;
+      color: #8592b0;
+      margin-top: 4px;
+    }
+
+    /* Submit */
+    .btn-signup {
+      width: 100%;
+      background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 15px rgba(206, 17, 38, 0.28);
+      margin-top: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-signup::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: left 0.4s;
+    }
+
+    .btn-signup:hover::before { left: 100%; }
+
+    .btn-signup:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(206, 17, 38, 0.40);
+    }
+
+    .btn-signup:active { transform: translateY(0); }
+
+    /* Divider */
+    .form-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0 14px;
+    }
+
+    .form-divider span {
+      font-size: 0.75rem;
+      color: #b0bace;
+      white-space: nowrap;
+    }
+
+    .form-divider::before,
+    .form-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e4e9f5;
+    }
+
+    /* Return */
+    .btn-return {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: 2px solid #d0d7ea;
+      background: transparent;
+      color: #5a6a8a;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .btn-return:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: var(--blue-light);
+    }
+
+    /* Right Panel */
+    .right-panel {
+      width: 40%;
+      background: linear-gradient(160deg, var(--blue) 0%, var(--blue-dark) 60%, #001a5e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 44px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .right-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          45deg, transparent, transparent 40px,
+          rgba(255,255,255,0.02) 40px, rgba(255,255,255,0.02) 41px
+        );
+    }
+
+    .blob-1 {
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(252,209,22,0.12) 0%, transparent 70%);
+      top: -120px; right: -120px;
+    }
+
+    .blob-2 {
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(206,17,38,0.15) 0%, transparent 70%);
+      bottom: -80px; left: -60px;
+    }
+
+    .right-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 320px;
+      text-align: center;
+    }
+
+    .right-emblem {
+      width: 88px; height: 88px;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      margin: 0 auto 26px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .right-eyebrow {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--yellow);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .right-inner h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: white;
+      line-height: 1.25;
+      margin-bottom: 14px;
+    }
+
+    .right-inner p {
+      font-size: 0.84rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.7;
+      margin-bottom: 30px;
+    }
+
+    /* Steps */
+    .steps-list {
+      text-align: left;
+      margin-bottom: 30px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .step-item:last-child { border-bottom: none; }
+
+    .step-num {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--yellow);
+      color: #1a2540;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text {
+      font-size: 0.81rem;
+      color: rgba(255,255,255,0.72);
+      line-height: 1.5;
+    }
+
+    .step-text strong {
+      color: white;
+      display: block;
+      font-size: 0.84rem;
+      margin-bottom: 2px;
+    }
+
+    /* Notice box */
+    .notice-box {
+      background: rgba(252,209,22,0.12);
+      border: 1px solid rgba(252,209,22,0.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      text-align: left;
+      margin-bottom: 24px;
+    }
+
+    .notice-box span:first-child { font-size: 1rem; flex-shrink: 0; }
+    .notice-box p { font-size: 0.76rem; color: rgba(255,255,255,0.65); line-height: 1.5; margin: 0; }
+
+    .flag-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .flag-seg { height: 5px; border-radius: 2px; }
+
+    .right-footer-text {
+      font-size: 0.67rem;
+      color: rgba(255,255,255,0.38);
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .main { flex-direction: column; }
+      .right-panel { width: 100%; padding: 44px 28px; }
+      .left-panel { padding: 40px 20px; }
+      .left-panel::after { display: none; }
+      .form-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+
 <div class="top-bar"></div>
+
+<!-- Header -->
 <header class="site-header">
   <div class="header-left">
     <div class="header-seal">🛡️</div>
@@ -116,39 +585,16 @@
   <span class="badge-secure">New Account</span>
 </header>
 
+<!-- Main -->
 <div class="main">
-  <!-- LEFT: Form -->
+
+  <!-- Left: Form -->
   <div class="left-panel">
     <div class="form-container">
+
       <p class="section-eyebrow">Account Registration</p>
       <h2>Create Account</h2>
       <p class="subtitle">Register to access the MSWDO Assistance Portal</p>
-
-      {% if pending_email %}
-      <!-- Verification pending banner -->
-      <div class="verify-banner">
-        <div class="verify-banner-title">
-          <span>📧</span> Verify Your Email Address
-        </div>
-        <div class="verify-banner-body">
-          A <strong>6-digit verification code</strong> has been sent to your email. Enter it on the verification page to activate your account.
-        </div>
-        <div class="verify-banner-email">
-          ✉️ {{ pending_email }}
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-          <a href="{% url 'verify_email' %}?email={{ pending_email }}"
-             style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:8px;background:var(--blue);color:white;font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;text-decoration:none;transition:all .2s;">
-            Enter Code →
-          </a>
-          <form method="POST" action="{% url 'resend_verification' %}" style="display:inline;">
-            {% csrf_token %}
-            <input type="hidden" name="email" value="{{ pending_email }}">
-            <button type="submit" class="resend-link">↺ Resend code</button>
-          </form>
-        </div>
-      </div>
-      {% endif %}
 
       {% if message %}
         <div class="alert-success">ℹ️ {{ message }}</div>
@@ -158,43 +604,59 @@
         <div class="alert-error">⚠️ {{ form.non_field_errors }}</div>
       {% endif %}
 
-      {% if not pending_email %}
       <form method="post">
         {% csrf_token %}
+
         <!-- Email -->
         <div class="form-group">
           <label for="id_email">Email Address</label>
-          {% if form.email.errors %}<span class="field-errors">{{ form.email.errors }}</span>{% endif %}
+          {% if form.email.errors %}
+            <span class="field-errors">{{ form.email.errors }}</span>
+          {% endif %}
           <div class="input-wrap">
             <span class="input-icon">✉️</span>
             {{ form.email }}
           </div>
         </div>
+
         <!-- Username -->
         <div class="form-group">
           <label for="id_username">Username</label>
-          {% if form.username.errors %}<span class="field-errors">{{ form.username.errors }}</span>{% endif %}
+          {% if form.username.errors %}
+            <span class="field-errors">{{ form.username.errors }}</span>
+          {% endif %}
           <div class="input-wrap">
             <span class="input-icon">👤</span>
             {{ form.username }}
           </div>
         </div>
-        <!-- Passwords -->
+
+        <!-- Passwords in a row -->
         <div class="form-row">
           <div class="form-group">
             <label for="id_password1">Password</label>
-            {% if form.password1.errors %}<span class="field-errors">{{ form.password1.errors }}</span>{% endif %}
+            {% if form.password1.errors %}
+              <span class="field-errors">{{ form.password1.errors }}</span>
+            {% endif %}
             <div class="input-wrap">
               <span class="input-icon">🔒</span>
               {{ form.password1 }}
               <button type="button" class="toggle-pass" onclick="togglePass('id_password1','btn-p1')" id="btn-p1">👁️</button>
             </div>
-            <div class="strength-bar"><div class="strength-seg" id="s1"></div><div class="strength-seg" id="s2"></div><div class="strength-seg" id="s3"></div><div class="strength-seg" id="s4"></div></div>
+            <div class="strength-bar">
+              <div class="strength-seg" id="s1"></div>
+              <div class="strength-seg" id="s2"></div>
+              <div class="strength-seg" id="s3"></div>
+              <div class="strength-seg" id="s4"></div>
+            </div>
             <div class="strength-label" id="strength-label">Password strength</div>
           </div>
+
           <div class="form-group">
             <label for="id_password2">Confirm Password</label>
-            {% if form.password2.errors %}<span class="field-errors">{{ form.password2.errors }}</span>{% endif %}
+            {% if form.password2.errors %}
+              <span class="field-errors">{{ form.password2.errors }}</span>
+            {% endif %}
             <div class="input-wrap">
               <span class="input-icon">🔒</span>
               {{ form.password2 }}
@@ -202,72 +664,96 @@
             </div>
           </div>
         </div>
+
         <!-- Role -->
         <div class="form-group">
           <label for="id_role">Role</label>
-          {% if form.role.errors %}<span class="field-errors">{{ form.role.errors }}</span>{% endif %}
+          {% if form.role.errors %}
+            <span class="field-errors">{{ form.role.errors }}</span>
+          {% endif %}
           <div class="input-wrap select-wrap">
             <span class="input-icon">🎖️</span>
             {{ form.role }}
           </div>
         </div>
+
         <button type="submit" class="btn-signup">✓ &nbsp;Create Account</button>
       </form>
-      {% endif %}
 
       <div class="form-divider"><span>already have an account?</span></div>
+
       <a class="btn-return" href="{% url 'login' %}">← Return to Login</a>
+
     </div>
   </div>
 
-  <!-- RIGHT: Branding -->
+  <!-- Right: Branding -->
   <div class="right-panel">
-    <div class="blob-1"></div><div class="blob-2"></div>
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
     <div class="right-inner">
+
       <div class="right-emblem">🤝</div>
+
       <p class="right-eyebrow">MSWDO · DSWD</p>
       <h3>Join the MSWDO Platform</h3>
       <p>Collaborate with staff and administrators to improve assistance program delivery and tracking across the municipality.</p>
+
       <div class="steps-list">
-        <div class="step-item {% if not pending_email %}active-step{% endif %}">
+        <div class="step-item">
           <div class="step-num">1</div>
-          <div class="step-text"><strong>Create your account</strong>Fill in your details and select your role</div>
+          <div class="step-text">
+            <strong>Create your account</strong>
+            Fill in your details and select your role
+          </div>
         </div>
-        <div class="step-item {% if pending_email %}active-step{% endif %}">
+        <div class="step-item">
           <div class="step-num">2</div>
-          <div class="step-text"><strong>Verify your email</strong>Enter the 6-digit code sent to your email</div>
+          <div class="step-text">
+            <strong>Await admin approval</strong>
+            Your account will be reviewed by an administrator
+          </div>
         </div>
         <div class="step-item">
           <div class="step-num">3</div>
-          <div class="step-text"><strong>Await admin approval</strong>Your account will be reviewed by an administrator</div>
-        </div>
-        <div class="step-item">
-          <div class="step-num">4</div>
-          <div class="step-text"><strong>Access the portal</strong>Manage cases, beneficiaries &amp; reports</div>
+          <div class="step-text">
+            <strong>Access the portal</strong>
+            Manage cases, beneficiaries &amp; reports
+          </div>
         </div>
       </div>
+
       <div class="notice-box">
         <span>⚠️</span>
         <p>Only authorized MSWDO personnel may register. Unauthorized access is prohibited under RA 10173.</p>
       </div>
+
       <div class="flag-row">
-        <div class="flag-seg" style="width:28px;background:#0038A8;"></div>
-        <div class="flag-seg" style="width:28px;background:#CE1126;"></div>
-        <div class="flag-seg" style="width:14px;background:#FCD116;"></div>
+        <div class="flag-seg" style="width:28px; background:#0038A8;"></div>
+        <div class="flag-seg" style="width:28px; background:#CE1126;"></div>
+        <div class="flag-seg" style="width:14px; background:#FCD116;"></div>
       </div>
       <p class="right-footer-text">Republic of the Philippines · Official Government System</p>
+
     </div>
   </div>
+
 </div>
 
 <script>
   function togglePass(inputId, btnId) {
     const input = document.getElementById(inputId);
     const btn = document.getElementById(btnId);
-    input.type = input.type === 'password' ? 'text' : 'password';
-    btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁️';
+    }
   }
 
+  // Password strength meter
   const passInput = document.getElementById('id_password1');
   if (passInput) {
     passInput.addEventListener('input', () => {
@@ -277,20 +763,26 @@
       if (/[A-Z]/.test(val)) score++;
       if (/[0-9]/.test(val)) score++;
       if (/[^A-Za-z0-9]/.test(val)) score++;
+
       const colors = ['#CE1126','#e67e22','#FCD116','#27ae60'];
       const labels = ['Weak','Fair','Good','Strong'];
-      ['s1','s2','s3','s4'].forEach((id, i) => {
-        document.getElementById(id).style.background = i < score ? colors[score-1] : '#e4e9f5';
+      const segs = ['s1','s2','s3','s4'];
+
+      segs.forEach((id, i) => {
+        document.getElementById(id).style.background = i < score ? colors[score - 1] : '#e4e9f5';
       });
-      const lbl = document.getElementById('strength-label');
-      lbl.textContent = val.length === 0 ? 'Password strength' : (labels[score-1] || 'Weak');
-      lbl.style.color = val.length === 0 ? '#8592b0' : (colors[score-1] || '#CE1126');
+
+      const label = document.getElementById('strength-label');
+      label.textContent = val.length === 0 ? 'Password strength' : labels[score - 1] || 'Weak';
+      label.style.color = val.length === 0 ? '#8592b0' : colors[score - 1] || '#CE1126';
     });
   }
 
+  // Add padding to form inputs rendered by Django (they won't have the icon padding by default)
   document.querySelectorAll('.input-wrap input, .input-wrap select').forEach(el => {
     el.style.paddingLeft = '40px';
   });
 </script>
+
 </body>
 </html>

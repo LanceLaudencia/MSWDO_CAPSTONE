@@ -10,11 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        
-        migrations.RemoveField(
-            model_name='aicsdetail',
-            name='assessment_findings',
-        ),
         migrations.RemoveField(
             model_name='aicsdetail',
             name='released_at',

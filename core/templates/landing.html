@@ -19,7 +19,7 @@
       --border:#dde3ef;--shadow:rgba(0,56,168,0.12);--shadow-md:rgba(0,56,168,0.18);
       --transition:0.3s cubic-bezier(0.4,0,0.2,1);
     }
-    ,::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     html{scroll-behavior:smooth;font-size:16px;}
     body{font-family:'Open Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;}
     img{max-width:100%;display:block;}
@@ -37,7 +37,8 @@
 
     .logo{display:flex;align-items:center;gap:10px;font-family:'Montserrat',sans-serif;font-size:1.3rem;font-weight:900;color:var(--blue);letter-spacing:.5px;transition:var(--transition);cursor:pointer;user-select:none;}
     .logo .shield-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:1.1rem;box-shadow:0 3px 10px var(--shadow);position:relative;overflow:hidden;}
-    .logo .shield-icon::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--yellow),var(--red));}
+    .logo .shield-icon img{width:100%;height:100%;object-fit:cover;}
+    .logo .shield-icon::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--yellow),var(--red));z-index:1;}
     .logo:hover{transform:scale(1.04);}
 
     .nav-menu{display:flex;list-style:none;gap:32px;align-items:center;}
@@ -90,30 +91,51 @@
     .hero-image{position:relative;}
     @keyframes slideInRight{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
 
-    /* Full-bleed image panel — stretches to the top, right, and bottom edges of the hero section
-       (cancels the section's own padding so it truly touches the edges, not just its grid column).
-       Currently using the seal logo as a temporary placeholder until the real photo is added. */
-    .hero-blob{
+    /* Photo panel — a clean rounded-rectangle, not a masked organic blob.
+       Simpler shape means no fade-mask is needed, which is what was
+       leaving the seal badge fighting for space before. Swap the img
+       src below for the real photo when it's ready; the gradient shows
+       through as a placeholder until then.
+
+       Split into two layers on purpose: the outer wrapper positions
+       everything but does NOT clip (overflow stays visible), while the
+       inner layer is what actually gets rounded corners + overflow:hidden.
+       The seal badge is a sibling of the inner layer, not a child of it,
+       so it can overlap the rounded edge without being cut off by it. */
+    .hero-photo-panel{
       position:absolute;
-      top:-140px;right:-52px;bottom:-90px;
-      width:54%;
-      overflow:hidden;z-index:1;pointer-events:none;
-      background:linear-gradient(135deg,var(--blue),var(--blue-mid));
-      -webkit-mask-image:linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 42%);
-      mask-image:linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 42%);
+      top:64px;right:52px;bottom:104px;
+      width:42%;
+      z-index:1;
+      animation:slideInRight .9s ease-out;
     }
-    .hero-blob img{
+    .hero-photo-inner{
+      width:100%;height:100%;
+      border-radius:28px;
+      overflow:hidden;
+      background:linear-gradient(135deg,var(--blue),var(--blue-mid));
+      box-shadow:0 30px 70px rgba(0,40,130,0.22);
+    }
+    .hero-photo-inner > img{
       width:100%;height:100%;object-fit:cover;object-position:center;
     }
 
-    /* Circular logo/seal box — sits near the top-right corner of the image panel */
-    .hero-logo-circle{
-      position:absolute;top:170px;right:100px;width:270px;height:270px;border-radius:50%;
-      overflow:hidden;z-index:3;background:white;border:6px solid white;
-      box-shadow:0 18px 44px rgba(0,56,168,0.3),0 0 0 4px rgba(0,56,168,0.08);
-      animation:fadeInUp .9s ease-out .3s backwards;
+    /* Seal medallion — a stamped-seal treatment overlapping the panel's
+       bottom-left corner, ringed in the same tricolor as the top bar.
+       Sized generously on purpose so the seal has real room, instead
+       of being squeezed into leftover space inside a masked shape. */
+    .hero-seal-badge{
+      position:absolute;left:-64px;bottom:-64px;
+      width:196px;height:196px;border-radius:50%;
+      overflow:hidden;z-index:3;background:white;border:5px solid white;
+      box-shadow:
+        0 0 0 4px var(--blue),
+        0 0 0 7px var(--red),
+        0 0 0 10px var(--yellow),
+        0 20px 48px rgba(0,40,130,0.32);
+      animation:fadeInUp .9s ease-out .35s backwards;
     }
-    .hero-logo-circle img{width:100%;height:100%;object-fit:contain;padding:20px;}
+    .hero-seal-badge > img{width:100%;height:100%;object-fit:contain;padding:10px;}
 
     section{padding:100px 0;position:relative;}
     .section-header{text-align:center;margin-bottom:58px;}
@@ -234,8 +256,8 @@
       .hero-buttons{justify-content:center;}
       .hero-stats{justify-content:center;}
       .hero p{max-width:100%;}
-      .hero-blob{width:560px;height:520px;top:10px;right:-52px;bottom:auto;}
-      .hero-logo-circle{width:190px;height:190px;top:120px;right:60px;}
+      .hero-photo-panel{position:relative;top:auto;right:auto;bottom:auto;width:100%;max-width:420px;height:380px;margin:0 auto 20px;}
+      .hero-seal-badge{width:150px;height:150px;left:-40px;bottom:-40px;}
       .about-content{grid-template-columns:1fr;gap:40px;}
       section{padding:80px 0;}
       .section-header h2{font-size:2rem;}
@@ -248,8 +270,9 @@
       .hero-buttons{flex-direction:column;width:100%;}
       .btn-hero-primary,.btn-hero-secondary,.btn-hero-apply{width:100%;justify-content:center;}
       .hero-stats{flex-direction:column;gap:20px;text-align:center;}
-      .hero-blob{display:none;}
-      .hero-logo-circle{position:static;margin:0 auto 20px;width:150px;height:150px;}
+      .hero-photo-panel{height:auto;display:flex;justify-content:center;margin:0 auto 20px;}
+      .hero-photo-inner{display:none;}
+      .hero-seal-badge{position:static;left:auto;bottom:auto;width:140px;height:140px;margin:0 auto;}
       .services-grid,.announcements-grid{grid-template-columns:1fr;}
       .about-images{grid-template-columns:1fr;}
       .footer-top{grid-template-columns:1fr;}
@@ -274,7 +297,9 @@
   <header>
     <nav class="navbar" id="navbar">
       <div class="logo" id="staffLogoAccess" title="MSWDO">
-        <div class="shield-icon"><i class="bi bi-shield-fill"></i></div>
+        <div class="shield-icon">
+          <img src="{% static 'images/socorro_logo.jpg' %}" alt="Municipality of Socorro Official Seal" />
+        </div>
         <span>MSWDO</span>
       </div>
 
@@ -306,12 +331,14 @@
 
   <!-- HERO -->
   <section id="home" class="hero">
-    <div class="hero-blob">
-      <!-- TEMP: using the seal logo as a stand-in background image until the real photo (hero-background.jpg) is ready -->
-      <img src="{% static 'images/socorro_seal.png' %}" alt="" />
-    </div>
-    <div class="hero-logo-circle">
-      <img src="{% static 'images/socorro_seal.png' %}" alt="Municipality of Socorro Official Seal" />
+    <div class="hero-photo-panel">
+      <div class="hero-photo-inner">
+      
+         <img src="{% static 'images/mswd.jpg' %}" alt="" />
+      </div>
+      <div class="hero-seal-badge">
+        <img src="{% static 'images/socorro_logo.jpg' %}" alt="Municipality of Socorro Official Seal" />
+      </div>
     </div>
     <div class="hero-content">
       <div class="hero-text">
@@ -460,8 +487,8 @@
       </div>
       <div class="contact-wrapper">
         <div class="contact-box">
-          <div class="contact-item"><div class="contact-icon"><i class="bi bi-telephone-fill"></i></div><div class="contact-info"><h4>Phone</h4><p>+63 923 520 1888</p></div></div>
-          <div class="contact-item"><div class="contact-icon"><i class="bi bi-envelope-fill"></i></div><div class="contact-info"><h4>Email</h4><p>mswdo@socorro.gov.ph</p></div></div>
+          <div class="contact-item"><div class="contact-icon"><i class="bi bi-telephone-fill"></i></div><div class="contact-info"><h4>Phone</h4><p>+63 998-886-0741</p></div></div>
+          <div class="contact-item"><div class="contact-icon"><i class="bi bi-envelope-fill"></i></div><div class="contact-info"><h4>Email</h4><p>mswdo@gmail.com</p></div></div>
           <div class="contact-item"><div class="contact-icon"><i class="bi bi-geo-alt-fill"></i></div><div class="contact-info"><h4>Address</h4><p>Municipal Hall, Socorro, Philippines</p></div></div>
           <div class="contact-item"><div class="contact-icon"><i class="bi bi-clock-fill"></i></div><div class="contact-info"><h4>Office Hours</h4><p>Monday – Friday: 8:00 AM – 5:00 PM</p></div></div>
         </div>
@@ -498,7 +525,7 @@
           <h4>Services</h4>
           <ul>
             <li><a href="#">AICS Program</a></li>
-            <li><a href="#">SEA-K Livelihood</a></li>
+            <li><a href="#">SEA</a></li>
             <li><a href="#">Red Card</a></li>
             <li><a href="#">Educational Assistance</a></li>
           </ul>
@@ -507,8 +534,8 @@
           <h4>Contact</h4>
           <ul class="footer-contact">
             <li><i class="bi bi-geo-alt-fill"></i><span>Municipal Hall, Socorro</span></li>
-            <li><i class="bi bi-telephone-fill"></i><span>+63 923 520 1888</span></li>
-            <li><i class="bi bi-envelope-fill"></i><span>mswdo@socorro.gov.ph</span></li>
+            <li><i class="bi bi-telephone-fill"></i><span>+63 998-886-0741</span></li>
+            <li><i class="bi bi-envelope-fill"></i><span>mswdo@gmai.com</span></li>
           </ul>
         </div>
       </div>
@@ -537,7 +564,7 @@
       sections.forEach(sec => { if (window.scrollY >= sec.offsetTop - 100) current = sec.getAttribute("id"); });
       navLinks.forEach(link => {
         link.classList.remove("active");
-        if (link.getAttribute("href") === #${current}) link.classList.add("active");
+        if (link.getAttribute("href") === `#${current}`) link.classList.add("active");
       });
     });
     backTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
@@ -562,7 +589,7 @@
     window.addEventListener("mousemove", e => {
       document.querySelectorAll(".parallax-circle").forEach((circle, i) => {
         const speed = (i + 1) * 0.05;
-        circle.style.transform = translate(${(window.innerWidth - e.clientX * speed) / 100}px,${(window.innerHeight - e.clientY * speed) / 100}px);
+        circle.style.transform = `translate(${(window.innerWidth - e.clientX * speed) / 100}px,${(window.innerHeight - e.clientY * speed) / 100}px)`;
       });
     });
 
