@@ -4,497 +4,681 @@
 {% block content %}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
 
 <style>
-  /* ── Dark surface tokens ── */
+  /* ─────────────────────────────────────────
+     TOKENS
+  ───────────────────────────────────────── */
   :root {
-    --dk-bg:      #0b0f17;
-    --dk-surf:    #111827;
-    --dk-surf2:   #0f172a;
-    --dk-border:  #1f2d42;
-    --dk-muted:   #2a3a52;
-    --dk-dim:     #4f6a8a;
-    --dk-ink:     #8facc8;
-    --dk-hi:      #c8ddef;
-    --dk-white:   #eef4fb;
+    --bg:        #f7f8fc;
+    --surface:   #ffffff;
+    --surface2:  #f1f4fb;
 
-    --teal:       #2dd4bf;
-    --amber:      #f59e0b;
-    --indigo:     #818cf8;
-    --pink:       #f472b6;
-    --danger:     #f87171;
-    --green:      #34d399;
-    --orange:     #fb923c;
-    --sky:        #38bdf8;
+    --border:    #e4e9f5;
+    --border-md: #d0d9ef;
 
-    --font-mono:  'DM Mono', monospace;
-    --cr:         12px;
+    --ink:       #0f1d38;
+    --ink-soft:  #4a5a7a;
+    --ink-muted: #8a9ab8;
+    --ink-faint: #b8c4d8;
+
+    --blue:      #0038A8;
+    --blue-pale: #edf1fc;
+    --blue-mid:  rgba(0,56,168,.12);
+
+    /* Data accents */
+    --teal:      #0d9488; --teal-pale:   #f0fdfb;
+    --amber:     #d97706; --amber-pale:  #fffbeb;
+    --violet:    #6366f1; --violet-pale: #f0f0fe;
+    --rose:      #e11d48; --rose-pale:   #fff1f3;
+    --green:     #16a34a; --green-pale:  #f0fdf4;
+    --sky:       #0284c7; --sky-pale:    #e0f2fe;
+    --pink:      #db2777; --pink-pale:   #fdf2f8;
+    --orange:    #ea580c; --orange-pale: #fff7ed;
+
+    --font-body:    'DM Sans',          sans-serif;
+    --font-display: 'Instrument Serif', serif;
+    --font-mono:    'DM Mono',          monospace;
+
+    --cr:  12px;
+    --cr2: 16px;
+
+    --sh-xs: 0 1px 3px rgba(15,29,56,.06), 0 1px 2px rgba(15,29,56,.04);
+    --sh-sm: 0 4px 14px rgba(15,29,56,.07), 0 2px 4px rgba(15,29,56,.04);
+    --sh-md: 0 10px 30px rgba(15,29,56,.09), 0 4px 8px rgba(15,29,56,.05);
   }
 
-  /* ── Scope dark styles to .dk-scope so base layout stays intact ── */
-  .dk-scope { color: var(--dk-ink); }
+  * { box-sizing: border-box; }
 
-  /* ── Page header ── */
-  .dk-page-header {
-    display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 14px;
-    padding: 20px 24px; border-radius: var(--cr);
-    background: var(--dk-surf);
-    border: 1px solid var(--dk-border);
-    margin-bottom: 20px; position: relative; overflow: hidden;
+  .dash-scope {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--ink);
+    padding: 4px 0 48px;
+    -webkit-font-smoothing: antialiased;
   }
 
-  .dk-page-header::before {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background-image: repeating-linear-gradient(
-      45deg, transparent, transparent 40px,
-      rgba(255,255,255,0.018) 40px, rgba(255,255,255,0.018) 41px
-    );
+  /* ─── Page header ─── */
+  .pg-header {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--cr2);
+    padding: 22px 28px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--sh-xs);
   }
 
-  .dk-page-header::after {
-    content: ''; position: absolute;
-    bottom: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, var(--teal) 0%, var(--indigo) 50%, var(--pink) 100%);
+  /* Dot-grid texture */
+  .pg-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(0,56,168,.045) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
   }
 
-  .dk-header-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.2rem; font-weight: 900;
-    color: var(--dk-white); margin-bottom: 2px; position: relative; z-index: 1;
+  /* Bottom accent stripe */
+  .pg-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--teal), var(--blue), var(--violet));
   }
 
-  .dk-header-sub {
+  .pg-header-left { position: relative; z-index: 1; }
+
+  .pg-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: -.02em;
+    line-height: 1.15;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pg-title em { font-style: italic; color: var(--blue); }
+  .pg-title i  { color: var(--teal); font-size: 1.2rem; }
+
+  .pg-sub {
     font-family: var(--font-mono);
-    font-size: 0.68rem; color: var(--dk-dim);
-    text-transform: uppercase; letter-spacing: 0.8px; position: relative; z-index: 1;
+    font-size: .65rem;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: .09em;
   }
 
-  .dk-live-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(45,212,191,.08);
-    border: 1px solid rgba(45,212,191,.22);
-    border-radius: 100px; padding: 6px 14px;
-    font-family: var(--font-mono); font-size: 0.7rem; color: var(--teal);
-    position: relative; z-index: 1;
+  .pg-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
   }
 
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--teal-pale);
+    border: 1.5px solid rgba(13,148,136,.22);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-family: var(--font-mono);
+    font-size: .68rem;
+    color: var(--teal);
+    letter-spacing: .04em;
+  }
   .live-dot {
-    width: 7px; height: 7px; background: var(--teal);
-    border-radius: 50%; animation: blink-live 2s ease-in-out infinite;
+    width: 7px; height: 7px;
+    background: var(--teal);
+    border-radius: 50%;
+    animation: blink-live 2s ease-in-out infinite;
+  }
+  @keyframes blink-live { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.65);} }
+
+  .gen-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    padding: 9px 18px;
+    border-radius: var(--cr);
+    font-family: var(--font-body);
+    font-size: .78rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(0,56,168,.22);
+    transition: transform .2s, box-shadow .2s, background .2s;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .gen-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+    transition: left .4s;
+  }
+  .gen-btn:hover::before { left: 100%; }
+  .gen-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,56,168,.3);
+    color: #fff;
+    background: #002fad;
   }
 
-  @keyframes blink-live { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
-
-  .dk-gen-btn {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: linear-gradient(135deg, var(--indigo), #6366f1);
-    color: white; border: none; padding: 9px 18px; border-radius: 9px;
-    font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none;
-    box-shadow: 0 4px 14px rgba(129,140,248,0.30);
-    transition: all .2s; position: relative; z-index: 1; overflow: hidden;
+  /* ─── KPI stat cards ─── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 16px;
   }
+  @media (max-width: 768px) { .stat-grid { grid-template-columns: 1fr; } }
 
-  .dk-gen-btn::before {
-    content: ''; position: absolute; top:0; left:-100%; width:100%; height:100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-    transition: left 0.4s;
+  .stat-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--cr2);
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--sh-xs);
+    transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, border-color .2s;
   }
-
-  .dk-gen-btn:hover::before { left: 100%; }
-  .dk-gen-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(129,140,248,0.42); color: white; }
-
-  /* ── Stat cards ── */
-  .dk-stat-grid {
-    display: grid; grid-template-columns: repeat(3,1fr);
-    gap: 14px; margin-bottom: 16px;
+  .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sh-md);
   }
-
-  @media (max-width: 768px) { .dk-stat-grid { grid-template-columns: 1fr; } }
-
-  .dk-stat-card {
-    background: var(--dk-surf); border: 1px solid var(--dk-border);
-    border-radius: var(--cr); padding: 18px 20px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: relative; overflow: hidden;
-    transition: border-color .2s, transform .2s;
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: var(--cr2) var(--cr2) 0 0;
   }
+  .sc-teal::before   { background: var(--teal); }
+  .sc-amber::before  { background: var(--amber); }
+  .sc-green::before  { background: var(--green); }
+  .sc-teal:hover   { border-color: rgba(13,148,136,.28); }
+  .sc-amber:hover  { border-color: rgba(217,119,6,.28); }
+  .sc-green:hover  { border-color: rgba(22,163,74,.28); }
 
-  .dk-stat-card:hover { transform: translateY(-2px); }
-
-  .dk-stat-card::before {
-    content: ''; position: absolute;
-    top: 0; left: 0; right: 0; height: 2px;
+  .stat-val {
+    font-family: var(--font-display);
+    font-size: 2.1rem;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: -.02em;
   }
-
-  .sc-teal::before   { background: linear-gradient(90deg, var(--teal), transparent); }
-  .sc-amber::before  { background: linear-gradient(90deg, var(--amber), transparent); }
-  .sc-green::before  { background: linear-gradient(90deg, var(--green), transparent); }
-
-  .dk-stat-card:hover.sc-teal  { border-color: var(--teal); }
-  .dk-stat-card:hover.sc-amber { border-color: var(--amber); }
-  .dk-stat-card:hover.sc-green { border-color: var(--green); }
-
-  .dk-stat-val {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 2rem; font-weight: 900;
-    color: var(--dk-white); line-height: 1; margin-bottom: 3px;
-  }
-
-  .dk-stat-lbl {
+  .stat-lbl {
     font-family: var(--font-mono);
-    font-size: 0.65rem; color: var(--dk-dim);
-    text-transform: uppercase; letter-spacing: 0.8px;
+    font-size: .62rem;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: .09em;
   }
-
-  .dk-stat-icon {
-    width: 52px; height: 52px; border-radius: 12px;
+  .stat-icon {
+    width: 50px; height: 50px;
+    border-radius: var(--cr);
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem; flex-shrink: 0;
+    font-size: 1.3rem;
+    flex-shrink: 0;
   }
+  .si-teal   { background: var(--teal-pale);   color: var(--teal);   border: 1.5px solid rgba(13,148,136,.2); }
+  .si-amber  { background: var(--amber-pale);  color: var(--amber);  border: 1.5px solid rgba(217,119,6,.2); }
+  .si-green  { background: var(--green-pale);  color: var(--green);  border: 1.5px solid rgba(22,163,74,.2); }
 
-  .si-teal   { background: rgba(45,212,191,.10); color: var(--teal);   border: 1px solid rgba(45,212,191,.2); }
-  .si-amber  { background: rgba(245,158,11,.10); color: var(--amber);  border: 1px solid rgba(245,158,11,.2); }
-  .si-green  { background: rgba(52,211,153,.10); color: var(--green);  border: 1px solid rgba(52,211,153,.2); }
-
-  /* ── Pipeline strip ── */
-  .dk-pipeline {
-    display: grid; grid-template-columns: repeat(6,1fr);
-    gap: 10px; margin-bottom: 16px;
+  /* ─── Pipeline strip ─── */
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
   }
+  @media (max-width: 768px) { .pipeline { grid-template-columns: repeat(3, 1fr); } }
 
-  @media (max-width: 768px) { .dk-pipeline { grid-template-columns: repeat(3,1fr); } }
-
-  .dk-pipe-card {
-    background: var(--dk-surf); border: 1px solid var(--dk-border);
-    border-radius: var(--cr); padding: 14px 10px; text-align: center;
+  .pipe-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--cr2);
+    padding: 14px 10px;
+    text-align: center;
     border-left: 3px solid;
-    transition: transform .2s, box-shadow .2s;
+    box-shadow: var(--sh-xs);
+    transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
   }
-
-  .dk-pipe-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.25); }
-
-  .dk-pipe-count {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.7rem; font-weight: 900;
-    color: var(--dk-white); line-height: 1;
+  .pipe-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sh-sm);
   }
-
-  .dk-pipe-lbl {
+  .pipe-count {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+  .pipe-lbl {
     font-family: var(--font-mono);
-    font-size: 0.6rem; text-transform: uppercase;
-    letter-spacing: 0.8px; color: var(--dk-dim); margin-top: 5px;
+    font-size: .58rem;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--ink-muted);
+    margin-top: 5px;
   }
 
-  /* ── Section label ── */
-  .dk-section-label {
-    display: flex; align-items: center; gap: 8px;
-    font-family: var(--font-mono); font-size: 0.68rem;
-    text-transform: uppercase; letter-spacing: 1.2px; color: var(--dk-dim);
-    margin-bottom: 12px; margin-top: 6px;
-  }
-
-  .dk-section-label::after {
-    content: ''; flex: 1; height: 1px; background: var(--dk-border);
-  }
-
-  /* ── Chart cards ── */
-  .dk-card {
-    background: var(--dk-surf); border: 1px solid var(--dk-border);
-    border-radius: var(--cr); padding: 22px 24px;
-    position: relative; overflow: hidden;
-    transition: border-color .2s, transform .2s;
-  }
-
-  .dk-card:hover { transform: translateY(-2px); }
-
-  .dk-card-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.82rem; font-weight: 800;
-    color: var(--dk-hi); margin-bottom: 3px;
-    display: flex; align-items: center; gap: 7px;
-  }
-
-  .dk-card-title i { font-size: 0.9rem; }
-
-  .dk-card-sub {
+  /* ─── Section label ─── */
+  .sec-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 28px 0 14px;
     font-family: var(--font-mono);
-    font-size: 0.65rem; color: var(--dk-dim); margin-bottom: 18px;
+    font-size: .62rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--ink-muted);
+  }
+  .sec-label i { color: var(--blue); }
+  .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ─── Chart card ─── */
+  .card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--cr2);
+    padding: 22px 24px;
+    box-shadow: var(--sh-xs);
+    transition: box-shadow .2s, border-color .2s, transform .22s;
+  }
+  .card:hover { box-shadow: var(--sh-sm); transform: translateY(-2px); }
+
+  .card-title {
+    font-family: var(--font-body);
+    font-size: .88rem;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+  .card-sub {
+    font-family: var(--font-mono);
+    font-size: .62rem;
+    color: var(--ink-muted);
+    margin-bottom: 18px;
   }
 
-  .dk-badge {
-    display: inline-flex; align-items: center;
-    font-family: var(--font-mono); font-size: 0.6rem;
-    padding: 3px 9px; border-radius: 100px; font-weight: 500;
+  /* Status badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: .58rem;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 500;
+    border: 1px solid;
+    white-space: nowrap;
   }
+  .badge-teal   { background: var(--teal-pale);   color: var(--teal);   border-color: rgba(13,148,136,.25); }
+  .badge-sky    { background: var(--sky-pale);    color: var(--sky);    border-color: rgba(2,132,199,.25); }
+  .badge-green  { background: var(--green-pale);  color: var(--green);  border-color: rgba(22,163,74,.25); }
+  .badge-amber  { background: var(--amber-pale);  color: var(--amber);  border-color: rgba(217,119,6,.25); }
+  .badge-violet { background: var(--violet-pale); color: var(--violet); border-color: rgba(99,102,241,.25); }
+  .badge-pink   { background: var(--pink-pale);   color: var(--pink);   border-color: rgba(219,39,119,.25); }
 
-  .db-teal   { background: rgba(45,212,191,.08); color: var(--teal);   border: 1px solid rgba(45,212,191,.2); }
-  .db-sky    { background: rgba(56,189,248,.08); color: var(--sky);    border: 1px solid rgba(56,189,248,.2); }
-  .db-green  { background: rgba(52,211,153,.08); color: var(--green);  border: 1px solid rgba(52,211,153,.2); }
-  .db-amber  { background: rgba(245,158,11,.08); color: var(--amber);  border: 1px solid rgba(245,158,11,.2); }
-  .db-indigo { background: rgba(129,140,248,.08); color: var(--indigo); border: 1px solid rgba(129,140,248,.2); }
-
-  /* ── Latest applications table ── */
-  .dk-table-card {
-    background: var(--dk-surf); border: 1px solid var(--dk-border);
-    border-radius: var(--cr); overflow: hidden; margin-top: 4px;
-  }
-
-  .dk-table-header {
-    padding: 16px 22px; border-bottom: 1px solid var(--dk-border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-
-  .dk-table-header-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.82rem; font-weight: 800; color: var(--dk-hi);
-    display: flex; align-items: center; gap: 8px;
-  }
-
-  .dk-table-header-title i { color: var(--teal); }
-
-  .dk-view-all {
-    font-family: var(--font-mono); font-size: 0.68rem;
-    color: var(--teal); text-decoration: none;
-    transition: all .2s;
-  }
-
-  .dk-view-all:hover { color: var(--dk-white); letter-spacing: 0.5px; }
-
-  .dk-tbl { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
-
-  .dk-tbl thead th {
-    font-family: var(--font-mono); font-size: 0.62rem;
-    text-transform: uppercase; letter-spacing: 1px;
-    color: var(--dk-dim); padding: 10px 16px;
-    border-bottom: 1px solid var(--dk-border); text-align: left;
-  }
-
-  .dk-tbl tbody td {
-    padding: 12px 16px; color: var(--dk-ink);
-    border-bottom: 1px solid rgba(31,45,66,.5); vertical-align: middle;
-  }
-
-  .dk-tbl tbody tr:last-child td { border-bottom: none; }
-  .dk-tbl tbody tr { transition: background .15s; }
-  .dk-tbl tbody tr:hover td { background: rgba(255,255,255,.025); }
-
-  .row-num {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 22px; height: 22px; border-radius: 50%;
-    background: var(--dk-muted); color: var(--dk-dim);
-    font-family: var(--font-mono); font-size: 0.68rem;
-  }
-
-  .client-link {
-    color: var(--dk-hi); font-weight: 700;
-    text-decoration: none; transition: color .2s;
-  }
-
-  .client-link:hover { color: var(--teal); }
-
-  .prog-chip {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-family: var(--font-mono); font-size: 0.6rem;
-    padding: 3px 9px; border-radius: 5px; text-transform: uppercase;
-  }
-
-  .chip-aics    { background: rgba(56,189,248,.10); color: var(--sky);    border: 1px solid rgba(56,189,248,.22); }
-  .chip-sea     { background: rgba(52,211,153,.10); color: var(--green);  border: 1px solid rgba(52,211,153,.22); }
-  .chip-redcard { background: rgba(248,113,113,.10);color: var(--danger); border: 1px solid rgba(248,113,113,.22); }
-  .chip-edu     { background: rgba(245,158,11,.10); color: var(--amber);  border: 1px solid rgba(245,158,11,.22); }
-  .chip-other   { background: rgba(129,140,248,.10);color: var(--indigo); border: 1px solid rgba(129,140,248,.22); }
-
-  .status-chip {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-family: var(--font-mono); font-size: 0.6rem;
-    padding: 3px 9px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.4px;
-  }
-
-  .status-chip .dot { width: 5px; height: 5px; border-radius: 50%; }
-
-  .st-pending    { background: rgba(245,158,11,.10); color: var(--amber);  border: 1px solid rgba(245,158,11,.22); }
-  .st-pending .dot    { background: var(--amber); animation: blink-live 2s ease-in-out infinite; }
-  .st-assessment { background: rgba(56,189,248,.10); color: var(--sky);    border: 1px solid rgba(56,189,248,.22); }
-  .st-assessment .dot { background: var(--sky); }
-  .st-approval   { background: rgba(129,140,248,.10);color: var(--indigo); border: 1px solid rgba(129,140,248,.22); }
-  .st-approval .dot   { background: var(--indigo); }
-  .st-release    { background: rgba(251,146,60,.10); color: var(--orange); border: 1px solid rgba(251,146,60,.22); }
-  .st-release .dot    { background: var(--orange); }
-  .st-released   { background: rgba(52,211,153,.10); color: var(--green);  border: 1px solid rgba(52,211,153,.22); }
-  .st-released .dot   { background: var(--green); }
-  .st-rejected   { background: rgba(248,113,113,.10);color: var(--danger); border: 1px solid rgba(248,113,113,.22); }
-  .st-rejected .dot   { background: var(--danger); }
-
-  /* Empty state */
-  .dk-empty { text-align: center; padding: 48px 20px; color: var(--dk-dim); }
-  .dk-empty i { font-size: 2.5rem; display: block; margin-bottom: 10px; }
-  .dk-empty p { font-family: var(--font-mono); font-size: 0.78rem; }
-
-  /* Chart layout */
-  .chart-row-2 { display: grid; grid-template-columns: 7fr 5fr; gap: 14px; margin-bottom: 14px; }
-  .chart-row-eq { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  /* Chart grid layouts */
+  .chart-row-2   { display: grid; grid-template-columns: 7fr 5fr; gap: 14px; margin-bottom: 14px; }
+  .chart-row-eq  { display: grid; grid-template-columns: 1fr 1fr;  gap: 14px; margin-bottom: 14px; }
   .chart-row-rev { display: grid; grid-template-columns: 5fr 7fr; gap: 14px; margin-bottom: 14px; }
-
   @media (max-width: 900px) {
     .chart-row-2, .chart-row-eq, .chart-row-rev { grid-template-columns: 1fr; }
   }
 
-  /* Reveal animation */
-  .dk-reveal { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
-  .dk-reveal.visible { opacity: 1; transform: none; }
+  /* ─── Latest applications table ─── */
+  .table-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--cr2);
+    overflow: hidden;
+    box-shadow: var(--sh-xs);
+    margin-top: 4px;
+  }
+  .table-card-header {
+    padding: 16px 22px;
+    border-bottom: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+  }
+  .table-card-title {
+    font-family: var(--font-body);
+    font-size: .88rem;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .table-card-title i { color: var(--teal); }
+
+  .view-all {
+    font-family: var(--font-mono);
+    font-size: .65rem;
+    color: var(--blue);
+    text-decoration: none;
+    letter-spacing: .04em;
+    transition: color .2s, letter-spacing .2s;
+  }
+  .view-all:hover { color: var(--teal); letter-spacing: .08em; }
+
+  .dk-tbl { width: 100%; border-collapse: collapse; font-size: .84rem; }
+  .dk-tbl thead th {
+    font-family: var(--font-mono);
+    font-size: .6rem;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--ink-muted);
+    padding: 10px 16px;
+    border-bottom: 1.5px solid var(--border);
+    text-align: left;
+    background: var(--surface2);
+  }
+  .dk-tbl tbody td {
+    padding: 11px 16px;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .dk-tbl tbody tr:last-child td { border-bottom: none; }
+  .dk-tbl tbody tr:hover td { background: var(--bg); }
+
+  .row-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
+    font-size: .65rem;
+  }
+
+  .client-link {
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color .2s;
+  }
+  .client-link:hover { color: var(--teal); }
+
+  /* Program chips */
+  .prog-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: .58rem;
+    padding: 3px 9px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border: 1px solid;
+  }
+  .chip-aics    { background: var(--sky-pale);    color: var(--sky);    border-color: rgba(2,132,199,.22); }
+  .chip-sea     { background: var(--green-pale);  color: var(--green);  border-color: rgba(22,163,74,.22); }
+  .chip-redcard { background: var(--rose-pale);   color: var(--rose);   border-color: rgba(225,29,72,.22); }
+  .chip-edu     { background: var(--amber-pale);  color: var(--amber);  border-color: rgba(217,119,6,.22); }
+  .chip-other   { background: var(--violet-pale); color: var(--violet); border-color: rgba(99,102,241,.22); }
+
+  /* Status chips */
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: .58rem;
+    padding: 3px 10px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .status-chip .dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+  .st-pending    { background: var(--amber-pale);  color: var(--amber);  border-color: rgba(217,119,6,.25); }
+  .st-pending .dot    { background: var(--amber); animation: blink-live 2s ease-in-out infinite; }
+  .st-assessment { background: var(--sky-pale);    color: var(--sky);    border-color: rgba(2,132,199,.25); }
+  .st-assessment .dot { background: var(--sky); }
+  .st-approval   { background: var(--violet-pale); color: var(--violet); border-color: rgba(99,102,241,.25); }
+  .st-approval .dot   { background: var(--violet); }
+  .st-release    { background: var(--orange-pale); color: var(--orange); border-color: rgba(234,88,12,.25); }
+  .st-release .dot    { background: var(--orange); }
+  .st-released   { background: var(--green-pale);  color: var(--green);  border-color: rgba(22,163,74,.25); }
+  .st-released .dot   { background: var(--green); }
+  .st-rejected   { background: var(--rose-pale);   color: var(--rose);   border-color: rgba(225,29,72,.25); }
+  .st-rejected .dot   { background: var(--rose); }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--ink-faint);
+  }
+  .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+  .empty-state p { font-family: var(--font-mono); font-size: .75rem; }
+
+  /* ─── Scroll reveal ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
 </style>
 
-<div class="dk-scope">
 
-  <!-- ── Page header ── -->
-  <div class="dk-page-header dk-reveal">
-    <div>
-      <div class="dk-header-title"><i class="bi bi-bar-chart-fill me-2" style="color:var(--teal);"></i>Dashboard Overview</div>
-      <div class="dk-header-sub">Real-time system insights · MSWDO Socorro</div>
+<div class="dash-scope">
+
+  {# ── Page header ── #}
+  <div class="pg-header reveal">
+    <div class="pg-header-left">
+      <div class="pg-title">
+        <i class="bi bi-bar-chart-fill"></i>
+        Dashboard <em>Overview</em>
+      </div>
+      <div class="pg-sub">Real-time system insights · MSWDO Socorro</div>
     </div>
-    <div class="d-flex align-items-center gap-3">
-      <a href="{% url 'generate_report' %}" class="dk-gen-btn">
+    <div class="pg-header-right">
+      <a href="{% url 'generate_report' %}" class="gen-btn">
         <i class="bi bi-file-earmark-arrow-down-fill"></i> Generate Report
       </a>
-      <div class="dk-live-badge">
+      <div class="live-badge">
         <div class="live-dot"></div> Live
       </div>
     </div>
   </div>
 
-  <!-- ── Stat cards ── -->
-  <div class="dk-stat-grid">
-    <div class="dk-stat-card sc-teal dk-reveal">
+
+  {# ── Stat cards ── #}
+  <div class="stat-grid">
+    <div class="stat-card sc-teal reveal">
       <div>
-        <div class="dk-stat-val counter-number" data-target="{{ total_beneficiaries|default:0 }}">0</div>
-        <div class="dk-stat-lbl">Total Beneficiaries</div>
+        <div class="stat-val counter-number" data-target="{{ total_beneficiaries|default:0 }}">0</div>
+        <div class="stat-lbl">Total Beneficiaries</div>
       </div>
-      <div class="dk-stat-icon si-teal"><i class="bi bi-people-fill"></i></div>
+      <div class="stat-icon si-teal"><i class="bi bi-people-fill"></i></div>
     </div>
 
-    <div class="dk-stat-card sc-amber dk-reveal">
+    <div class="stat-card sc-amber reveal">
       <div>
-        <div class="dk-stat-val counter-number" data-target="{{ pending_applications|default:0 }}">0</div>
-        <div class="dk-stat-lbl">Pending Applications</div>
+        <div class="stat-val counter-number" data-target="{{ pending_applications|default:0 }}">0</div>
+        <div class="stat-lbl">Pending Applications</div>
       </div>
-      <div class="dk-stat-icon si-amber"><i class="bi bi-hourglass-split"></i></div>
+      <div class="stat-icon si-amber"><i class="bi bi-hourglass-split"></i></div>
     </div>
 
-    <div class="dk-stat-card sc-green dk-reveal">
+    <div class="stat-card sc-green reveal">
       <div>
-        <div class="dk-stat-val">₱<span class="counter-number" data-target="{{ monthly_disbursements|floatformat:0|default:0 }}">0</span></div>
-        <div class="dk-stat-lbl">Monthly Disbursements</div>
+        <div class="stat-val">₱<span class="counter-number" data-target="{{ monthly_disbursements|floatformat:0|default:0 }}">0</span></div>
+        <div class="stat-lbl">Monthly Disbursements</div>
       </div>
-      <div class="dk-stat-icon si-green"><i class="bi bi-cash-coin"></i></div>
+      <div class="stat-icon si-green"><i class="bi bi-cash-coin"></i></div>
     </div>
   </div>
 
-  <!-- ── Pipeline strip ── -->
-  <div class="dk-pipeline dk-reveal">
-    <div class="dk-pipe-card" style="border-left-color:var(--amber);">
-      <div class="dk-pipe-count">{{ pipeline_counts.pending }}</div>
-      <div class="dk-pipe-lbl">Pending</div>
+
+  {# ── Pipeline strip ── #}
+  <div class="pipeline reveal">
+    <div class="pipe-card" style="border-left-color:var(--amber);">
+      <div class="pipe-count">{{ pipeline_counts.pending }}</div>
+      <div class="pipe-lbl">Pending</div>
     </div>
-    <div class="dk-pipe-card" style="border-left-color:var(--sky);">
-      <div class="dk-pipe-count">{{ pipeline_counts.assessment }}</div>
-      <div class="dk-pipe-lbl">Assessment</div>
+    <div class="pipe-card" style="border-left-color:var(--sky);">
+      <div class="pipe-count">{{ pipeline_counts.assessment }}</div>
+      <div class="pipe-lbl">Assessment</div>
     </div>
-    <div class="dk-pipe-card" style="border-left-color:var(--indigo);">
-      <div class="dk-pipe-count">{{ pipeline_counts.approval }}</div>
-      <div class="dk-pipe-lbl">For Approval</div>
+    <div class="pipe-card" style="border-left-color:var(--violet);">
+      <div class="pipe-count">{{ pipeline_counts.approval }}</div>
+      <div class="pipe-lbl">For Approval</div>
     </div>
-    <div class="dk-pipe-card" style="border-left-color:var(--orange);">
-      <div class="dk-pipe-count">{{ pipeline_counts.release }}</div>
-      <div class="dk-pipe-lbl">For Release</div>
+    <div class="pipe-card" style="border-left-color:var(--orange);">
+      <div class="pipe-count">{{ pipeline_counts.release }}</div>
+      <div class="pipe-lbl">For Release</div>
     </div>
-    <div class="dk-pipe-card" style="border-left-color:var(--green);">
-      <div class="dk-pipe-count">{{ pipeline_counts.released }}</div>
-      <div class="dk-pipe-lbl">Released</div>
+    <div class="pipe-card" style="border-left-color:var(--green);">
+      <div class="pipe-count">{{ pipeline_counts.released }}</div>
+      <div class="pipe-lbl">Released</div>
     </div>
-    <div class="dk-pipe-card" style="border-left-color:var(--danger);">
-      <div class="dk-pipe-count">{{ pipeline_counts.rejected }}</div>
-      <div class="dk-pipe-lbl">Rejected</div>
+    <div class="pipe-card" style="border-left-color:var(--rose);">
+      <div class="pipe-count">{{ pipeline_counts.rejected }}</div>
+      <div class="pipe-lbl">Rejected</div>
     </div>
   </div>
 
-  <!-- ── Charts Row 1: Bar + Doughnut ── -->
-  <div class="dk-section-label dk-reveal">
+
+  {# ── Distribution charts ── #}
+  <div class="sec-label reveal">
     <i class="bi bi-bar-chart-line"></i> Distribution
   </div>
 
   <div class="chart-row-2">
-    <div class="dk-card dk-reveal">
+    <div class="card reveal">
       <div class="d-flex justify-content-between align-items-start mb-1">
-        <div class="dk-card-title"><i class="bi bi-bar-chart-fill" style="color:var(--teal);"></i> Beneficiaries per Program</div>
-        <span class="dk-badge db-teal">Active</span>
+        <div class="card-title">
+          <i class="bi bi-bar-chart-fill" style="color:var(--teal);"></i>
+          Beneficiaries per Program
+        </div>
+        <span class="badge badge-teal">Active</span>
       </div>
-      <div class="dk-card-sub">Applications by assistance category</div>
+      <div class="card-sub">Applications by assistance category</div>
       <canvas id="barChart" height="120"></canvas>
     </div>
 
-    <div class="dk-card dk-reveal">
+    <div class="card reveal">
       <div class="d-flex justify-content-between align-items-start mb-1">
-        <div class="dk-card-title"><i class="bi bi-pie-chart-fill" style="color:var(--sky);"></i> Status Distribution</div>
-        <span class="dk-badge db-sky">Live</span>
+        <div class="card-title">
+          <i class="bi bi-pie-chart-fill" style="color:var(--sky);"></i>
+          Status Distribution
+        </div>
+        <span class="badge badge-sky">Live</span>
       </div>
-      <div class="dk-card-sub">Application status breakdown</div>
+      <div class="card-sub">Application status breakdown</div>
       <canvas id="doughnutChart" height="140"></canvas>
     </div>
   </div>
 
-  <!-- ── Charts Row 2: Eligibility + Line ── -->
   <div class="chart-row-eq">
-    <div class="dk-card dk-reveal">
-      <div class="dk-card-title"><i class="bi bi-check2-circle" style="color:var(--green);"></i> Eligibility Overview</div>
-      <div class="dk-card-sub">Eligible vs. Not Eligible results</div>
+    <div class="card reveal">
+      <div class="card-title">
+        <i class="bi bi-check2-circle" style="color:var(--green);"></i>
+        Eligibility Overview
+      </div>
+      <div class="card-sub">Eligible vs. Not Eligible results</div>
       <canvas id="eligibilityChart" height="120"></canvas>
     </div>
 
-    <div class="dk-card dk-reveal">
+    <div class="card reveal">
       <div class="d-flex justify-content-between align-items-start mb-1">
-        <div class="dk-card-title"><i class="bi bi-graph-up" style="color:var(--indigo);"></i> Active Clients Over Time</div>
-        <span class="dk-badge db-green">Trending</span>
+        <div class="card-title">
+          <i class="bi bi-graph-up" style="color:var(--violet);"></i>
+          Active Clients Over Time
+        </div>
+        <span class="badge badge-green">Trending</span>
       </div>
-      <div class="dk-card-sub">Monthly registration trend</div>
+      <div class="card-sub">Monthly registration trend</div>
       <canvas id="lineChart" height="90"></canvas>
     </div>
   </div>
 
-  <!-- ── Charts Row 3: Sex + Sector ── -->
   <div class="chart-row-rev">
-    <div class="dk-card dk-reveal">
+    <div class="card reveal">
       <div class="d-flex justify-content-between align-items-start mb-1">
-        <div class="dk-card-title"><i class="bi bi-gender-ambiguous" style="color:var(--pink);"></i> Sex Distribution</div>
-        <span class="dk-badge db-indigo">Clients</span>
+        <div class="card-title">
+          <i class="bi bi-gender-ambiguous" style="color:var(--pink);"></i>
+          Sex Distribution
+        </div>
+        <span class="badge badge-violet">Clients</span>
       </div>
-      <div class="dk-card-sub">Registered client sex breakdown</div>
+      <div class="card-sub">Registered client sex breakdown</div>
       <canvas id="sexChart" height="140"></canvas>
     </div>
 
-    <div class="dk-card dk-reveal">
+    <div class="card reveal">
       <div class="d-flex justify-content-between align-items-start mb-1">
-        <div class="dk-card-title"><i class="bi bi-diagram-3-fill" style="color:var(--amber);"></i> Clients by Sector</div>
-        <span class="dk-badge db-amber">Sectors</span>
+        <div class="card-title">
+          <i class="bi bi-diagram-3-fill" style="color:var(--amber);"></i>
+          Clients by Sector
+        </div>
+        <span class="badge badge-amber">Sectors</span>
       </div>
-      <div class="dk-card-sub">Socio-economic sector classification</div>
+      <div class="card-sub">Socio-economic sector classification</div>
       <canvas id="sectorChart" height="140"></canvas>
     </div>
   </div>
 
-  <!-- ── Latest Applications ── -->
-  <div class="dk-section-label dk-reveal">
+
+  {# ── Latest applications ── #}
+  <div class="sec-label reveal">
     <i class="bi bi-person-lines-fill"></i> Latest Applications
   </div>
 
-  <div class="dk-table-card dk-reveal">
-    <div class="dk-table-header">
-      <div class="dk-table-header-title">
+  <div class="table-card reveal">
+    <div class="table-card-header">
+      <div class="table-card-title">
         <i class="bi bi-inbox-fill"></i> Recent Submissions
       </div>
-      <a href="{% url 'pending_applications' %}" class="dk-view-all">View All →</a>
+      <a href="{% url 'pending_applications' %}" class="view-all">View All →</a>
     </div>
     <div class="table-responsive">
       <table class="dk-tbl">
@@ -517,7 +701,7 @@
                 {{ app.client.first_name }} {{ app.client.last_name }}
               </a>
             </td>
-            <td style="font-size:0.82rem;">{{ app.client.barangay|default:"—" }}</td>
+            <td style="font-size:.82rem;color:var(--ink-muted);">{{ app.client.barangay|default:"—" }}</td>
             <td>
               <span class="prog-chip
                 {% if app.aid_type == 'AICS' %}chip-aics
@@ -537,15 +721,17 @@
                 {% elif app.status == 'RELEASED' %}st-released
                 {% elif app.status == 'REJECTED' %}st-rejected
                 {% else %}st-pending{% endif %}">
-                <span class="dot"></span> {{ app.status }}
+                <span class="dot"></span>{{ app.status }}
               </span>
             </td>
-            <td style="font-family:var(--font-mono);font-size:0.72rem;">{{ app.created_at|date:"M d, Y" }}</td>
+            <td style="font-family:var(--font-mono);font-size:.7rem;color:var(--ink-muted);">
+              {{ app.created_at|date:"M d, Y" }}
+            </td>
           </tr>
           {% empty %}
           <tr>
             <td colspan="6">
-              <div class="dk-empty">
+              <div class="empty-state">
                 <i class="bi bi-inbox"></i>
                 <p>No applications found.</p>
               </div>
@@ -557,9 +743,10 @@
     </div>
   </div>
 
-</div><!-- /dk-scope -->
+</div>{# /dash-scope #}
 
-<!-- JSON data islands -->
+
+{# JSON data islands #}
 {{ program_labels|json_script:"program_labels" }}
 {{ program_values|json_script:"program_values" }}
 {{ status_labels|json_script:"status_labels" }}
@@ -583,49 +770,51 @@
 
   function safeJSON(id, def) {
     try {
-      const el = document.getElementById(id);
+      var el = document.getElementById(id);
       return el ? JSON.parse(el.textContent) : def;
     } catch(e) { return def; }
   }
 
-  const programs          = safeJSON('program_labels',     ['No Data']);
-  const programCounts     = safeJSON('program_values',     [0]);
-  const statuses          = safeJSON('status_labels',      ['No Data']);
-  const statusCounts      = safeJSON('status_values',      [0]);
-  const months            = safeJSON('month_labels',       ['No Data']);
-  const monthCounts       = safeJSON('month_values',       [0]);
-  const eligibilityLabels = safeJSON('eligibility_labels', ['Eligible','Not Eligible']);
-  const eligibilityValues = safeJSON('eligibility_values', [0,0]);
-  const sexLabels         = safeJSON('sex_labels',         ['Male','Female']);
-  const sexValues         = safeJSON('sex_values',         [0,0]);
-  const sectorLabels      = safeJSON('sector_labels',      ['No Data']);
-  const sectorValues      = safeJSON('sector_values',      [0]);
+  var programs          = safeJSON('program_labels',     ['No Data']);
+  var programCounts     = safeJSON('program_values',     [0]);
+  var statuses          = safeJSON('status_labels',      ['No Data']);
+  var statusCounts      = safeJSON('status_values',      [0]);
+  var months            = safeJSON('month_labels',       ['No Data']);
+  var monthCounts       = safeJSON('month_values',       [0]);
+  var eligibilityLabels = safeJSON('eligibility_labels', ['Eligible','Not Eligible']);
+  var eligibilityValues = safeJSON('eligibility_values', [0,0]);
+  var sexLabels         = safeJSON('sex_labels',         ['Male','Female']);
+  var sexValues         = safeJSON('sex_values',         [0,0]);
+  var sectorLabels      = safeJSON('sector_labels',      ['No Data']);
+  var sectorValues      = safeJSON('sector_values',      [0]);
 
-  /* ── Shared palette ── */
-  const P = [
-    '#2dd4bf','#f59e0b','#818cf8','#f87171','#34d399',
-    '#fb923c','#a78bfa','#38bdf8','#4ade80','#facc15',
-    '#f472b6','#6366f1','#ec4899','#14b8a6','#84cc16',
-    '#e879f9','#06b6d4',
+  /* Palette — vivid but works on white */
+  var P = [
+    '#0d9488','#d97706','#6366f1','#e11d48','#16a34a',
+    '#ea580c','#7c3aed','#0284c7','#4ade80','#ca8a04',
+    '#db2777','#2563eb','#ec4899','#0f766e','#84cc16',
   ];
 
-  Chart.defaults.color         = '#4f6a8a';
-  Chart.defaults.borderColor   = '#1f2d42';
-  Chart.defaults.font.family   = "'DM Mono', monospace";
-  Chart.defaults.font.size     = 11;
+  /* Chart.js global defaults for light bg */
+  Chart.defaults.color       = '#8a9ab8';
+  Chart.defaults.borderColor = '#e4e9f5';
+  Chart.defaults.font.family = "'DM Mono', monospace";
+  Chart.defaults.font.size   = 11;
 
-  const TOOLTIP = {
-    backgroundColor: 'rgba(11,15,23,0.96)',
-    titleFont: { family: "'Montserrat',sans-serif", size: 11, weight: '700' },
+  var TOOLTIP = {
+    backgroundColor: 'rgba(15,29,56,0.94)',
+    titleFont: { family: "'DM Sans',sans-serif", size: 11, weight: '700' },
     bodyFont:  { family: "'DM Mono',monospace", size: 11 },
+    titleColor: '#ffffff',
+    bodyColor:  '#c8ddef',
     padding: 10, cornerRadius: 8,
-    borderColor: '#1f2d42', borderWidth: 1,
+    borderColor: '#d0d9ef', borderWidth: 1,
   };
 
-  const GRID_COLOR = 'rgba(31,45,66,0.6)';
+  var GRID = '#e4e9f566';
 
   /* ── 1. Bar — Programs ── */
-  const barEl = document.getElementById('barChart');
+  var barEl = document.getElementById('barChart');
   if (barEl) {
     new Chart(barEl, {
       type: 'bar',
@@ -633,7 +822,7 @@
         labels: programs,
         datasets: [{
           data: programCounts,
-          backgroundColor: P.slice(0, programs.length).map(c => c + 'bb'),
+          backgroundColor: P.slice(0, programs.length).map(function(c){ return c + '28'; }),
           borderColor: P.slice(0, programs.length),
           borderWidth: 1.5, borderRadius: 7,
         }]
@@ -642,26 +831,26 @@
         responsive: true, maintainAspectRatio: true,
         plugins: { legend: { display: false }, tooltip: TOOLTIP },
         scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-          y: { beginAtZero: true, grid: { color: GRID_COLOR }, ticks: { maxTicksLimit: 6, font: { size: 10 } } }
+          x: { grid: { display: false }, ticks: { color: '#8a9ab8', font: { size: 10 } } },
+          y: { beginAtZero: true, grid: { color: GRID }, ticks: { color: '#8a9ab8', maxTicksLimit: 6, font: { size: 10 } } }
         },
-        animation: { duration: 1500, easing: 'easeOutQuart' }
+        animation: { duration: 1400, easing: 'easeOutQuart' }
       }
     });
   }
 
   /* ── 2. Doughnut — Status ── */
-  const doughnutEl = document.getElementById('doughnutChart');
+  var doughnutEl = document.getElementById('doughnutChart');
   if (doughnutEl) {
-    const statusColors = {
-      'PENDING':'#f59e0b','Pending':'#f59e0b',
-      'ASSESSMENT':'#38bdf8','Assessment':'#38bdf8',
-      'APPROVAL':'#818cf8','For Approval':'#818cf8',
-      'RELEASE':'#fb923c','For Release':'#fb923c',
-      'RELEASED':'#34d399','Released':'#34d399',
-      'REJECTED':'#f87171','Rejected':'#f87171',
+    var statusColors = {
+      'PENDING':'#d97706','Pending':'#d97706',
+      'ASSESSMENT':'#0284c7','Assessment':'#0284c7',
+      'APPROVAL':'#6366f1','For Approval':'#6366f1',
+      'RELEASE':'#ea580c','For Release':'#ea580c',
+      'RELEASED':'#16a34a','Released':'#16a34a',
+      'REJECTED':'#e11d48','Rejected':'#e11d48',
     };
-    const colors = statuses.map(function(s,i){ return statusColors[s] || P[i % P.length]; });
+    var dColors = statuses.map(function(s,i){ return statusColors[s] || P[i % P.length]; });
 
     new Chart(doughnutEl, {
       type: 'doughnut',
@@ -669,8 +858,9 @@
         labels: statuses,
         datasets: [{
           data: statusCounts,
-          backgroundColor: colors,
-          borderColor: '#111827', borderWidth: 2.5,
+          backgroundColor: dColors,
+          borderColor: '#ffffff',
+          borderWidth: 3,
           hoverOffset: 8,
         }]
       },
@@ -679,8 +869,10 @@
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { padding: 14, boxWidth: 10, boxHeight: 10, color: '#8facc8',
-              generateLabels(chart) {
+            labels: {
+              padding: 14, boxWidth: 9, boxHeight: 9,
+              color: '#4a5a7a', font: { size: 10 },
+              generateLabels: function(chart) {
                 return chart.data.labels.map(function(label, i) {
                   return {
                     text: label + ' (' + chart.data.datasets[0].data[i] + ')',
@@ -707,7 +899,7 @@
   }
 
   /* ── 3. Bar — Eligibility ── */
-  const eligEl = document.getElementById('eligibilityChart');
+  var eligEl = document.getElementById('eligibilityChart');
   if (eligEl) {
     new Chart(eligEl, {
       type: 'bar',
@@ -715,8 +907,8 @@
         labels: eligibilityLabels,
         datasets: [{
           data: eligibilityValues,
-          backgroundColor: ['rgba(52,211,153,.75)', 'rgba(248,113,113,.75)'],
-          borderColor:      ['#34d399', '#f87171'],
+          backgroundColor: ['rgba(22,163,74,.18)', 'rgba(225,29,72,.18)'],
+          borderColor:      ['#16a34a', '#e11d48'],
           borderWidth: 1.5, borderRadius: 7,
         }]
       },
@@ -724,8 +916,8 @@
         responsive: true, maintainAspectRatio: true,
         plugins: { legend: { display: false }, tooltip: TOOLTIP },
         scales: {
-          x: { grid: { display: false } },
-          y: { beginAtZero: true, grid: { color: GRID_COLOR }, ticks: { maxTicksLimit: 5, font: { size: 10 } } }
+          x: { grid: { display: false }, ticks: { color: '#8a9ab8' } },
+          y: { beginAtZero: true, grid: { color: GRID }, ticks: { color: '#8a9ab8', maxTicksLimit: 5, font: { size: 10 } } }
         },
         animation: { duration: 1200, easing: 'easeOutQuart' }
       }
@@ -733,12 +925,12 @@
   }
 
   /* ── 4. Line — Clients Over Time ── */
-  const lineEl = document.getElementById('lineChart');
+  var lineEl = document.getElementById('lineChart');
   if (lineEl) {
     var ctx2 = lineEl.getContext('2d');
     var grad = ctx2.createLinearGradient(0, 0, 0, 280);
-    grad.addColorStop(0, 'rgba(129,140,248,0.30)');
-    grad.addColorStop(1, 'rgba(129,140,248,0.01)');
+    grad.addColorStop(0, 'rgba(99,102,241,.18)');
+    grad.addColorStop(1, 'rgba(99,102,241,.01)');
     new Chart(lineEl, {
       type: 'line',
       data: {
@@ -746,17 +938,18 @@
         datasets: [{
           data: monthCounts,
           fill: true, backgroundColor: grad,
-          borderColor: '#818cf8', borderWidth: 2.5, tension: 0.4,
-          pointBackgroundColor: '#818cf8', pointBorderColor: '#111827',
-          pointBorderWidth: 2.5, pointRadius: 4, pointHoverRadius: 6,
+          borderColor: '#6366f1', borderWidth: 2.5, tension: 0.4,
+          pointBackgroundColor: '#6366f1',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6,
         }]
       },
       options: {
         responsive: true, maintainAspectRatio: true,
         plugins: { legend: { display: false }, tooltip: TOOLTIP },
         scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-          y: { beginAtZero: true, grid: { color: GRID_COLOR }, ticks: { maxTicksLimit: 5, font: { size: 10 } } }
+          x: { grid: { display: false }, ticks: { color: '#8a9ab8', font: { size: 10 } } },
+          y: { beginAtZero: true, grid: { color: GRID }, ticks: { color: '#8a9ab8', maxTicksLimit: 5, font: { size: 10 } } }
         },
         animation: { duration: 1800, easing: 'easeOutQuart' }
       }
@@ -764,18 +957,17 @@
   }
 
   /* ── 5. Bar — Sex ── */
-  const sexEl = document.getElementById('sexChart');
+  var sexEl = document.getElementById('sexChart');
   if (sexEl) {
-    const sexPalette = ['rgba(56,189,248,.75)','rgba(244,114,182,.75)','rgba(129,140,248,.75)','rgba(52,211,153,.75)'];
-    const sexBorder  = ['#38bdf8','#f472b6','#818cf8','#34d399'];
+    var sexBg     = ['rgba(2,132,199,.18)','rgba(219,39,119,.18)','rgba(99,102,241,.18)','rgba(22,163,74,.18)'];
+    var sexBorder = ['#0284c7','#db2777','#6366f1','#16a34a'];
     new Chart(sexEl, {
       type: 'bar',
       data: {
         labels: sexLabels,
         datasets: [{
-          label: 'Clients',
           data: sexValues,
-          backgroundColor: sexPalette.slice(0, sexLabels.length),
+          backgroundColor: sexBg.slice(0, sexLabels.length),
           borderColor: sexBorder.slice(0, sexLabels.length),
           borderWidth: 1.5, borderRadius: 7,
         }]
@@ -784,8 +976,8 @@
         responsive: true, maintainAspectRatio: true,
         plugins: { legend: { display: false }, tooltip: TOOLTIP },
         scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' } } },
-          y: { beginAtZero: true, grid: { color: GRID_COLOR }, ticks: { maxTicksLimit: 5, font: { size: 10 } } }
+          x: { grid: { display: false }, ticks: { color: '#8a9ab8', font: { size: 11, weight: '600' } } },
+          y: { beginAtZero: true, grid: { color: GRID }, ticks: { color: '#8a9ab8', maxTicksLimit: 5, font: { size: 10 } } }
         },
         animation: { duration: 1200, easing: 'easeOutQuart' }
       }
@@ -793,7 +985,7 @@
   }
 
   /* ── 6. Doughnut — Sector ── */
-  const sectorEl = document.getElementById('sectorChart');
+  var sectorEl = document.getElementById('sectorChart');
   if (sectorEl) {
     new Chart(sectorEl, {
       type: 'doughnut',
@@ -802,7 +994,8 @@
         datasets: [{
           data: sectorValues,
           backgroundColor: P.slice(0, sectorLabels.length),
-          borderColor: '#111827', borderWidth: 2.5, hoverOffset: 8,
+          borderColor: '#ffffff',
+          borderWidth: 3, hoverOffset: 8,
         }]
       },
       options: {
@@ -810,8 +1003,10 @@
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { padding: 12, boxWidth: 10, boxHeight: 10, color: '#8facc8', font: { size: 10 },
-              generateLabels(chart) {
+            labels: {
+              padding: 12, boxWidth: 9, boxHeight: 9,
+              color: '#4a5a7a', font: { size: 10 },
+              generateLabels: function(chart) {
                 return chart.data.labels.map(function(label, i) {
                   return {
                     text: label + ' (' + chart.data.datasets[0].data[i] + ')',
@@ -869,7 +1064,7 @@
     });
   }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
-  document.querySelectorAll('.dk-reveal').forEach(function(el) { obs.observe(el); });
+  document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
 
 })();
 </script>

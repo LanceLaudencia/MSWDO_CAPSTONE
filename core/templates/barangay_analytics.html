@@ -7,221 +7,394 @@
 
 {% block content %}
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
 <style>
-  /* ── Design tokens ── */
+  /* ─────────────────────────────────────────
+     TOKENS — light mode, editorial palette
+  ───────────────────────────────────────── */
   :root {
-    --surface:   #111827;
-    --surface2:  #0f172a;
-    --border-dk: #1f2d42;
-    --muted-dk:  #2a3a52;
-    --ink-dim:   #4f6a8a;
-    --ink:       #8facc8;
-    --ink-hi:    #c8ddef;
-    --white-dk:  #eef4fb;
+    /* Surfaces */
+    --bg:        #f7f8fc;
+    --surface:   #ffffff;
+    --surface2:  #f1f4fb;
 
-    --teal:   #2dd4bf;
-    --amber:  #f59e0b;
-    --indigo: #818cf8;
-    --danger: #f87171;
-    --green:  #34d399;
+    /* Borders */
+    --border:    #e4e9f5;
+    --border-md: #d0d9ef;
 
-    --font-mono: 'DM Mono', monospace;
-    --cr: 12px;
+    /* Ink */
+    --ink:       #0f1d38;
+    --ink-soft:  #4a5a7a;
+    --ink-muted: #8a9ab8;
+    --ink-faint: #b8c4d8;
+
+    /* Brand accent */
+    --blue:      #0038A8;
+    --blue-pale: #edf1fc;
+    --blue-mid:  rgba(0,56,168,.12);
+
+    /* Data colours — vivid but not neon */
+    --teal:      #0d9488;
+    --teal-pale: #f0fdfb;
+    --amber:     #d97706;
+    --amber-pale:#fffbeb;
+    --violet:    #6366f1;
+    --violet-pale:#f0f0fe;
+    --rose:      #e11d48;
+    --rose-pale: #fff1f3;
+    --green:     #16a34a;
+    --green-pale:#f0fdf4;
+
+    /* Typography */
+    --font-body:    'DM Sans',       sans-serif;
+    --font-display: 'Instrument Serif', serif;
+    --font-mono:    'DM Mono',       monospace;
+
+    /* Shape */
+    --cr:  12px;
+    --cr2: 16px;
+
+    /* Shadows — ink-tinted, not grey */
+    --sh-xs: 0 1px 3px rgba(15,29,56,.06), 0 1px 2px rgba(15,29,56,.04);
+    --sh-sm: 0 4px 14px rgba(15,29,56,.07), 0 2px 4px rgba(15,29,56,.04);
+    --sh-md: 0 10px 30px rgba(15,29,56,.09), 0 4px 8px rgba(15,29,56,.05);
+    --sh-lg: 0 20px 50px rgba(0,56,168,.10), 0 6px 12px rgba(0,56,168,.06);
   }
 
-  /* ── KPI strip ── */
+  * { box-sizing: border-box; }
+
+  /* Page wrapper */
+  .analytics-wrap {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--ink);
+    padding: 4px 0 48px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── Page header ─── */
+  .pg-header {
+    margin-bottom: 28px;
+  }
+  .pg-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-mono);
+    font-size: .62rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--blue);
+    background: var(--blue-pale);
+    border: 1px solid var(--blue-mid);
+    border-radius: 100px;
+    padding: 4px 13px;
+    margin-bottom: 10px;
+  }
+  .pg-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: -.02em;
+    line-height: 1.15;
+    margin: 0 0 6px;
+  }
+  .pg-title em {
+    font-style: italic;
+    color: var(--blue);
+  }
+  .pg-subtitle {
+    font-size: .88rem;
+    color: var(--ink-muted);
+  }
+
+  /* ─── KPI strip ─── */
   .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 14px;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
   }
   @media (max-width: 900px) { .kpi-grid { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 480px) { .kpi-grid { grid-template-columns: 1fr; } }
 
   .kpi-card {
     background: var(--surface);
-    border: 1px solid var(--border-dk);
-    border-radius: var(--cr);
-    padding: 18px 20px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--cr2);
+    padding: 20px 22px;
     position: relative;
     overflow: hidden;
-    transition: border-color .2s, transform .2s;
+    box-shadow: var(--sh-xs);
+    transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease, border-color .2s;
   }
-  .kpi-card:hover { transform: translateY(-2px); border-color: var(--teal); }
+  .kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sh-md);
+  }
+  /* Accent dot top-left */
   .kpi-card::before {
-    content: ''; position: absolute;
-    top: 0; left: 0; right: 0; height: 2px;
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+    border-radius: var(--cr2) var(--cr2) 0 0;
   }
-  .kpi-card.kc-teal::before   { background: linear-gradient(90deg, var(--teal),   transparent); }
-  .kpi-card.kc-amber::before  { background: linear-gradient(90deg, var(--amber),  transparent); }
-  .kpi-card.kc-indigo::before { background: linear-gradient(90deg, var(--indigo), transparent); }
-  .kpi-card.kc-danger::before { background: linear-gradient(90deg, var(--danger), transparent); }
-  .kpi-card.kc-green::before  { background: linear-gradient(90deg, var(--green),  transparent); }
+  .kpi-card.kc-teal::before   { background: var(--teal); }
+  .kpi-card.kc-amber::before  { background: var(--amber); }
+  .kpi-card.kc-violet::before { background: var(--violet); }
+  .kpi-card.kc-rose::before   { background: var(--rose); }
+  .kpi-card.kc-green::before  { background: var(--green); }
+  .kpi-card.kc-teal:hover   { border-color: rgba(13,148,136,.25); }
+  .kpi-card.kc-amber:hover  { border-color: rgba(217,119,6,.25); }
+  .kpi-card.kc-violet:hover { border-color: rgba(99,102,241,.25); }
+  .kpi-card.kc-rose:hover   { border-color: rgba(225,29,72,.25); }
 
-  .kpi-icon { font-size: 1.3rem; margin-bottom: 8px; }
-  .kpi-card.kc-teal   .kpi-icon { color: var(--teal); }
-  .kpi-card.kc-amber  .kpi-icon { color: var(--amber); }
-  .kpi-card.kc-indigo .kpi-icon { color: var(--indigo); }
-  .kpi-card.kc-danger .kpi-icon { color: var(--danger); }
-  .kpi-card.kc-green  .kpi-icon { color: var(--green); }
+  .kpi-icon-wrap {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    margin-bottom: 14px;
+  }
+  .kc-teal   .kpi-icon-wrap { background: var(--teal-pale);   color: var(--teal);   }
+  .kc-amber  .kpi-icon-wrap { background: var(--amber-pale);  color: var(--amber);  }
+  .kc-violet .kpi-icon-wrap { background: var(--violet-pale); color: var(--violet); }
+  .kc-rose   .kpi-icon-wrap { background: var(--rose-pale);   color: var(--rose);   }
+  .kc-green  .kpi-icon-wrap { background: var(--green-pale);  color: var(--green);  }
 
   .kpi-val {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 2rem; font-weight: 900;
-    color: var(--white-dk); line-height: 1; margin-bottom: 4px;
+    font-family: var(--font-display);
+    font-size: 2.1rem;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: -.02em;
   }
   .kpi-lbl {
     font-family: var(--font-mono);
-    font-size: 0.65rem; font-weight: 500;
-    text-transform: uppercase; letter-spacing: 0.8px;
-    color: var(--ink-dim);
+    font-size: .62rem;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--ink-muted);
   }
 
-  /* ── Section label ── */
-  .dk-section-label {
-    display: flex; align-items: center; gap: 8px;
+  /* ─── Section divider label ─── */
+  .sec-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 32px 0 16px;
     font-family: var(--font-mono);
-    font-size: 0.68rem; text-transform: uppercase;
-    letter-spacing: 1.2px; color: var(--ink-dim);
-    margin-bottom: 14px; margin-top: 8px;
+    font-size: .63rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--ink-muted);
   }
-  .dk-section-label::after {
-    content: ''; flex: 1; height: 1px;
-    background: var(--border-dk);
+  .sec-label i { color: var(--blue); }
+  .sec-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
   }
 
-  /* ── Dark base card ── */
-  .dk-card {
+  /* ─── Base card ─── */
+  .card {
     background: var(--surface);
-    border: 1px solid var(--border-dk);
-    border-radius: var(--cr);
-    padding: 22px 24px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--cr2);
+    padding: 24px;
+    box-shadow: var(--sh-xs);
     position: relative;
     overflow: hidden;
+    transition: box-shadow .2s, border-color .2s;
   }
-  .dk-card-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.82rem; font-weight: 800;
-    color: var(--ink-hi); margin-bottom: 3px;
+  .card:hover { box-shadow: var(--sh-sm); }
+
+  .card-title {
+    font-family: var(--font-body);
+    font-size: .88rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
   }
-  .dk-card-sub {
+  .card-sub {
     font-family: var(--font-mono);
-    font-size: 0.68rem; color: var(--ink-dim);
-    margin-bottom: 18px;
+    font-size: .62rem;
+    color: var(--ink-muted);
+    margin-bottom: 20px;
+    letter-spacing: .02em;
   }
 
-  /* ── Chart grid ── */
+  /* ─── Chart grid ─── */
   .chart-grid-2 {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 16px; margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
   }
   @media (max-width: 768px) { .chart-grid-2 { grid-template-columns: 1fr; } }
   .chart-full { grid-column: 1 / -1; }
   .chart-wrap { position: relative; width: 100%; }
 
-  /* ── Prediction pills ── */
+  /* ─── Prediction pills ─── */
   .pred-strip {
-    display: flex; gap: 10px; flex-wrap: wrap;
-    margin-top: 14px; padding-top: 14px;
-    border-top: 1px solid var(--border-dk);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
   }
   .pred-pill {
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(129,140,248,.08);
-    border: 1px solid rgba(129,140,248,.18);
-    border-radius: 100px; padding: 5px 13px;
-    font-size: 0.75rem; color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--violet-pale);
+    border: 1px solid rgba(99,102,241,.18);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: .75rem;
+    color: var(--ink-soft);
   }
   .pred-pill strong {
-    color: var(--indigo);
-    font-family: var(--font-mono); font-size: 0.8rem;
+    color: var(--violet);
+    font-family: var(--font-mono);
+    font-size: .78rem;
   }
   .pred-lbl {
     font-family: var(--font-mono);
-    font-size: 0.63rem; color: var(--ink-dim);
-    text-transform: uppercase; letter-spacing: 0.6px;
+    font-size: .62rem;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: .06px;
   }
 
-  /* ── Rankings table ── */
+  /* ─── Table ─── */
   .dk-table { width: 100%; border-collapse: collapse; }
   .dk-table th {
     text-align: left;
     font-family: var(--font-mono);
-    font-size: 0.63rem; text-transform: uppercase; letter-spacing: 1px;
-    color: var(--ink-dim); padding: 0 12px 10px;
-    border-bottom: 1px solid var(--border-dk);
+    font-size: .6rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--ink-muted);
+    padding: 0 12px 10px;
+    border-bottom: 1.5px solid var(--border);
   }
   .dk-table td {
-    padding: 10px 12px; font-size: 0.84rem;
-    color: var(--ink);
-    border-bottom: 1px solid rgba(31,45,66,.5);
+    padding: 10px 12px;
+    font-size: .84rem;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--border);
   }
   .dk-table tr:last-child td { border-bottom: none; }
-  .dk-table tr:hover td { background: rgba(255,255,255,.02); }
+  .dk-table tr:hover td { background: var(--bg); }
 
   .rank-badge {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 22px; height: 22px; border-radius: 50%;
-    font-family: var(--font-mono); font-size: 0.68rem;
-    background: var(--muted-dk); color: var(--ink-dim);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: .65rem;
+    background: var(--surface2);
+    color: var(--ink-muted);
+    border: 1.5px solid var(--border);
   }
-  .rank-badge.rb-1 { background: rgba(245,158,11,.15); color: var(--amber);  border: 1px solid rgba(245,158,11,.3); }
-  .rank-badge.rb-2 { background: rgba(129,140,248,.12); color: #a5b4fc;      border: 1px solid rgba(129,140,248,.25); }
-  .rank-badge.rb-3 { background: rgba(45,212,191,.10);  color: var(--teal);  border: 1px solid rgba(45,212,191,.2); }
+  .rank-badge.rb-1 { background: #fffbeb; color: var(--amber);  border-color: rgba(217,119,6,.28); }
+  .rank-badge.rb-2 { background: var(--violet-pale); color: var(--violet); border-color: rgba(99,102,241,.28); }
+  .rank-badge.rb-3 { background: var(--teal-pale);   color: var(--teal);   border-color: rgba(13,148,136,.28); }
 
-  .bar-inline { display: flex; align-items: center; gap: 8px; }
-  .bar-track  { flex: 1; height: 4px; background: var(--muted-dk); border-radius: 2px; overflow: hidden; }
+  .bar-inline { display: flex; align-items: center; gap: 9px; }
+  .bar-track  {
+    flex: 1; height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
   .bar-fill-teal {
     height: 100%;
-    background: linear-gradient(90deg, var(--teal), var(--indigo));
-    border-radius: 2px;
-    transition: width .6s cubic-bezier(.4,0,.2,1);
+    background: linear-gradient(90deg, var(--teal), var(--blue));
+    border-radius: 3px;
+    transition: width .65s cubic-bezier(.4,0,.2,1);
   }
   .bar-fill-amber {
     height: 100%;
-    background: linear-gradient(90deg, var(--amber), var(--danger));
-    border-radius: 2px;
-    transition: width .6s cubic-bezier(.4,0,.2,1);
+    background: linear-gradient(90deg, var(--amber), var(--rose));
+    border-radius: 3px;
+    transition: width .65s cubic-bezier(.4,0,.2,1);
   }
   .mono-val {
     font-family: var(--font-mono);
-    font-size: 0.75rem; color: var(--ink-hi);
-    min-width: 28px; text-align: right;
+    font-size: .73rem;
+    color: var(--ink);
+    font-weight: 500;
+    min-width: 30px;
+    text-align: right;
   }
 
-  /* ── Aid type chip ── */
+  /* ─── Aid chips ─── */
   .aid-chip {
-    display: inline-flex; align-items: center; gap: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     font-family: var(--font-mono);
-    font-size: 0.62rem; font-weight: 500;
-    padding: 3px 9px; border-radius: 5px;
+    font-size: .6rem;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 5px;
     text-transform: uppercase;
+    letter-spacing: .04em;
+    white-space: nowrap;
   }
-  .chip-aics  { background: rgba(0,56,168,0.25);   color: #93c5fd;        border: 1px solid rgba(0,56,168,0.4); }
-  .chip-sea   { background: rgba(52,211,153,0.12);  color: var(--green);   border: 1px solid rgba(52,211,153,0.25); }
-  .chip-red   { background: rgba(248,113,113,0.12); color: var(--danger);  border: 1px solid rgba(248,113,113,0.25); }
-  .chip-edu   { background: rgba(245,158,11,0.12);  color: var(--amber);   border: 1px solid rgba(245,158,11,0.25); }
-  .chip-other { background: rgba(129,140,248,0.12); color: var(--indigo);  border: 1px solid rgba(129,140,248,0.25); }
+  .chip-aics  { background: #eef2ff; color: #3730a3; border: 1px solid rgba(55,48,163,.18); }
+  .chip-sea   { background: var(--green-pale); color: var(--green); border: 1px solid rgba(22,163,74,.2); }
+  .chip-red   { background: var(--rose-pale);  color: var(--rose);  border: 1px solid rgba(225,29,72,.2); }
+  .chip-edu   { background: var(--amber-pale); color: var(--amber); border: 1px solid rgba(217,119,6,.2); }
+  .chip-other { background: var(--violet-pale); color: var(--violet); border: 1px solid rgba(99,102,241,.2); }
 
-  /* ── Reason analysis ── */
+  /* ─── Reason analysis ─── */
   .reason-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 16px; margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
   }
   @media (max-width: 768px) { .reason-grid { grid-template-columns: 1fr; } }
 
-  .reason-row { margin-bottom: 10px; }
-  .reason-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-  .reason-name  { font-size: 0.8rem; color: var(--ink-hi); font-weight: 600; font-family: 'Open Sans', sans-serif; }
-  .reason-count { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-dim); }
-  .reason-track { background: var(--muted-dk); border-radius: 3px; height: 6px; overflow: hidden; }
-  .reason-fill  { height: 6px; border-radius: 3px; transition: width .7s cubic-bezier(.4,0,.2,1); }
+  .reason-row { margin-bottom: 11px; }
+  .reason-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .reason-name  { font-size: .81rem; color: var(--ink); font-weight: 600; }
+  .reason-count {
+    font-family: var(--font-mono);
+    font-size: .7rem;
+    color: var(--ink-muted);
+  }
+  .reason-track {
+    background: var(--border);
+    border-radius: 3px;
+    height: 5px;
+    overflow: hidden;
+  }
+  .reason-fill {
+    height: 5px;
+    border-radius: 3px;
+    transition: width .7s cubic-bezier(.4,0,.2,1);
+  }
 
-  /* ── Barangay insight cards ── */
+  /* ─── Insight cards ─── */
   .insight-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -231,482 +404,512 @@
 
   .insight-card {
     background: var(--surface);
-    border: 1px solid var(--border-dk);
-    border-radius: var(--cr);
-    padding: 18px 20px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--cr2);
+    padding: 20px;
     position: relative;
     overflow: hidden;
-    transition: border-color .2s, transform .2s;
+    box-shadow: var(--sh-xs);
+    transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, border-color .2s;
   }
-  .insight-card:hover { border-color: var(--teal); transform: translateY(-2px); }
   .insight-card::before {
-    content: ''; position: absolute;
-    top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, var(--teal), var(--indigo));
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--teal), var(--blue));
+  }
+  .insight-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sh-md);
+    border-color: rgba(13,148,136,.25);
   }
 
   .insight-bgy-name {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.88rem; font-weight: 800;
-    color: var(--white-dk); margin-bottom: 2px;
+    font-family: var(--font-body);
+    font-size: .92rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .insight-bgy-sub {
     font-family: var(--font-mono);
-    font-size: 0.62rem; color: var(--ink-dim);
-    text-transform: uppercase; letter-spacing: 0.7px;
+    font-size: .6rem;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: .07em;
     margin-bottom: 14px;
   }
 
   .insight-dominant {
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(45,212,191,0.06);
-    border: 1px solid rgba(45,212,191,0.15);
-    border-radius: 8px; padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--teal-pale);
+    border: 1px solid rgba(13,148,136,.15);
+    border-radius: 10px;
+    padding: 11px 13px;
     margin-bottom: 10px;
   }
   .insight-dominant-left { flex: 1; }
   .insight-dominant-label {
     font-family: var(--font-mono);
-    font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.8px;
-    color: var(--ink-dim); margin-bottom: 3px;
+    font-size: .58rem;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--ink-muted);
+    margin-bottom: 4px;
   }
-
   .insight-pct-pill {
     font-family: var(--font-mono);
-    font-size: 0.72rem; font-weight: 600;
-    background: rgba(45,212,191,0.12);
+    font-size: .7rem;
+    font-weight: 600;
+    background: rgba(13,148,136,.1);
     color: var(--teal);
-    border: 1px solid rgba(45,212,191,0.25);
-    border-radius: 100px; padding: 3px 10px;
+    border: 1px solid rgba(13,148,136,.25);
+    border-radius: 100px;
+    padding: 3px 10px;
     white-space: nowrap;
   }
 
   .insight-reason-box {
-    background: rgba(129,140,248,0.06);
-    border: 1px solid rgba(129,140,248,0.15);
-    border-radius: 8px; padding: 9px 12px;
+    background: var(--violet-pale);
+    border: 1px solid rgba(99,102,241,.15);
+    border-radius: 10px;
+    padding: 10px 13px;
     margin-bottom: 10px;
   }
   .insight-reason-label {
     font-family: var(--font-mono);
-    font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.8px;
-    color: var(--ink-dim); margin-bottom: 3px;
+    font-size: .58rem;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--ink-muted);
+    margin-bottom: 3px;
   }
   .insight-reason-text {
-    font-size: 0.82rem; color: var(--ink-hi);
-    font-weight: 600; font-family: 'Open Sans', sans-serif;
+    font-size: .83rem;
+    color: var(--ink);
+    font-weight: 600;
   }
   .insight-reason-count {
     font-family: var(--font-mono);
-    font-size: 0.68rem; color: var(--indigo); margin-top: 1px;
+    font-size: .66rem;
+    color: var(--violet);
+    margin-top: 2px;
   }
 
   .insight-aid-breakdown {
-    display: flex; flex-wrap: wrap; gap: 5px;
-    margin-top: 10px; padding-top: 10px;
-    border-top: 1px solid var(--border-dk);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
   }
   .insight-aid-item {
-    display: flex; align-items: center; gap: 5px;
-    font-family: var(--font-mono); font-size: 0.62rem;
-    color: var(--ink);
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border-dk);
-    border-radius: 5px; padding: 3px 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: .6rem;
+    color: var(--ink-soft);
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
   }
-  .insight-aid-item span { color: var(--ink-hi); font-weight: 600; }
+  .insight-aid-item span { color: var(--ink); font-weight: 600; }
 
   .no-reason-note {
     font-family: var(--font-mono);
-    font-size: 0.68rem; color: var(--ink-dim);
-    font-style: italic; padding: 4px 0;
+    font-size: .66rem;
+    color: var(--ink-muted);
+    font-style: italic;
+    padding: 4px 0;
   }
 
-  /* ── Timestamp footer ── */
+  /* ─── Timestamp footer ─── */
   .ts-footer {
-    margin-top: 32px; padding-top: 16px;
-    border-top: 1px solid var(--border-dk);
-    display: flex; align-items: center;
-    justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    margin-top: 36px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
   }
-  .ts-text { font-family: var(--font-mono); font-size: 0.65rem; color: var(--ink-dim); }
+  .ts-text {
+    font-family: var(--font-mono);
+    font-size: .62rem;
+    color: var(--ink-faint);
+  }
 </style>
 
 
-{# ══════════════════════════════════════════════════════════════ #}
-{#  KPI STRIP                                                     #}
-{# ══════════════════════════════════════════════════════════════ #}
-<div class="kpi-grid">
+<div class="analytics-wrap">
 
-  <div class="kpi-card kc-teal">
-    <div class="kpi-icon"><i class="bi bi-folder2-open"></i></div>
-    <div class="kpi-val">{{ total_applications }}</div>
-    <div class="kpi-lbl">Total Applications</div>
-  </div>
-
-  <div class="kpi-card kc-amber">
-    <div class="kpi-icon"><i class="bi bi-geo-alt-fill"></i></div>
-    <div class="kpi-val">{{ barangay_stats|length }}</div>
-    <div class="kpi-lbl">Barangays Served</div>
-  </div>
-
-  <div class="kpi-card kc-indigo">
-    <div class="kpi-icon"><i class="bi bi-tags-fill"></i></div>
-    <div class="kpi-val">{{ aid_stats|length }}</div>
-    <div class="kpi-lbl">Aid Types</div>
-  </div>
-
-  <div class="kpi-card kc-danger">
-    <div class="kpi-icon"><i class="bi bi-graph-up-arrow"></i></div>
-    <div class="kpi-val" id="next-month-val">{{ prediction.0|default:"—" }}</div>
-    <div class="kpi-lbl">Predicted Next Month</div>
-  </div>
-
-</div>
-
-
-{# ══════════════════════════════════════════════════════════════ #}
-{#  DISTRIBUTION CHARTS                                           #}
-{# ══════════════════════════════════════════════════════════════ #}
-<div class="dk-section-label">
-  <i class="bi bi-bar-chart-line"></i> Distribution
-</div>
-
-<div class="chart-grid-2">
-
-  {# Aid type doughnut #}
-  <div class="dk-card">
-    <div class="dk-card-title">Aid Type Breakdown</div>
-    <div class="dk-card-sub">Share of applications per assistance category</div>
-    <div class="chart-wrap" style="height:220px;">
-      <canvas id="aidChart"></canvas>
+  {# ── Page header ── #}
+  <div class="pg-header">
+    <div class="pg-eyebrow">
+      <i class="bi bi-geo-alt-fill"></i>
+      Municipal Social Welfare &amp; Development Office
     </div>
+    <h1 class="pg-title">Barangay <em>Analytics</em></h1>
+    <p class="pg-subtitle">Application volume, aid distribution, and demand forecasting by community</p>
   </div>
 
-  {# Barangay bar #}
-  <div class="dk-card">
-    <div class="dk-card-title">Applications per Barangay</div>
-    <div class="dk-card-sub">Total submissions by community</div>
-    <div class="chart-wrap" style="height:220px;">
-      <canvas id="barangayChart"></canvas>
+
+  {# ══ KPI STRIP ══ #}
+  <div class="kpi-grid">
+
+    <div class="kpi-card kc-teal">
+      <div class="kpi-icon-wrap"><i class="bi bi-folder2-open"></i></div>
+      <div class="kpi-val">{{ total_applications }}</div>
+      <div class="kpi-lbl">Total Applications</div>
     </div>
+
+    <div class="kpi-card kc-amber">
+      <div class="kpi-icon-wrap"><i class="bi bi-geo-alt-fill"></i></div>
+      <div class="kpi-val">{{ barangay_stats|length }}</div>
+      <div class="kpi-lbl">Barangays Served</div>
+    </div>
+
+    <div class="kpi-card kc-violet">
+      <div class="kpi-icon-wrap"><i class="bi bi-tags-fill"></i></div>
+      <div class="kpi-val">{{ aid_stats|length }}</div>
+      <div class="kpi-lbl">Aid Types</div>
+    </div>
+
   </div>
 
-  {# Monthly trend — full width #}
-  <div class="dk-card chart-full">
-    <div class="dk-card-title">Monthly Application Trend</div>
-    <div class="dk-card-sub">Historical volume with 3-month linear forecast</div>
-    <div class="chart-wrap" style="height:200px;">
-      <canvas id="trendChart"></canvas>
-    </div>
-    <div class="pred-strip" id="pred-strip"></div>
+
+  {# ══ DISTRIBUTION CHARTS ══ #}
+  <div class="sec-label">
+    <i class="bi bi-bar-chart-line"></i> Distribution
   </div>
 
-</div>
+  <div class="chart-grid-2">
 
-
-{# ══════════════════════════════════════════════════════════════ #}
-{#  REASON ANALYSIS                                               #}
-{# ══════════════════════════════════════════════════════════════ #}
-<div class="dk-section-label">
-  <i class="bi bi-chat-quote-fill"></i> Reason Analysis
-</div>
-
-<div class="reason-grid">
-
-  {% for prog_code, prog_reasons in reasons_by_program.items %}
-  <div class="dk-card">
-    <div class="dk-card-title">
-      <span class="aid-chip
-        {% if 'AICS' in prog_code %}chip-aics
-        {% elif 'SEA'  in prog_code %}chip-sea
-        {% elif 'RED'  in prog_code %}chip-red
-        {% elif 'EDU'  in prog_code %}chip-edu
-        {% else %}chip-other{% endif %}">
-        <i class="bi bi-{% if 'AICS' in prog_code %}heart-pulse-fill{% elif 'SEA' in prog_code %}briefcase-fill{% elif 'RED' in prog_code %}exclamation-triangle-fill{% elif 'EDU' in prog_code %}mortarboard-fill{% else %}file-earmark-fill{% endif %}"></i>
-        {{ prog_code }}
-      </span>
-      &nbsp;— Top Reasons
+    <div class="card">
+      <div class="card-title">Aid Type Breakdown</div>
+      <div class="card-sub">Share of applications per assistance category</div>
+      <div class="chart-wrap" style="height:220px;">
+        <canvas id="aidChart"></canvas>
+      </div>
     </div>
-    <div class="dk-card-sub">{{ prog_reasons|length }} distinct reason{{ prog_reasons|length|pluralize }}</div>
 
-    {% if prog_reasons %}
-      {% with top_count=prog_reasons.0.count %}
-      {% for r in prog_reasons %}
-      <div class="reason-row">
-        <div class="reason-top">
-          <span class="reason-name">{{ r.label }}</span>
-          <span class="reason-count">{{ r.count }}</span>
-        </div>
-        <div class="reason-track">
-          <div class="reason-fill"
-            data-pct="{% widthratio r.count top_count 100 %}"
-            style="width:0%;
-              {% if 'AICS' in prog_code %}background:linear-gradient(90deg,#1e3a8a,#3b82f6);
-              {% elif 'SEA' in prog_code %}background:linear-gradient(90deg,#134e2f,#34d399);
-              {% elif 'RED' in prog_code %}background:linear-gradient(90deg,#7f1d1d,#f87171);
-              {% elif 'EDU' in prog_code %}background:linear-gradient(90deg,#78350f,#f59e0b);
-              {% else %}background:linear-gradient(90deg,#3b0764,#818cf8);{% endif %}">
+    <div class="card">
+      <div class="card-title">Applications per Barangay</div>
+      <div class="card-sub">Total submissions by community</div>
+      <div class="chart-wrap" style="height:220px;">
+        <canvas id="barangayChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card chart-full">
+      <div class="card-title">Monthly Application Trend</div>
+      <div class="card-sub">Historical volume with 3-month linear forecast</div>
+      <div class="chart-wrap" style="height:200px;">
+        <canvas id="trendChart"></canvas>
+      </div>
+      <div class="pred-strip" id="pred-strip"></div>
+    </div>
+
+  </div>
+
+
+  {# ══ REASON ANALYSIS ══ #}
+  <div class="sec-label">
+    <i class="bi bi-chat-quote-fill"></i> Reason Analysis
+  </div>
+
+  <div class="reason-grid">
+
+    {% for prog_code, prog_reasons in reasons_by_program.items %}
+    <div class="card">
+      <div class="card-title">
+        <span class="aid-chip
+          {% if 'AICS' in prog_code %}chip-aics
+          {% elif 'SEA'  in prog_code %}chip-sea
+          {% elif 'RED'  in prog_code %}chip-red
+          {% elif 'EDU'  in prog_code %}chip-edu
+          {% else %}chip-other{% endif %}">
+          <i class="bi bi-{% if 'AICS' in prog_code %}heart-pulse-fill{% elif 'SEA' in prog_code %}briefcase-fill{% elif 'RED' in prog_code %}exclamation-triangle-fill{% elif 'EDU' in prog_code %}mortarboard-fill{% else %}file-earmark-fill{% endif %}"></i>
+          {{ prog_code }}
+        </span>
+        &nbsp;— Top Reasons
+      </div>
+      <div class="card-sub">{{ prog_reasons|length }} distinct reason{{ prog_reasons|length|pluralize }}</div>
+
+      {% if prog_reasons %}
+        {% with top_count=prog_reasons.0.count %}
+        {% for r in prog_reasons %}
+        <div class="reason-row">
+          <div class="reason-top">
+            <span class="reason-name">{{ r.label }}</span>
+            <span class="reason-count">{{ r.count }}</span>
+          </div>
+          <div class="reason-track">
+            <div class="reason-fill"
+              data-pct="{% widthratio r.count top_count 100 %}"
+              style="width:0%;
+                {% if 'AICS' in prog_code %}background:linear-gradient(90deg,#3730a3,#6366f1);
+                {% elif 'SEA' in prog_code %}background:linear-gradient(90deg,#166534,#16a34a);
+                {% elif 'RED' in prog_code %}background:linear-gradient(90deg,#9f1239,#e11d48);
+                {% elif 'EDU' in prog_code %}background:linear-gradient(90deg,#92400e,#d97706);
+                {% else %}background:linear-gradient(90deg,#4c1d95,#7c3aed);{% endif %}">
+            </div>
           </div>
         </div>
+        {% endfor %}
+        {% endwith %}
+      {% else %}
+        <p style="font-size:.78rem;color:var(--ink-muted);padding:6px 0;">No reason data available.</p>
+      {% endif %}
+    </div>
+
+    {% empty %}
+    <div class="card" style="grid-column:1/-1;">
+      <div class="card-title">No Reason Data</div>
+      <div class="card-sub">Add <code>aics_crisis_type</code> / <code>redcard_emergency_type</code> fields to see the breakdown here.</div>
+    </div>
+    {% endfor %}
+
+  </div>
+
+
+  {# ══ RANKINGS ══ #}
+  <div class="sec-label">
+    <i class="bi bi-trophy-fill"></i> Rankings
+  </div>
+
+  <div class="chart-grid-2">
+
+    <div class="card">
+      <div class="card-title">Top Barangays by Volume</div>
+      <div class="card-sub">Ranked by total submissions across all programs</div>
+      <table class="dk-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Barangay</th>
+            <th>Applications</th>
+            <th>Share</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in barangay_stats %}
+          <tr>
+            <td>
+              <span class="rank-badge{% if forloop.counter == 1 %} rb-1{% elif forloop.counter == 2 %} rb-2{% elif forloop.counter == 3 %} rb-3{% endif %}">
+                {{ forloop.counter }}
+              </span>
+            </td>
+            <td style="color:var(--ink);font-weight:600;">{{ item.barangay }}</td>
+            <td>
+              <div class="bar-inline">
+                <div class="bar-track">
+                  <div class="bar-fill-teal" data-val="{{ item.total }}" style="width:0%;"></div>
+                </div>
+                <span class="mono-val">{{ item.total }}</span>
+              </div>
+            </td>
+            <td><span class="mono-val" data-share="{{ item.total }}">—</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Aid Type Ranking</div>
+      <div class="card-sub">Most applied-for assistance programs</div>
+      <table class="dk-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Program</th>
+            <th>Applications</th>
+            <th>Share</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in aid_stats %}
+          <tr>
+            <td>
+              <span class="rank-badge{% if forloop.counter == 1 %} rb-1{% elif forloop.counter == 2 %} rb-2{% elif forloop.counter == 3 %} rb-3{% endif %}">
+                {{ forloop.counter }}
+              </span>
+            </td>
+            <td>
+              <span class="aid-chip
+                {% if 'AICS' in item.aid_type %}chip-aics
+                {% elif 'SEA' in item.aid_type %}chip-sea
+                {% elif 'RED' in item.aid_type %}chip-red
+                {% elif 'EDU' in item.aid_type %}chip-edu
+                {% else %}chip-other{% endif %}">
+                {{ item.aid_type }}
+              </span>
+            </td>
+            <td>
+              <div class="bar-inline">
+                <div class="bar-track">
+                  <div class="bar-fill-amber" data-aidval="{{ item.total }}" style="width:0%;"></div>
+                </div>
+                <span class="mono-val">{{ item.total }}</span>
+              </div>
+            </td>
+            <td><span class="mono-val" data-aidshare="{{ item.total }}">—</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+
+  {# ══ BARANGAY INSIGHTS ══ #}
+  <div class="sec-label">
+    <i class="bi bi-lightbulb-fill"></i> Barangay Request Insights
+  </div>
+
+  <div class="insight-grid">
+
+    {% for insight in barangay_insights %}
+    <div class="insight-card">
+
+      <div class="insight-bgy-name">
+        <i class="bi bi-geo-alt-fill" style="color:var(--teal);font-size:.8rem;"></i>
+        {{ insight.barangay }}
       </div>
-      {% endfor %}
-      {% endwith %}
-    {% else %}
-      <p style="font-size:0.78rem;color:var(--ink-dim);padding:8px 0;">No reason data available.</p>
-    {% endif %}
-  </div>
+      <div class="insight-bgy-sub">
+        {{ insight.total }} total application{{ insight.total|pluralize }}
+        &nbsp;·&nbsp;
+        {{ insight.aid_breakdown|length }} aid type{{ insight.aid_breakdown|length|pluralize }}
+      </div>
 
-  {% empty %}
-  <div class="dk-card" style="grid-column:1/-1;">
-    <div class="dk-card-title">No Reason Data</div>
-    <div class="dk-card-sub">Add <code>aics_crisis_type</code> / <code>redcard_emergency_type</code> fields to applications to see breakdown here.</div>
-  </div>
-  {% endfor %}
-
-</div>
-
-
-{# ══════════════════════════════════════════════════════════════ #}
-{#  RANKINGS                                                      #}
-{# ══════════════════════════════════════════════════════════════ #}
-<div class="dk-section-label">
-  <i class="bi bi-trophy-fill"></i> Rankings
-</div>
-
-<div class="chart-grid-2">
-
-  {# Barangay ranking #}
-  <div class="dk-card">
-    <div class="dk-card-title">Top Barangays by Volume</div>
-    <div class="dk-card-sub">Ranked by total submissions across all programs</div>
-    <table class="dk-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Barangay</th>
-          <th>Applications</th>
-          <th>Share</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in barangay_stats %}
-        <tr>
-          <td>
-            <span class="rank-badge{% if forloop.counter == 1 %} rb-1{% elif forloop.counter == 2 %} rb-2{% elif forloop.counter == 3 %} rb-3{% endif %}">
-              {{ forloop.counter }}
-            </span>
-          </td>
-          <td style="color:var(--ink-hi);font-weight:600;">{{ item.barangay }}</td>
-          <td>
-            <div class="bar-inline">
-              <div class="bar-track">
-                <div class="bar-fill-teal" data-val="{{ item.total }}" style="width:0%;"></div>
-              </div>
-              <span class="mono-val">{{ item.total }}</span>
-            </div>
-          </td>
-          <td><span class="mono-val" data-share="{{ item.total }}">—</span></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  {# Aid type ranking #}
-  <div class="dk-card">
-    <div class="dk-card-title">Aid Type Ranking</div>
-    <div class="dk-card-sub">Most applied-for assistance programs</div>
-    <table class="dk-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Program</th>
-          <th>Applications</th>
-          <th>Share</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in aid_stats %}
-        <tr>
-          <td>
-            <span class="rank-badge{% if forloop.counter == 1 %} rb-1{% elif forloop.counter == 2 %} rb-2{% elif forloop.counter == 3 %} rb-3{% endif %}">
-              {{ forloop.counter }}
-            </span>
-          </td>
-          <td>
+      <div class="insight-dominant">
+        <div class="insight-dominant-left">
+          <div class="insight-dominant-label">Most Requested Aid</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:3px;">
             <span class="aid-chip
-              {% if 'AICS' in item.aid_type %}chip-aics
-              {% elif 'SEA' in item.aid_type %}chip-sea
-              {% elif 'RED' in item.aid_type %}chip-red
-              {% elif 'EDU' in item.aid_type %}chip-edu
+              {% if 'AICS' in insight.top_aid %}chip-aics
+              {% elif 'SEA' in insight.top_aid %}chip-sea
+              {% elif 'RED' in insight.top_aid %}chip-red
+              {% elif 'EDU' in insight.top_aid %}chip-edu
               {% else %}chip-other{% endif %}">
-              {{ item.aid_type }}
+              <i class="bi bi-{% if 'AICS' in insight.top_aid %}heart-pulse-fill{% elif 'SEA' in insight.top_aid %}briefcase-fill{% elif 'RED' in insight.top_aid %}exclamation-triangle-fill{% elif 'EDU' in insight.top_aid %}mortarboard-fill{% else %}file-earmark-fill{% endif %}"></i>
+              {{ insight.top_aid }}
             </span>
-          </td>
-          <td>
-            <div class="bar-inline">
-              <div class="bar-track">
-                <div class="bar-fill-amber" data-aidval="{{ item.total }}" style="width:0%;"></div>
-              </div>
-              <span class="mono-val">{{ item.total }}</span>
-            </div>
-          </td>
-          <td><span class="mono-val" data-aidshare="{{ item.total }}">—</span></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+            <span style="font-family:var(--font-mono);font-size:.68rem;color:var(--ink-soft);">
+              {{ insight.top_aid_count }} app{{ insight.top_aid_count|pluralize }}
+            </span>
+          </div>
+        </div>
+        <div class="insight-pct-pill">{{ insight.top_aid_pct }}%</div>
+      </div>
 
-</div>
-
-
-{# ══════════════════════════════════════════════════════════════ #}
-{#  BARANGAY REQUEST INSIGHTS  (NEW)                             #}
-{# ══════════════════════════════════════════════════════════════ #}
-<div class="dk-section-label">
-  <i class="bi bi-lightbulb-fill"></i> Barangay Request Insights
-</div>
-
-<div class="insight-grid">
-
-  {% for insight in barangay_insights %}
-  <div class="insight-card">
-
-    {# Header #}
-    <div class="insight-bgy-name">
-      <i class="bi bi-geo-alt-fill" style="color:var(--teal);font-size:0.8rem;"></i>
-      {{ insight.barangay }}
-    </div>
-    <div class="insight-bgy-sub">
-      {{ insight.total }} total application{{ insight.total|pluralize }}
-      &nbsp;·&nbsp;
-      {{ insight.aid_breakdown|length }} aid type{{ insight.aid_breakdown|length|pluralize }}
-    </div>
-
-    {# Dominant aid type box #}
-    <div class="insight-dominant">
-      <div class="insight-dominant-left">
-        <div class="insight-dominant-label">Most Requested Aid</div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px;">
-          <span class="aid-chip
-            {% if 'AICS' in insight.top_aid %}chip-aics
-            {% elif 'SEA' in insight.top_aid %}chip-sea
-            {% elif 'RED' in insight.top_aid %}chip-red
-            {% elif 'EDU' in insight.top_aid %}chip-edu
-            {% else %}chip-other{% endif %}">
-            <i class="bi bi-{% if 'AICS' in insight.top_aid %}heart-pulse-fill{% elif 'SEA' in insight.top_aid %}briefcase-fill{% elif 'RED' in insight.top_aid %}exclamation-triangle-fill{% elif 'EDU' in insight.top_aid %}mortarboard-fill{% else %}file-earmark-fill{% endif %}"></i>
-            {{ insight.top_aid }}
-          </span>
-          <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--ink);">
-            {{ insight.top_aid_count }} app{{ insight.top_aid_count|pluralize }}
-          </span>
+      {% if insight.top_reason %}
+      <div class="insight-reason-box">
+        <div class="insight-reason-label">
+          <i class="bi bi-chat-quote-fill"></i>
+          &nbsp;Primary Reason — {{ insight.top_aid }}
+        </div>
+        <div class="insight-reason-text">{{ insight.top_reason.label }}</div>
+        <div class="insight-reason-count">
+          {{ insight.top_reason.count }} resident{{ insight.top_reason.count|pluralize }} cited this
         </div>
       </div>
-      <div class="insight-pct-pill">{{ insight.top_aid_pct }}% of bgy</div>
-    </div>
+      {% else %}
+      <div class="no-reason-note">
+        <i class="bi bi-dash-circle"></i>
+        No detailed reason data for {{ insight.top_aid }}
+      </div>
+      {% endif %}
 
-    {# Primary reason box #}
-    {% if insight.top_reason %}
-    <div class="insight-reason-box">
-      <div class="insight-reason-label">
-        <i class="bi bi-chat-quote-fill"></i>
-        &nbsp;Primary Reason for {{ insight.top_aid }}
+      <div class="insight-aid-breakdown">
+        {% for item in insight.aid_breakdown %}
+        <div class="insight-aid-item">
+          <span class="aid-chip
+            {% if 'AICS' in item.aid_type %}chip-aics
+            {% elif 'SEA' in item.aid_type %}chip-sea
+            {% elif 'RED' in item.aid_type %}chip-red
+            {% elif 'EDU' in item.aid_type %}chip-edu
+            {% else %}chip-other{% endif %}"
+            style="padding:2px 6px;font-size:.57rem;">
+            {{ item.aid_type }}
+          </span>
+          <span>{{ item.cnt }}</span>
+        </div>
+        {% endfor %}
       </div>
-      <div class="insight-reason-text">{{ insight.top_reason.label }}</div>
-      <div class="insight-reason-count">
-        {{ insight.top_reason.count }} resident{{ insight.top_reason.count|pluralize }} cited this reason
-      </div>
-    </div>
-    {% else %}
-    <div class="no-reason-note">
-      <i class="bi bi-dash-circle"></i>
-      No detailed reason data available for {{ insight.top_aid }}
-    </div>
-    {% endif %}
 
-    {# Aid type mini breakdown strip #}
-    <div class="insight-aid-breakdown">
-      {% for item in insight.aid_breakdown %}
-      <div class="insight-aid-item">
-        <span class="aid-chip
-          {% if 'AICS' in item.aid_type %}chip-aics
-          {% elif 'SEA' in item.aid_type %}chip-sea
-          {% elif 'RED' in item.aid_type %}chip-red
-          {% elif 'EDU' in item.aid_type %}chip-edu
-          {% else %}chip-other{% endif %}"
-          style="padding:2px 6px;font-size:0.58rem;">
-          {{ item.aid_type }}
-        </span>
-        <span>{{ item.cnt }}</span>
-      </div>
-      {% endfor %}
     </div>
+    {% empty %}
+    <div class="card" style="grid-column:1/-1;">
+      <div class="card-title">No Barangay Data</div>
+      <div class="card-sub">Applications with linked client barangay data will appear here once records exist.</div>
+    </div>
+    {% endfor %}
 
   </div>
-  {% empty %}
-  <div class="dk-card" style="grid-column:1/-1;">
-    <div class="dk-card-title">No Barangay Data</div>
-    <div class="dk-card-sub">Applications with linked client barangay data will appear here once records exist.</div>
+
+
+  {# ══ TIMESTAMP FOOTER ══ #}
+  <div class="ts-footer">
+    <span class="ts-text">Municipal Social Welfare &amp; Development Office — Socorro</span>
+    <span class="ts-text" id="ts-gen"></span>
   </div>
-  {% endfor %}
 
-</div>
-
-
-{# ══════════════════════════════════════════════════════════════ #}
-{#  TIMESTAMP FOOTER                                              #}
-{# ══════════════════════════════════════════════════════════════ #}
-<div class="ts-footer">
-  <span class="ts-text">Municipal Social Welfare &amp; Development Office — Socorro</span>
-  <span class="ts-text" id="ts-gen"></span>
-</div>
+</div>{# /analytics-wrap #}
 
 {% endblock %}
 
 
-{# ══════════════════════════════════════════════════════════════ #}
-{#  JAVASCRIPT                                                    #}
-{# ══════════════════════════════════════════════════════════════ #}
 {% block extra_js %}
 <script>
 (function () {
   'use strict';
 
-  /* ── Data injected from Django ── */
+  /* ── Data from Django ── */
   const aidLabels  = [{% for item in aid_stats %}"{{ item.aid_type }}"{% if not forloop.last %},{% endif %}{% endfor %}];
   const aidValues  = [{% for item in aid_stats %}{{ item.total }}{% if not forloop.last %},{% endif %}{% endfor %}];
-
   const bgyLabels  = [{% for item in barangay_stats %}"{{ item.barangay }}"{% if not forloop.last %},{% endif %}{% endfor %}];
   const bgyValues  = [{% for item in barangay_stats %}{{ item.total }}{% if not forloop.last %},{% endif %}{% endfor %}];
-
   const histMonths = [{% for m in months %}"{{ m }}"{% if not forloop.last %},{% endif %}{% endfor %}];
   const histValues = [{% for v in values %}{{ v }}{% if not forloop.last %},{% endif %}{% endfor %}];
   const prediction = [{% for p in prediction %}{{ p }}{% if not forloop.last %},{% endif %}{% endfor %}];
   const totalApps  = {{ total_applications }};
 
-  /* ── Colour palette ── */
+  /* ── Palette — vivid but refined (light-mode friendly) ── */
   const palette = [
-    '#2dd4bf','#f59e0b','#818cf8','#f87171','#34d399',
-    '#fb923c','#a78bfa','#38bdf8','#4ade80','#facc15',
+    '#0d9488','#d97706','#6366f1','#e11d48','#16a34a',
+    '#0891b2','#9333ea','#dc2626','#ca8a04','#0284c7',
   ];
 
-  /* ── Chart.js global defaults ── */
-  Chart.defaults.color       = '#4f6a8a';
-  Chart.defaults.borderColor = '#1f2d42';
+  /* ── Chart.js globals — tuned for white bg ── */
+  Chart.defaults.color       = '#8a9ab8';
+  Chart.defaults.borderColor = '#e4e9f5';
   Chart.defaults.font.family = "'DM Mono', monospace";
   Chart.defaults.font.size   = 11;
 
   const TOOLTIP = {
-    backgroundColor: 'rgba(15,23,42,0.96)',
-    titleFont:  { family: "'Montserrat',sans-serif", size: 11, weight: '700' },
-    bodyFont:   { family: "'DM Mono',monospace",     size: 11 },
+    backgroundColor: 'rgba(15,29,56,0.92)',
+    titleFont:  { family: "'DM Sans',sans-serif",  size: 11, weight: '700' },
+    bodyFont:   { family: "'DM Mono',monospace",    size: 11 },
     padding: 10, cornerRadius: 8,
     borderColor: '#1f2d42', borderWidth: 1,
+    titleColor: '#ffffff',
+    bodyColor:  '#c8ddef',
   };
 
-  /* ── Aid type doughnut ── */
+  /* ── Doughnut — aid types ── */
   new Chart(document.getElementById('aidChart'), {
     type: 'doughnut',
     data: {
@@ -714,17 +917,17 @@
       datasets: [{
         data: aidValues,
         backgroundColor: palette,
-        borderColor: '#111827',
+        borderColor: '#ffffff',
         borderWidth: 3,
-        hoverOffset: 6,
+        hoverOffset: 7,
       }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      responsive: true, maintainAspectRatio: false, cutout: '66%',
       plugins: {
         legend: {
           position: 'right',
-          labels: { boxWidth: 10, boxHeight: 10, padding: 10, color: '#8facc8' }
+          labels: { boxWidth: 9, boxHeight: 9, padding: 10, color: '#4a5a7a', font: { size: 11 } }
         },
         tooltip: {
           ...TOOLTIP,
@@ -736,16 +939,17 @@
     }
   });
 
-  /* ── Barangay bar chart ── */
+  /* ── Bar — applications per barangay ── */
   new Chart(document.getElementById('barangayChart'), {
     type: 'bar',
     data: {
       labels: bgyLabels,
       datasets: [{
         data: bgyValues,
-        backgroundColor: bgyValues.map((_, i) => `${palette[i % palette.length]}bb`),
-        borderColor:      bgyValues.map((_, i) =>  palette[i % palette.length]),
-        borderWidth: 1, borderRadius: 4,
+        backgroundColor: bgyValues.map((_, i) => palette[i % palette.length] + '28'),
+        borderColor:      bgyValues.map((_, i) => palette[i % palette.length]),
+        borderWidth: 1.5,
+        borderRadius: 5,
       }]
     },
     options: {
@@ -753,13 +957,13 @@
       indexAxis: bgyLabels.length > 6 ? 'y' : 'x',
       plugins: { legend: { display: false }, tooltip: TOOLTIP },
       scales: {
-        x: { grid: { color: '#1f2d4255' } },
-        y: { grid: { color: '#1f2d4255' } },
+        x: { grid: { color: '#e4e9f555' }, ticks: { color: '#8a9ab8' } },
+        y: { grid: { color: '#e4e9f555' }, ticks: { color: '#8a9ab8' } },
       }
     }
   });
 
-  /* ── Monthly trend + 3-month forecast ── */
+  /* ── Line — trend + forecast ── */
   (function () {
     const predMonths = [];
     const last = histMonths[histMonths.length - 1];
@@ -777,8 +981,8 @@
     const histPad   = histValues.concat([null, null, null]);
     const lastHist  = histValues.length ? histValues[histValues.length - 1] : 0;
     const foreData  = Array(histValues.length - 1).fill(null)
-                       .concat([lastHist])
-                       .concat(prediction);
+                        .concat([lastHist])
+                        .concat(prediction);
 
     new Chart(document.getElementById('trendChart'), {
       type: 'line',
@@ -788,20 +992,24 @@
           {
             label: 'Actual',
             data: histPad,
-            borderColor: '#2dd4bf',
-            backgroundColor: 'rgba(45,212,191,.08)',
+            borderColor: '#0d9488',
+            backgroundColor: 'rgba(13,148,136,.07)',
             fill: true, tension: 0.4, pointRadius: 4,
-            pointBackgroundColor: '#2dd4bf',
+            pointBackgroundColor: '#0d9488',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
             spanGaps: false,
           },
           {
             label: 'Forecast',
             data: foreData,
-            borderColor: '#818cf8',
+            borderColor: '#6366f1',
             borderDash: [6, 4],
-            backgroundColor: 'rgba(129,140,248,.06)',
+            backgroundColor: 'rgba(99,102,241,.05)',
             fill: true, tension: 0.4, pointRadius: 4,
-            pointBackgroundColor: '#818cf8',
+            pointBackgroundColor: '#6366f1',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
             spanGaps: false,
           }
         ]
@@ -809,12 +1017,12 @@
       options: {
         responsive: true, maintainAspectRatio: false,
         plugins: {
-          legend: { labels: { boxWidth: 10, boxHeight: 10, color: '#8facc8' } },
+          legend: { labels: { boxWidth: 9, boxHeight: 9, color: '#4a5a7a', padding: 16 } },
           tooltip: TOOLTIP,
         },
         scales: {
-          x: { grid: { color: '#1f2d4244' } },
-          y: { beginAtZero: true, grid: { color: '#1f2d4244' } },
+          x: { grid: { color: '#e4e9f555' }, ticks: { color: '#8a9ab8' } },
+          y: { beginAtZero: true, grid: { color: '#e4e9f555' }, ticks: { color: '#8a9ab8' } },
         }
       }
     });
@@ -831,7 +1039,7 @@
     });
   })();
 
-  /* ── Animate bar fills ── */
+  /* ── Animate progress bars ── */
   const maxBgy = Math.max(...bgyValues, 1);
   const maxAid = Math.max(...aidValues, 1);
 
@@ -851,7 +1059,7 @@
     document.querySelectorAll('.reason-fill[data-pct]').forEach(el => {
       el.style.width = el.dataset.pct + '%';
     });
-  }, 300);
+  }, 280);
 
   /* ── Timestamp ── */
   document.getElementById('ts-gen').textContent =

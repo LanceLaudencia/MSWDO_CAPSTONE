@@ -2,374 +2,570 @@
 
 {% block content %}
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
 <style>
+  /* ─────────────────────────────────────────
+     TOKENS
+  ───────────────────────────────────────── */
   :root {
-    --dk-bg:     #0b0f17;
-    --dk-surf:   #111827;
-    --dk-border: #1f2d42;
-    --dk-muted:  #2a3a52;
-    --dk-dim:    #4f6a8a;
-    --dk-ink:    #8facc8;
-    --dk-hi:     #c8ddef;
-    --dk-white:  #eef4fb;
+    --bg:        #f7f8fc;
+    --surface:   #ffffff;
+    --surface2:  #f1f4fb;
 
-    --teal:   #2dd4bf;
-    --amber:  #f59e0b;
-    --indigo: #818cf8;
-    --danger: #f87171;
-    --green:  #34d399;
-    --sky:    #38bdf8;
-    --pink:   #f472b6;
-    --orange: #fb923c;
+    --border:    #e4e9f5;
+    --border-md: #d0d9ef;
 
-    /* Program accent colors — dark-optimised */
-    --aics-c:  #60a5fa; --aics-bg:  rgba(96,165,250,0.08);  --aics-br:  rgba(96,165,250,0.22);
-    --sea-c:   #34d399; --sea-bg:   rgba(52,211,153,0.08);  --sea-br:   rgba(52,211,153,0.22);
-    --red-c:   #f87171; --red-bg:   rgba(248,113,113,0.08); --red-br:   rgba(248,113,113,0.22);
-    --edu-c:   #f59e0b; --edu-bg:   rgba(245,158,11,0.08);  --edu-br:   rgba(245,158,11,0.22);
-    --other-c: #a78bfa; --other-bg: rgba(167,139,250,0.08); --other-br: rgba(167,139,250,0.22);
+    --ink:       #0f1d38;
+    --ink-soft:  #4a5a7a;
+    --ink-muted: #8a9ab8;
+    --ink-faint: #b8c4d8;
 
-    --font-mono: 'DM Mono', monospace;
-    --cr: 12px;
+    --blue:      #0038A8;
+    --blue-pale: #edf1fc;
+    --blue-mid:  rgba(0,56,168,.12);
+
+    /* Program accents — vivid on white */
+    --aics-c:   #2563eb; --aics-pale:  #eff6ff; --aics-border: rgba(37,99,235,.22);
+    --sea-c:    #16a34a; --sea-pale:   #f0fdf4; --sea-border:  rgba(22,163,74,.22);
+    --red-c:    #e11d48; --red-pale:   #fff1f3; --red-border:  rgba(225,29,72,.22);
+    --edu-c:    #d97706; --edu-pale:   #fffbeb; --edu-border:  rgba(217,119,6,.22);
+    --other-c:  #7c3aed; --other-pale: #f5f3ff; --other-border:rgba(124,58,237,.22);
+
+    /* Semantic data */
+    --teal:      #0d9488;
+    --teal-pale: #f0fdfb;
+    --violet:    #6366f1;
+    --violet-pale: #f0f0fe;
+    --amber:     #d97706;
+    --amber-pale:#fffbeb;
+    --green:     #16a34a;
+    --rose:      #e11d48;
+
+    --font-body:    'DM Sans', sans-serif;
+    --font-display: 'Instrument Serif', serif;
+    --font-mono:    'DM Mono', monospace;
+
+    --cr:  12px;
+    --cr2: 16px;
+
+    --sh-xs: 0 1px 3px rgba(15,29,56,.06), 0 1px 2px rgba(15,29,56,.04);
+    --sh-sm: 0 4px 14px rgba(15,29,56,.07), 0 2px 4px rgba(15,29,56,.04);
+    --sh-md: 0 10px 30px rgba(15,29,56,.09), 0 4px 8px rgba(15,29,56,.05);
+    --sh-lg: 0 20px 50px rgba(0,56,168,.10), 0 6px 12px rgba(0,56,168,.06);
   }
 
-  .dk-scope { color: var(--dk-ink); }
+  * { box-sizing: border-box; }
 
-  /* ── Hero header ── */
+  .fc-scope {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--ink);
+    padding: 4px 0 48px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── Hero header ─── */
   .fc-header {
-    background: linear-gradient(135deg, #0d1f42 0%, #0b1630 100%);
-    border-radius: var(--cr); padding: 1.8rem 2.4rem;
-    color: #fff; position: relative; overflow: hidden; margin-bottom: 1.5rem;
-    border: 1px solid var(--dk-border);
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--cr2);
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--sh-sm);
   }
 
+  /* Subtle dot-grid texture */
   .fc-header::before {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background-image: repeating-linear-gradient(
-      45deg, transparent, transparent 40px,
-      rgba(255,255,255,0.018) 40px, rgba(255,255,255,0.018) 41px);
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(0,56,168,.05) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
   }
 
+  /* Accent orbs */
+  .fc-header-orb-1 {
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(13,148,136,.07) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .fc-header-orb-2 {
+    position: absolute;
+    bottom: -60px; left: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,.06) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  /* Top accent stripe */
   .fc-header::after {
-    content: ''; position: absolute; top: -40%; right: -10%;
-    width: 380px; height: 380px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(45,212,191,0.10), transparent 65%);
-    pointer-events: none;
-  }
-
-  .fc-blob {
-    position: absolute; bottom: -35%; left: -8%;
-    width: 260px; height: 260px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(129,140,248,0.10), transparent 65%);
-    pointer-events: none;
-  }
-
-  .fc-flag {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, var(--teal) 0%, var(--indigo) 50%, var(--pink) 100%);
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--teal), var(--blue), var(--violet));
+    border-radius: var(--cr2) var(--cr2) 0 0;
   }
 
   .fc-header-inner {
-    position: relative; z-index: 1;
-    display: flex; align-items: flex-start;
-    justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
   }
 
   .fc-eyebrow {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: rgba(45,212,191,0.08); border: 1px solid rgba(45,212,191,0.22);
-    padding: 4px 13px; border-radius: 100px;
-    font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 1.5px;
-    color: var(--teal); margin-bottom: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--blue-pale);
+    border: 1px solid var(--blue-mid);
+    padding: 4px 13px;
+    border-radius: 100px;
+    font-family: var(--font-mono);
+    font-size: .62rem;
+    letter-spacing: .1em;
+    color: var(--blue);
+    margin-bottom: 12px;
   }
 
   .fc-header h1 {
-    font-family: 'Montserrat', sans-serif; font-size: 1.45rem; font-weight: 900;
-    color: var(--dk-white); margin-bottom: 5px;
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 5px;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+  }
+  .fc-header h1 em {
+    font-style: italic;
+    color: var(--blue);
   }
 
-  .fc-header p { opacity: 0.65; font-size: 0.85rem; margin: 0; font-family: var(--font-mono); }
+  .fc-header p {
+    font-family: var(--font-mono);
+    font-size: .78rem;
+    color: var(--ink-muted);
+    margin: 0;
+  }
 
   .fc-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(129,140,248,0.10); border: 1px solid rgba(129,140,248,0.25);
-    padding: 6px 14px; border-radius: 100px;
-    font-family: var(--font-mono); font-size: 0.65rem; color: var(--indigo);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--violet-pale);
+    border: 1px solid rgba(99,102,241,.2);
+    padding: 7px 14px;
+    border-radius: 100px;
+    font-family: var(--font-mono);
+    font-size: .63rem;
+    color: var(--violet);
     align-self: flex-start;
-  }
-
-  /* ── MAE cards ── */
-  .score-grid {
-    display: grid; grid-template-columns: repeat(4,1fr);
-    gap: 12px; margin-bottom: 1.5rem;
-  }
-
-  @media (max-width:900px) { .score-grid { grid-template-columns: 1fr 1fr; } }
-  @media (max-width:480px) { .score-grid { grid-template-columns: 1fr; } }
-
-  .score-card {
-    background: var(--dk-surf); border: 1px solid var(--dk-border);
-    border-radius: var(--cr); padding: 1.1rem 1.2rem;
-    position: relative; overflow: hidden;
-    transition: border-color .2s, transform .2s;
-  }
-
-  .score-card:hover { transform: translateY(-3px); }
-
-  .score-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  }
-
-  .score-card.sc-aics::before  { background: linear-gradient(90deg, #1e3a8a, var(--aics-c)); }
-  .score-card.sc-sea::before   { background: linear-gradient(90deg, #134e2f, var(--sea-c)); }
-  .score-card.sc-red::before   { background: linear-gradient(90deg, #7f1d1d, var(--red-c)); }
-  .score-card.sc-edu::before   { background: linear-gradient(90deg, #78350f, var(--edu-c)); }
-  .score-card.sc-other::before { background: linear-gradient(90deg, #3b0764, var(--other-c)); }
-
-  .score-card:hover.sc-aics  { border-color: var(--aics-br); }
-  .score-card:hover.sc-sea   { border-color: var(--sea-br); }
-  .score-card:hover.sc-red   { border-color: var(--red-br); }
-  .score-card:hover.sc-edu   { border-color: var(--edu-br); }
-  .score-card:hover.sc-other { border-color: var(--other-br); }
-
-  .score-prog {
-    font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 1px;
-    text-transform: uppercase; margin-bottom: 10px;
-    display: flex; align-items: center; gap: 5px;
-  }
-
-  .score-prog.aics    { color: var(--aics-c); }
-  .score-prog.sea     { color: var(--sea-c); }
-  .score-prog.redcard { color: var(--red-c); }
-  .score-prog.edu     { color: var(--edu-c); }
-  .score-prog.other   { color: var(--other-c); }
-
-  .score-mae {
-    font-family: 'Montserrat', sans-serif; font-size: 1.9rem; font-weight: 900;
-    color: var(--dk-white); line-height: 1; margin-bottom: 8px;
-  }
-
-  .score-trend {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-family: var(--font-mono); font-size: 0.62rem;
-    padding: 3px 10px; border-radius: 100px;
-  }
-
-  .trend-up   { background: rgba(52,211,153,.10); color: var(--green); border: 1px solid rgba(52,211,153,.22); }
-  .trend-down { background: rgba(248,113,113,.10); color: var(--danger); border: 1px solid rgba(248,113,113,.22); }
-  .trend-flat { background: rgba(245,158,11,.10); color: var(--amber); border: 1px solid rgba(245,158,11,.22); }
-
-  .score-lbl {
-    display: block; margin-top: 8px;
-    font-family: var(--font-mono); font-size: 0.58rem;
-    text-transform: uppercase; letter-spacing: 0.8px; color: var(--dk-dim);
-  }
-
-  .score-ci {
-    display: inline-block; margin-top: 6px;
-    font-family: var(--font-mono); font-size: 0.56rem;
-    letter-spacing: 0.4px; color: var(--dk-dim);
-  }
-
-  .score-ci.has-ci { color: var(--teal); }
-
-  /* ── Section cards ── */
-  .sec-card {
-    background: var(--dk-surf); border: 1px solid var(--dk-border);
-    border-radius: var(--cr); overflow: hidden; margin-bottom: 1.5rem;
-    transition: border-color .2s;
-  }
-
-  .sec-bar {
-    padding: 0.7rem 1.2rem;
-    font-family: var(--font-mono); font-size: 0.65rem;
-    text-transform: uppercase; letter-spacing: 1px;
-    display: flex; align-items: center; gap: 8px;
-    border-bottom: 1px solid var(--dk-border);
-  }
-
-  .sec-bar.blue   { color: var(--teal);   }
-  .sec-bar.blue i  { color: var(--teal); }
-  .sec-bar.yellow { color: var(--amber);  }
-  .sec-bar.yellow i{ color: var(--amber); }
-  .sec-bar.blue  .sec-bar-line  { background: var(--teal); }
-  .sec-bar.yellow .sec-bar-line { background: var(--amber); }
-
-  .sec-bar-dot {
-    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
-  }
-
-  .dot-teal   { background: var(--teal); }
-  .dot-amber  { background: var(--amber); }
-  .dot-indigo { background: var(--indigo); }
-
-  .sec-body { padding: 1.2rem 1.4rem; }
-
-  /* ── Summary table ── */
-  .fc-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
-
-  .fc-table thead {
-    background: linear-gradient(135deg, #0d1f42, #111827);
-    border-bottom: 1px solid var(--dk-border);
-  }
-
-  .fc-table thead th {
-    font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.8px;
-    text-transform: uppercase; color: var(--dk-dim);
-    padding: 11px 14px; border: none; white-space: nowrap;
-  }
-
-  .fc-table tbody td {
-    padding: 11px 14px; border-bottom: 1px solid rgba(31,45,66,.5);
-    color: var(--dk-ink); vertical-align: middle;
-  }
-
-  .fc-table tbody tr:last-child td { border-bottom: none; }
-  .fc-table tbody tr:hover td { background: rgba(255,255,255,.025); }
-
-  .prog-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-family: var(--font-mono); font-size: 0.58rem;
-    padding: 3px 9px; border-radius: 5px; text-transform: uppercase; letter-spacing: 0.4px;
-    border: 1px solid;
-  }
-
-  .pb-aics    { background: var(--aics-bg);  color: var(--aics-c);  border-color: var(--aics-br); }
-  .pb-sea     { background: var(--sea-bg);   color: var(--sea-c);   border-color: var(--sea-br); }
-  .pb-redcard { background: var(--red-bg);   color: var(--red-c);   border-color: var(--red-br); }
-  .pb-edu     { background: var(--edu-bg);   color: var(--edu-c);   border-color: var(--edu-br); }
-  .pb-other   { background: var(--other-bg); color: var(--other-c); border-color: var(--other-br); }
-
-  .year-num {
-    font-family: var(--font-mono); font-size: 0.86rem;
-    color: var(--dk-hi); font-weight: 500;
-  }
-
-  .total-chip {
-    display: inline-flex; align-items: center;
-    background: rgba(45,212,191,.10); color: var(--teal);
-    font-family: var(--font-mono); font-size: 0.72rem;
-    padding: 4px 12px; border-radius: 6px;
-    border: 1px solid rgba(45,212,191,.25);
-  }
-
-  /* ── Forecast detail cards ── */
-  .forecast-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 12px; margin-bottom: 1.5rem;
-  }
-
-  @media (max-width: 768px) { .forecast-grid { grid-template-columns: 1fr; } }
-
-  .forecast-prog-card {
-    background: var(--dk-surf); border: 1px solid var(--dk-border);
-    border-radius: var(--cr); overflow: hidden;
-    transition: border-color .2s;
-  }
-
-  .fp-header {
-    padding: 0.6rem 1rem;
-    display: flex; align-items: center; justify-content: space-between;
-    font-family: var(--font-mono); font-size: 0.62rem;
-    text-transform: uppercase; letter-spacing: 0.8px;
-    border-bottom: 1px solid var(--dk-border);
-  }
-
-  .fp-header.aics    { color: var(--aics-c);  background: var(--aics-bg); }
-  .fp-header.sea     { color: var(--sea-c);   background: var(--sea-bg); }
-  .fp-header.redcard { color: var(--red-c);   background: var(--red-bg); }
-  .fp-header.edu     { color: var(--edu-c);   background: var(--edu-bg); }
-  .fp-header.other   { color: var(--other-c); background: var(--other-bg); }
-
-  .fp-body { padding: 0.8rem 1rem; }
-
-  .fp-month-row {
-    display: flex; align-items: center;
-    padding: 5px 0; border-bottom: 1px solid rgba(31,45,66,.4);
-    font-size: 0.8rem; color: var(--dk-ink);
-  }
-
-  .fp-month-row:last-child { border-bottom: none; }
-
-  .fp-month-name {
-    font-family: var(--font-mono); font-size: 0.7rem;
-    color: var(--dk-hi); min-width: 88px;
-  }
-
-  .fp-bar-wrap {
-    flex: 1; margin: 0 10px;
-    background: var(--dk-muted); border-radius: 3px;
-    height: 6px; overflow: hidden;
-  }
-
-  .fp-bar { height: 6px; border-radius: 3px; transition: width .6s cubic-bezier(.4,0,.2,1); }
-  .fp-bar.aics    { background: linear-gradient(90deg, #1e3a8a, var(--aics-c)); }
-  .fp-bar.sea     { background: linear-gradient(90deg, #134e2f, var(--sea-c)); }
-  .fp-bar.redcard { background: linear-gradient(90deg, #7f1d1d, var(--red-c)); }
-  .fp-bar.edu     { background: linear-gradient(90deg, #78350f, var(--edu-c)); }
-  .fp-bar.other   { background: linear-gradient(90deg, #3b0764, var(--other-c)); }
-
-  .fp-val {
-    font-family: var(--font-mono); font-size: 0.72rem;
-    color: var(--dk-white); min-width: 62px; text-align: right;
     white-space: nowrap;
   }
 
+  /* ─── MAE / Score cards ─── */
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 900px) { .score-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 480px) { .score-grid { grid-template-columns: 1fr; } }
+
+  .score-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--cr2);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--sh-xs);
+    transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, border-color .2s;
+  }
+  .score-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sh-md);
+  }
+
+  /* Top accent bar */
+  .score-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: var(--cr2) var(--cr2) 0 0;
+  }
+  .score-card.sc-aics::before  { background: linear-gradient(90deg, #1d4ed8, var(--aics-c)); }
+  .score-card.sc-sea::before   { background: linear-gradient(90deg, #15803d, var(--sea-c)); }
+  .score-card.sc-red::before   { background: linear-gradient(90deg, #9f1239, var(--red-c)); }
+  .score-card.sc-edu::before   { background: linear-gradient(90deg, #92400e, var(--edu-c)); }
+  .score-card.sc-other::before { background: linear-gradient(90deg, #5b21b6, var(--other-c)); }
+
+  .score-card:hover.sc-aics  { border-color: var(--aics-border); }
+  .score-card:hover.sc-sea   { border-color: var(--sea-border); }
+  .score-card:hover.sc-red   { border-color: var(--red-border); }
+  .score-card:hover.sc-edu   { border-color: var(--edu-border); }
+  .score-card:hover.sc-other { border-color: var(--other-border); }
+
+  .score-icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .95rem;
+    margin-bottom: 12px;
+  }
+  .sc-aics  .score-icon { background: var(--aics-pale);  color: var(--aics-c); }
+  .sc-sea   .score-icon { background: var(--sea-pale);   color: var(--sea-c); }
+  .sc-red   .score-icon { background: var(--red-pale);   color: var(--red-c); }
+  .sc-edu   .score-icon { background: var(--edu-pale);   color: var(--edu-c); }
+  .sc-other .score-icon { background: var(--other-pale); color: var(--other-c); }
+
+  .score-prog {
+    font-family: var(--font-mono);
+    font-size: .6rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .sc-aics  .score-prog { color: var(--aics-c); }
+  .sc-sea   .score-prog { color: var(--sea-c); }
+  .sc-red   .score-prog { color: var(--red-c); }
+  .sc-edu   .score-prog { color: var(--edu-c); }
+  .sc-other .score-prog { color: var(--other-c); }
+
+  .score-mae {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 10px;
+    letter-spacing: -.02em;
+  }
+
+  .score-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: .62rem;
+    padding: 3px 10px;
+    border-radius: 100px;
+    border: 1px solid;
+  }
+  .trend-up   { background: #f0fdf4; color: var(--green); border-color: rgba(22,163,74,.25); }
+  .trend-down { background: var(--red-pale);  color: var(--red-c);  border-color: var(--red-border); }
+  .trend-flat { background: var(--amber-pale); color: var(--amber); border-color: rgba(217,119,6,.25); }
+
+  .score-lbl {
+    display: block;
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: .57rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--ink-muted);
+  }
+
+  .score-ci {
+    display: inline-block;
+    margin-top: 5px;
+    font-family: var(--font-mono);
+    font-size: .56rem;
+    letter-spacing: .03em;
+    color: var(--ink-faint);
+  }
+  .score-ci.has-ci { color: var(--teal); }
+
+  /* ─── Section label ─── */
+  .sec-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 28px 0 14px;
+    font-family: var(--font-mono);
+    font-size: .62rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--ink-muted);
+  }
+  .sec-label i { color: var(--blue); }
+  .sec-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ─── Base card ─── */
+  .card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--cr2);
+    overflow: hidden;
+    box-shadow: var(--sh-xs);
+    transition: box-shadow .2s, border-color .2s;
+    height: 100%;
+  }
+  .card:hover { box-shadow: var(--sh-sm); }
+
+  .card-header {
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: .63rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--ink-muted);
+    background: var(--surface2);
+  }
+  .card-header i { color: var(--blue); }
+  .card-header-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-teal   { background: var(--teal); }
+  .dot-amber  { background: var(--amber); }
+  .dot-violet { background: var(--violet); }
+
+  .card-body { padding: 20px; }
+  .card-body-flush { padding: 0; }
+
+  /* ─── Summary table ─── */
+  .fc-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+  .fc-table thead {
+    background: var(--surface2);
+    border-bottom: 1.5px solid var(--border);
+  }
+  .fc-table thead th {
+    font-family: var(--font-mono);
+    font-size: .59rem;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    padding: 10px 14px;
+    border: none;
+    white-space: nowrap;
+  }
+  .fc-table tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink-soft);
+    vertical-align: middle;
+  }
+  .fc-table tbody tr:last-child td { border-bottom: none; }
+  .fc-table tbody tr:hover td { background: var(--bg); }
+
+  .prog-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: .58rem;
+    padding: 3px 9px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border: 1px solid;
+  }
+  .pb-aics    { background: var(--aics-pale);  color: var(--aics-c);  border-color: var(--aics-border); }
+  .pb-sea     { background: var(--sea-pale);   color: var(--sea-c);   border-color: var(--sea-border); }
+  .pb-redcard { background: var(--red-pale);   color: var(--red-c);   border-color: var(--red-border); }
+  .pb-edu     { background: var(--edu-pale);   color: var(--edu-c);   border-color: var(--edu-border); }
+  .pb-other   { background: var(--other-pale); color: var(--other-c); border-color: var(--other-border); }
+
+  .year-num {
+    font-family: var(--font-mono);
+    font-size: .84rem;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .total-chip {
+    display: inline-flex;
+    align-items: center;
+    background: var(--teal-pale);
+    color: var(--teal);
+    font-family: var(--font-mono);
+    font-size: .72rem;
+    padding: 3px 11px;
+    border-radius: 6px;
+    border: 1px solid rgba(13,148,136,.22);
+    font-weight: 500;
+  }
+
+  /* ─── Monthly detail cards ─── */
+  .forecast-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 768px) { .forecast-grid { grid-template-columns: 1fr; } }
+
+  .forecast-prog-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--cr2);
+    overflow: hidden;
+    box-shadow: var(--sh-xs);
+    transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, border-color .2s;
+  }
+  .forecast-prog-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sh-sm);
+  }
+
+  .fp-header {
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: .62rem;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    border-bottom: 1px solid var(--border);
+  }
+  .fp-header.aics    { background: var(--aics-pale);  color: var(--aics-c); }
+  .fp-header.sea     { background: var(--sea-pale);   color: var(--sea-c); }
+  .fp-header.redcard { background: var(--red-pale);   color: var(--red-c); }
+  .fp-header.edu     { background: var(--edu-pale);   color: var(--edu-c); }
+  .fp-header.other   { background: var(--other-pale); color: var(--other-c); }
+
+  .fp-body { padding: 10px 14px; }
+
+  .fp-month-row {
+    display: flex;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: .8rem;
+  }
+  .fp-month-row:last-child { border-bottom: none; }
+
+  .fp-month-name {
+    font-family: var(--font-mono);
+    font-size: .68rem;
+    color: var(--ink-soft);
+    min-width: 88px;
+  }
+
+  .fp-bar-wrap {
+    flex: 1;
+    margin: 0 10px;
+    background: var(--border);
+    border-radius: 3px;
+    height: 5px;
+    overflow: hidden;
+  }
+
+  .fp-bar { height: 5px; border-radius: 3px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+  .fp-bar.aics    { background: linear-gradient(90deg, #1d4ed8, var(--aics-c)); }
+  .fp-bar.sea     { background: linear-gradient(90deg, #15803d, var(--sea-c)); }
+  .fp-bar.redcard { background: linear-gradient(90deg, #9f1239, var(--red-c)); }
+  .fp-bar.edu     { background: linear-gradient(90deg, #92400e, var(--edu-c)); }
+  .fp-bar.other   { background: linear-gradient(90deg, #5b21b6, var(--other-c)); }
+
+  .fp-val {
+    font-family: var(--font-mono);
+    font-size: .7rem;
+    color: var(--ink);
+    font-weight: 500;
+    min-width: 62px;
+    text-align: right;
+    white-space: nowrap;
+  }
   .fp-range {
-    font-size: 0.6rem; color: var(--dk-dim); margin-left: 3px;
+    font-size: .58rem;
+    color: var(--ink-faint);
+    margin-left: 3px;
   }
 
-  /* ── Section header bar (freestanding) ── */
-  .dk-section-bar {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--dk-surf); border: 1px solid var(--dk-border);
-    border-radius: var(--cr) var(--cr) 0 0;
-    padding: 0.7rem 1.2rem; margin-bottom: 1px;
-    font-family: var(--font-mono); font-size: 0.65rem;
-    text-transform: uppercase; letter-spacing: 1px; color: var(--teal);
+  /* ─── Hint text ─── */
+  .hint-text {
+    font-family: var(--font-mono);
+    font-size: .67rem;
+    color: var(--ink-muted);
+    margin: 8px 2px 16px;
+    line-height: 1.7;
+  }
+  .hint-text .hint-val {
+    font-family: var(--font-mono);
+    color: var(--ink);
+    font-weight: 500;
   }
 
-  .dk-reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
-  .dk-reveal.visible { opacity: 1; transform: none; }
+  /* ─── Scroll reveal ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
 </style>
 
-<div class="dk-scope">
 
-  <!-- Hero -->
-  <div class="fc-header dk-reveal">
-    <div class="fc-blob"></div>
-    <div class="fc-flag"></div>
+<div class="fc-scope">
+
+  {# ── Hero header ── #}
+  <div class="fc-header reveal">
+    <div class="fc-header-orb-1" aria-hidden="true"></div>
+    <div class="fc-header-orb-2" aria-hidden="true"></div>
     <div class="fc-header-inner">
       <div>
-        <div class="fc-eyebrow"><i class="bi bi-graph-up-arrow me-1"></i> MSWDO · DSWD Devolved Unit</div>
-        <h1><i class="bi bi-graph-up-arrow me-2" style="color:var(--teal);"></i>3-Year Program Application Forecast</h1>
+        <div class="fc-eyebrow">
+          <i class="bi bi-graph-up-arrow"></i>
+          MSWDO · DSWD Devolved Unit
+        </div>
+        <h1>3-Year Program <em>Application Forecast</em></h1>
         <p>Predicted application volumes per assistance program for the next 36 months</p>
       </div>
-      <div class="fc-badge"><i class="bi bi-cpu-fill me-1"></i> ML-Powered Forecast</div>
+      <div class="fc-badge">
+        <i class="bi bi-cpu-fill"></i> ML-Powered Forecast
+      </div>
     </div>
   </div>
 
-  <!-- MAE Cards -->
+
+  {# ── MAE Score cards ── #}
   <div class="score-grid">
     {% for program, score in scores.items %}
     {% with prog_lower=program|lower %}
-    <div class="score-card dk-reveal
+    <div class="score-card reveal
       {% if 'aics' in prog_lower %}sc-aics
-      {% elif 'sea' in prog_lower %}sc-sea
-      {% elif 'red' in prog_lower %}sc-red
-      {% elif 'edu' in prog_lower %}sc-edu
+      {% elif 'sea'  in prog_lower %}sc-sea
+      {% elif 'red'  in prog_lower %}sc-red
+      {% elif 'edu'  in prog_lower %}sc-edu
       {% else %}sc-other{% endif %}">
 
-      <div class="score-prog
-        {% if 'aics' in prog_lower %}aics
-        {% elif 'sea' in prog_lower %}sea
-        {% elif 'red' in prog_lower %}redcard
-        {% elif 'edu' in prog_lower %}edu
-        {% else %}other{% endif %}">
+      <div class="score-icon">
         <i class="bi bi-{% if 'aics' in prog_lower %}heart-pulse-fill{% elif 'sea' in prog_lower %}briefcase-fill{% elif 'red' in prog_lower %}exclamation-triangle-fill{% elif 'edu' in prog_lower %}mortarboard-fill{% else %}file-earmark-fill{% endif %}"></i>
+      </div>
+
+      <div class="score-prog">
         {{ program }}
       </div>
 
@@ -385,8 +581,10 @@
 
       <span class="score-lbl">Mean Absolute Error (MAE)</span>
       <span class="score-ci{% if score.has_interval %} has-ci{% endif %}">
-        {% if score.has_interval %}<i class="bi bi-shield-check"></i> 90% confidence interval
-        {% else %}<i class="bi bi-hourglass-split"></i> Needs more months for a confidence range
+        {% if score.has_interval %}
+          <i class="bi bi-shield-check"></i> 90% confidence interval
+        {% else %}
+          <i class="bi bi-hourglass-split"></i> Needs more months for CI
         {% endif %}
       </span>
     </div>
@@ -394,28 +592,31 @@
     {% endfor %}
   </div>
 
-  <!-- Chart + Summary -->
+
+  {# ── Chart + Summary table ── #}
   <div class="row g-3 mb-0">
 
     <div class="col-12 col-lg-7">
-      <div class="sec-card dk-reveal" style="height:100%;">
-        <div class="sec-bar blue">
-          <span class="sec-bar-dot dot-teal"></span>
-          <i class="bi bi-bar-chart-fill"></i> 3-Year Forecast Overview
+      <div class="card reveal">
+        <div class="card-header">
+          <div class="card-header-dot dot-teal"></div>
+          <i class="bi bi-bar-chart-fill"></i>
+          3-Year Forecast Overview
         </div>
-        <div class="sec-body" style="min-height:300px;">
+        <div class="card-body" style="min-height:300px;">
           <canvas id="forecastChart" style="width:100%;"></canvas>
         </div>
       </div>
     </div>
 
     <div class="col-12 col-lg-5">
-      <div class="sec-card dk-reveal" style="height:100%;">
-        <div class="sec-bar yellow">
-          <span class="sec-bar-dot dot-amber"></span>
-          <i class="bi bi-table"></i> Combined 3-Year Summary
+      <div class="card reveal">
+        <div class="card-header">
+          <div class="card-header-dot dot-amber"></div>
+          <i class="bi bi-table"></i>
+          Combined 3-Year Summary
         </div>
-        <div class="sec-body" style="padding:0;">
+        <div class="card-body-flush">
           <div class="table-responsive">
             <table class="fc-table">
               <thead>
@@ -434,9 +635,9 @@
                   <td>
                     <span class="prog-badge
                       {% if 'aics' in prog_lower %}pb-aics
-                      {% elif 'sea' in prog_lower %}pb-sea
-                      {% elif 'red' in prog_lower %}pb-redcard
-                      {% elif 'edu' in prog_lower %}pb-edu
+                      {% elif 'sea'  in prog_lower %}pb-sea
+                      {% elif 'red'  in prog_lower %}pb-redcard
+                      {% elif 'edu'  in prog_lower %}pb-edu
                       {% else %}pb-other{% endif %}">
                       {{ program }}
                     </span>
@@ -457,27 +658,28 @@
 
   </div>
 
-  <!-- Monthly Forecast Detail -->
-  <div class="dk-section-bar dk-reveal" style="margin-top:1.5rem;">
-    <span class="sec-bar-dot dot-indigo"></span>
+
+  {# ── Monthly detail section ── #}
+  <div class="sec-label" style="margin-top:28px;">
     <i class="bi bi-calendar3-range"></i> Monthly Forecast Detail — All Programs
   </div>
-  <p style="font-family:var(--font-mono); font-size:0.68rem; color:var(--dk-dim); margin:8px 2px 1rem;">
+
+  <p class="hint-text">
     The number shown is the expected monthly count. Where a program has at least 3 months of
-    history, a range in dimmer text (e.g. <span style="color:var(--dk-hi);">12 <span class="fp-range" style="margin-left:0;">4-20</span></span>) is also shown —
-    that's the 90% confidence interval, i.e. the model's honest best-and-worst-case range, not just the single-number guess.
+    history, a range in dimmer text (e.g. <span class="hint-val">12 <span class="fp-range" style="margin-left:0;">4–20</span></span>) is also shown —
+    that's the 90% confidence interval, the model's honest best-and-worst-case range.
   </p>
 
   <div class="forecast-grid">
     {% for program, forecast in forecasts.items %}
     {% with prog_lower=program|lower %}
 
-    <div class="forecast-prog-card dk-reveal">
+    <div class="forecast-prog-card reveal">
       <div class="fp-header
         {% if 'aics' in prog_lower %}aics
-        {% elif 'sea' in prog_lower %}sea
-        {% elif 'red' in prog_lower %}redcard
-        {% elif 'edu' in prog_lower %}edu
+        {% elif 'sea'  in prog_lower %}sea
+        {% elif 'red'  in prog_lower %}redcard
+        {% elif 'edu'  in prog_lower %}edu
         {% else %}other{% endif %}">
         <span>
           <i class="bi bi-{% if 'aics' in prog_lower %}heart-pulse-fill{% elif 'sea' in prog_lower %}briefcase-fill{% elif 'red' in prog_lower %}exclamation-triangle-fill{% elif 'edu' in prog_lower %}mortarboard-fill{% else %}file-earmark-fill{% endif %} me-1"></i>
@@ -485,6 +687,7 @@
         </span>
         <span>{{ forecast|length }} months</span>
       </div>
+
       <div class="fp-body">
         {% with max_val=forecast.0.applications %}
         {% for item in forecast %}
@@ -493,13 +696,15 @@
           <div class="fp-bar-wrap">
             <div class="fp-bar
               {% if 'aics' in prog_lower %}aics
-              {% elif 'sea' in prog_lower %}sea
-              {% elif 'red' in prog_lower %}redcard
-              {% elif 'edu' in prog_lower %}edu
+              {% elif 'sea'  in prog_lower %}sea
+              {% elif 'red'  in prog_lower %}redcard
+              {% elif 'edu'  in prog_lower %}edu
               {% else %}other{% endif %}"
               style="width:{% widthratio item.applications max_val 100 %}%;"></div>
           </div>
-          <span class="fp-val">{{ item.applications }}{% if item.lower != item.applications or item.upper != item.applications %}<span class="fp-range">{{ item.lower }}-{{ item.upper }}</span>{% endif %}</span>
+          <span class="fp-val">
+            {{ item.applications }}{% if item.lower != item.applications or item.upper != item.applications %}<span class="fp-range">{{ item.lower }}–{{ item.upper }}</span>{% endif %}
+          </span>
         </div>
         {% endfor %}
         {% endwith %}
@@ -510,7 +715,8 @@
     {% endfor %}
   </div>
 
-</div><!-- /dk-scope -->
+</div>{# /fc-scope #}
+
 
 {{ summary|json_script:"summary_data" }}
 {{ forecasts|json_script:"forecast_data" }}
@@ -521,36 +727,39 @@
 {% block extra_js %}
 <script>
 setTimeout(function () {
+
   var summaryEl = document.getElementById('summary_data');
   if (!summaryEl) return;
 
   var summary;
   try { summary = JSON.parse(summaryEl.textContent); } catch(e) { return; }
 
-  /* Dark-optimised program colors */
+  /* Program colors — tuned for white bg */
   var PROG = {
-    'AICS':                 { border: '#60a5fa', y1bg: 'rgba(96,165,250,0.15)',  y2bg: 'rgba(96,165,250,0.45)',  y3bg: '#60a5fa' },
-    'SEA':                  { border: '#34d399', y1bg: 'rgba(52,211,153,0.15)',  y2bg: 'rgba(52,211,153,0.45)',  y3bg: '#34d399' },
-    'REDCARD':              { border: '#f87171', y1bg: 'rgba(248,113,113,0.15)', y2bg: 'rgba(248,113,113,0.45)', y3bg: '#f87171' },
-    'Red Card':             { border: '#f87171', y1bg: 'rgba(248,113,113,0.15)', y2bg: 'rgba(248,113,113,0.45)', y3bg: '#f87171' },
-    'EDUCATIONAL':          { border: '#f59e0b', y1bg: 'rgba(245,158,11,0.15)',  y2bg: 'rgba(245,158,11,0.45)',  y3bg: '#f59e0b' },
-    'Educational':          { border: '#f59e0b', y1bg: 'rgba(245,158,11,0.15)',  y2bg: 'rgba(245,158,11,0.45)',  y3bg: '#f59e0b' },
-    'Educational Assistance':{ border: '#f59e0b', y1bg: 'rgba(245,158,11,0.15)', y2bg: 'rgba(245,158,11,0.45)',  y3bg: '#f59e0b' },
+    'AICS':                  { border: '#2563eb', y1bg: 'rgba(37,99,235,0.10)',  y2bg: 'rgba(37,99,235,0.35)',  y3bg: '#2563eb' },
+    'SEA':                   { border: '#16a34a', y1bg: 'rgba(22,163,74,0.10)',  y2bg: 'rgba(22,163,74,0.35)',  y3bg: '#16a34a' },
+    'REDCARD':               { border: '#e11d48', y1bg: 'rgba(225,29,72,0.10)',  y2bg: 'rgba(225,29,72,0.35)',  y3bg: '#e11d48' },
+    'Red Card':              { border: '#e11d48', y1bg: 'rgba(225,29,72,0.10)',  y2bg: 'rgba(225,29,72,0.35)',  y3bg: '#e11d48' },
+    'EDUCATIONAL':           { border: '#d97706', y1bg: 'rgba(217,119,6,0.10)',  y2bg: 'rgba(217,119,6,0.35)',  y3bg: '#d97706' },
+    'Educational':           { border: '#d97706', y1bg: 'rgba(217,119,6,0.10)',  y2bg: 'rgba(217,119,6,0.35)',  y3bg: '#d97706' },
+    'Educational Assistance':{ border: '#d97706', y1bg: 'rgba(217,119,6,0.10)',  y2bg: 'rgba(217,119,6,0.35)',  y3bg: '#d97706' },
   };
 
   function getP(prog) {
     for (var k in PROG) {
       if (prog.toUpperCase().indexOf(k.toUpperCase()) !== -1) return PROG[k];
     }
-    return { border: '#a78bfa', y1bg: 'rgba(167,139,250,0.15)', y2bg: 'rgba(167,139,250,0.45)', y3bg: '#a78bfa' };
+    return { border: '#7c3aed', y1bg: 'rgba(124,58,237,0.10)', y2bg: 'rgba(124,58,237,0.35)', y3bg: '#7c3aed' };
   }
 
   var TOOLTIP = {
-    backgroundColor: 'rgba(11,15,23,0.96)',
-    titleFont: { family: "'Montserrat',sans-serif", size: 11, weight: '700' },
+    backgroundColor: 'rgba(15,29,56,0.94)',
+    titleFont: { family: "'DM Sans',sans-serif", size: 11, weight: '700' },
     bodyFont:  { family: "'DM Mono',monospace", size: 11 },
+    titleColor: '#ffffff',
+    bodyColor:  '#c8ddef',
     padding: 10, cornerRadius: 8,
-    borderColor: '#1f2d42', borderWidth: 1,
+    borderColor: '#d0d9ef', borderWidth: 1,
   };
 
   var canvas = document.getElementById('forecastChart');
@@ -560,6 +769,11 @@ setTimeout(function () {
   var y1 = programs.map(function(p){ return summary[p].year1; });
   var y2 = programs.map(function(p){ return summary[p].year2; });
   var y3 = programs.map(function(p){ return summary[p].year3; });
+
+  Chart.defaults.color       = '#8a9ab8';
+  Chart.defaults.borderColor = '#e4e9f5';
+  Chart.defaults.font.family = "'DM Mono', monospace";
+  Chart.defaults.font.size   = 11;
 
   new Chart(canvas, {
     type: 'bar',
@@ -595,7 +809,7 @@ setTimeout(function () {
         legend: {
           display: true, position: 'top',
           labels: {
-            color: '#8facc8',
+            color: '#4a5a7a',
             font: { family: "'DM Mono',monospace", size: 10 },
             padding: 14, usePointStyle: true, pointStyle: 'rectRounded',
           }
@@ -605,25 +819,25 @@ setTimeout(function () {
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: '#4f6a8a', font: { family: "'DM Mono',monospace", size: 10 } }
+          ticks: { color: '#8a9ab8', font: { family: "'DM Mono',monospace", size: 10 } }
         },
         y: {
           beginAtZero: true,
-          grid: { color: 'rgba(31,45,66,0.7)' },
-          ticks: { color: '#4f6a8a', font: { family: "'DM Mono',monospace", size: 10 }, maxTicksLimit: 6 }
+          grid: { color: '#e4e9f566' },
+          ticks: { color: '#8a9ab8', font: { family: "'DM Mono',monospace", size: 10 }, maxTicksLimit: 6 }
         }
       }
     }
   });
 
-  /* ── Scroll reveal ── */
+  /* Scroll reveal */
   var obs = new IntersectionObserver(function(entries) {
     entries.forEach(function(e) {
       if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
     });
-  }, { threshold: 0.08 });
+  }, { threshold: 0.07 });
 
-  document.querySelectorAll('.dk-reveal').forEach(function(el) { obs.observe(el); });
+  document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
 
 }, 0);
 </script>
