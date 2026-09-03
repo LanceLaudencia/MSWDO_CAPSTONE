@@ -1,2 +1,2 @@
 [start]
-cmd = "gunicorn MSWDO.wsgi:application --bind 0.0.0.0:3000"
+cmd = "gunicorn mswdo.wsgi:application --bind 0.0.0.0:3000"
