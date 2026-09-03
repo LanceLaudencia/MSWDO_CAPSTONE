@@ -82,9 +82,10 @@
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: .62rem;
-    letter-spacing: .1em;
+    font-weight: 600;
+    letter-spacing: .08em;
     text-transform: uppercase;
     color: var(--blue);
     background: var(--blue-pale);
@@ -94,20 +95,21 @@
     margin-bottom: 10px;
   }
   .pg-title {
-    font-family: var(--font-display);
-    font-size: 2rem;
-    font-weight: 400;
+    font-family: var(--font-body);
+    font-size: 1.9rem;
+    font-weight: 800;
     color: var(--ink);
-    letter-spacing: -.02em;
-    line-height: 1.15;
+    letter-spacing: -.03em;
+    line-height: 1.1;
     margin: 0 0 6px;
   }
   .pg-title em {
-    font-style: italic;
+    font-style: normal;
     color: var(--blue);
   }
   .pg-subtitle {
     font-size: .88rem;
+    font-weight: 500;
     color: var(--ink-muted);
   }
 
@@ -167,19 +169,20 @@
   .kc-green  .kpi-icon-wrap { background: var(--green-pale);  color: var(--green);  }
 
   .kpi-val {
-    font-family: var(--font-display);
-    font-size: 2.1rem;
-    font-weight: 400;
+    font-family: var(--font-body);
+    font-size: 2.2rem;
+    font-weight: 800;
     color: var(--ink);
     line-height: 1;
     margin-bottom: 4px;
-    letter-spacing: -.02em;
+    letter-spacing: -.04em;
   }
   .kpi-lbl {
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: .62rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: .09em;
+    letter-spacing: .08em;
     color: var(--ink-muted);
   }
 
@@ -189,11 +192,12 @@
     align-items: center;
     gap: 10px;
     margin: 32px 0 16px;
-    font-family: var(--font-mono);
-    font-size: .63rem;
+    font-family: var(--font-body);
+    font-size: .72rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .12em;
-    color: var(--ink-muted);
+    letter-spacing: .1em;
+    color: var(--ink-soft);
   }
   .sec-label i { color: var(--blue); }
   .sec-label::after {
@@ -218,10 +222,11 @@
 
   .card-title {
     font-family: var(--font-body);
-    font-size: .88rem;
-    font-weight: 700;
+    font-size: .95rem;
+    font-weight: 800;
     color: var(--ink);
     margin-bottom: 2px;
+    letter-spacing: -.01em;
   }
   .card-sub {
     font-family: var(--font-mono);
@@ -279,11 +284,12 @@
   .dk-table { width: 100%; border-collapse: collapse; }
   .dk-table th {
     text-align: left;
-    font-family: var(--font-mono);
-    font-size: .6rem;
+    font-family: var(--font-body);
+    font-size: .65rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .1em;
-    color: var(--ink-muted);
+    letter-spacing: .07em;
+    color: var(--ink-soft);
     padding: 0 12px 10px;
     border-bottom: 1.5px solid var(--border);
   }
@@ -333,9 +339,9 @@
   }
   .mono-val {
     font-family: var(--font-mono);
-    font-size: .73rem;
+    font-size: .75rem;
     color: var(--ink);
-    font-weight: 500;
+    font-weight: 700;
     min-width: 30px;
     text-align: right;
   }
@@ -427,17 +433,19 @@
 
   .insight-bgy-name {
     font-family: var(--font-body);
-    font-size: .92rem;
-    font-weight: 700;
+    font-size: .95rem;
+    font-weight: 800;
     color: var(--ink);
     margin-bottom: 2px;
     display: flex;
     align-items: center;
     gap: 6px;
+    letter-spacing: -.01em;
   }
   .insight-bgy-sub {
     font-family: var(--font-mono);
     font-size: .6rem;
+    font-weight: 500;
     color: var(--ink-muted);
     text-transform: uppercase;
     letter-spacing: .07em;
@@ -456,17 +464,18 @@
   }
   .insight-dominant-left { flex: 1; }
   .insight-dominant-label {
-    font-family: var(--font-mono);
-    font-size: .58rem;
+    font-family: var(--font-body);
+    font-size: .6rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: .09em;
+    letter-spacing: .08em;
     color: var(--ink-muted);
     margin-bottom: 4px;
   }
   .insight-pct-pill {
     font-family: var(--font-mono);
-    font-size: .7rem;
-    font-weight: 600;
+    font-size: .72rem;
+    font-weight: 700;
     background: rgba(13,148,136,.1);
     color: var(--teal);
     border: 1px solid rgba(13,148,136,.25);
@@ -483,21 +492,24 @@
     margin-bottom: 10px;
   }
   .insight-reason-label {
-    font-family: var(--font-mono);
-    font-size: .58rem;
+    font-family: var(--font-body);
+    font-size: .6rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: .09em;
+    letter-spacing: .08em;
     color: var(--ink-muted);
     margin-bottom: 3px;
   }
   .insight-reason-text {
-    font-size: .83rem;
+    font-size: .86rem;
     color: var(--ink);
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: -.01em;
   }
   .insight-reason-count {
     font-family: var(--font-mono);
-    font-size: .66rem;
+    font-size: .68rem;
+    font-weight: 500;
     color: var(--violet);
     margin-top: 2px;
   }

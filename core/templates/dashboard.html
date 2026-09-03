@@ -98,23 +98,24 @@
   .pg-header-left { position: relative; z-index: 1; }
 
   .pg-title {
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 400;
+    font-family: var(--font-body);
+    font-size: 1.35rem;
+    font-weight: 800;
     color: var(--ink);
-    letter-spacing: -.02em;
+    letter-spacing: -.03em;
     line-height: 1.15;
     margin-bottom: 3px;
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  .pg-title em { font-style: italic; color: var(--blue); }
-  .pg-title i  { color: var(--teal); font-size: 1.2rem; }
+  .pg-title em { font-style: normal; color: var(--blue); }
+  .pg-title i  { color: var(--teal); font-size: 1.15rem; }
 
   .pg-sub {
     font-family: var(--font-mono);
     font-size: .65rem;
+    font-weight: 500;
     color: var(--ink-muted);
     text-transform: uppercase;
     letter-spacing: .09em;
@@ -225,17 +226,18 @@
   .sc-green:hover  { border-color: rgba(22,163,74,.28); }
 
   .stat-val {
-    font-family: var(--font-display);
-    font-size: 2.1rem;
-    font-weight: 400;
+    font-family: var(--font-body);
+    font-size: 2.2rem;
+    font-weight: 800;
     color: var(--ink);
     line-height: 1;
     margin-bottom: 4px;
-    letter-spacing: -.02em;
+    letter-spacing: -.04em;
   }
   .stat-lbl {
     font-family: var(--font-mono);
     font-size: .62rem;
+    font-weight: 500;
     color: var(--ink-muted);
     text-transform: uppercase;
     letter-spacing: .09em;
@@ -275,16 +277,17 @@
     box-shadow: var(--sh-sm);
   }
   .pipe-count {
-    font-family: var(--font-display);
-    font-size: 1.75rem;
-    font-weight: 400;
+    font-family: var(--font-body);
+    font-size: 1.8rem;
+    font-weight: 800;
     color: var(--ink);
     line-height: 1;
-    letter-spacing: -.02em;
+    letter-spacing: -.04em;
   }
   .pipe-lbl {
     font-family: var(--font-mono);
     font-size: .58rem;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: .09em;
     color: var(--ink-muted);
@@ -297,11 +300,12 @@
     align-items: center;
     gap: 10px;
     margin: 28px 0 14px;
-    font-family: var(--font-mono);
-    font-size: .62rem;
+    font-family: var(--font-body);
+    font-size: .72rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .12em;
-    color: var(--ink-muted);
+    letter-spacing: .1em;
+    color: var(--ink-soft);
   }
   .sec-label i { color: var(--blue); }
   .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
@@ -319,13 +323,14 @@
 
   .card-title {
     font-family: var(--font-body);
-    font-size: .88rem;
-    font-weight: 700;
+    font-size: .95rem;
+    font-weight: 800;
     color: var(--ink);
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 2px;
+    letter-spacing: -.01em;
   }
   .card-sub {
     font-family: var(--font-mono);
@@ -380,12 +385,13 @@
   }
   .table-card-title {
     font-family: var(--font-body);
-    font-size: .88rem;
-    font-weight: 700;
+    font-size: .95rem;
+    font-weight: 800;
     color: var(--ink);
     display: flex;
     align-items: center;
     gap: 8px;
+    letter-spacing: -.01em;
   }
   .table-card-title i { color: var(--teal); }
 
@@ -401,11 +407,12 @@
 
   .dk-tbl { width: 100%; border-collapse: collapse; font-size: .84rem; }
   .dk-tbl thead th {
-    font-family: var(--font-mono);
-    font-size: .6rem;
+    font-family: var(--font-body);
+    font-size: .65rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .09em;
-    color: var(--ink-muted);
+    letter-spacing: .07em;
+    color: var(--ink-soft);
     padding: 10px 16px;
     border-bottom: 1.5px solid var(--border);
     text-align: left;
@@ -497,6 +504,18 @@
   }
   .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 10px; }
   .empty-state p { font-family: var(--font-mono); font-size: .75rem; }
+
+  /* ─── Chart container ─── */
+  .chart-box {
+    position: relative;
+    width: 100%;
+  }
+  .chart-box canvas {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+  }
 
   /* ─── Scroll reveal ─── */
   .reveal {
@@ -602,7 +621,7 @@
         <span class="badge badge-teal">Active</span>
       </div>
       <div class="card-sub">Applications by assistance category</div>
-      <canvas id="barChart" height="120"></canvas>
+      <div class="chart-box" style="height:220px;"><canvas id="barChart"></canvas></div>
     </div>
 
     <div class="card reveal">
@@ -614,7 +633,7 @@
         <span class="badge badge-sky">Live</span>
       </div>
       <div class="card-sub">Application status breakdown</div>
-      <canvas id="doughnutChart" height="140"></canvas>
+      <div class="chart-box" style="height:220px;"><canvas id="doughnutChart"></canvas></div>
     </div>
   </div>
 
@@ -625,7 +644,7 @@
         Eligibility Overview
       </div>
       <div class="card-sub">Eligible vs. Not Eligible results</div>
-      <canvas id="eligibilityChart" height="120"></canvas>
+      <div class="chart-box" style="height:200px;"><canvas id="eligibilityChart"></canvas></div>
     </div>
 
     <div class="card reveal">
@@ -637,7 +656,7 @@
         <span class="badge badge-green">Trending</span>
       </div>
       <div class="card-sub">Monthly registration trend</div>
-      <canvas id="lineChart" height="90"></canvas>
+      <div class="chart-box" style="height:200px;"><canvas id="lineChart"></canvas></div>
     </div>
   </div>
 
@@ -651,7 +670,7 @@
         <span class="badge badge-violet">Clients</span>
       </div>
       <div class="card-sub">Registered client sex breakdown</div>
-      <canvas id="sexChart" height="140"></canvas>
+      <div class="chart-box" style="height:220px;"><canvas id="sexChart"></canvas></div>
     </div>
 
     <div class="card reveal">
@@ -663,7 +682,7 @@
         <span class="badge badge-amber">Sectors</span>
       </div>
       <div class="card-sub">Socio-economic sector classification</div>
-      <canvas id="sectorChart" height="140"></canvas>
+      <div class="chart-box" style="height:220px;"><canvas id="sectorChart"></canvas></div>
     </div>
   </div>
 
@@ -828,7 +847,7 @@
         }]
       },
       options: {
-        responsive: true, maintainAspectRatio: true,
+        responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: TOOLTIP },
         scales: {
           x: { grid: { display: false }, ticks: { color: '#8a9ab8', font: { size: 10 } } },
@@ -865,7 +884,7 @@
         }]
       },
       options: {
-        cutout: '65%', responsive: true, maintainAspectRatio: true,
+        cutout: '65%', responsive: true, maintainAspectRatio: false,
         plugins: {
           legend: {
             position: 'bottom',
@@ -913,7 +932,7 @@
         }]
       },
       options: {
-        responsive: true, maintainAspectRatio: true,
+        responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: TOOLTIP },
         scales: {
           x: { grid: { display: false }, ticks: { color: '#8a9ab8' } },
@@ -945,7 +964,7 @@
         }]
       },
       options: {
-        responsive: true, maintainAspectRatio: true,
+        responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: TOOLTIP },
         scales: {
           x: { grid: { display: false }, ticks: { color: '#8a9ab8', font: { size: 10 } } },
@@ -973,7 +992,7 @@
         }]
       },
       options: {
-        responsive: true, maintainAspectRatio: true,
+        responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: TOOLTIP },
         scales: {
           x: { grid: { display: false }, ticks: { color: '#8a9ab8', font: { size: 11, weight: '600' } } },
@@ -999,7 +1018,7 @@
         }]
       },
       options: {
-        cutout: '60%', responsive: true, maintainAspectRatio: true,
+        cutout: '60%', responsive: true, maintainAspectRatio: false,
         plugins: {
           legend: {
             position: 'bottom',
