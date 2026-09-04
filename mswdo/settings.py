@@ -14,10 +14,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'testsecretkey123'  # move to env in production
 DEBUG = True
 ALLOWED_HOSTS = [
-     "localhost",
+    "localhost",
     "127.0.0.1",
-    "mswdo.ormin.cloud",
-    ]
+    "mswdo.ormin.cloud",]
 
 
 # ======================
@@ -109,15 +108,13 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mswdo_db',
+        'NAME': 'mswdo-db',
         'USER': 'mswdo_user',
         'PASSWORD': 'MSWDO_Password123',
         'HOST': 'mswdo-database-4hecyw',
         'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',
-            
-        
         },
     }
 }
