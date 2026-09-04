@@ -13,7 +13,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ======================
 SECRET_KEY = 'testsecretkey123'  # move to env in production
 DEBUG = True
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+     "localhost",
+    "127.0.0.1",
+    "mswdo.ormin.cloud",
+    ]
 
 
 # ======================
@@ -65,6 +69,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5178",
+    "https://mswdo.ormin.cloud",
 ]
 
 

@@ -198,8 +198,13 @@
     .announcement-content{padding:22px 24px 26px;}
     .announcement-content h3{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:10px;}
     .announcement-content p{font-size:.86rem;color:var(--text);line-height:1.7;margin-bottom:16px;}
+    .announcement-more{max-height:0;opacity:0;overflow:hidden;transition:max-height .45s ease,opacity .35s ease,margin-top .45s ease;}
+    .announcement-more p{font-size:.86rem;color:var(--text);line-height:1.7;margin-bottom:0;}
+    .announcement-more.open{max-height:400px;opacity:1;margin-top:-4px;margin-bottom:16px;}
     .read-more-btn{display:inline-flex;align-items:center;gap:6px;font-family:'Montserrat',sans-serif;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue);background:transparent;transition:var(--transition);}
     .read-more-btn:hover{gap:10px;color:var(--red);}
+    .read-more-btn i{transition:transform .3s ease;}
+    .read-more-btn.open i{transform:rotate(90deg);}
 
     .section-contact{background:var(--bg);}
     .contact-wrapper{max-width:860px;margin:0 auto;}
@@ -264,8 +269,38 @@
       .footer-top{grid-template-columns:1fr 1fr;gap:36px;}
     }
     @media(max-width:768px){
-      .nav-menu{display:none;}
-      .mobile-menu-toggle{display:block;}
+      .navbar{position:relative;}
+      .nav-menu{
+        display:flex;
+        flex-direction:column;
+        align-items:stretch;
+        gap:0;
+        position:absolute;
+        top:calc(100% + 14px);
+        left:16px;
+        right:16px;
+        background:white;
+        border:1px solid var(--border);
+        border-radius:12px;
+        box-shadow:0 18px 40px rgba(0,40,130,0.16);
+        padding:0 20px;
+        max-height:0;
+        overflow:hidden;
+        opacity:0;
+        pointer-events:none;
+        transition:max-height .35s ease,opacity .25s ease,padding .35s ease;
+      }
+      .nav-menu.active{
+        max-height:420px;
+        opacity:1;
+        padding:10px 20px;
+        pointer-events:auto;
+      }
+      .nav-menu li{width:100%;}
+      .nav-menu .nav-link{display:block;padding:13px 2px;border-bottom:1px solid var(--border);font-size:.8rem;}
+      .nav-menu li:last-child .nav-link{border-bottom:none;}
+      .nav-menu .nav-link::after{display:none;}
+      .mobile-menu-toggle{display:flex;align-items:center;justify-content:center;width:40px;height:40px;}
       .hero h1{font-size:2.2rem;}
       .hero-buttons{flex-direction:column;width:100%;}
       .btn-hero-primary,.btn-hero-secondary,.btn-hero-apply{width:100%;justify-content:center;}
@@ -461,15 +496,36 @@
       <div class="announcements-grid">
         <div class="announcement-card fade-in">
           <div class="announcement-image"><img src="{% static 'images/dswd-relief-operations.jpg' %}" alt="Disaster Relief" /><div class="announcement-badge">Relief</div></div>
-          <div class="announcement-content"><h3>Disaster Relief Operations</h3><p>Distribution of relief goods to families affected by calamities and emergencies across the municipality.</p><button class="read-more-btn">Read More <i class="bi bi-arrow-right"></i></button></div>
+          <div class="announcement-content">
+            <h3>Disaster Relief Operations</h3>
+            <p>Distribution of relief goods to families affected by calamities and emergencies across the municipality.</p>
+            <div class="announcement-more">
+              <p>Relief packs — rice, canned goods, hygiene kits, and drinking water — are pre-positioned in every barangay ahead of typhoon season and released within 24 hours of a disaster declaration. MSWDO coordinates with the Municipal Disaster Risk Reduction and Management Office to identify affected households, prioritize senior citizens, persons with disabilities, and families with infants, and set up temporary evacuation support. Residents can report unreached areas through the barangay social welfare desk or the office hotline.</p>
+            </div>
+            <button class="read-more-btn" aria-expanded="false">Read More <i class="bi bi-arrow-right"></i></button>
+          </div>
         </div>
         <div class="announcement-card fade-in">
           <div class="announcement-image"><img src="{% static 'images/supplementary-feeding-program.jpg' %}" alt="Feeding Program" /><div class="announcement-badge">Nutrition</div></div>
-          <div class="announcement-content"><h3>Supplementary Feeding Program</h3><p>Improving child nutrition through community-based feeding activities and health monitoring.</p><button class="read-more-btn">Read More <i class="bi bi-arrow-right"></i></button></div>
+          <div class="announcement-content">
+            <h3>Supplementary Feeding Program</h3>
+            <p>Improving child nutrition through community-based feeding activities and health monitoring.</p>
+            <div class="announcement-more">
+              <p>Daycare centers across the municipality run a 120-day feeding cycle for undernourished children ages 2 to 5, with meals planned by a nutritionist and served alongside regular weighing and height monitoring. Parents receive basic nutrition education, and children who stay underweight after the cycle are referred to the Rural Health Unit for further assessment. Barangay nutrition scholars help track attendance and progress at each site.</p>
+            </div>
+            <button class="read-more-btn" aria-expanded="false">Read More <i class="bi bi-arrow-right"></i></button>
+          </div>
         </div>
         <div class="announcement-card fade-in">
           <div class="announcement-image"><img src="{% static 'images/community.jpg' %}" alt="Community Development" /><div class="announcement-badge">Development</div></div>
-          <div class="announcement-content"><h3>Community Development Programs</h3><p>Capacity-building and empowerment activities for barangays and various community sectors.</p><button class="read-more-btn">Read More <i class="bi bi-arrow-right"></i></button></div>
+          <div class="announcement-content">
+            <h3>Community Development Programs</h3>
+            <p>Capacity-building and empowerment activities for barangays and various community sectors.</p>
+            <div class="announcement-more">
+              <p>Ongoing initiatives include leadership training for barangay council members, livelihood seminars for women's and senior citizens' associations, and organizing support for people's organizations seeking accreditation. MSWDO also facilitates values-formation sessions for out-of-school youth and coordinates with barangay officials to identify sectors most in need of program support each quarter.</p>
+            </div>
+            <button class="read-more-btn" aria-expanded="false">Read More <i class="bi bi-arrow-right"></i></button>
+          </div>
         </div>
       </div>
     </div>
@@ -614,6 +670,20 @@
         });
       });
     }
+
+    document.querySelectorAll(".read-more-btn").forEach(btn => {
+      const more = btn.previousElementSibling;
+      if (!more || !more.classList.contains("announcement-more")) return;
+      const label = btn.querySelector("span") || btn;
+      const textNode = Array.from(btn.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+      btn.addEventListener("click", () => {
+        const isOpen = more.classList.toggle("open");
+        btn.classList.toggle("open", isOpen);
+        btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        if (textNode) textNode.textContent = isOpen ? "Read Less " : "Read More ";
+        btn.querySelector("i").className = isOpen ? "bi bi-arrow-up" : "bi bi-arrow-right";
+      });
+    });
 
     document.querySelectorAll("img").forEach(img => {
       img.addEventListener("error", function() {
