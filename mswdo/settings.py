@@ -110,12 +110,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mswdo_db',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
+        'USER': 'mswdo_user',
+        'PASSWORD': 'MSWDO_Password123',
+        'HOST': 'mswdo-database-4hecyw',
         'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',
+            
+        
         },
     }
 }
