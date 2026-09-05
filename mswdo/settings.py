@@ -108,17 +108,16 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mswdo-db',
-        'USER': 'mswdo_user',
-        'PASSWORD': 'MSWDO_Password123',
-        'HOST': 'mswdo-database-4hecyw',
-        'PORT': '3306',
+        'NAME': os.environ.get('mswdo-db'),
+        'USER': os.environ.get('mswdo_user'),
+        'PASSWORD': os.environ.get('MSWDO_Password123'),
+        'HOST': os.environ.get('mswdo-database-4hecyw'),
+        'PORT': os.environ.get('3306', '3306'),
         'OPTIONS': {
             'charset': 'utf8mb4',
-        },
     }
 }
-
+}
 
 
 # ======================
