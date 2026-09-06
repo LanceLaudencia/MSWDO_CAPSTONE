@@ -5,4 +5,4 @@ nixLibs = ["...", "zlib"]
 cmds = ["echo $LD_LIBRARY_PATH"]
 
 [start]
-cmd = "gunicorn mswdo.wsgi:application --bind 0.0.0.0:3000"
+cmd = "LD_LIBRARY_PATH=$(dirname $(find /nix/store -name 'libz.so.1' -type l -print -quit)):$LD_LIBRARY_PATH gunicorn mswdo.wsgi:application --bind 0.0.0.0:3000"
