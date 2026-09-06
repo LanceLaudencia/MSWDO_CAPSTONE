@@ -1,5 +1,8 @@
 [phases.setup]
 nixLibs = ["...", "zlib"]
 
+[phases.build]
+cmds = ["echo $LD_LIBRARY_PATH"]
+
 [start]
 cmd = "gunicorn mswdo.wsgi:application --bind 0.0.0.0:3000"
