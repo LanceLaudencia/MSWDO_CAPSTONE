@@ -1753,434 +1753,610 @@ from urllib.parse import quote   # add this import near the top of views.py if n
  
  
 def client_register(request):
-    if request.method == "POST":
-        password = request.POST.get("password")
-        password2 = request.POST.get("confirm_password")
+    if request.method != "POST":
+        return render(request, "client_register.html")
 
-        if password != password2:
-            messages.error(request, "Passwords do not match.")
-            return render(request, "client_register.html")
+    # ==========================================================
+    # BASIC ACCOUNT VALIDATION
+    # ==========================================================
 
-        email = (request.POST.get("email") or "").strip().lower()
+    password = request.POST.get("password") or ""
+    password2 = request.POST.get("confirm_password") or ""
 
-        if not email:
-            messages.error(request, "Email address is required.")
+    if password != password2:
+        messages.error(request, "Passwords do not match.")
+        return render(request, "client_register.html")
+
+    if not password:
+        messages.error(request, "Password is required.")
+        return render(request, "client_register.html")
+
+    email = (request.POST.get("email") or "").strip().lower()
+
+    if not email:
+        messages.error(request, "Email address is required.")
+        return render(request, "client_register.html")
+
+    # ==========================================================
+    # DUPLICATE EMAIL CHECK
+    # ==========================================================
+
+    if (
+        Client.objects.filter(email__iexact=email).exists()
+        or ClientAccount.objects.filter(email__iexact=email).exists()
+    ):
+        messages.error(request, "This email is already registered.")
+        return render(request, "client_register.html")
+
+    try:
+        # ==========================================================
+        # FORM DATA
+        # ==========================================================
+
+        first_name = (
+            request.POST.get("first_name") or ""
+        ).strip()
+
+        middle_name = (
+            request.POST.get("middle_name") or ""
+        ).strip()
+
+        last_name = (
+            request.POST.get("last_name") or ""
+        ).strip()
+
+        if not first_name or not last_name:
+            messages.error(
+                request,
+                "First name and last name are required."
+            )
             return render(request, "client_register.html")
 
         # ==========================================================
-        # DUPLICATE CHECK
+        # SEX
+        # ==========================================================
+        # Client.sex is VARCHAR(10).
+        # The registration form uses Male / Female.
         # ==========================================================
 
-        if (
-            Client.objects.filter(email__iexact=email).exists()
-            or ClientAccount.objects.filter(email__iexact=email).exists()
-        ):
-            messages.error(request, "This email is already registered.")
+        raw_sex = (
+            request.POST.get("sex") or ""
+        ).strip()
+
+        sex_map = {
+            "male": "Male",
+            "female": "Female",
+            "m": "Male",
+            "f": "Female",
+        }
+
+        sex = sex_map.get(
+            raw_sex.lower(),
+            raw_sex
+        )
+
+        if sex not in ["Male", "Female"]:
+            messages.error(
+                request,
+                "Please select Male or Female for sex."
+            )
+            return render(request, "client_register.html")
+
+        # ==========================================================
+        # PERSONAL INFORMATION
+        # ==========================================================
+
+        birth_date = (
+            request.POST.get("dob") or None
+        )
+
+        civil_status = (
+            request.POST.get("civil_status") or ""
+        ).strip()
+
+        nationality = (
+            request.POST.get("nationality") or "Filipino"
+        ).strip()
+
+        # ==========================================================
+        # ADDRESS
+        # ==========================================================
+
+        address = (
+            request.POST.get("address") or ""
+        ).strip()
+
+        barangay = (
+            request.POST.get("barangay") or ""
+        ).strip()
+
+        municipality = (
+            request.POST.get("municipality") or ""
+        ).strip()
+
+        if not address or not barangay or not municipality:
+            messages.error(
+                request,
+                "Complete address information is required."
+            )
+            return render(request, "client_register.html")
+
+        # ==========================================================
+        # CONTACT
+        # ==========================================================
+
+        contact_no = (
+            request.POST.get("contact_number") or ""
+        ).strip()
+
+        # ==========================================================
+        # LIVELIHOOD / INCOME
+        # ==========================================================
+
+        livelihood = (
+            request.POST.get("livelihood") or ""
+        ).strip()
+
+        income_raw = (
+            request.POST.get("income") or "0"
+        ).strip()
+
+        household_size_raw = (
+            request.POST.get("household_size") or "1"
+        ).strip()
+
+        try:
+            monthly_income = Decimal(income_raw)
+        except (InvalidOperation, ValueError, TypeError):
+            messages.error(
+                request,
+                "Please enter a valid monthly income."
+            )
             return render(request, "client_register.html")
 
         try:
-            # ==========================================================
-            # FORM DATA
-            # ==========================================================
-
-            selected_sectors = request.POST.getlist("selected_sectors")
-
-            # ----------------------------------------------------------
-            # SEX
-            # Production database column is VARCHAR(10).
-            # Normalize common submitted values.
-            # ----------------------------------------------------------
-
-            raw_sex = (request.POST.get("sex") or "").strip()
-
-            sex_map = {
-                "male": "Male",
-                "female": "Female",
-                "m": "Male",
-                "f": "Female",
-                "other": "Other",
-                "non-binary": "Other",
-                "nonbinary": "Other",
-                "prefer not to say": "Other",
-            }
-
-            sex = sex_map.get(
-                raw_sex.lower(),
-                raw_sex
-            )
-
-            # Prevent invalid/empty sex submission
-            if not sex:
-                messages.error(request, "Please select your sex.")
-                return render(request, "client_register.html")
-
-            # Database limit is VARCHAR(10)
-            if len(sex) > 10:
-                messages.error(
-                    request,
-                    "Invalid sex value. Please select Male, Female, or Other."
-                )
-                return render(request, "client_register.html")
-
-            # ----------------------------------------------------------
-            # OTHER PERSONAL STATUS FIELDS
-            # ----------------------------------------------------------
-
-            has_disability = (
-                "Yes"
-                if request.POST.get("has_disability") == "on"
-                else "No"
-            )
-
-            is_senior = (
-                "Yes"
-                if request.POST.get("is_senior") == "on"
-                else "No"
-            )
-
-            previous_aid = (
-                request.POST.get("previous_aid") or "No"
-            ).strip()
-
-            is_solo_parent = (
-                "Yes"
-                if request.POST.get("is_solo_parent") == "on"
-                else "No"
-            )
-
-            is_indigenous = (
-                "Yes"
-                if request.POST.get("is_indigenous") == "on"
-                else "No"
-            )
-
-            is_4ps = (
-                request.POST.get("is_4ps") or "No"
-            ).strip()
-
-            fourps_id = (
-                request.POST.get("fourps_id") or None
-            )
-
-            # ==========================================================
-            # CREATE CLIENT
-            # ==========================================================
-
-            client = Client.objects.create(
-                first_name=(
-                    request.POST.get("first_name") or ""
-                ).strip(),
-
-                middle_name=(
-                    request.POST.get("middle_name") or ""
-                ).strip() or None,
-
-                last_name=(
-                    request.POST.get("last_name") or ""
-                ).strip(),
-
-                sex=sex,
-
-                birth_date=request.POST.get("birth_date"),
-
-                civil_status=(
-                    request.POST.get("civil_status") or ""
-                ).strip(),
-
-                nationality=(
-                    request.POST.get("nationality") or "Filipino"
-                ).strip(),
-
-                address=(
-                    request.POST.get("address") or ""
-                ).strip(),
-
-                barangay=(
-                    request.POST.get("barangay") or ""
-                ).strip(),
-
-                municipality=(
-                    request.POST.get("municipality") or ""
-                ).strip(),
-
-                contact_no=(
-                    request.POST.get("contact_no") or ""
-                ).strip(),
-
-                email=email,
-
-                livelihood=(
-                    request.POST.get("livelihood") or ""
-                ).strip(),
-
-                monthly_income=(
-                    request.POST.get("monthly_income") or 0
-                ),
-
-                household_size=(
-                    request.POST.get("household_size") or 1
-                ),
-
-                sectors=selected_sectors,
-
-                has_disability=has_disability,
-
-                is_senior=is_senior,
-
-                previous_aid=previous_aid,
-
-                is_solo_parent=is_solo_parent,
-
-                is_indigenous=is_indigenous,
-
-                is_4ps=is_4ps,
-
-                fourps_id=fourps_id,
-            )
-
-            # ==========================================================
-            # FAMILY MEMBERS
-            # ==========================================================
-
-            index = 0
-
-            while index <= 50:
-
-                name = request.POST.get(
-                    f"family_name_{index}",
-                    ""
-                ).strip()
-
-                if name:
-
-                    # --------------------------------------------------
-                    # FAMILY MEMBER SEX
-                    # --------------------------------------------------
-
-                    raw_family_sex = (
-                        request.POST.get(
-                            f"family_sex_{index}"
-                        ) or ""
-                    ).strip()
-
-                    family_sex = sex_map.get(
-                        raw_family_sex.lower(),
-                        raw_family_sex
-                    )
-
-                    if len(family_sex) > 10:
-                        family_sex = "Other"
-
-                    if not family_sex:
-                        family_sex = None
-
-                    # --------------------------------------------------
-                    # FAMILY MEMBER CIVIL STATUS
-                    # --------------------------------------------------
-
-                    civil_status_fm = (
-                        request.POST.get(
-                            f"family_cs_{index}"
-                        ) or None
-                    )
-
-                    # --------------------------------------------------
-                    # EDUCATION
-                    # --------------------------------------------------
-
-                    edu_elem = request.POST.get(
-                        f"family_edu_elem_{index}"
-                    )
-
-                    edu_hs = request.POST.get(
-                        f"family_edu_hs_{index}"
-                    )
-
-                    edu_coll = request.POST.get(
-                        f"family_edu_coll_{index}"
-                    )
-
-                    edu_illit = request.POST.get(
-                        f"family_edu_illit_{index}"
-                    )
-
-                    education = (
-                        "Elem"
-                        if edu_elem
-                        else "HS"
-                        if edu_hs
-                        else "Coll/Voc"
-                        if edu_coll
-                        else "Illit"
-                        if edu_illit
-                        else None
-                    )
-
-                    # --------------------------------------------------
-                    # AGE
-                    # --------------------------------------------------
-
-                    raw_age = request.POST.get(
-                        f"family_age_{index}",
-                        ""
-                    ).strip()
-
-                    # --------------------------------------------------
-                    # INCOME
-                    # --------------------------------------------------
-
-                    raw_income = request.POST.get(
-                        f"family_inc_{index}",
-                        ""
-                    ).strip()
-
-                    # --------------------------------------------------
-                    # CREATE FAMILY MEMBER
-                    # --------------------------------------------------
-
-                    FamilyMember.objects.create(
-                        client=client,
-
-                        name=name,
-
-                        age=(
-                            int(raw_age)
-                            if raw_age
-                            else None
-                        ),
-
-                        sex=family_sex,
-
-                        civil_status=civil_status_fm,
-
-                        relationship=(
-                            request.POST.get(
-                                f"family_rel_{index}"
-                            ) or None
-                        ),
-
-                        educational_attainment=education,
-
-                        occupation=(
-                            request.POST.get(
-                                f"family_occ_{index}"
-                            ) or None
-                        ),
-
-                        income=(
-                            Decimal(raw_income)
-                            if raw_income
-                            else None
-                        ),
-                    )
-
-                index += 1
-
-            # ==========================================================
-            # CREATE CLIENT LOGIN ACCOUNT
-            # ==========================================================
-
-            account = ClientAccount.objects.create(
-                client=client,
-                email=email,
-                is_active=False,
-            )
-
-            account.set_password(password)
-
-            # ==========================================================
-            # EMAIL VERIFICATION TOKEN
-            # ==========================================================
-
-            token = get_random_string(48)
-
-            account.verification_token = token
-            account.save()
-
-            # ==========================================================
-            # BUILD VERIFICATION URL
-            # ==========================================================
-
-            verify_url = request.build_absolute_uri(
-                reverse("client_verify")
-                + "?email="
-                + quote(email, safe="")
-                + "&token="
-                + token
-            )
-
-            # ==========================================================
-            # SEND VERIFICATION EMAIL
-            # ==========================================================
-
-            try:
-
-                send_mail(
-                    subject="Verify Your MSWDO Account",
-
-                    message=(
-                        f"Hello {client.first_name},\n\n"
-                        f"Thank you for registering with MSWDO.\n\n"
-                        f"Please click the link below to verify "
-                        f"your email address:\n\n"
-                        f"{verify_url}\n\n"
-                        f"If you did not register, please ignore "
-                        f"this email.\n\n"
-                        f"— MSWDO Team"
-                    ),
-
-                    from_email=settings.EMAIL_HOST_USER,
-
-                    recipient_list=[email],
-
-                    fail_silently=False,
-                )
-
-                email_sent = True
-
-            except Exception as mail_err:
-
-                print(
-                    f"[EMAIL] ❌ FAILED: {mail_err}"
-                )
-
-                email_sent = False
-
-                messages.warning(
-                    request,
-                    "Registration saved but email could not be sent: "
-                    f"{mail_err}",
-                )
-
-            # ==========================================================
-            # REGISTRATION SUCCESS
-            # ==========================================================
-
-            return render(
-                request,
-                "client_register.html",
-                {
-                    "registration_done": True,
-                    "reg_email": email,
-                    "email_sent": email_sent,
-                },
-            )
-
-        except Exception as e:
-
-            import traceback
-
-            traceback.print_exc()
-
+            household_size = int(household_size_raw)
+        except (ValueError, TypeError):
             messages.error(
                 request,
-                f"Registration failed: {e}",
+                "Please enter a valid household size."
+            )
+            return render(request, "client_register.html")
+
+        if household_size <= 0:
+            messages.error(
+                request,
+                "Household size must be greater than zero."
+            )
+            return render(request, "client_register.html")
+
+        # ==========================================================
+        # YES / NO STATUS FIELDS
+        # ==========================================================
+        # IMPORTANT:
+        # Database fields are VARCHAR(3).
+        # Store "Yes" / "No", NOT True / False.
+        # ==========================================================
+
+        pwd_value = (
+            request.POST.get("pwd") or "No"
+        ).strip()
+
+        senior_value = (
+            request.POST.get("senior") or "No"
+        ).strip()
+
+        assistance_value = (
+            request.POST.get("dswd_assistance") or "No"
+        ).strip()
+
+        is_solo_parent = (
+            request.POST.get("is_solo_parent") or "No"
+        ).strip()
+
+        is_indigenous = (
+            request.POST.get("is_indigenous") or "No"
+        ).strip()
+
+        is_4ps = (
+            request.POST.get("is_4ps") or "No"
+        ).strip()
+
+        # Normalize all Yes/No values safely.
+
+        def normalize_yes_no(value):
+            value = str(value).strip().lower()
+
+            if value in ["yes", "on", "true", "1"]:
+                return "Yes"
+
+            return "No"
+
+        has_disability = normalize_yes_no(pwd_value)
+        is_senior = normalize_yes_no(senior_value)
+        previous_aid = normalize_yes_no(assistance_value)
+        is_solo_parent = normalize_yes_no(is_solo_parent)
+        is_indigenous = normalize_yes_no(is_indigenous)
+        is_4ps = normalize_yes_no(is_4ps)
+
+        fourps_id = (
+            request.POST.get("fourps_id") or None
+        )
+
+        # If the client is not 4Ps, don't store a 4Ps ID.
+        if is_4ps == "No":
+            fourps_id = None
+
+        # ==========================================================
+        # SECTORS
+        # ==========================================================
+
+        selected_sectors = request.POST.getlist(
+            "selected_sectors"
+        )
+
+        # ==========================================================
+        # CREATE CLIENT
+        # ==========================================================
+
+        client = Client.objects.create(
+            first_name=first_name,
+
+            middle_name=(
+                middle_name
+                if middle_name
+                else None
+            ),
+
+            last_name=last_name,
+
+            sex=sex,
+
+            birth_date=birth_date,
+
+            civil_status=civil_status,
+
+            nationality=nationality,
+
+            address=address,
+
+            barangay=barangay,
+
+            municipality=municipality,
+
+            contact_no=contact_no,
+
+            email=email,
+
+            livelihood=livelihood,
+
+            monthly_income=monthly_income,
+
+            household_size=household_size,
+
+            sectors=selected_sectors,
+
+            has_disability=has_disability,
+
+            is_senior=is_senior,
+
+            previous_aid=previous_aid,
+
+            is_solo_parent=is_solo_parent,
+
+            is_indigenous=is_indigenous,
+
+            is_4ps=is_4ps,
+
+            fourps_id=fourps_id,
+        )
+
+        # ==========================================================
+        # FAMILY MEMBERS
+        # ==========================================================
+
+        for index in range(0, 51):
+
+            family_name = (
+                request.POST.get(
+                    f"family_name_{index}",
+                    ""
+                ) or ""
+            ).strip()
+
+            # Skip empty family-member rows.
+            if not family_name:
+                continue
+
+            # ------------------------------------------------------
+            # FAMILY MEMBER SEX
+            # ------------------------------------------------------
+            # FamilyMember.sex is VARCHAR(1).
+            # Therefore:
+            # Male   -> M
+            # Female -> F
+            # ------------------------------------------------------
+
+            raw_family_sex = (
+                request.POST.get(
+                    f"family_sex_{index}"
+                ) or ""
+            ).strip()
+
+            family_sex_map = {
+                "male": "M",
+                "female": "F",
+                "m": "M",
+                "f": "F",
+            }
+
+            family_sex = family_sex_map.get(
+                raw_family_sex.lower()
             )
 
-    return render(
-        request,
-        "client_register.html"
-    )
+            # ------------------------------------------------------
+            # FAMILY MEMBER CIVIL STATUS
+            # ------------------------------------------------------
+
+            raw_family_cs = (
+                request.POST.get(
+                    f"family_cs_{index}"
+                ) or ""
+            ).strip()
+
+            family_cs_map = {
+                "single": "S",
+                "married": "M",
+                "widowed": "W",
+                "s": "S",
+                "m": "M",
+                "w": "W",
+            }
+
+            civil_status_fm = family_cs_map.get(
+                raw_family_cs.lower()
+            )
+
+            # ------------------------------------------------------
+            # FAMILY MEMBER EDUCATION
+            # ------------------------------------------------------
+
+            edu_elem = request.POST.get(
+                f"family_edu_elem_{index}"
+            )
+
+            edu_hs = request.POST.get(
+                f"family_edu_hs_{index}"
+            )
+
+            edu_coll = request.POST.get(
+                f"family_edu_coll_{index}"
+            )
+
+            edu_illit = request.POST.get(
+                f"family_edu_illit_{index}"
+            )
+
+            if edu_elem:
+                education = "Elem"
+
+            elif edu_hs:
+                education = "HS"
+
+            elif edu_coll:
+                education = "Coll/Voc"
+
+            elif edu_illit:
+                education = "Illit"
+
+            else:
+                education = None
+
+            # ------------------------------------------------------
+            # FAMILY MEMBER AGE
+            # ------------------------------------------------------
+
+            raw_age = (
+                request.POST.get(
+                    f"family_age_{index}",
+                    ""
+                ) or ""
+            ).strip()
+
+            try:
+                family_age = (
+                    int(raw_age)
+                    if raw_age
+                    else None
+                )
+
+                if family_age is not None and family_age < 0:
+                    family_age = None
+
+            except (ValueError, TypeError):
+                family_age = None
+
+            # ------------------------------------------------------
+            # FAMILY MEMBER INCOME
+            # ------------------------------------------------------
+
+            raw_family_income = (
+                request.POST.get(
+                    f"family_inc_{index}",
+                    ""
+                ) or ""
+            ).strip()
+
+            try:
+                family_income = (
+                    Decimal(raw_family_income)
+                    if raw_family_income
+                    else None
+                )
+
+            except (InvalidOperation, ValueError, TypeError):
+                family_income = None
+
+            # ------------------------------------------------------
+            # FAMILY MEMBER RELATIONSHIP
+            # ------------------------------------------------------
+
+            relationship = (
+                request.POST.get(
+                    f"family_rel_{index}"
+                ) or None
+            )
+
+            if relationship:
+                relationship = relationship.strip()
+
+            # ------------------------------------------------------
+            # FAMILY MEMBER OCCUPATION
+            # ------------------------------------------------------
+
+            occupation = (
+                request.POST.get(
+                    f"family_occ_{index}"
+                ) or None
+            )
+
+            if occupation:
+                occupation = occupation.strip()
+
+            # ------------------------------------------------------
+            # CREATE FAMILY MEMBER
+            # ------------------------------------------------------
+
+            FamilyMember.objects.create(
+                client=client,
+
+                name=family_name,
+
+                age=family_age,
+
+                sex=family_sex,
+
+                civil_status=civil_status_fm,
+
+                relationship=relationship,
+
+                educational_attainment=education,
+
+                occupation=occupation,
+
+                income=family_income,
+            )
+
+        # ==========================================================
+        # CREATE CLIENT LOGIN ACCOUNT
+        # ==========================================================
+
+        account = ClientAccount.objects.create(
+            client=client,
+
+            email=email,
+
+            is_active=False,
+        )
+
+        account.set_password(password)
+
+        # ==========================================================
+        # EMAIL VERIFICATION TOKEN
+        # ==========================================================
+
+        token = get_random_string(48)
+
+        account.verification_token = token
+
+        account.save()
+
+        # ==========================================================
+        # BUILD VERIFICATION URL
+        # ==========================================================
+
+        verify_url = (
+            request.build_absolute_uri(
+                reverse("client_verify")
+            )
+            + "?email="
+            + quote(email, safe="")
+            + "&token="
+            + token
+        )
+
+        # ==========================================================
+        # SEND VERIFICATION EMAIL
+        # ==========================================================
+
+        email_sent = False
+
+        try:
+
+            send_mail(
+                subject="Verify Your MSWDO Account",
+
+                message=(
+                    f"Hello {client.first_name},\n\n"
+                    f"Thank you for registering with MSWDO.\n\n"
+                    f"Please click the link below to verify "
+                    f"your email address:\n\n"
+                    f"{verify_url}\n\n"
+                    f"If you did not register, please ignore "
+                    f"this email.\n\n"
+                    f"— MSWDO Team"
+                ),
+
+                from_email=settings.EMAIL_HOST_USER,
+
+                recipient_list=[email],
+
+                fail_silently=False,
+            )
+
+            email_sent = True
+
+        except Exception as mail_err:
+
+            print(
+                f"[EMAIL] FAILED: {mail_err}"
+            )
+
+            messages.warning(
+                request,
+                "Registration was saved, but the verification "
+                "email could not be sent."
+            )
+
+        # ==========================================================
+        # REGISTRATION SUCCESS
+        # ==========================================================
+
+        return render(
+            request,
+            "client_register.html",
+            {
+                "registration_done": True,
+                "reg_email": email,
+                "email_sent": email_sent,
+            },
+        )
+
+    except Exception as e:
+
+        import traceback
+
+        traceback.print_exc()
+
+        messages.error(
+            request,
+            f"Registration failed: {e}",
+        )
+
+        return render(
+            request,
+            "client_register.html"
+        )
  
 def client_verify(request):
     """
@@ -2853,7 +3029,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from io import BytesIO
 from collections import Counter
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 
 @login_required
