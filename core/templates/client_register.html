@@ -44,6 +44,25 @@
     input[type="text"],input[type="email"],input[type="password"],input[type="number"],input[type="date"],select{width:100%;padding:11px 13px;border:2px solid var(--border);border-radius:9px;font-size:.88rem;font-family:'Open Sans',sans-serif;background:#f8f9fc;color:var(--text-primary);transition:all .2s;}
     input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,56,168,0.10);background:white;}
     input::placeholder{color:#b0bace;}
+
+    /* Password strength */
+    .pwd-strength{display:flex;align-items:center;gap:10px;margin-top:9px;}
+    .pwd-strength-track{flex:1;height:5px;background:var(--border);border-radius:4px;overflow:hidden;}
+    .pwd-strength-fill{height:100%;width:0%;border-radius:4px;background:var(--red);transition:width .25s ease,background-color .25s ease;}
+    .pwd-strength-fill.fair{background:var(--yellow);}
+    .pwd-strength-fill.strong{background:var(--blue);}
+    .pwd-strength-label{font-family:'Montserrat',sans-serif;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);white-space:nowrap;}
+    .pwd-strength-label.fair{color:#a37a00;}
+    .pwd-strength-label.strong{color:var(--blue);}
+    .pwd-requirements{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:5px 10px;margin-top:10px;}
+    .pwd-requirements li{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text-secondary);transition:color .2s;}
+    .pwd-requirements li i{font-size:.68rem;color:#c3cbdc;transition:color .2s;}
+    .pwd-requirements li.met{color:var(--blue);}
+    .pwd-requirements li.met i{color:var(--blue);}
+    .pwd-match-msg{display:block;min-height:1.1em;margin-top:6px;font-family:'Montserrat',sans-serif;font-size:.7rem;font-weight:700;}
+    .pwd-match-msg.match{color:var(--blue);}
+    .pwd-match-msg.mismatch{color:var(--red-dark);}
+
     .fourps-box{background:linear-gradient(135deg,rgba(0,56,168,0.05),rgba(0,56,168,0.08));border:1.5px solid var(--blue-border);border-left:4px solid var(--blue);border-radius:10px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
     .fourps-label{font-family:'Montserrat',sans-serif;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--blue-dark);white-space:nowrap;display:flex;align-items:center;gap:6px;}
     .toggle-group{display:flex;border:2px solid var(--blue-border);border-radius:8px;overflow:hidden;}
@@ -160,7 +179,7 @@
   </div>
   {% else %}
 
-  <form method="POST">
+  <form method="POST" id="registrationForm">
     {% csrf_token %}
 
     <!-- I. Personal Information -->
@@ -271,8 +290,30 @@
     <!-- VI. Account Security -->
     <div class="section-divider"><div class="section-num">VI</div><h3>Account Security</h3><div class="section-line"></div></div>
     <div class="form-grid">
-      <div class="field"><label>Password <span class="req">*</span></label><input type="password" name="password" required placeholder="Create a password"></div>
-      <div class="field"><label>Confirm Password <span class="req">*</span></label><input type="password" name="confirm_password" required placeholder="Repeat password"></div>
+      <div class="field">
+        <label>Password <span class="req">*</span></label>
+        <input type="password" name="password" id="password" required minlength="8"
+          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$"
+          title="At least 8 characters, including an uppercase letter, a lowercase letter, a number, and a symbol"
+          autocomplete="new-password" placeholder="Create a password">
+        <div class="pwd-strength">
+          <div class="pwd-strength-track"><div class="pwd-strength-fill" id="pwdStrengthFill"></div></div>
+          <span class="pwd-strength-label" id="pwdStrengthLabel">Password strength</span>
+        </div>
+        <ul class="pwd-requirements">
+          <li id="pwdRuleLen"><i class="bi bi-circle"></i> At least 8 characters</li>
+          <li id="pwdRuleUpper"><i class="bi bi-circle"></i> One uppercase letter</li>
+          <li id="pwdRuleLower"><i class="bi bi-circle"></i> One lowercase letter</li>
+          <li id="pwdRuleNum"><i class="bi bi-circle"></i> One number</li>
+          <li id="pwdRuleSym"><i class="bi bi-circle"></i> One symbol</li>
+        </ul>
+      </div>
+      <div class="field">
+        <label>Confirm Password <span class="req">*</span></label>
+        <input type="password" name="confirm_password" id="confirm_password" required
+          autocomplete="new-password" placeholder="Repeat password">
+        <span class="pwd-match-msg" id="pwdMatchMsg"></span>
+      </div>
     </div>
 
     <button type="submit"><i class="bi bi-person-check-fill"></i>&nbsp; Register Account</button>
@@ -295,6 +336,85 @@
       else { f.style.display='none'; i.required=false; i.value=''; }
     });
   });
+
+  // Password strength + match validation
+  function checkPasswordStrength() {
+    const pwdEl = document.getElementById('password');
+    if (!pwdEl) return true;
+    const pwd = pwdEl.value;
+    const rules = {
+      Len: pwd.length >= 8,
+      Upper: /[A-Z]/.test(pwd),
+      Lower: /[a-z]/.test(pwd),
+      Num: /\d/.test(pwd),
+      Sym: /[^A-Za-z0-9]/.test(pwd)
+    };
+
+    Object.keys(rules).forEach(key => {
+      const li = document.getElementById('pwdRule' + key);
+      if (!li) return;
+      const icon = li.querySelector('i');
+      li.classList.toggle('met', rules[key]);
+      icon.className = rules[key] ? 'bi bi-check-circle-fill' : 'bi bi-circle';
+    });
+
+    const metCount = Object.values(rules).filter(Boolean).length;
+    const fill = document.getElementById('pwdStrengthFill');
+    const label = document.getElementById('pwdStrengthLabel');
+    fill.classList.remove('fair', 'strong');
+    label.classList.remove('fair', 'strong');
+
+    if (pwd.length === 0) {
+      fill.style.width = '0%';
+      label.textContent = 'Password strength';
+    } else if (metCount <= 2) {
+      fill.style.width = '33%';
+      label.textContent = 'Weak';
+    } else if (metCount <= 4) {
+      fill.style.width = '66%';
+      fill.classList.add('fair');
+      label.classList.add('fair');
+      label.textContent = 'Fair';
+    } else {
+      fill.style.width = '100%';
+      fill.classList.add('strong');
+      label.classList.add('strong');
+      label.textContent = 'Strong';
+    }
+    return metCount === 5;
+  }
+
+  function checkPasswordMatch() {
+    const pwdEl = document.getElementById('password');
+    const confirmEl = document.getElementById('confirm_password');
+    const msg = document.getElementById('pwdMatchMsg');
+    if (!pwdEl || !confirmEl || !msg) return true;
+    if (confirmEl.value.length === 0) {
+      msg.textContent = '';
+      msg.className = 'pwd-match-msg';
+      return true;
+    }
+    const isMatch = pwdEl.value === confirmEl.value;
+    msg.textContent = isMatch ? 'Passwords match' : 'Passwords do not match';
+    msg.className = 'pwd-match-msg ' + (isMatch ? 'match' : 'mismatch');
+    return isMatch;
+  }
+
+  const pwdInput = document.getElementById('password');
+  const confirmInput = document.getElementById('confirm_password');
+  const registrationForm = document.getElementById('registrationForm');
+  if (pwdInput && confirmInput && registrationForm) {
+    pwdInput.addEventListener('input', () => { checkPasswordStrength(); checkPasswordMatch(); });
+    confirmInput.addEventListener('input', checkPasswordMatch);
+    registrationForm.addEventListener('submit', function (e) {
+      const strong = checkPasswordStrength();
+      const matches = checkPasswordMatch();
+      if (!strong || !matches) {
+        e.preventDefault();
+        (!strong ? pwdInput : confirmInput).focus();
+      }
+    });
+  }
 
   // Sector popup for family table
   const SECTORS = [
